@@ -114,3 +114,4 @@ export const WALLPAPER_HADITHS: HadithItem[] = [
     reference: 'Hadith 3940 (Sahih)',
   },
 ];
+

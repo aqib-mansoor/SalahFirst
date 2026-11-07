@@ -72,3 +72,4 @@ export const searchWorldwideCity = async (
     return { cities: [], isOffline: true, error: 'Network unavailable for online search' };
   }
 };
+
