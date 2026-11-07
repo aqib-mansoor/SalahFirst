@@ -4,6 +4,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface SunriseCardProps {
   time?: string;
@@ -11,6 +12,7 @@ export interface SunriseCardProps {
 
 export const SunriseCard: React.FC<SunriseCardProps> = ({ time = '06:39 AM' }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
@@ -25,7 +27,7 @@ export const SunriseCard: React.FC<SunriseCardProps> = ({ time = '06:39 AM' }) =
           />
         </Svg>
         <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.title}>
-          Sunrise (Shuruq)
+          {t('sunrise')}
         </AppText>
       </View>
 

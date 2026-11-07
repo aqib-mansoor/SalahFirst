@@ -81,12 +81,12 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
         onClose();
       } else {
         setErrorMessage(
-          `Could not resolve coordinates for "${trimmedQuery}". Please check spelling or select from the list below.`
+          t('couldNotResolveCity', { city: trimmedQuery })
         );
       }
     } catch {
       setErrorMessage(
-        `Unable to search online for "${trimmedQuery}". Please select from the verified offline cities list below.`
+        t('unableToSearchOnline', { city: trimmedQuery })
       );
     } finally {
       setIsGeocoding(false);
@@ -105,17 +105,17 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
         <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
             <AppText variant="titleMedium" color={theme.colors.text}>
-              Select City
+              {t('selectCity')}
             </AppText>
             <Pressable onPress={handleClose} hitSlop={12}>
               <AppText variant="bodyMedium" color={theme.colors.textMuted}>
-                Close
+                {t('close')}
               </AppText>
             </Pressable>
           </View>
 
           <TextInput
-            placeholder="Search city or country..."
+            placeholder={t('searchCityOrCountry')}
             placeholderTextColor={theme.colors.textSubtle}
             value={query}
             onChangeText={(text) => {
