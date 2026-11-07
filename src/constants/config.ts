@@ -18,6 +18,8 @@ export const APP_CONFIG = {
     userPreferences: '@salahfirst_preferences',
     prayerTracker: '@salahfirst_prayer_tracker',
     streak: '@salahfirst_streak',
+    calculationMethod: '@salahfirst_calc_method',
+    juristicMethod: '@salahfirst_juristic_method',
   },
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',

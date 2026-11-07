@@ -4,6 +4,22 @@
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
+export type JuristicMethod = 'Hanafi' | 'Standard';
+
+export type CalculationMethodName =
+  | 'Karachi'
+  | 'UmmAlQura'
+  | 'Dubai'
+  | 'MuslimWorldLeague'
+  | 'Egyptian'
+  | 'NorthAmerica'
+  | 'MoonsightingCommittee'
+  | 'Kuwait'
+  | 'Qatar'
+  | 'Singapore'
+  | 'Tehran'
+  | 'Turkey';
+
 export interface UserLocation {
   city: string;
   country: string;
@@ -41,6 +57,8 @@ export interface UserPreferences {
   themeMode: ThemeMode;
   notificationsEnabled: boolean;
   hapticFeedback: boolean;
+  calculationMethod?: CalculationMethodName;
+  juristicMethod?: JuristicMethod;
   location?: UserLocation;
   alerts?: PrayerAlertConfig;
   focusSettings?: FocusSettings;
