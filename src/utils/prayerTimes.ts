@@ -65,6 +65,24 @@ export const getPrayerTimes = (
   };
 };
 
+export const getRawPrayerTimes = (
+  latitude: number = 32.9328,
+  longitude: number = 72.8553,
+  date: Date = new Date()
+): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
+  const coordinates = new Coordinates(latitude, longitude);
+  const params = CalculationMethod.Karachi();
+  const pt = new PrayerTimes(coordinates, date, params);
+  return {
+    fajr: pt.fajr,
+    sunrise: pt.sunrise,
+    dhuhr: pt.dhuhr,
+    asr: pt.asr,
+    maghrib: pt.maghrib,
+    isha: pt.isha,
+  };
+};
+
 export const getIslamicDateFormatted = (date: Date = new Date()): string => {
   try {
     const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {

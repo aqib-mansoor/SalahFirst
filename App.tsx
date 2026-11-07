@@ -15,6 +15,8 @@ import { APP_CONFIG } from '@/constants/config';
 import { FocusDuration } from '@/types';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
+import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 
 export type AppStep =
   | 'welcome'
@@ -32,6 +34,8 @@ export default function App() {
   const [focusDuration, setFocusDuration] = useState<FocusDuration>(15);
 
   const { location } = useDeviceLocation();
+  const { alerts } = usePrayerAlerts();
+  useNotificationScheduler(location, alerts);
   const { togglePrayer, prayerData } = usePrayerTracker(location);
 
   useEffect(() => {
