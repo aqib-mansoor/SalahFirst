@@ -1,4 +1,4 @@
-import { Coordinates, CalculationMethod, PrayerTimes, Madhab } from 'adhan';
+import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule } from 'adhan';
 import { CalculationMethodName, JuristicMethod, SalahName } from '@/types';
 
 export interface FormattedPrayerTimes {
@@ -26,6 +26,7 @@ export interface FormattedPrayerTimes {
 const padZero = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
 
 export const formatTime = (date: Date): string => {
+  if (!date || isNaN(date.getTime())) return '--:--';
   const hours = padZero(date.getHours());
   const minutes = padZero(date.getMinutes());
   return `${hours}:${minutes}`;
@@ -92,9 +93,11 @@ export const getPrayerTimes = (
   method: CalculationMethodName = 'Karachi',
   juristic: JuristicMethod = 'Hanafi'
 ): FormattedPrayerTimes => {
-  const coordinates = new Coordinates(latitude, longitude);
+  const safeLat = Math.min(55, Math.max(-55, latitude));
+  const coordinates = new Coordinates(safeLat, longitude);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
+  params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
 
   const ptToday = new PrayerTimes(coordinates, date, params);
 
@@ -179,9 +182,11 @@ export const getRawPrayerTimes = (
   method: CalculationMethodName = 'Karachi',
   juristic: JuristicMethod = 'Hanafi'
 ): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
-  const coordinates = new Coordinates(latitude, longitude);
+  const safeLat = Math.min(55, Math.max(-55, latitude));
+  const coordinates = new Coordinates(safeLat, longitude);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
+  params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
   const pt = new PrayerTimes(coordinates, date, params);
   return {
     fajr: pt.fajr,
