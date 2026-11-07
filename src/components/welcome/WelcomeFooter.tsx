@@ -5,6 +5,7 @@ import { APP_CONFIG } from '@/constants/config';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppButton, AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface WelcomeFooterProps {
   onContinue: () => void;
@@ -12,6 +13,7 @@ export interface WelcomeFooterProps {
 
 export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const ChevronRight = (
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -28,7 +30,7 @@ export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
   return (
     <View style={styles.container}>
       <AppButton
-        label={APP_CONFIG.continueButton}
+        label={t('continueToSetup')}
         onPress={onContinue}
         size="lg"
         rightIcon={ChevronRight}
@@ -41,7 +43,7 @@ export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
         align="center"
         style={styles.privacyBadge}
       >
-        {APP_CONFIG.privacyBadge}
+        {t('welcomePrivacyBadge')}
       </AppText>
     </View>
   );

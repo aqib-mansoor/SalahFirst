@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksMetricsRowProps {
   longestStreak?: number;
@@ -12,10 +13,12 @@ export interface StreaksMetricsRowProps {
 
 export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
   longestStreak = 0,
-  longestStreakNote = 'Begin your streak',
+  longestStreakNote,
   totalPrayers = 0,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const note = longestStreakNote || t('beginYourStreak');
 
   return (
     <View style={styles.container}>
@@ -30,13 +33,13 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
         ]}
       >
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
-          Longest Streak
+          {t('longestStreak')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
-          {longestStreak} Days
+          {longestStreak} {t('daysSuffix')}
         </AppText>
         <AppText variant="caption" color={theme.colors.primary} style={styles.noteText}>
-          {longestStreakNote}
+          {note}
         </AppText>
       </View>
 
@@ -51,13 +54,13 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
         ]}
       >
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
-          Total Prayers Logged
+          {t('totalPrayersLogged')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {totalPrayers}
         </AppText>
         <AppText variant="caption" color={theme.colors.accent} style={styles.noteText}>
-          Incl. partial days
+          {t('inclPartialDays')}
         </AppText>
       </View>
     </View>

@@ -4,6 +4,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksMilestonesProps {
   currentStreak: number;
@@ -11,6 +12,7 @@ export interface StreaksMilestonesProps {
 
 export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStreak }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const is7Achieved = currentStreak >= 7;
   const is30Achieved = currentStreak >= 30;
@@ -18,7 +20,7 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
   return (
     <View style={styles.container}>
       <AppText variant="titleSmall" color={theme.colors.text} style={styles.sectionTitle}>
-        Consistency Milestones
+        {t('consistencyMilestones')}
       </AppText>
 
       <View style={styles.cardsRow}>
@@ -40,14 +42,14 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-              7-Day Steadfast
+              {t('sevenDaySteadfast')}
             </AppText>
             <AppText
               variant="caption"
               color={is7Achieved ? theme.colors.primary : theme.colors.textMuted}
               style={styles.status}
             >
-              {is7Achieved ? 'Achieved ✓' : `${currentStreak} / 7 days`}
+              {is7Achieved ? t('achieved') : `${currentStreak} / 7 ${t('days')}`}
             </AppText>
           </View>
         </View>
@@ -70,14 +72,14 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-              30-Day Istiqamah
+              {t('thirtyDayIstiqamah')}
             </AppText>
             <AppText
               variant="caption"
               color={is30Achieved ? theme.colors.primary : theme.colors.textMuted}
               style={styles.status}
             >
-              {is30Achieved ? 'Achieved ✓' : `${currentStreak} / 30 days`}
+              {is30Achieved ? t('achieved') : `${currentStreak} / 30 ${t('days')}`}
             </AppText>
           </View>
         </View>

@@ -3,20 +3,20 @@ import { StyleSheet, View } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export const SetupHeroText: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-        Make Salah a priority.
+        {t('makeSalahPriority')}
       </AppText>
 
       <AppText variant="bodyLarge" color={theme.colors.textMuted} style={styles.subtitle}>
-        Stay consistent with accurate Azan times, Qibla direction, distraction-free Prayer
-        Focus, and daily Hadith—stored privately on your phone with no sign-up or cloud
-        account.
+        {t('setupHeroSubtitle')}
       </AppText>
     </View>
   );

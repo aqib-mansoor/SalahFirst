@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarDayInspectorProps {
   dateLabel: string;
@@ -19,6 +20,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   onTogglePrayer,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const prayerNames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const completedCount = prayersCompleted.filter(Boolean).length;
 
@@ -36,18 +38,20 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
       <View style={styles.headerRow}>
         <View style={styles.headerTitleCol}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-            Log for {dateLabel}
+            {t('logForDate', { date: dateLabel })}
           </AppText>
           <AppText
             variant="caption"
             color={hasRecord ? theme.colors.primary : theme.colors.textMuted}
             style={styles.statusSubtitle}
           >
-            {hasRecord ? `${completedCount} of 5 completed` : 'No record yet — tap prayer to log'}
+            {hasRecord
+              ? `${completedCount} ${t('of')} 5 ${t('completedSuffix')}`
+              : t('noRecordYet')}
           </AppText>
         </View>
         <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
-          Tap prayer to log
+          {t('tapPrayerToLog')}
         </AppText>
       </View>
 

@@ -4,9 +4,11 @@ import Svg, { Rect, Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export const SetupPrivacyBanner: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.privacyBg }]}>
@@ -16,7 +18,7 @@ export const SetupPrivacyBanner: React.FC = () => {
       </Svg>
 
       <AppText variant="bodySmall" color={theme.colors.privacyText} style={styles.text}>
-        No login, registration, or internet required for daily use.
+        {t('noLoginRequired')}
       </AppText>
     </View>
   );

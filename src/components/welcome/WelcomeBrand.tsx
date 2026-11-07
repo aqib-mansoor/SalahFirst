@@ -5,9 +5,11 @@ import { SPACING, TYPOGRAPHY } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { BrandLogo3D } from './BrandLogo3D';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export const WelcomeBrand: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   // Entrance animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -62,7 +64,7 @@ export const WelcomeBrand: React.FC = () => {
         align="center"
         style={styles.tagline}
       >
-        {APP_CONFIG.tagline}
+        {t('tagline')}
       </AppText>
     </Animated.View>
   );

@@ -4,6 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { DayOverview } from '@/utils/trackerStatistics';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TrackerWeekOverviewProps {
   onOpenStatistics: () => void;
@@ -15,6 +16,7 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
   weekData,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const fallbackDays: DayOverview[] = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((label, idx) => ({
     dayLabel: label,
@@ -40,11 +42,11 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
       {/* Header Row */}
       <View style={styles.headerRow}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          This Week's Overview
+          {t('thisWeekOverview')}
         </AppText>
         <Pressable onPress={onOpenStatistics} hitSlop={10}>
           <AppText variant="bodySmall" color={theme.colors.primary} style={styles.linkText}>
-            Full Statistics ›
+            {t('fullStatistics')} ›
           </AppText>
         </Pressable>
       </View>

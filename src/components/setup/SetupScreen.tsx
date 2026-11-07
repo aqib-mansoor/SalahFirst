@@ -11,6 +11,7 @@ import { SetupLocationCard } from './SetupLocationCard';
 import { SetupPrivacyBanner } from './SetupPrivacyBanner';
 import { SetupCityModal } from './SetupCityModal';
 import { PresetCity } from '@/data';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface SetupScreenProps {
   onComplete?: () => void;
@@ -18,6 +19,7 @@ export interface SetupScreenProps {
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [cityModalVisible, setCityModalVisible] = useState(false);
   const {
     location,
@@ -79,7 +81,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
 
         {/* Primary Action Button */}
         <AppButton
-          label="Get Started"
+          label={t('getStarted')}
           onPress={onComplete || (() => {})}
           size="lg"
           rightIcon={ChevronRight}

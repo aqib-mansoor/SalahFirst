@@ -4,6 +4,7 @@ import Svg, { Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TrackerHeroCardProps {
   completedCount: number;
@@ -11,6 +12,7 @@ export interface TrackerHeroCardProps {
 
 export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const total = 5;
   const percentage = Math.round((completedCount / total) * 100);
   const remaining = total - completedCount;
@@ -38,13 +40,15 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
       {/* Left Content Column */}
       <View style={styles.textColumn}>
         <AppText variant="caption" color="rgba(255,255,255,0.7)" style={styles.subtitle}>
-          Today's Progress
+          {t('todaysProgress')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.textInverse} style={styles.headline}>
-          {completedCount} of 5 Completed
+          {completedCount} {t('of')} 5 {t('completedSuffix')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.remainingText}>
-          {remaining === 0 ? 'All 5 prayers completed! Alhamdulillah' : `${remaining} prayers remaining today`}
+          {remaining === 0
+            ? t('allPrayersCompleted')
+            : t('prayersRemainingCount', { count: remaining })}
         </AppText>
       </View>
 

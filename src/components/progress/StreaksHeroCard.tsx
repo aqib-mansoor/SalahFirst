@@ -4,6 +4,7 @@ import Svg, { Path, Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksHeroCardProps {
   streakDays: number;
@@ -11,6 +12,7 @@ export interface StreaksHeroCardProps {
 
 export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -33,16 +35,16 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
 
       <View style={styles.contentCol}>
         <AppText variant="caption" color={theme.colors.accentLight} style={styles.label}>
-          CURRENT FULL-DAY STREAK
+          {t('currentStreak')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.textInverse} style={styles.streakNumber}>
           {streakDays}{' '}
           <AppText variant="titleMedium" color={theme.colors.textInverse} style={styles.unitText}>
-            days (5/5 Salah)
+            {t('daysFiveOfFive')}
           </AppText>
         </AppText>
         <AppText variant="bodySmall" color="rgba(255,255,255,0.8)" style={styles.subtext}>
-          Every prayer you offer counts—consistency grows one Salah at a time.
+          {t('streakMotivational')}
         </AppText>
       </View>
 
