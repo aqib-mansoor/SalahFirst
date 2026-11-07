@@ -3,6 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, AppButton } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface FocusCompletionModalProps {
   visible: boolean;
@@ -18,6 +19,7 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
   onNotYet,
 }) => {
   const theme = useTheme('dark');
+  const { t } = useTranslation();
 
   if (!visible) return null;
 
@@ -26,12 +28,12 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
           <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-            FOCUS SESSION FINISHED
+            {t('focusFinished')}
           </AppText>
         </View>
 
         <AppText variant="titleMedium" color={theme.colors.text} align="center" style={styles.title}>
-          Did you complete your prayer?
+          {t('didYouCompletePrayer')}
         </AppText>
 
         <AppText variant="bodySmall" color={theme.colors.textMuted} align="center" style={styles.subtitle}>
@@ -40,7 +42,7 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
 
         <View style={styles.actions}>
           <AppButton
-            label="Yes, I prayed"
+            label={t('yesPrayed')}
             onPress={onConfirmPrayed}
             size="md"
             style={[styles.completeBtn, { backgroundColor: theme.colors.primary }]}
@@ -48,7 +50,7 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
 
           <Pressable onPress={onNotYet} hitSlop={12} style={styles.notYetBtn}>
             <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.notYetText}>
-              Not yet
+              {t('notYet')}
             </AppText>
           </Pressable>
         </View>

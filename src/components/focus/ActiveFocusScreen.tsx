@@ -7,6 +7,7 @@ import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
 import { FocusCompletionModal } from './FocusCompletionModal';
 import { FocusDuration } from '@/types';
+import { useTranslation } from '@/context/LocalizationContext';
 import {
   FocusSession,
   createFocusSession,
@@ -31,6 +32,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   onCompletePrayer,
 }) => {
   const theme = useTheme('dark');
+  const { t } = useTranslation();
   const sessionRef = useRef<FocusSession>(
     existingSession || createFocusSession(prayerName, duration)
   );
@@ -76,12 +78,12 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
   const handleExitEarly = () => {
     Alert.alert(
-      'Exit Focus Early?',
-      'Are you sure you want to end your Salah Focus session before the timer finishes?',
+      t('exitFocusEarlyPrompt'),
+      t('exitFocusConfirm'),
       [
-        { text: 'Stay Focused', style: 'cancel' },
+        { text: t('stayFocused'), style: 'cancel' },
         {
-          text: 'Exit',
+          text: t('exit'),
           style: 'destructive',
           onPress: async () => {
             await clearActiveFocusSession();
@@ -149,10 +151,10 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
           <View style={styles.motivationColumn}>
             <AppText variant="titleLarge" color={PALETTE.white} align="center" style={styles.motivationTitle}>
-              Be present. Focus on your Salah.
+              {t('bePresent')}
             </AppText>
             <AppText variant="bodyMedium" color={theme.colors.textMuted} align="center" style={styles.motivationSub}>
-              Set all distractions aside and dedicate this time purely to prayer.
+              {t('setDistractionsAside')}
             </AppText>
           </View>
         </View>
@@ -162,13 +164,13 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
           <Pressable
             onPress={handleEmergencyCall}
             accessibilityRole="button"
-            accessibilityLabel="Emergency Call Access"
+            accessibilityLabel={t('emergencyCall')}
             accessibilityHint="Opens phone dialer for emergency calls"
             hitSlop={8}
             style={styles.emergencyBtn}
           >
             <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.emergencyText}>
-              Emergency Call Access
+              {t('emergencyCall')}
             </AppText>
           </Pressable>
 
@@ -176,11 +178,11 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
             onPress={handleExitEarly}
             hitSlop={10}
             accessibilityRole="button"
-            accessibilityLabel="Exit Focus Early"
+            accessibilityLabel={t('exitFocusEarly')}
             accessibilityHint="Prompts to exit the current Salah focus session"
           >
             <AppText variant="bodySmall" color={PALETTE.white} style={styles.exitText}>
-              Exit Focus Early
+              {t('exitFocusEarly')}
             </AppText>
           </Pressable>
         </View>

@@ -8,6 +8,7 @@ import { FocusDurationCard } from './FocusDurationCard';
 import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
+import { useTranslation } from '@/context/LocalizationContext';
 
 const PRAYER_OPTIONS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
@@ -25,6 +26,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   onBeginFocus,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [selectedPrayer, setSelectedPrayer] = useState<string>(initialPrayer);
   const [duration, setDuration] = useState<FocusDuration>(15);
   const [blockSocial, setBlockSocial] = useState(true);
@@ -63,7 +65,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
         <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
           <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
-            PRAYER FOCUS MODE
+            {t('prayerFocusMode')}
           </AppText>
         </View>
       </View>
@@ -72,10 +74,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         {/* Title & Tagline */}
         <View style={styles.titleSection}>
           <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-            Time to reconnect.
+            {t('timeToReconnect')}
           </AppText>
           <AppText variant="bodyLarge" color={theme.colors.textMuted} style={styles.subtitle}>
-            Put distractions aside and dedicate this time purely to Salah.
+            {t('focusSub')}
           </AppText>
         </View>
 
@@ -83,7 +85,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
           <View style={styles.prayerHeaderRow}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.cardTitle}>
-              Select Prayer for Focus
+              {t('selectPrayerForFocus')}
             </AppText>
             {targetTime && (
               <AppText variant="caption" color={theme.colors.accent} style={styles.timeTag}>
