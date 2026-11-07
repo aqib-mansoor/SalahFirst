@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BackHandler } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
@@ -20,6 +22,7 @@ import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
+import { useTheme } from '@/hooks/useTheme';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
