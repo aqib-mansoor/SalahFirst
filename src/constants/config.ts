@@ -4,10 +4,16 @@
  */
 export const APP_CONFIG = {
   name: 'SalahFirst',
-  tagline: 'Modern Islamic Prayer & Productivity',
+  nameFirst: 'Salah',
+  nameSecond: 'First',
+  bismillah: 'BISMILLAHIR RAHMANIR RAHIM',
+  tagline: 'Make time for what matters.',
+  continueButton: 'Continue to Setup',
+  privacyBadge: '100% Private • Offline-First • No Account Required',
   version: '1.0.0',
   storageKeys: {
     theme: '@salahfirst_theme',
+    hasCompletedSetup: '@salahfirst_has_completed_setup',
     userPreferences: '@salahfirst_preferences',
     prayerTracker: '@salahfirst_prayer_tracker',
     streak: '@salahfirst_streak',
@@ -20,4 +26,3 @@ export const APP_CONFIG = {
 } as const;
 
 export type AppConfig = typeof APP_CONFIG;
-

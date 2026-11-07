@@ -46,25 +46,25 @@ export const AppButton: React.FC<AppButtonProps> = ({
     return {
       backgroundColor: isPrimary
         ? pressed
-          ? theme.colors.primaryPressed
-          : theme.colors.primary
+          ? theme.colors.buttonGoldPressed
+          : theme.colors.buttonGold
         : isSecondary
         ? theme.colors.surfaceElevated
         : 'transparent',
       borderColor: isOutline ? theme.colors.border : 'transparent',
       borderWidth: isOutline ? 1 : 0,
-      opacity: disabled ? 0.5 : 1,
+      opacity: disabled ? 0.6 : 1,
     };
   };
 
   const sizeStyles: Record<ButtonSize, ViewStyle> = {
-    sm: { paddingVertical: SPACING.xs + 2, paddingHorizontal: SPACING.md },
-    md: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.lg },
-    lg: { paddingVertical: SPACING.lg - 2, paddingHorizontal: SPACING.xl },
+    sm: { paddingVertical: SPACING.xs + 2, paddingHorizontal: SPACING.md, minHeight: 36 },
+    md: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.lg, minHeight: 48 },
+    lg: { paddingVertical: SPACING.lg, paddingHorizontal: SPACING.xl, minHeight: 56 },
   };
 
   const textColor =
-    variant === 'primary' ? '#FFFFFF' : theme.colors.text;
+    variant === 'primary' ? theme.colors.buttonGoldText : theme.colors.text;
 
   return (
     <Pressable
@@ -85,6 +85,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
           <AppText
             variant={size === 'sm' ? 'bodySmall' : 'titleSmall'}
             color={textColor}
+            style={styles.label}
           >
             {label}
           </AppText>
@@ -97,11 +98,13 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.sm,
   },
+  label: {
+    fontWeight: '700',
+  },
 });
-

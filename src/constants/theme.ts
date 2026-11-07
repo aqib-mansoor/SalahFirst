@@ -4,37 +4,28 @@
  */
 
 export const PALETTE = {
-  // Emerald / Islamic Green primary tones
-  primary50: '#E8F5E9',
-  primary100: '#C8E6C9',
-  primary500: '#10B981',
-  primary600: '#059669',
-  primary700: '#047857',
+  // Emerald / Islamic Green brand tones
+  emeraldDark: '#114B36',
+  emeraldDeep: '#0D3828',
+  emeraldSurface: '#0E3B2B',
+  emeraldElevated: '#17573F',
+  emeraldBorder: '#1F674A',
+  emeraldWatermark: '#1F5E46',
 
-  // Deep dark mode backgrounds & surfaces
-  darkBackground: '#0B0F12',
-  darkSurface: '#141A1F',
-  darkSurfaceElevated: '#1D252D',
-  darkBorder: '#26313C',
+  // Gold accents & metallics
+  gold: '#CCA15F',
+  goldLight: '#E8CA94',
+  goldDark: '#B58E50',
+  goldMuted: '#CBB28C',
 
-  // Clean light mode backgrounds & surfaces
-  lightBackground: '#F8FAFC',
-  lightSurface: '#FFFFFF',
-  lightSurfaceElevated: '#F1F5F9',
-  lightBorder: '#E2E8F0',
+  // Sage / mint text tones
+  sageLight: '#F0F6F2',
+  sageMuted: '#A7C6B6',
+  sageDim: '#749785',
 
-  // Text colors
-  textLight: '#F1F5F9',
-  textLightMuted: '#94A3B8',
-  textDark: '#0F172A',
-  textDarkMuted: '#64748B',
-
-  // Status & accent
-  gold: '#F59E0B',
-  goldMuted: '#D97706',
-  danger: '#EF4444',
-  success: '#10B981',
-  info: '#3B82F6',
+  // Neutral
+  white: '#FFFFFF',
+  black: '#000000',
   transparent: 'transparent',
 } as const;
 
@@ -43,13 +34,20 @@ export interface ThemeColors {
   surface: string;
   surfaceElevated: string;
   border: string;
+  borderGold: string;
   primary: string;
   primaryPressed: string;
   accent: string;
+  accentLight: string;
+  accentMuted: string;
   text: string;
   textMuted: string;
-  danger: string;
-  success: string;
+  textSubtle: string;
+  textInverse: string;
+  watermark: string;
+  buttonGold: string;
+  buttonGoldPressed: string;
+  buttonGoldText: string;
 }
 
 export interface Theme {
@@ -60,35 +58,30 @@ export interface Theme {
 export const darkTheme: Theme = {
   isDark: true,
   colors: {
-    background: PALETTE.darkBackground,
-    surface: PALETTE.darkSurface,
-    surfaceElevated: PALETTE.darkSurfaceElevated,
-    border: PALETTE.darkBorder,
-    primary: PALETTE.primary500,
-    primaryPressed: PALETTE.primary600,
+    background: PALETTE.emeraldDark,
+    surface: PALETTE.emeraldSurface,
+    surfaceElevated: PALETTE.emeraldElevated,
+    border: PALETTE.emeraldBorder,
+    borderGold: PALETTE.gold,
+    primary: PALETTE.gold,
+    primaryPressed: PALETTE.goldDark,
     accent: PALETTE.gold,
-    text: PALETTE.textLight,
-    textMuted: PALETTE.textLightMuted,
-    danger: PALETTE.danger,
-    success: PALETTE.success,
+    accentLight: PALETTE.goldLight,
+    accentMuted: PALETTE.goldMuted,
+    text: PALETTE.white,
+    textMuted: PALETTE.sageMuted,
+    textSubtle: PALETTE.sageDim,
+    textInverse: PALETTE.emeraldDeep,
+    watermark: PALETTE.emeraldWatermark,
+    buttonGold: PALETTE.gold,
+    buttonGoldPressed: PALETTE.goldDark,
+    buttonGoldText: PALETTE.emeraldDeep,
   },
 };
 
 export const lightTheme: Theme = {
+  ...darkTheme,
   isDark: false,
-  colors: {
-    background: PALETTE.lightBackground,
-    surface: PALETTE.lightSurface,
-    surfaceElevated: PALETTE.lightSurfaceElevated,
-    border: PALETTE.lightBorder,
-    primary: PALETTE.primary600,
-    primaryPressed: PALETTE.primary700,
-    accent: PALETTE.goldMuted,
-    text: PALETTE.textDark,
-    textMuted: PALETTE.textDarkMuted,
-    danger: PALETTE.danger,
-    success: PALETTE.success,
-  },
 };
 
 export const SPACING = {
@@ -99,6 +92,7 @@ export const SPACING = {
   xl: 20,
   xxl: 24,
   xxxl: 32,
+  huge: 48,
 } as const;
 
 export const RADIUS = {
@@ -106,17 +100,20 @@ export const RADIUS = {
   md: 12,
   lg: 16,
   xl: 20,
+  xxl: 28,
   full: 9999,
 } as const;
 
 export const TYPOGRAPHY = {
+  brandTitle: { fontSize: 32, fontWeight: '800' as const, letterSpacing: -0.5 },
+  headerMotto: { fontSize: 13, fontWeight: '700' as const, letterSpacing: 2.8 },
   titleLarge: { fontSize: 26, fontWeight: '700' as const, lineHeight: 32 },
   titleMedium: { fontSize: 20, fontWeight: '600' as const, lineHeight: 26 },
   titleSmall: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },
   bodyLarge: { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 },
   bodyMedium: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
   bodySmall: { fontSize: 12, fontWeight: '400' as const, lineHeight: 16 },
-  caption: { fontSize: 11, fontWeight: '500' as const, lineHeight: 14 },
+  caption: { fontSize: 12, fontWeight: '500' as const, lineHeight: 16 },
 } as const;
 
 export type Spacing = typeof SPACING;
