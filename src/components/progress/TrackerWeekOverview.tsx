@@ -3,13 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-
-export interface DayOverview {
-  dayLabel: string;
-  completed: number;
-  total: number;
-  isToday: boolean;
-}
+import { DayOverview } from '@/utils/trackerStatistics';
 
 export interface TrackerWeekOverviewProps {
   onOpenStatistics: () => void;
@@ -22,17 +16,16 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
 }) => {
   const theme = useTheme();
 
-  const defaultDays: DayOverview[] = [
-    { dayLabel: 'M', completed: 5, total: 5, isToday: false },
-    { dayLabel: 'T', completed: 5, total: 5, isToday: false },
-    { dayLabel: 'W', completed: 4, total: 5, isToday: false },
-    { dayLabel: 'T', completed: 5, total: 5, isToday: false },
-    { dayLabel: 'F', completed: 5, total: 5, isToday: false },
-    { dayLabel: 'S', completed: 5, total: 5, isToday: false },
-    { dayLabel: 'S', completed: 3, total: 5, isToday: true },
-  ];
+  const fallbackDays: DayOverview[] = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((label, idx) => ({
+    dayLabel: label,
+    completed: 0,
+    total: 5,
+    isToday: idx === 6,
+    hasRecord: false,
+    dateKey: '',
+  }));
 
-  const days = weekData || defaultDays;
+  const days = weekData && weekData.length > 0 ? weekData : fallbackDays;
 
   return (
     <View
@@ -77,10 +70,16 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
             </AppText>
             <AppText
               variant="caption"
-              color={item.isToday ? theme.colors.textInverse : theme.colors.text}
+              color={
+                item.isToday
+                  ? theme.colors.textInverse
+                  : item.hasRecord
+                  ? theme.colors.text
+                  : theme.colors.textMuted
+              }
               style={styles.scoreText}
             >
-              {item.completed}/{item.total}
+              {item.hasRecord || item.isToday ? `${item.completed}/${item.total}` : '—'}
             </AppText>
           </View>
         ))}

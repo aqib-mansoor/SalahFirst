@@ -11,9 +11,9 @@ export interface StreaksMetricsRowProps {
 }
 
 export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
-  longestStreak = 24,
-  longestStreakNote = 'Ramadan 1447',
-  totalPrayers = 345,
+  longestStreak = 0,
+  longestStreakNote = 'Begin your streak',
+  totalPrayers = 0,
 }) => {
   const theme = useTheme();
 

@@ -1,14 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-
-export interface DayBarData {
-  dayName: string;
-  completed: number;
-  total: number;
-}
+import { DayBarData } from '@/utils/trackerStatistics';
 
 export interface StreaksWeeklyChartProps {
   chartData?: DayBarData[];
@@ -17,17 +12,17 @@ export interface StreaksWeeklyChartProps {
 export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartData }) => {
   const theme = useTheme();
 
-  const defaultBars: DayBarData[] = [
-    { dayName: 'Mon', completed: 5, total: 5 },
-    { dayName: 'Tue', completed: 5, total: 5 },
-    { dayName: 'Wed', completed: 4, total: 5 },
-    { dayName: 'Thu', completed: 5, total: 5 },
-    { dayName: 'Fri', completed: 5, total: 5 },
-    { dayName: 'Sat', completed: 5, total: 5 },
-    { dayName: 'Sun', completed: 3, total: 5 },
-  ];
+  const fallbackBars: DayBarData[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(
+    (name) => ({
+      dayName: name,
+      completed: 0,
+      total: 5,
+      hasRecord: false,
+      dateKey: '',
+    })
+  );
 
-  const bars = chartData || defaultBars;
+  const bars = chartData && chartData.length > 0 ? chartData : fallbackBars;
   const maxBarHeight = 90;
 
   return (
@@ -53,8 +48,11 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
       {/* Vertical Bars Container */}
       <View style={styles.barsContainer}>
         {bars.map((bar, idx) => {
-          const isFull = bar.completed === bar.total;
-          const barHeight = Math.max(30, (bar.completed / bar.total) * maxBarHeight);
+          const isFull = bar.completed === bar.total && bar.completed > 0;
+          const barHeight =
+            bar.completed > 0
+              ? Math.max(12, (bar.completed / bar.total) * maxBarHeight)
+              : 4;
 
           return (
             <View key={idx} style={styles.barColumn}>
@@ -66,7 +64,10 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
                       height: barHeight,
                       backgroundColor: isFull
                         ? theme.colors.primary
-                        : PALETTE.sageMuted,
+                        : bar.completed > 0
+                        ? theme.colors.secondary
+                        : theme.colors.border,
+                      opacity: bar.hasRecord ? 1 : 0.4,
                     },
                   ]}
                 />
