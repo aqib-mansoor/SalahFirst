@@ -59,6 +59,15 @@ export const PRESET_CITIES: PresetCity[] = [
   },
   {
     id: '2',
+    name: 'Karachi',
+    country: 'Pakistan',
+    latitude: 24.8607,
+    longitude: 67.0011,
+    qiblaDegrees: 260,
+    methodName: 'University of Islamic Sciences, Karachi',
+  },
+  {
+    id: '3',
     name: 'Lahore',
     country: 'Pakistan',
     latitude: 31.5204,
@@ -67,7 +76,7 @@ export const PRESET_CITIES: PresetCity[] = [
     methodName: 'University of Islamic Sciences, Karachi',
   },
   {
-    id: '3',
+    id: '4',
     name: 'Islamabad',
     country: 'Pakistan',
     latitude: 33.6844,
@@ -76,7 +85,7 @@ export const PRESET_CITIES: PresetCity[] = [
     methodName: 'University of Islamic Sciences, Karachi',
   },
   {
-    id: '4',
+    id: '5',
     name: 'Makkah',
     country: 'Saudi Arabia',
     latitude: 21.4225,
@@ -85,12 +94,21 @@ export const PRESET_CITIES: PresetCity[] = [
     methodName: 'Umm al-Qura University, Makkah',
   },
   {
-    id: '5',
+    id: '6',
+    name: 'Dubai',
+    country: 'United Arab Emirates',
+    latitude: 25.2048,
+    longitude: 55.2708,
+    qiblaDegrees: 258,
+    methodName: 'Dubai (UAE)',
+  },
+  {
+    id: '7',
     name: 'London',
     country: 'United Kingdom',
     latitude: 51.5074,
     longitude: -0.1278,
     qiblaDegrees: 118,
-    methodName: 'Moonsighting Committee Worldwide',
+    methodName: 'Muslim World League',
   },
 ];

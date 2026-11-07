@@ -6,7 +6,7 @@ import {
 } from '@/utils/notifications';
 
 export const useNotificationScheduler = (
-  location?: UserLocation,
+  location?: UserLocation | null,
   alerts?: PrayerAlertConfig,
   calculationMethod?: CalculationMethodName,
   juristicMethod?: JuristicMethod

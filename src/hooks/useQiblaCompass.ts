@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Magnetometer } from 'expo-sensors';
 import {
   calculateQiblaBearing,
@@ -6,14 +6,14 @@ import {
   getCardinalDirection,
 } from '@/utils/qiblaCalculations';
 
-export const useQiblaCompass = (lat: number = 32.9328, lng: number = 72.8553) => {
+export const useQiblaCompass = (lat: number = 24.8607, lng: number = 67.0011) => {
   const [heading, setHeading] = useState<number>(0);
   const [hasSensor, setHasSensor] = useState<boolean>(true);
   const smoothHeadingRef = useRef<number>(0);
 
-  const qiblaBearing = calculateQiblaBearing(lat, lng);
-  const distanceKm = calculateDistanceToKaaba(lat, lng);
-  const cardinal = getCardinalDirection(qiblaBearing);
+  const qiblaBearing = useMemo(() => calculateQiblaBearing(lat, lng), [lat, lng]);
+  const distanceKm = useMemo(() => calculateDistanceToKaaba(lat, lng), [lat, lng]);
+  const cardinal = useMemo(() => getCardinalDirection(qiblaBearing), [qiblaBearing]);
 
   useEffect(() => {
     let subscription: { remove: () => void } | null = null;

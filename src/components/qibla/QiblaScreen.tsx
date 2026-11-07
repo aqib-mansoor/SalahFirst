@@ -16,6 +16,9 @@ export interface QiblaScreenProps {
 
 export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
   const { location } = useDeviceLocation();
+  const lat = location?.latitude ?? 24.8607;
+  const lng = location?.longitude ?? 67.0011;
+
   const {
     heading,
     qiblaBearing,
@@ -23,14 +26,14 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
     cardinal,
     relativePointerAngle,
     isAligned,
-  } = useQiblaCompass(location.latitude, location.longitude);
+  } = useQiblaCompass(lat, lng);
 
   return (
     <AppContainer edges={['top']}>
       <View style={styles.screenWrapper}>
         <QiblaHeader
-          cityName={location.city}
-          country={location.country}
+          cityName={location?.city || 'Current Location'}
+          country={location?.country || ''}
           qiblaBearing={qiblaBearing}
           cardinal={cardinal}
         />

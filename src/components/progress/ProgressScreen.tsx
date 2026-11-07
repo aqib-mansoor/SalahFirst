@@ -109,19 +109,19 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'calendar' && (
             <>
               <CalendarMonthHeader
-                monthName="November 2026"
+                monthName={new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
                 hijriMonth="Dhu al-Qi'dah 1447 AH"
                 onPrevMonth={() => {}}
                 onNextMonth={() => {}}
               />
               <CalendarGrid
                 selectedDay={selectedCalendarDay}
-                todayDay={7}
+                todayDay={new Date().getDate()}
                 onSelectDay={setSelectedCalendarDay}
                 dayPrayerMap={dayPrayerMap}
               />
               <CalendarDayInspector
-                dateLabel={`${selectedCalendarDay} Nov 2026`}
+                dateLabel={`${selectedCalendarDay} ${new Date().toLocaleString('en-US', { month: 'short' })} ${new Date().getFullYear()}`}
                 prayersCompleted={dayPrayerMap[selectedCalendarDay] || [false, false, false, false, false]}
                 onTogglePrayer={handleToggleCalendarPrayer}
               />

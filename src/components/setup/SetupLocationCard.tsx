@@ -8,7 +8,7 @@ import { AppText } from '@/components/common';
 import { LocationActionButtons } from './LocationActionButtons';
 
 export interface SetupLocationCardProps {
-  location: UserLocation;
+  location: UserLocation | null;
   isLoading: boolean;
   permissionDenied: boolean;
   onRequestGps: () => void;
@@ -73,7 +73,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
           )}
 
           <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.locationText}>
-            {location.city}, {location.country}
+            {location ? `${location.city}${location.country ? `, ${location.country}` : ''}` : 'Detecting GPS Location...'}
           </AppText>
         </View>
 
