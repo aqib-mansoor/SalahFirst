@@ -107,6 +107,7 @@ export const RADIUS = {
 export const TYPOGRAPHY = {
   brandTitle: { fontSize: 32, fontWeight: '800' as const, letterSpacing: -0.5 },
   headerMotto: { fontSize: 13, fontWeight: '700' as const, letterSpacing: 2.8 },
+  arabicMotto: { fontSize: 18, fontWeight: '600' as const, lineHeight: 28, letterSpacing: 0 },
   titleLarge: { fontSize: 26, fontWeight: '700' as const, lineHeight: 32 },
   titleMedium: { fontSize: 20, fontWeight: '600' as const, lineHeight: 26 },
   titleSmall: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },

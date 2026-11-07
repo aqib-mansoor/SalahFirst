@@ -6,7 +6,7 @@ export const APP_CONFIG = {
   name: 'SalahFirst',
   nameFirst: 'Salah',
   nameSecond: 'First',
-  bismillah: 'BISMILLAHIR RAHMANIR RAHIM',
+  bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
   tagline: 'Make time for what matters.',
   continueButton: 'Continue to Setup',
   privacyBadge: '100% Private • Offline-First • No Account Required',

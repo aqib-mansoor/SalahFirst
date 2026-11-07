@@ -11,7 +11,7 @@ export const WelcomeHeader: React.FC = () => {
   return (
     <View style={styles.header}>
       <AppText
-        variant="headerMotto"
+        variant="arabicMotto"
         color={theme.colors.accentMuted}
         align="center"
         style={styles.text}
@@ -29,8 +29,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    letterSpacing: 2.6,
-    opacity: 0.9,
+    opacity: 0.95,
   },
 });
-
