@@ -18,7 +18,7 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
   onConfirmPrayed,
   onNotYet,
 }) => {
-  const theme = useTheme('dark');
+  const theme = useTheme();
   const { t } = useTranslation();
 
   if (!visible) return null;
