@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { PrayerAlertConfig, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
 import { getRawPrayerTimes } from './prayerTimes';
+import i18n from '@/i18n';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -139,14 +140,25 @@ export const scheduleAllPrayerAlerts = async (
         const prayerDate = raw[prayer.name.toLowerCase() as keyof typeof raw] as Date;
         if (!prayerDate) continue;
 
+        const localizedPrayerName =
+          (i18n.t(prayer.name.toLowerCase() as any) as string) || prayer.name;
+
         // 1. Pre-Prayer Reminder (e.g. 15 minutes before)
         if (offsetMins > 0) {
           const reminderDate = new Date(prayerDate.getTime() - offsetMins * 60000);
           if (reminderDate > now) {
+            const preTitle = i18n.t('notifPreTitle', {
+              minutes: offsetMins,
+              prayer: localizedPrayerName,
+            });
+            const preBody = i18n.t('notifPreBody', {
+              prayer: localizedPrayerName,
+            });
+
             await Notifications.scheduleNotificationAsync({
               content: {
-                title: `${offsetMins}m until ${prayer.name}`,
-                body: `Prepare for ${prayer.name} prayer. Cleanliness and tranquility.`,
+                title: preTitle,
+                body: preBody,
                 sound: mode === 'VIBRATE' ? undefined : 'default',
                 data: { prayerName: prayer.name, type: 'pre-reminder' },
               },
@@ -162,10 +174,15 @@ export const scheduleAllPrayerAlerts = async (
 
         // 2. Exact Prayer Azan Alarm
         if (prayerDate > now) {
+          const alarmTitle = i18n.t('notifAlarmTitle', {
+            prayer: localizedPrayerName,
+          });
+          const alarmBody = i18n.t('notifAlarmBody');
+
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: `Time for ${prayer.name} Prayer`,
-              body: "Hayya 'alas-Salah — Turn your attention to Salah.",
+              title: alarmTitle,
+              body: alarmBody,
               sound: mode === 'VIBRATE' ? undefined : 'default',
               data: { prayerName: prayer.name, type: 'prayer-alarm' },
             },

@@ -10,7 +10,8 @@ export const useNotificationScheduler = (
   location?: UserLocation | null,
   alerts?: PrayerAlertConfig,
   calculationMethod?: CalculationMethodName,
-  juristicMethod?: JuristicMethod
+  juristicMethod?: JuristicMethod,
+  language?: string
 ) => {
   const syncAlarms = useCallback(async () => {
     await scheduleAllPrayerAlerts({
@@ -20,7 +21,7 @@ export const useNotificationScheduler = (
       calculationMethod,
       juristicMethod,
     });
-  }, [location?.latitude, location?.longitude, alerts, calculationMethod, juristicMethod]);
+  }, [location?.latitude, location?.longitude, alerts, calculationMethod, juristicMethod, language]);
 
   // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {
