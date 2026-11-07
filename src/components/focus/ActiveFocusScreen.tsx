@@ -95,10 +95,17 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     );
   };
 
-  const handleEmergencyCall = () => {
-    Linking.openURL('tel:112').catch(() => {
-      Alert.alert('Emergency Call', 'Opening emergency dialer.');
-    });
+  const handleEmergencyCall = async () => {
+    try {
+      const canOpen = await Linking.canOpenURL('tel:');
+      if (canOpen) {
+        await Linking.openURL('tel:');
+      } else {
+        Alert.alert(t('emergencyCall'), 'Phone dialer is not available on this device.');
+      }
+    } catch {
+      Alert.alert(t('emergencyCall'), 'Unable to open phone dialer.');
+    }
   };
 
   const handleConfirmPrayed = async () => {
@@ -226,25 +233,5 @@ const styles = StyleSheet.create({
   },
   motivationSub: {
     lineHeight: 22,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: SPACING.sm,
-  },
-  emergencyBtn: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 2,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  emergencyText: {
-    fontWeight: '600',
-  },
-  exitText: {
-    fontWeight: '700',
-    textDecorationLine: 'underline',
   },
 });

@@ -94,6 +94,14 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     };
   }, [userLocation?.country, refreshTrigger]);
 
+  // AppState listener: re-sync state immediately when returning from background
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') setRefreshTrigger((prev) => prev + 1);
+    });
+    return () => sub.remove();
+  }, []);
+
   const lat = userLocation?.latitude ?? 24.8607;
   const lng = userLocation?.longitude ?? 67.0011;
 
@@ -101,9 +109,15 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     return getPrayerTimes(lat, lng, new Date(), calcMethod, juristic);
   }, [lat, lng, calcMethod, juristic, refreshTrigger]);
 
-  // Live countdown timer ticking every 1 second
+  // Live countdown timer ticking every 1 second with midnight date rollover
   useEffect(() => {
+    let lastDateKey = getTodayDateKey();
     const updateCountdown = () => {
+      const currentDateKey = getTodayDateKey();
+      if (currentDateKey !== lastDateKey) {
+        lastDateKey = currentDateKey;
+        setRefreshTrigger((prev) => prev + 1);
+      }
       const now = new Date().getTime();
       let diff = prayerData.nextPrayerDate.getTime() - now;
 
@@ -143,42 +157,13 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     }
   };
 
-  const togglePrayer = useCallback(
-    async (prayerName: string) => {
-      const todayKey = getTodayDateKey();
-      const nextStatus = !completedMap[prayerName];
-      const updatedToday = {
-        ...completedMap,
-        [prayerName]: nextStatus,
-      };
-      const updatedHistory = {
-        ...historyMap,
-        [todayKey]: updatedToday,
-      };
-
-      setCompletedMap(updatedToday);
-      setHistoryMap(updatedHistory);
-      setStreakCount(calculateStreakFromHistory(updatedHistory));
-      await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
-      await handlePostCompletionAlerts(prayerName, nextStatus, updatedToday, todayKey);
-      notifyTrackerPreferencesChanged();
-    },
-    [completedMap, historyMap]
-  );
-
   const setPrayerCompleted = useCallback(
     async (prayerName: string, completed: boolean = true) => {
       const todayKey = getTodayDateKey();
       if (completedMap[prayerName] === completed) return;
 
-      const updatedToday = {
-        ...completedMap,
-        [prayerName]: completed,
-      };
-      const updatedHistory = {
-        ...historyMap,
-        [todayKey]: updatedToday,
-      };
+      const updatedToday = { ...completedMap, [prayerName]: completed };
+      const updatedHistory = { ...historyMap, [todayKey]: updatedToday };
 
       setCompletedMap(updatedToday);
       setHistoryMap(updatedHistory);
@@ -188,6 +173,11 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       notifyTrackerPreferencesChanged();
     },
     [completedMap, historyMap]
+  );
+
+  const togglePrayer = useCallback(
+    (prayerName: string) => setPrayerCompleted(prayerName, !completedMap[prayerName]),
+    [completedMap, setPrayerCompleted]
   );
 
   const toggleHistoricalPrayer = useCallback(
