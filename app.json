@@ -28,7 +28,15 @@
           "icon": "./assets/icon.png",
           "color": "#114B36"
         }
-      ]
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery.",
+          "savePhotosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery."
+        }
+      ],
+      "expo-sharing"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
