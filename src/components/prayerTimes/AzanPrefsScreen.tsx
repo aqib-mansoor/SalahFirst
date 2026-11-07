@@ -8,9 +8,12 @@ import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useAzanAudio } from '@/hooks/useAzanAudio';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
+import { useTranslation } from '@/context/LocalizationContext';
 import { checkNotificationPermissions, requestNotificationPermission } from '@/utils/notifications';
 import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
+import { NotificationPreferencesCard } from './NotificationPreferencesCard';
+import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
 
 export interface AzanPrefsScreenProps {
   onBack: () => void;
@@ -26,6 +29,7 @@ const PRAYERS_LIST: { key: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha'; name: 
 
 export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { location } = useDeviceLocation();
   const { prayerData } = usePrayerTracker(location);
 
@@ -34,10 +38,13 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     setPrayerMode,
     setReminder,
     toggleExactAlarms,
+    toggleMissedPrayerReminders,
+    toggleDailyReflection,
+    toggleStreakEncouragement,
+    toggleQuietHours,
   } = usePrayerAlerts();
 
   const { isPlaying, isLoading, toggle: toggleAudio } = useAzanAudio();
-
   const [hasPermission, setHasPermission] = useState(true);
 
   const verifyPermissions = async () => {
@@ -47,7 +54,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
 
   useEffect(() => {
     verifyPermissions();
-
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
         verifyPermissions();
@@ -85,40 +91,39 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         </Pressable>
         <View style={styles.headerTextCol}>
           <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-            Azan & Notifications
+            {t('notificationsAndReminders')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted}>
-            Customize alerts for each daily prayer
+            {t('customizeAlerts')}
           </AppText>
         </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* Permission Warning Banner if denied */}
         {!hasPermission && (
           <View style={[styles.warningBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.error }]}>
             <View style={styles.warningContent}>
               <AppText variant="titleSmall" color={theme.colors.error} style={styles.boldText}>
-                Notifications Disabled
+                {t('notificationsDisabled')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted} style={styles.infoText}>
-                Enable notifications so Azan alerts ring offline at real prayer times.
+                {t('enableNotificationsPrompt')}
               </AppText>
             </View>
             <Pressable
               onPress={handleRequestPermission}
               accessibilityRole="button"
-              accessibilityLabel="Enable Notifications"
+              accessibilityLabel={t('enable')}
               style={[styles.enableBtn, { backgroundColor: theme.colors.primary }]}
             >
               <AppText variant="caption" color={theme.colors.textInverse} style={styles.enableBtnText}>
-                Enable
+                {t('enable')}
               </AppText>
             </Pressable>
           </View>
         )}
 
-        {/* Exact Alarms Card */}
+        {/* Master Alarms Toggle Card */}
         <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
           <View style={styles.alarmTop}>
             <View style={styles.alarmTitleRow}>
@@ -126,13 +131,13 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
                 <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke={theme.colors.primary} strokeWidth="2" />
               </Svg>
               <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-                Local Prayer Alarms Enabled
+                {t('localAlarmsEnabled')}
               </AppText>
             </View>
             <Pressable
               onPress={toggleExactAlarms}
               accessibilityRole="button"
-              accessibilityLabel={alerts.exactAlarmsEnabled ? 'Mute All Prayer Alarms' : 'Enable Prayer Alarms'}
+              accessibilityLabel={alerts.exactAlarmsEnabled ? 'Mute All' : 'Enable'}
             >
               <AppText variant="titleSmall" color={theme.colors.primary} style={styles.muteAll}>
                 {alerts.exactAlarmsEnabled ? 'Mute All' : 'Enable'}
@@ -144,32 +149,24 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           </AppText>
         </View>
 
+        {/* Smart Reminders & Quiet Hours Preferences */}
+        <NotificationPreferencesCard
+          missedPrayersEnabled={alerts.missedPrayerRemindersEnabled !== false}
+          onToggleMissedPrayers={toggleMissedPrayerReminders}
+          dailyReflectionEnabled={alerts.dailyReflectionEnabled !== false}
+          onToggleDailyReflection={toggleDailyReflection}
+          streakEncouragementEnabled={alerts.streakEncouragementEnabled !== false}
+          onToggleStreakEncouragement={toggleStreakEncouragement}
+          quietHoursEnabled={alerts.quietHoursEnabled !== false}
+          onToggleQuietHours={toggleQuietHours}
+        />
+
         {/* Audio Preview Card */}
-        <View style={[styles.card, styles.rowBetween, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          <View style={styles.audioInfo}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-              Makkah Haram Azan (Audio Preview)
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {isLoading
-                ? 'Connecting to audio stream...'
-                : isPlaying
-                ? 'Playing Makkah Haram Azan • Hayya alas-Salah'
-                : 'Tap to preview authentic Makkah Haram Azan'}
-            </AppText>
-          </View>
-          <Pressable
-            onPress={() => toggleAudio()}
-            disabled={isLoading}
-            accessibilityRole="button"
-            accessibilityLabel={isPlaying ? 'Stop Makkah Haram Azan Preview' : 'Play Makkah Haram Azan Preview'}
-            style={[styles.audioBtn, { backgroundColor: theme.colors.buttonGold }]}
-          >
-            <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.audioBtnText}>
-              {isLoading ? '⏳ ...' : isPlaying ? '⏹ Stop' : '▶ Play'}
-            </AppText>
-          </Pressable>
-        </View>
+        <AzanAudioPreviewCard
+          isLoading={isLoading}
+          isPlaying={isPlaying}
+          onToggle={toggleAudio}
+        />
 
         {/* Pre-Prayer Gentle Reminder Card */}
         <PrePrayerReminderCard
@@ -177,7 +174,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onSelectOffset={setReminder}
         />
 
-        {/* Individual Prayer Alert Cards with Dynamic Prayer Times */}
+        {/* Individual Prayer Alert Cards */}
         {PRAYERS_LIST.map((p) => {
           const prayerTime = prayerData ? (prayerData[p.key] || '--:--') : '--:--';
           return (
@@ -250,11 +247,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: SPACING.sm,
   },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   alarmTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -274,17 +266,5 @@ const styles = StyleSheet.create({
   },
   infoText: {
     lineHeight: 16,
-  },
-  audioInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  audioBtn: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
-  },
-  audioBtnText: {
-    fontWeight: '700',
   },
 });
