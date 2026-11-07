@@ -8,9 +8,10 @@ import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
 
 export interface HomeDailyHadithProps {
   onReadFull?: () => void;
+  onOpenWallpaper?: () => void;
 }
 
-export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {
+export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, onOpenWallpaper }) => {
   const theme = useTheme();
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
 
@@ -79,6 +80,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) 
             <View style={styles.actionsRow}>
               {/* Wallpaper / Image button */}
               <Pressable
+                onPress={onOpenWallpaper}
                 style={({ pressed }) => [
                   styles.actionBtn,
                   { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint },

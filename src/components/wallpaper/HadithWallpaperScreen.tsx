@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Share } from 'react-native';
+import { StyleSheet, View, Share, Alert, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { captureRef } from 'react-native-view-shot';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
 import { HadithItem } from '@/data/hadiths';
 import { WallpaperHeader } from './WallpaperHeader';
 import { WallpaperCarousel } from './WallpaperCarousel';
+import { WallpaperSlide } from './WallpaperSlide';
 import { WallpaperActionDock } from './WallpaperActionDock';
 import { HadithToast } from '@/components/hadith/HadithToast';
 
@@ -17,9 +21,12 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   hadith,
   onClose,
 }) => {
+  const { width, height } = useWindowDimensions();
   const [activeThemeIndex, setActiveThemeIndex] = useState<number>(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const captureViewRef = useRef<View>(null);
 
   const activeTheme = WALLPAPER_THEMES[activeThemeIndex];
 
@@ -34,22 +41,93 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
     setToastMessage(msg);
     toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
-    }, 3000);
+    }, 3500);
   };
 
-  const handleSaveImage = () => {
-    showToast(`HD Wallpaper (${activeTheme.name}) saved to gallery`);
+  const captureActiveWallpaper = async (): Promise<string | null> => {
+    try {
+      if (!captureViewRef.current) return null;
+      return await captureRef(captureViewRef, {
+        format: 'png',
+        quality: 1.0,
+      });
+    } catch {
+      return null;
+    }
   };
 
-  const handleSetWallpaper = () => {
-    showToast(`Applied ${activeTheme.name} as your phone wallpaper`);
+  const handleSaveImage = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    try {
+      const uri = await captureActiveWallpaper();
+      if (!uri) {
+        showToast('Failed to generate wallpaper image.');
+        setIsProcessing(false);
+        return;
+      }
+
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status === 'granted') {
+        await MediaLibrary.saveToLibraryAsync(uri);
+        showToast(`HD Wallpaper (${activeTheme.name}) saved to gallery!`);
+      } else {
+        // Fallback to native sharing if media permission was denied
+        const isSharingAvailable = await Sharing.isAvailableAsync();
+        if (isSharingAvailable) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'image/png',
+            dialogTitle: 'Save Hadith Wallpaper',
+          });
+        } else {
+          Alert.alert(
+            'Permission Required',
+            'Please allow photo library access in device settings to save wallpapers directly to your gallery.'
+          );
+        }
+      }
+    } catch {
+      showToast('Error saving wallpaper to device.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSetWallpaper = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    try {
+      const uri = await captureActiveWallpaper();
+      if (!uri) {
+        showToast('Failed to generate wallpaper image.');
+        setIsProcessing(false);
+        return;
+      }
+
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+      if (isSharingAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'image/png',
+          dialogTitle: `Apply ${activeTheme.name} Wallpaper`,
+        });
+        showToast('Wallpaper exported. Choose "Set as Wallpaper" in dialog.');
+      } else {
+        showToast('System wallpaper sharing is not supported on this device.');
+      }
+    } catch {
+      showToast('Error exporting wallpaper.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleShareStatus = async () => {
     try {
       await Share.share({
-        title: 'Share to WhatsApp Status / Story',
-        message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via SalahFirst Hadith Wallpaper`,
+        title: 'Share Authentic Hadith',
+        message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via SalahFirst`,
       });
     } catch {}
   };
@@ -58,7 +136,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Top Header with Theme Name & Close Button */}
+      {/* Top Header */}
       <WallpaperHeader
         themeName={activeTheme.name}
         onClose={onClose}
@@ -74,14 +152,28 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         </View>
       )}
 
-      {/* Swipeable Horizontal Wallpaper Carousel */}
+      {/* Interactive Swipeable Wallpaper Carousel */}
       <WallpaperCarousel
         hadith={hadith}
         activeIndex={activeThemeIndex}
         onIndexChange={setActiveThemeIndex}
       />
 
-      {/* 3-Button Action Dock: Save Image, Set Wallpaper, Share to Status */}
+      {/* Hidden Render Target for High-Resolution Image Capture */}
+      <View
+        ref={captureViewRef}
+        collapsable={false}
+        style={[styles.hiddenCaptureView, { width, height }]}
+      >
+        <WallpaperSlide
+          theme={activeTheme}
+          hadith={hadith}
+          width={width}
+          height={height}
+        />
+      </View>
+
+      {/* 3-Button Action Dock */}
       <WallpaperActionDock
         onSaveImage={handleSaveImage}
         onSetWallpaper={handleSetWallpaper}
@@ -103,5 +195,9 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 30,
   },
+  hiddenCaptureView: {
+    position: 'absolute',
+    left: -9999,
+    top: -9999,
+  },
 });
-

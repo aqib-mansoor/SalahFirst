@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Circle, Path, Defs, RadialGradient, LinearGradient, Stop } from 'react-native-svg';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Pressable, Alert } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { storage } from '@/utils/storage';
+import { MisbahaBeadsSvg } from './MisbahaBeadsSvg';
+
+const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
 
 export interface DhikrPhase {
   arabic: string;
@@ -33,31 +36,83 @@ const DHIKR_PHASES: DhikrPhase[] = [
   },
 ];
 
+interface TasbihPersistedState {
+  count: number;
+  phaseIndex: number;
+  totalCycles: number;
+}
+
 export const TasbihCounter3D: React.FC = () => {
   const theme = useTheme();
   const [phaseIndex, setPhaseIndex] = useState<number>(0);
   const [count, setCount] = useState<number>(0);
+  const [totalCycles, setTotalCycles] = useState<number>(0);
+
+  useEffect(() => {
+    const loadState = async () => {
+      const saved = await storage.get<TasbihPersistedState | null>(TASBIH_STORAGE_KEY, null);
+      if (saved) {
+        setCount(saved.count ?? 0);
+        setPhaseIndex(saved.phaseIndex ?? 0);
+        setTotalCycles(saved.totalCycles ?? 0);
+      }
+    };
+    loadState();
+  }, []);
+
+  const persistState = useCallback(
+    async (newCount: number, newPhase: number, newCycles: number) => {
+      await storage.set(TASBIH_STORAGE_KEY, {
+        count: newCount,
+        phaseIndex: newPhase,
+        totalCycles: newCycles,
+      });
+    },
+    []
+  );
 
   const currentPhase = DHIKR_PHASES[phaseIndex];
 
   const handleIncrement = () => {
     if (count + 1 >= currentPhase.target) {
       if (phaseIndex + 1 < DHIKR_PHASES.length) {
-        setPhaseIndex(phaseIndex + 1);
+        const nextPhase = phaseIndex + 1;
+        setPhaseIndex(nextPhase);
         setCount(0);
+        persistState(0, nextPhase, totalCycles);
       } else {
-        // Finished full 100 cycle
+        const nextCycles = totalCycles + 1;
         setPhaseIndex(0);
         setCount(0);
+        setTotalCycles(nextCycles);
+        persistState(0, 0, nextCycles);
       }
     } else {
-      setCount((prev) => prev + 1);
+      const nextCount = count + 1;
+      setCount(nextCount);
+      persistState(nextCount, phaseIndex, totalCycles);
     }
   };
 
   const handleReset = () => {
-    setCount(0);
-    setPhaseIndex(0);
+    if (count === 0 && phaseIndex === 0) return;
+
+    Alert.alert(
+      'Reset Tasbih Counter?',
+      `You are at ${count} of ${currentPhase.target} ${currentPhase.transliteration}. Do you want to reset your counter?`,
+      [
+        { text: 'Keep Counting', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            setCount(0);
+            setPhaseIndex(0);
+            await persistState(0, 0, totalCycles);
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -70,43 +125,9 @@ export const TasbihCounter3D: React.FC = () => {
         },
       ]}
     >
-      {/* Header & 3D Misbaha Beads Illustration */}
+      {/* Header & Misbaha Beads */}
       <View style={styles.topRow}>
-        <View style={styles.beadsSvgWrapper}>
-          <Svg width={80} height={70} viewBox="0 0 80 70">
-            <Defs>
-              <RadialGradient id="jadeBead" cx="35%" cy="35%" r="65%">
-                <Stop offset="0%" stopColor="#2CD194" />
-                <Stop offset="50%" stopColor="#114B36" />
-                <Stop offset="100%" stopColor="#08291D" />
-              </RadialGradient>
-              <RadialGradient id="goldBead" cx="30%" cy="30%" r="70%">
-                <Stop offset="0%" stopColor="#FFF2D6" />
-                <Stop offset="50%" stopColor="#CCA15F" />
-                <Stop offset="100%" stopColor="#8A642B" />
-              </RadialGradient>
-              <LinearGradient id="tasselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0%" stopColor="#CCA15F" />
-                <Stop offset="100%" stopColor="#78531D" />
-              </LinearGradient>
-            </Defs>
-
-            {/* Loop of 3D Isometric Spherical Beads */}
-            <Circle cx="16" cy="30" r="6.5" fill="url(#jadeBead)" />
-            <Circle cx="26" cy="18" r="6.5" fill="url(#jadeBead)" />
-            <Circle cx="40" cy="14" r="7.5" fill="url(#goldBead)" />
-            <Circle cx="54" cy="18" r="6.5" fill="url(#jadeBead)" />
-            <Circle cx="64" cy="30" r="6.5" fill="url(#jadeBead)" />
-            <Circle cx="58" cy="44" r="6.5" fill="url(#jadeBead)" />
-            <Circle cx="22" cy="44" r="6.5" fill="url(#jadeBead)" />
-
-            {/* Minaret Head (Imam) & Silk Tassel */}
-            <Path d="M 38 46 L 42 46 L 44 54 L 36 54 Z" fill="url(#goldBead)" />
-            <Circle cx="40" cy="45" r="2.5" fill="#FFF2D6" />
-            <Path d="M 36 54 C 34 64, 46 64, 44 54 Z" fill="url(#tasselGrad)" />
-            <Path d="M 38 60 L 34 68 M 40 60 L 40 69 M 42 60 L 46 68" stroke="#CCA15F" strokeWidth="1" />
-          </Svg>
-        </View>
+        <MisbahaBeadsSvg />
 
         <View style={styles.headerInfo}>
           <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
@@ -116,6 +137,7 @@ export const TasbihCounter3D: React.FC = () => {
           </View>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.cycleLabel}>
             Step {phaseIndex + 1} of 3 • {currentPhase.transliteration}
+            {totalCycles > 0 ? ` (${totalCycles} completed)` : ''}
           </AppText>
         </View>
 
@@ -136,7 +158,7 @@ export const TasbihCounter3D: React.FC = () => {
         </AppText>
       </View>
 
-      {/* Big Interactive Tap Button */}
+      {/* Interactive Tap Button */}
       <Pressable
         onPress={handleIncrement}
         style={({ pressed }) => [
@@ -173,11 +195,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  beadsSvgWrapper: {
-    width: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   headerInfo: {
     flex: 1,
@@ -247,4 +264,3 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 });
-
