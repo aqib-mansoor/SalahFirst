@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -9,8 +9,6 @@ import { SetupAyahCarousel } from './SetupAyahCarousel';
 import { SetupHeroText } from './SetupHeroText';
 import { SetupLocationCard } from './SetupLocationCard';
 import { SetupPrivacyBanner } from './SetupPrivacyBanner';
-import { SetupCityModal } from './SetupCityModal';
-import { PresetCity } from '@/data';
 
 export interface SetupScreenProps {
   onComplete?: () => void;
@@ -18,12 +16,13 @@ export interface SetupScreenProps {
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const theme = useTheme('light');
-  const [modalVisible, setModalVisible] = useState(false);
-  const { location, isLoading, requestGpsLocation, selectCity } = useDeviceLocation();
-
-  const handleSelectCity = (city: PresetCity) => {
-    selectCity(city);
-  };
+  const {
+    location,
+    isLoading,
+    permissionDenied,
+    requestGpsLocation,
+    openSettings,
+  } = useDeviceLocation();
 
   const ChevronRight = (
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -54,8 +53,9 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         <SetupLocationCard
           location={location}
           isLoading={isLoading}
+          permissionDenied={permissionDenied}
           onRequestGps={requestGpsLocation}
-          onOpenCityModal={() => setModalVisible(true)}
+          onOpenSettings={openSettings}
         />
 
         {/* Offline Privacy Callout */}
@@ -70,13 +70,6 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
           style={[styles.getStartedButton, { backgroundColor: theme.colors.primary }]}
         />
       </View>
-
-      {/* Manual City Selector Modal */}
-      <SetupCityModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onSelect={handleSelectCity}
-      />
     </AppContainer>
   );
 };
@@ -96,4 +89,3 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
 });
-

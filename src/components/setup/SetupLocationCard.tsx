@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { UserLocation } from '@/types';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -10,15 +10,17 @@ import { LocationActionButtons } from './LocationActionButtons';
 export interface SetupLocationCardProps {
   location: UserLocation;
   isLoading: boolean;
+  permissionDenied: boolean;
   onRequestGps: () => void;
-  onOpenCityModal: () => void;
+  onOpenSettings: () => void;
 }
 
 export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
   location,
   isLoading,
+  permissionDenied,
   onRequestGps,
-  onOpenCityModal,
+  onOpenSettings,
 }) => {
   const theme = useTheme('light');
 
@@ -46,7 +48,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
             </AppText>
             <View style={[styles.gpsBadge, { backgroundColor: theme.colors.mintTint }]}>
               <AppText variant="caption" color={theme.colors.primary} style={styles.gpsBadgeText}>
-                Optional GPS
+                Auto GPS
               </AppText>
             </View>
           </View>
@@ -75,18 +77,19 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
           </AppText>
         </View>
 
-        <Pressable onPress={onOpenCityModal} hitSlop={8}>
-          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.enterManuallyText}>
-            Enter Manually
+        <View style={[styles.statusBadge, { backgroundColor: permissionDenied ? theme.colors.border : theme.colors.mintTint }]}>
+          <AppText variant="caption" color={permissionDenied ? theme.colors.textMuted : theme.colors.primary} style={styles.statusBadgeText}>
+            {isLoading ? 'Locating...' : permissionDenied ? 'Permission Needed' : 'GPS Locked'}
           </AppText>
-        </Pressable>
+        </View>
       </View>
 
-      {/* Action Buttons */}
+      {/* Action Button */}
       <LocationActionButtons
         isLoading={isLoading}
+        permissionDenied={permissionDenied}
         onRequestGps={onRequestGps}
-        onOpenCityModal={onOpenCityModal}
+        onOpenSettings={onOpenSettings}
       />
     </View>
   );
@@ -154,8 +157,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     flexShrink: 1,
   },
-  enterManuallyText: {
+  statusBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+  },
+  statusBadgeText: {
     fontWeight: '700',
-    textDecorationLine: 'underline',
+    fontSize: 11,
   },
 });

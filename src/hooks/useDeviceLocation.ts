@@ -1,34 +1,40 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
-import { PRESET_CITIES } from '@/data';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 
-const DEFAULT_LOCATION: UserLocation = {
-  city: PRESET_CITIES[0].name,
-  country: PRESET_CITIES[0].country,
-  latitude: PRESET_CITIES[0].latitude,
-  longitude: PRESET_CITIES[0].longitude,
+const FALLBACK_LOCATION: UserLocation = {
+  city: 'Detecting Location...',
+  country: 'Pakistan',
+  latitude: 33.6844,
+  longitude: 73.0479,
   isGps: false,
 };
 
 export const useDeviceLocation = () => {
-  const [location, setLocation] = useState<UserLocation>(DEFAULT_LOCATION);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [location, setLocation] = useState<UserLocation>(FALLBACK_LOCATION);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const requestGpsLocation = useCallback(async () => {
+  const fetchCurrentGps = useCallback(async (isSilentBackground: boolean = false) => {
     try {
-      setIsLoading(true);
-      setErrorMessage(null);
+      if (!isSilentBackground) {
+        setIsLoading(true);
+        setErrorMessage(null);
+      }
 
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMessage('Location permission was denied. Using manual city.');
+        setPermissionDenied(true);
+        setErrorMessage('Location permission required for accurate prayer times.');
         setIsLoading(false);
         return;
       }
+
+      setPermissionDenied(false);
 
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
@@ -46,7 +52,7 @@ export const useDeviceLocation = () => {
         country = place.country || place.region || 'Current Country';
       }
 
-      const detectedLocation: UserLocation = {
+      const freshLocation: UserLocation = {
         city,
         country,
         latitude,
@@ -54,38 +60,55 @@ export const useDeviceLocation = () => {
         isGps: true,
       };
 
-      setLocation(detectedLocation);
-      await storage.set(APP_CONFIG.storageKeys.userPreferences, { location: detectedLocation });
+      setLocation(freshLocation);
+      await storage.set(APP_CONFIG.storageKeys.userLocation, freshLocation);
     } catch {
-      setErrorMessage('Could not fetch GPS location. Please select manually.');
+      if (!isSilentBackground) {
+        setErrorMessage('Unable to lock GPS. Please check location settings.');
+      }
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const selectCity = useCallback(async (city: { name: string; country: string; latitude: number; longitude: number }) => {
-    const manualLocation: UserLocation = {
-      city: city.name,
-      country: city.country,
-      latitude: city.latitude,
-      longitude: city.longitude,
-      isGps: false,
-    };
-    setLocation(manualLocation);
-    setErrorMessage(null);
-    await storage.set(APP_CONFIG.storageKeys.userPreferences, { location: manualLocation });
+  const openSettings = useCallback(() => {
+    Linking.openSettings();
   }, []);
 
   useEffect(() => {
-    requestGpsLocation();
-  }, [requestGpsLocation]);
+    let isMounted = true;
+
+    const initializeLocation = async () => {
+      // 1. Instantly load cached location from local storage (0ms delay)
+      const cached = await storage.get<UserLocation | null>(
+        APP_CONFIG.storageKeys.userLocation,
+        null
+      );
+
+      if (cached && isMounted) {
+        setLocation(cached);
+        setIsLoading(false);
+        // 2. Silently verify/refresh GPS in background in case user moved
+        fetchCurrentGps(true);
+      } else if (isMounted) {
+        // First run: request fresh GPS
+        fetchCurrentGps(false);
+      }
+    };
+
+    initializeLocation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchCurrentGps]);
 
   return {
     location,
     isLoading,
+    permissionDenied,
     errorMessage,
-    requestGpsLocation,
-    selectCity,
+    requestGpsLocation: () => fetchCurrentGps(false),
+    openSettings,
   };
 };
-

@@ -14,6 +14,7 @@ export const APP_CONFIG = {
   storageKeys: {
     theme: '@salahfirst_theme',
     hasCompletedSetup: '@salahfirst_has_completed_setup',
+    userLocation: '@salahfirst_location',
     userPreferences: '@salahfirst_preferences',
     prayerTracker: '@salahfirst_prayer_tracker',
     streak: '@salahfirst_streak',
