@@ -3,6 +3,8 @@
  * Bundled offline datasets (Quran Ayat, preset cities, verified Hadith).
  */
 
+export * from './hadiths';
+
 export interface QuranAyah {
   id: string;
   arabic: string;
