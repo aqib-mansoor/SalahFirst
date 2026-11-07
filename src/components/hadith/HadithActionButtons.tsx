@@ -34,9 +34,9 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
           <Rect x="3" y="3" width="18" height="18" rx="3" stroke={theme.colors.accent} strokeWidth="2" />
           <Path d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z" fill={theme.colors.accent} />
-          <Path d="M21 15L16 10L5 21" stroke={theme.colors.white} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <Path d="M21 15L16 10L5 21" stroke={theme.colors.textInverse} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
-        <AppText variant="titleSmall" color={theme.colors.white} style={styles.actionLabel}>
+        <AppText variant="titleSmall" color={theme.colors.textInverse} style={styles.actionLabel}>
           Wallpaper
         </AppText>
       </Pressable>
