@@ -81,6 +81,7 @@ export interface ThemeColors {
   privacyBg: string;
   privacyText: string;
   error: string;
+  notificationRed: string;
 }
 
 export interface Theme {
@@ -116,6 +117,7 @@ export const darkTheme: Theme = {
     privacyBg: PALETTE.obsidianElevated,
     privacyText: PALETTE.sageMuted,
     error: '#F87171',
+    notificationRed: '#F87171',
   },
 };
 
@@ -147,6 +149,7 @@ export const lightTheme: Theme = {
     privacyBg: PALETTE.privacyBg,
     privacyText: PALETTE.privacyText,
     error: '#DC2626',
+    notificationRed: '#DC2626',
   },
 };
 
