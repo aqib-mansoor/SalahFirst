@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useHadithCollection } from '@/hooks/useHadithCollection';
@@ -9,12 +9,14 @@ import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithActionButtons } from './HadithActionButtons';
 import { HadithPagination } from './HadithPagination';
+import { HadithWallpaperScreen } from '@/components/wallpaper';
 
 export interface HadithScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
 }
 
 export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => {
+  const [showWallpaper, setShowWallpaper] = useState(false);
   const {
     currentHadith,
     currentIndex,
@@ -24,12 +26,20 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
     toastMessage,
     toggleUrdu,
     toggleSave,
-    showWallpaperAction,
     shareHadith,
     dismissToast,
     nextHadith,
     prevHadith,
   } = useHadithCollection();
+
+  if (showWallpaper) {
+    return (
+      <HadithWallpaperScreen
+        hadith={currentHadith}
+        onClose={() => setShowWallpaper(false)}
+      />
+    );
+  }
 
   return (
     <AppContainer edges={['top']}>
@@ -55,7 +65,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
 
           <HadithActionButtons
             isSaved={isSaved}
-            onWallpaperPress={showWallpaperAction}
+            onWallpaperPress={() => setShowWallpaper(true)}
             onSavePress={toggleSave}
             onSharePress={shareHadith}
           />
