@@ -31,7 +31,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   onExit,
   onCompletePrayer,
 }) => {
-  const theme = useTheme('dark');
+  const theme = useTheme();
   const { t } = useTranslation();
   const sessionRef = useRef<FocusSession>(
     existingSession || createFocusSession(prayerName, duration)
@@ -153,7 +153,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
             <AppText variant="titleLarge" color={PALETTE.white} align="center" style={styles.motivationTitle}>
               {t('bePresent')}
             </AppText>
-            <AppText variant="bodyMedium" color={theme.colors.textMuted} align="center" style={styles.motivationSub}>
+            <AppText variant="bodyMedium" color={theme.colors.accentLight} align="center" style={styles.motivationSub}>
               {t('setDistractionsAside')}
             </AppText>
           </View>
