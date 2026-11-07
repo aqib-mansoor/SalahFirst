@@ -8,7 +8,9 @@ import {
 } from '@/utils/prayerTimes';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
-import { UserLocation, CalculationMethodName, JuristicMethod } from '@/types';
+import { UserLocation, CalculationMethodName, JuristicMethod, PrayerAlertConfig } from '@/types';
+import { formatDateKey, calculateCurrentStreak } from '@/utils/trackerStatistics';
+import { cancelMissedPrayerNotification, triggerStreakNotification } from '@/utils/notifications';
 
 export interface PrayerStatus {
   name: string;
@@ -27,54 +29,22 @@ const EMPTY_COMPLETED: Record<string, boolean> = {
   Isha: false,
 };
 
-export const getTodayDateKey = (): string => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+export const getTodayDateKey = (): string => formatDateKey(new Date());
 
-export const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number => {
-  const today = new Date();
-  const todayKey = getTodayDateKey();
-  const todayCompleted = history[todayKey] ? Object.values(history[todayKey]).filter(Boolean).length : 0;
-  let streak = 0;
-
-  if (todayCompleted === 5) {
-    streak = 1;
-  }
-
-  for (let i = 1; i <= 365; i++) {
-    const prev = new Date(today);
-    prev.setDate(today.getDate() - i);
-    const year = prev.getFullYear();
-    const month = String(prev.getMonth() + 1).padStart(2, '0');
-    const day = String(prev.getDate()).padStart(2, '0');
-    const key = `${year}-${month}-${day}`;
-    const dayData = history[key];
-    const count = dayData ? Object.values(dayData).filter(Boolean).length : 0;
-    if (count === 5) {
-      streak++;
-    } else {
-      break;
-    }
-  }
-  return streak;
-};
-
-export const calculateTotalPrayersLogged = (history: Record<string, Record<string, boolean>>): number => {
-  let total = 0;
-  Object.values(history).forEach((dayMap) => {
-    total += Object.values(dayMap).filter(Boolean).length;
-  });
-  return total;
-};
+export const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number =>
+  calculateCurrentStreak(history);
 
 // Global preference listener to sync state changes across all tracker instances
 const trackerPrefListeners = new Set<() => void>();
 export const notifyTrackerPreferencesChanged = () => {
   trackerPrefListeners.forEach((fn) => fn());
+};
+
+export const addTrackerListener = (fn: () => void) => {
+  trackerPrefListeners.add(fn);
+  return () => {
+    trackerPrefListeners.delete(fn);
+  };
 };
 
 export const usePrayerTracker = (userLocation?: UserLocation | null) => {
@@ -155,12 +125,30 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     return () => clearInterval(interval);
   }, [prayerData.nextPrayerDate]);
 
+  const handlePostCompletionAlerts = async (
+    prayerName: string,
+    isNowCompleted: boolean,
+    updatedDay: Record<string, boolean>,
+    dateKey: string
+  ) => {
+    if (!isNowCompleted) return;
+    await cancelMissedPrayerNotification(prayerName, dateKey);
+    const count = Object.values(updatedDay).filter(Boolean).length;
+    if (count === 5 && dateKey === getTodayDateKey()) {
+      const alerts = await storage.get<PrayerAlertConfig | null>('@salahfirst_alerts', null);
+      if (alerts?.streakEncouragementEnabled !== false) {
+        await triggerStreakNotification();
+      }
+    }
+  };
+
   const togglePrayer = useCallback(
     async (prayerName: string) => {
       const todayKey = getTodayDateKey();
+      const nextStatus = !completedMap[prayerName];
       const updatedToday = {
         ...completedMap,
-        [prayerName]: !completedMap[prayerName],
+        [prayerName]: nextStatus,
       };
       const updatedHistory = {
         ...historyMap,
@@ -171,6 +159,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       setHistoryMap(updatedHistory);
       setStreakCount(calculateStreakFromHistory(updatedHistory));
       await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      await handlePostCompletionAlerts(prayerName, nextStatus, updatedToday, todayKey);
       notifyTrackerPreferencesChanged();
     },
     [completedMap, historyMap]
@@ -194,6 +183,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       setHistoryMap(updatedHistory);
       setStreakCount(calculateStreakFromHistory(updatedHistory));
       await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      await handlePostCompletionAlerts(prayerName, completed, updatedToday, todayKey);
       notifyTrackerPreferencesChanged();
     },
     [completedMap, historyMap]
@@ -202,9 +192,10 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
   const toggleHistoricalPrayer = useCallback(
     async (dateKey: string, prayerName: string) => {
       const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
+      const nextStatus = !dayRecord[prayerName];
       const updatedDay = {
         ...dayRecord,
-        [prayerName]: !dayRecord[prayerName],
+        [prayerName]: nextStatus,
       };
       const updatedHistory = {
         ...historyMap,
@@ -217,6 +208,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       setHistoryMap(updatedHistory);
       setStreakCount(calculateStreakFromHistory(updatedHistory));
       await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      await handlePostCompletionAlerts(prayerName, nextStatus, updatedDay, dateKey);
       notifyTrackerPreferencesChanged();
     },
     [historyMap]
