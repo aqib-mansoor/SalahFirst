@@ -25,3 +25,4 @@ export const isWithinQuietHours = (
   // Cross-midnight range (e.g., 22:00 to 05:00)
   return currentMinutes >= startMinutes || currentMinutes < endMinutes;
 };
+
