@@ -174,3 +174,4 @@ export const getLast7Days = (
 
   return { dayOverview, dayBarData };
 };
+
