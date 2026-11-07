@@ -31,6 +31,8 @@ export const PALETTE = {
   ivoryBg: '#F9F7F2',
   white: '#FFFFFF',
   cardBorder: '#EAE6DF',
+  trackBg: '#E5E1D8',
+  streakOrange: '#E07A1E',
   inputBg: '#F1EDE6',
   textDark: '#111827',
   textSlate: '#5A6760',
@@ -141,6 +143,7 @@ export const RADIUS = {
 
 export const TYPOGRAPHY = {
   brandTitle: { fontSize: 32, fontWeight: '800' as const, letterSpacing: -0.5 },
+  timerDisplay: { fontSize: 36, fontWeight: '800' as const, letterSpacing: -1 },
   headerMotto: { fontSize: 13, fontWeight: '700' as const, letterSpacing: 2.8 },
   arabicMotto: { fontSize: 18, fontWeight: '600' as const, lineHeight: 28, letterSpacing: 0 },
   ayahArabic: { fontSize: 21, fontWeight: '700' as const, lineHeight: 34, letterSpacing: 0 },
