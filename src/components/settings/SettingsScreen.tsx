@@ -6,6 +6,8 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
+import { HadithWallpaperScreen } from '@/components/wallpaper';
+import { VERIFIED_HADITHS } from '@/data/hadiths';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
@@ -27,9 +29,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { location, updateLocation } = useDeviceLocation();
 
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [showWallpaper, setShowWallpaper] = useState(false);
   const [juristic, setJuristic] = useState<'Hanafi' | 'Standard'>('Hanafi');
   const [language, setLanguage] = useState<'English' | 'Urdu'>('English');
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  if (showWallpaper) {
+    return (
+      <HadithWallpaperScreen
+        hadith={VERIFIED_HADITHS[2]}
+        onClose={() => setShowWallpaper(false)}
+      />
+    );
+  }
 
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({
@@ -75,9 +87,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <AppearanceSettingsGroup
             isDarkMode={isDarkMode}
             onToggleTheme={() => setIsDarkMode((p) => !p)}
-            onOpenWallpaperGallery={() =>
-              Alert.alert('Wallpaper Gallery', 'Hadith wallpaper exporter gallery.')
-            }
+            onOpenWallpaperGallery={() => setShowWallpaper(true)}
           />
 
           {/* General & Local Storage */}
