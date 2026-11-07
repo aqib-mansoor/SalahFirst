@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 
@@ -66,7 +66,7 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
                       height: barHeight,
                       backgroundColor: isFull
                         ? theme.colors.primary
-                        : theme.colors.sageMuted,
+                        : PALETTE.sageMuted,
                     },
                   ]}
                 />

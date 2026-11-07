@@ -35,7 +35,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
         <AppText variant="caption" color={theme.colors.accentLight} style={styles.label}>
           CURRENT FULL-DAY STREAK
         </AppText>
-        <AppText variant="displaySmall" color={theme.colors.textInverse} style={styles.streakNumber}>
+        <AppText variant="titleLarge" color={theme.colors.textInverse} style={styles.streakNumber}>
           {streakDays}{' '}
           <AppText variant="titleMedium" color={theme.colors.textInverse} style={styles.unitText}>
             days (5/5 Salah)

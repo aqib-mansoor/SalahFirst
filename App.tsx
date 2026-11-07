@@ -8,6 +8,7 @@ import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
+import { ProgressScreen, ProgressSubTab } from '@/components/progress';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -27,6 +28,7 @@ export type AppStep =
 export default function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
+  const [progressSubTab, setProgressSubTab] = useState<ProgressSubTab>('tracker');
   const [focusDuration, setFocusDuration] = useState<FocusDuration>(15);
 
   const { location } = useDeviceLocation();
@@ -78,6 +80,10 @@ export default function App() {
           onOpenSettings={() => setCurrentStep('settings')}
           onNavigateTab={setActiveTab}
           onStartPrayerFocus={() => setCurrentStep('focus-config')}
+          onOpenStreaks={() => {
+            setProgressSubTab('streaks');
+            setActiveTab('progress');
+          }}
         />
       )}
       {currentStep === 'main' && activeTab === 'prayers' && (
@@ -91,6 +97,15 @@ export default function App() {
       )}
       {currentStep === 'main' && activeTab === 'hadith' && (
         <HadithScreen onNavigateTab={setActiveTab} />
+      )}
+      {currentStep === 'main' && activeTab === 'progress' && (
+        <ProgressScreen
+          initialSubTab={progressSubTab}
+          onNavigateTab={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'progress') setProgressSubTab('tracker');
+          }}
+        />
       )}
       {currentStep === 'settings' && (
         <SettingsScreen

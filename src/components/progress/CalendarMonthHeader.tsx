@@ -23,7 +23,7 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.titleCol}>
-        <AppText variant="headlineSmall" color={theme.colors.text} style={styles.monthTitle}>
+        <AppText variant="titleLarge" color={theme.colors.text} style={styles.monthTitle}>
           {monthName}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.hijriTitle}>

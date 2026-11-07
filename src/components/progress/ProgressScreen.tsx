@@ -67,7 +67,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'tracker' && (
             <>
               <View style={styles.headerTitles}>
-                <AppText variant="headlineMedium" style={styles.title}>
+                <AppText variant="titleLarge" style={styles.title}>
                   Your Salah Journey
                 </AppText>
                 <AppText variant="bodySmall" color="#8B9790" style={styles.subtitle}>

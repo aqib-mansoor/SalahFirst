@@ -32,7 +32,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
           Longest Streak
         </AppText>
-        <AppText variant="headlineSmall" color={theme.colors.text} style={styles.valueText}>
+        <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {longestStreak} Days
         </AppText>
         <AppText variant="caption" color={theme.colors.primary} style={styles.noteText}>
@@ -53,7 +53,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
           Total Prayers Logged
         </AppText>
-        <AppText variant="headlineSmall" color={theme.colors.text} style={styles.valueText}>
+        <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {totalPrayers}
         </AppText>
         <AppText variant="caption" color={theme.colors.accent} style={styles.noteText}>

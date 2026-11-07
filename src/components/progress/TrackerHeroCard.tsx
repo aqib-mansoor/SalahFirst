@@ -40,7 +40,7 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
         <AppText variant="caption" color="rgba(255,255,255,0.7)" style={styles.subtitle}>
           Today's Progress
         </AppText>
-        <AppText variant="headlineMedium" color={theme.colors.textInverse} style={styles.headline}>
+        <AppText variant="titleLarge" color={theme.colors.textInverse} style={styles.headline}>
           {completedCount} of 5 Completed
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.remainingText}>
