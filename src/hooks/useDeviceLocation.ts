@@ -75,6 +75,11 @@ export const useDeviceLocation = () => {
     Linking.openSettings();
   }, []);
 
+  const updateLocation = useCallback(async (newLoc: UserLocation) => {
+    setLocation(newLoc);
+    await storage.set(APP_CONFIG.storageKeys.userLocation, newLoc);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -110,5 +115,6 @@ export const useDeviceLocation = () => {
     errorMessage,
     requestGpsLocation: () => fetchCurrentGps(false),
     openSettings,
+    updateLocation,
   };
 };

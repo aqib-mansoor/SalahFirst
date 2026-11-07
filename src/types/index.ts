@@ -12,11 +12,25 @@ export interface UserLocation {
   isGps: boolean;
 }
 
+export type NotificationMode = 'AZAN' | 'TONE' | 'VIBRATE' | 'SILENT';
+export type ReminderOffset = 'off' | '10m' | '15m' | '30m';
+
+export interface PrayerAlertConfig {
+  fajr: NotificationMode;
+  dhuhr: NotificationMode;
+  asr: NotificationMode;
+  maghrib: NotificationMode;
+  isha: NotificationMode;
+  reminderOffset: ReminderOffset;
+  exactAlarmsEnabled: boolean;
+}
+
 export interface UserPreferences {
   themeMode: ThemeMode;
   notificationsEnabled: boolean;
   hapticFeedback: boolean;
   location?: UserLocation;
+  alerts?: PrayerAlertConfig;
 }
 
 export type SalahName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -24,9 +38,13 @@ export type SalahName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha
 export interface PrayerTimeItem {
   id: SalahName;
   name: string;
+  arabicName: string;
   time: string;
+  notification: NotificationMode;
   isPassed: boolean;
   isCurrent: boolean;
+  isNext: boolean;
+  remainingTimeText?: string;
 }
 
 export interface StoredPrayerRecord {
