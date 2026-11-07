@@ -10,12 +10,14 @@ export interface HomeHeaderProps {
   cityName: string;
   streakCount: number;
   onOpenSettings?: () => void;
+  onOpenStreaks?: () => void;
 }
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({
   cityName,
   streakCount,
   onOpenSettings,
+  onOpenStreaks,
 }) => {
   const theme = useTheme('light');
   const hijriDate = getIslamicDateFormatted();
@@ -46,14 +48,21 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
       {/* Right: Streak & Settings */}
       <View style={styles.rightSection}>
         {/* Streak Pill */}
-        <View style={[styles.pillBadge, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+        <Pressable
+          onPress={onOpenStreaks}
+          style={({ pressed }) => [
+            styles.pillBadge,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+            pressed && { opacity: 0.75 },
+          ]}
+        >
           <Svg width={16} height={16} viewBox="0 0 24 24" fill={PALETTE.streakOrange}>
             <Path d="M12 23C7.5 23 4 19.5 4 15C4 11.5 7 8 8.5 6C8.8 5.6 9.4 5.7 9.5 6.2C10 8 11.5 9.5 13 9.5C13.6 9.5 14 9.1 14 8.5C14 6.5 12.5 4 11 2.5C10.7 2.2 10.9 1.7 11.3 1.8C15 3 20 7.5 20 14C20 19 16.5 23 12 23Z" />
           </Svg>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.streakText}>
             {streakCount}
           </AppText>
-        </View>
+        </Pressable>
 
         {/* Settings Button */}
         <Pressable
