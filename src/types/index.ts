@@ -39,6 +39,12 @@ export interface PrayerAlertConfig {
   isha: NotificationMode;
   reminderOffset: ReminderOffset;
   exactAlarmsEnabled: boolean;
+  missedPrayerRemindersEnabled: boolean;
+  dailyReflectionEnabled: boolean;
+  streakEncouragementEnabled: boolean;
+  quietHoursEnabled: boolean;
+  quietHoursStart?: string; // HH:mm format, e.g. '22:00'
+  quietHoursEnd?: string;   // HH:mm format, e.g. '05:00'
 }
 
 export type FocusDuration = 10 | 15 | 20 | 30;
