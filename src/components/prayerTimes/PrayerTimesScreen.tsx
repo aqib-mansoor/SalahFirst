@@ -15,6 +15,7 @@ import { PrayerTimeRow } from './PrayerTimeRow';
 import { LocationBottomSheet } from './LocationBottomSheet';
 import { AzanPrefsScreen } from './AzanPrefsScreen';
 import { PresetCity } from '@/data';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
@@ -34,6 +35,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateTab,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<HomeTab>('prayers');
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
@@ -122,7 +124,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             ]}
           >
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.configText}>
-              Configure Full Azan Audio & Pre-Prayer Reminders
+              {t('configureAzanAudio')}
             </AppText>
             <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
               <Path d="M9 18l6-6-6-6" stroke={theme.colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />

@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { getIslamicDateFormatted } from '@/utils/prayerTimes';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerTimesHeaderProps {
   onOpenAzanPrefs: () => void;
@@ -14,6 +15,7 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
   onOpenAzanPrefs,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const hijriDate = getIslamicDateFormatted();
   const gregorianDate = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
@@ -26,7 +28,7 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.titleColumn}>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-          Prayer Times
+          {t('prayerTimes')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.dateSubtitle}>
           {gregorianDate} • {hijriDate}

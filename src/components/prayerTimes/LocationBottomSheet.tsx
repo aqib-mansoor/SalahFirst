@@ -5,6 +5,7 @@ import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface LocationBottomSheetProps {
   visible: boolean;
@@ -24,6 +25,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   onUseGps,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -34,7 +36,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           {/* Header Row */}
           <View style={styles.headerRow}>
             <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-              Select Your Location
+              {t('selectCity')}
             </AppText>
             <Pressable
               onPress={onClose}
@@ -51,7 +53,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
           {/* Subtitle */}
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-            Choose a verified city offline or use live device GPS:
+            {t('chooseCityOffline')}
           </AppText>
 
           {/* Cities List */}
@@ -80,14 +82,14 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                     color={isGps ? theme.colors.bannerGreenText : theme.colors.text}
                     style={styles.cityName}
                   >
-                    Use Live Device GPS
+                    {t('useLiveGps')}
                   </AppText>
                   <AppText
                     variant="caption"
                     color={isGps ? theme.colors.accentLight : theme.colors.textMuted}
                     style={styles.qiblaText}
                   >
-                    Automatic detection via device hardware
+                    {t('automaticGps')}
                   </AppText>
                 </View>
 

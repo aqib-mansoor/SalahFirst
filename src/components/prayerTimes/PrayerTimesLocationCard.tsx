@@ -4,6 +4,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerTimesLocationCardProps {
   cityName: string;
@@ -19,6 +20,7 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
   onOpenLocationSheet,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -52,13 +54,13 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
             accessibilityHint="Opens location selection sheet"
           >
             <AppText variant="caption" color={theme.colors.primary} style={styles.changeLink}>
-              Change
+              {t('changeLocation')}
             </AppText>
           </Pressable>
         </View>
 
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.juristicText}>
-          Hanafi Asr
+          {t('hanafiAsr')}
         </AppText>
       </View>
     </View>
