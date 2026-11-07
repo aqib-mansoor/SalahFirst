@@ -1,8 +1,30 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
 import { PrayerAlertConfig, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
 import { getRawPrayerTimes } from './prayerTimes';
+import { storage } from './storage';
+import { APP_CONFIG } from '@/constants/config';
+import { formatDateKey } from './trackerStatistics';
+import { isWithinQuietHours } from './notificationQuietHours';
+import {
+  PRAYER_CHANNEL_ID,
+  REMINDER_CHANNEL_ID,
+  MISSED_CHANNEL_ID,
+  REFLECTION_CHANNEL_ID,
+  setupNotificationChannels,
+  checkNotificationPermissions,
+  requestNotificationPermission,
+} from './notificationChannels';
 import i18n from '@/i18n';
+
+export {
+  PRAYER_CHANNEL_ID,
+  REMINDER_CHANNEL_ID,
+  MISSED_CHANNEL_ID,
+  REFLECTION_CHANNEL_ID,
+  setupNotificationChannels,
+  checkNotificationPermissions,
+  requestNotificationPermission,
+};
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -13,68 +35,6 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-
-export const PRAYER_CHANNEL_ID = 'salahfirst-prayer-alerts';
-export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
-
-export const setupNotificationChannels = async (): Promise<void> => {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_ID, {
-      name: 'Prayer Time & Azan Alerts',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 300, 200, 300],
-      lightColor: '#114B36',
-      enableLights: true,
-      enableVibrate: true,
-      sound: 'default',
-    });
-
-    await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
-      name: 'Pre-Prayer Gentle Reminders',
-      importance: Notifications.AndroidImportance.DEFAULT,
-      vibrationPattern: [0, 200, 100, 200],
-      lightColor: '#CCA15F',
-      enableLights: true,
-      enableVibrate: true,
-      sound: 'default',
-    });
-  }
-};
-
-export const checkNotificationPermissions = async (): Promise<{
-  granted: boolean;
-  canAskAgain: boolean;
-}> => {
-  try {
-    const { status, canAskAgain } = await Notifications.getPermissionsAsync();
-    return {
-      granted: status === 'granted',
-      canAskAgain,
-    };
-  } catch {
-    return { granted: false, canAskAgain: true };
-  }
-};
-
-export const requestNotificationPermission = async (): Promise<boolean> => {
-  try {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus === 'granted') {
-      await setupNotificationChannels();
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-};
 
 const getOffsetMinutes = (offset: ReminderOffset): number => {
   switch (offset) {
@@ -101,9 +61,33 @@ const PRAYERS_LIST: { key: keyof PrayerAlertConfig; name: string }[] = [
   { key: 'isha', name: 'Isha' },
 ];
 
-/**
- * Schedules 3 days of upcoming prayer alarms and pre-reminders within OS limits.
- */
+export const cancelMissedPrayerNotification = async (
+  prayerName: string,
+  dateKey: string = formatDateKey(new Date())
+): Promise<void> => {
+  try {
+    const identifier = `salahfirst-missed-${prayerName.toLowerCase()}-${dateKey}`;
+    await Notifications.cancelScheduledNotificationAsync(identifier);
+  } catch {}
+};
+
+export const triggerStreakNotification = async (): Promise<void> => {
+  try {
+    const { granted } = await checkNotificationPermissions();
+    if (!granted) return;
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: (i18n.t('notifStreakTitle') as string) || 'Alhamdulillah',
+        body: (i18n.t('notifStreakBody') as string) || 'You completed all 5 prayers today. May Allah accept your worship.',
+        sound: 'default',
+        data: { type: 'streak-encouragement' },
+      },
+      trigger: null,
+    });
+  } catch {}
+};
+
 export const scheduleAllPrayerAlerts = async (
   params: SchedulePrayerParams
 ): Promise<number> => {
@@ -111,26 +95,28 @@ export const scheduleAllPrayerAlerts = async (
     const { latitude, longitude, alerts, calculationMethod = 'Karachi', juristicMethod = 'Hanafi' } = params;
     if (latitude === undefined || longitude === undefined) return 0;
 
-    // Check permissions without showing prompt if user previously denied
     const { granted } = await checkNotificationPermissions();
     if (!granted) return 0;
 
-    if (alerts && alerts.exactAlarmsEnabled === false) {
-      await Notifications.cancelAllScheduledNotificationsAsync();
-      return 0;
-    }
-
     await Notifications.cancelAllScheduledNotificationsAsync();
+    if (alerts && alerts.exactAlarmsEnabled === false) return 0;
+
+    const history = await storage.get<Record<string, Record<string, boolean>>>(
+      APP_CONFIG.storageKeys.prayerTracker,
+      {}
+    );
 
     const now = new Date();
     let scheduledCount = 0;
     const offsetMins = alerts ? getOffsetMinutes(alerts.reminderOffset) : 0;
+    const qEnabled = alerts?.quietHoursEnabled ?? true;
+    const qStart = alerts?.quietHoursStart ?? '22:00';
+    const qEnd = alerts?.quietHoursEnd ?? '05:00';
 
-    // Schedule for today, tomorrow, and day-after-tomorrow (3 days)
     for (let dayOffset = 0; dayOffset < 3; dayOffset++) {
       const targetDate = new Date();
       targetDate.setDate(now.getDate() + dayOffset);
-
+      const dateKey = formatDateKey(targetDate);
       const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod);
 
       for (const prayer of PRAYERS_LIST) {
@@ -140,25 +126,16 @@ export const scheduleAllPrayerAlerts = async (
         const prayerDate = raw[prayer.name.toLowerCase() as keyof typeof raw] as Date;
         if (!prayerDate) continue;
 
-        const localizedPrayerName =
-          (i18n.t(prayer.name.toLowerCase() as any) as string) || prayer.name;
-
         // 1. Pre-Prayer Reminder (e.g. 15 minutes before)
         if (offsetMins > 0) {
           const reminderDate = new Date(prayerDate.getTime() - offsetMins * 60000);
-          if (reminderDate > now) {
-            const preTitle = i18n.t('notifPreTitle', {
-              minutes: offsetMins,
-              prayer: localizedPrayerName,
-            });
-            const preBody = i18n.t('notifPreBody', {
-              prayer: localizedPrayerName,
-            });
-
+          const inQuiet = qEnabled && isWithinQuietHours(reminderDate, qStart, qEnd);
+          if (reminderDate > now && !inQuiet) {
             await Notifications.scheduleNotificationAsync({
+              identifier: `salahfirst-pre-${prayer.key}-${dateKey}`,
               content: {
-                title: preTitle,
-                body: preBody,
+                title: i18n.t('notifPreTitle', { minutes: offsetMins, prayer: prayer.name }),
+                body: i18n.t('notifPreBody', { prayer: prayer.name }),
                 sound: mode === 'VIBRATE' ? undefined : 'default',
                 data: { prayerName: prayer.name, type: 'pre-reminder' },
               },
@@ -172,17 +149,17 @@ export const scheduleAllPrayerAlerts = async (
           }
         }
 
-        // 2. Exact Prayer Azan Alarm
-        if (prayerDate > now) {
-          const alarmTitle = i18n.t('notifAlarmTitle', {
-            prayer: localizedPrayerName,
-          });
-          const alarmBody = i18n.t('notifAlarmBody');
-
+        // 2. Exact Prayer Azan Alarm (Fajr alarm exempt from quiet hours)
+        const isFajr = prayer.key === 'fajr';
+        const alarmInQuiet = qEnabled && !isFajr && isWithinQuietHours(prayerDate, qStart, qEnd);
+        if (prayerDate > now && !alarmInQuiet) {
+          const alarmTitleKey = `notifPrayerTitle${prayer.name}`;
+          const alarmBodyKey = `notifPrayerBody${prayer.name}`;
           await Notifications.scheduleNotificationAsync({
+            identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
             content: {
-              title: alarmTitle,
-              body: alarmBody,
+              title: (i18n.t(alarmTitleKey as any) as string) || `Time for ${prayer.name}`,
+              body: (i18n.t(alarmBodyKey as any) as string) || 'Hayya \'alas-Salah — Turn your attention to Salah.',
               sound: mode === 'VIBRATE' ? undefined : 'default',
               data: { prayerName: prayer.name, type: 'prayer-alarm' },
             },
@@ -190,6 +167,58 @@ export const scheduleAllPrayerAlerts = async (
               type: Notifications.SchedulableTriggerInputTypes.DATE,
               date: prayerDate,
               channelId: PRAYER_CHANNEL_ID,
+            },
+          });
+          scheduledCount++;
+        }
+
+        // 3. Gentle Missed/Unmarked Follow-up Reminder (30 mins after prayer time)
+        if (alerts?.missedPrayerRemindersEnabled !== false) {
+          const missedDate = new Date(prayerDate.getTime() + 30 * 60000);
+          const isCompleted = !!history[dateKey]?.[prayer.name];
+          const missedInQuiet = qEnabled && isWithinQuietHours(missedDate, qStart, qEnd);
+
+          if (missedDate > now && !isCompleted && !missedInQuiet) {
+            const missedTitleKey = `notifMissedTitle${prayer.name}`;
+            const missedBodyKey = `notifMissedBody${prayer.name}`;
+            await Notifications.scheduleNotificationAsync({
+              identifier: `salahfirst-missed-${prayer.key}-${dateKey}`,
+              content: {
+                title: (i18n.t(missedTitleKey as any) as string) || `${prayer.name} hasn't been marked yet`,
+                body: (i18n.t(missedBodyKey as any) as string) || 'Take a moment for your prayer, if you haven\'t already.',
+                sound: 'default',
+                data: { prayerName: prayer.name, type: 'missed-followup' },
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: missedDate,
+                channelId: MISSED_CHANNEL_ID,
+              },
+            });
+            scheduledCount++;
+          }
+        }
+      }
+
+      // 4. Daily Reflection (Scheduled at 20:45)
+      if (alerts?.dailyReflectionEnabled !== false) {
+        const reflectionDate = new Date(targetDate);
+        reflectionDate.setHours(20, 45, 0, 0);
+        const refInQuiet = qEnabled && isWithinQuietHours(reflectionDate, qStart, qEnd);
+
+        if (reflectionDate > now && !refInQuiet) {
+          await Notifications.scheduleNotificationAsync({
+            identifier: `salahfirst-reflection-${dateKey}`,
+            content: {
+              title: (i18n.t('notifDailyReflectionTitle') as string) || 'A moment to reflect 🤍',
+              body: (i18n.t('notifDailyReflectionBody') as string) || 'How was your Salah today? Take a moment to review your day.',
+              sound: 'default',
+              data: { type: 'daily-reflection' },
+            },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              date: reflectionDate,
+              channelId: REFLECTION_CHANNEL_ID,
             },
           });
           scheduledCount++;
