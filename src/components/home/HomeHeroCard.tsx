@@ -49,7 +49,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
         <AppText
           variant="bodySmall"
-          color={isCurrentCompleted ? theme.colors.accentLight : theme.colors.textMuted}
+          color={isCurrentCompleted ? theme.colors.accentLight : 'rgba(255,255,255,0.75)'}
           style={styles.completedTag}
         >
           {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
@@ -59,17 +59,17 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Center Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.nextPrayerLabel}>
-            {t('nextPrayer')} • <AppText variant="titleSmall" color={theme.colors.text}>{localizedNextPrayer}</AppText>
+          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
+            {t('nextPrayer')} • <AppText variant="titleSmall" color={theme.colors.bannerGreenText}>{localizedNextPrayer}</AppText>
           </AppText>
 
-          <AppText variant="brandTitle" color={theme.colors.text} style={styles.countdownNumber}>
+          <AppText variant="brandTitle" color={theme.colors.bannerGreenText} style={styles.countdownNumber}>
             {countdownText}
           </AppText>
         </View>
 
         <View style={styles.rightAzan}>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.azanLabel}>
+          <AppText variant="caption" color={theme.colors.accentLight} style={styles.azanLabel}>
             {t('azanTime')}
           </AppText>
           <AppText variant="titleLarge" color={theme.colors.accentLight} style={styles.azanTime}>

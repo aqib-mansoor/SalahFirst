@@ -29,9 +29,9 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
 
   const cardBg = isNext ? theme.colors.bannerGreen : theme.colors.surface;
   const textColor = isNext ? theme.colors.bannerGreenText : theme.colors.text;
-  const subtextColor = isNext ? theme.colors.textMuted : theme.colors.textMuted;
+  const subtextColor = isNext ? theme.colors.accentLight : theme.colors.textMuted;
   const bellBg = isNext ? 'rgba(255, 255, 255, 0.15)' : theme.colors.mintTint;
-  const bellColor = isNext ? theme.colors.surface : theme.colors.primary;
+  const bellColor = isNext ? theme.colors.bannerGreenText : theme.colors.primary;
 
   return (
     <View

@@ -141,7 +141,7 @@ export const lightTheme: Theme = {
     watermark: PALETTE.emeraldWatermark,
     buttonGold: PALETTE.gold,
     buttonGoldPressed: PALETTE.goldDark,
-    buttonGoldText: PALETTE.white,
+    buttonGoldText: PALETTE.obsidianBg,
     bannerGreen: PALETTE.emeraldDark,
     bannerGreenText: PALETTE.white,
     mintTint: PALETTE.mintTint,

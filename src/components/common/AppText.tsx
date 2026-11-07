@@ -17,7 +17,7 @@ export const AppText: React.FC<AppTextProps> = ({
   variant = 'bodyMedium',
   color,
   muted = false,
-  align = 'left',
+  align,
   maxFontSizeMultiplier = 1.35,
   style,
   children,
@@ -31,7 +31,7 @@ export const AppText: React.FC<AppTextProps> = ({
       maxFontSizeMultiplier={maxFontSizeMultiplier}
       style={[
         TYPOGRAPHY[variant],
-        { color: textColor, textAlign: align },
+        { color: textColor, ...(align ? { textAlign: align } : {}) },
         style,
       ]}
       {...props}
