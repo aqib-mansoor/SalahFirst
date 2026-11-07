@@ -23,6 +23,8 @@ export interface AppButtonProps {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export const AppButton: React.FC<AppButtonProps> = ({
@@ -35,6 +37,8 @@ export const AppButton: React.FC<AppButtonProps> = ({
   leftIcon,
   rightIcon,
   style,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
   const theme = useTheme();
 
@@ -70,6 +74,10 @@ export const AppButton: React.FC<AppButtonProps> = ({
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         sizeStyles[size],
