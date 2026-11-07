@@ -25,12 +25,25 @@ export interface PrayerAlertConfig {
   exactAlarmsEnabled: boolean;
 }
 
+export type FocusDuration = 10 | 15 | 20 | 30;
+
+export interface FocusSettings {
+  duration: FocusDuration;
+  blockSocial: boolean;
+  blockShortVideos: boolean;
+  blockGames: boolean;
+  blockNews: boolean;
+  autoStartOnAzan: boolean;
+  playAzanBefore: boolean;
+}
+
 export interface UserPreferences {
   themeMode: ThemeMode;
   notificationsEnabled: boolean;
   hapticFeedback: boolean;
   location?: UserLocation;
   alerts?: PrayerAlertConfig;
+  focusSettings?: FocusSettings;
 }
 
 export type SalahName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
