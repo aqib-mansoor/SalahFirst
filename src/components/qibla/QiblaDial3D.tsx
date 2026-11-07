@@ -1,0 +1,306 @@
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Svg, { Circle, Rect, Path, G, Line } from 'react-native-svg';
+import { useTheme } from '@/hooks/useTheme';
+import { AppText } from '@/components/common';
+
+export interface QiblaDial3DProps {
+  heading: number;
+  relativePointerAngle: number;
+  isAligned: boolean;
+}
+
+const DIAL_SIZE = 280;
+const RADIUS_VAL = DIAL_SIZE / 2;
+
+export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
+  heading,
+  relativePointerAngle,
+  isAligned,
+}) => {
+  const theme = useTheme('light');
+
+  return (
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.dialCard,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: isAligned ? theme.colors.accent : theme.colors.border,
+            shadowColor: isAligned ? theme.colors.primary : theme.colors.textDark,
+          },
+        ]}
+      >
+        {/* Rotating Dial Ring containing Cardinal Points and Rub el Hizb Star */}
+        <View
+          style={[
+            styles.dialRotator,
+            { transform: [{ rotate: `${-heading}deg` }] },
+          ]}
+        >
+          <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
+            {/* Outer perimeter rings */}
+            <Circle
+              cx={RADIUS_VAL}
+              cy={RADIUS_VAL}
+              r={RADIUS_VAL - 8}
+              stroke={isAligned ? theme.colors.accent : theme.colors.border}
+              strokeWidth="2.5"
+              fill="none"
+            />
+            <Circle
+              cx={RADIUS_VAL}
+              cy={RADIUS_VAL}
+              r={RADIUS_VAL - 22}
+              stroke={theme.colors.border}
+              strokeWidth="1"
+              strokeDasharray="3 3"
+              fill="none"
+            />
+
+            {/* Inner concentric guideline */}
+            <Circle
+              cx={RADIUS_VAL}
+              cy={RADIUS_VAL}
+              r={55}
+              stroke={theme.colors.border}
+              strokeWidth="1.5"
+              fill="none"
+            />
+
+            {/* 8-Point Islamic Star (Rub el Hizb) watermark */}
+            <G transform={`translate(${RADIUS_VAL}, ${RADIUS_VAL})`}>
+              <Rect
+                x="-42"
+                y="-42"
+                width="84"
+                height="84"
+                stroke={isAligned ? theme.colors.accentMuted : theme.colors.mintTintPressed}
+                strokeWidth="1.5"
+                fill="none"
+              />
+              <Rect
+                x="-42"
+                y="-42"
+                width="84"
+                height="84"
+                stroke={isAligned ? theme.colors.accentMuted : theme.colors.mintTintPressed}
+                strokeWidth="1.5"
+                fill="none"
+                transform="rotate(45)"
+              />
+            </G>
+
+            {/* Degree tick marks every 30 deg */}
+            {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+              <G key={deg} transform={`rotate(${deg} ${RADIUS_VAL} ${RADIUS_VAL})`}>
+                <Line
+                  x1={RADIUS_VAL}
+                  y1={12}
+                  x2={RADIUS_VAL}
+                  y2={deg % 90 === 0 ? 20 : 16}
+                  stroke={deg === 0 ? theme.colors.accent : theme.colors.textMuted}
+                  strokeWidth={deg % 90 === 0 ? '2' : '1'}
+                />
+              </G>
+            ))}
+          </Svg>
+
+          {/* Cardinal Labels positioned around the dial */}
+          <AppText
+            variant="caption"
+            color={theme.colors.accent}
+            style={[styles.cardinalText, styles.cardinalN]}
+          >
+            N
+          </AppText>
+          <AppText
+            variant="caption"
+            color={theme.colors.textMuted}
+            style={[styles.cardinalText, styles.cardinalE]}
+          >
+            E
+          </AppText>
+          <AppText
+            variant="caption"
+            color={theme.colors.textMuted}
+            style={[styles.cardinalText, styles.cardinalS]}
+          >
+            S
+          </AppText>
+          <AppText
+            variant="caption"
+            color={theme.colors.textMuted}
+            style={[styles.cardinalText, styles.cardinalW]}
+          >
+            W
+          </AppText>
+        </View>
+
+        {/* Needle pointing towards Qibla direction with 3D Kaaba Emblem */}
+        <View
+          style={[
+            styles.needleLayer,
+            { transform: [{ rotate: `${relativePointerAngle}deg` }] },
+          ]}
+        >
+          {/* Shaft of needle */}
+          <View
+            style={[
+              styles.needleShaft,
+              {
+                backgroundColor: isAligned
+                  ? theme.colors.primary
+                  : theme.colors.primary,
+                borderColor: theme.colors.accent,
+              },
+            ]}
+          />
+
+          {/* 3D Isometric Kaaba Emblem at pointer tip */}
+          <View style={styles.kaabaContainer}>
+            <Svg width={38} height={38} viewBox="0 0 38 38">
+              {/* Isometric Cube Shadow */}
+              <Circle cx="19" cy="20" r="14" fill={isAligned ? 'rgba(204,161,95,0.25)' : 'rgba(0,0,0,0.1)'} />
+              
+              {/* Main Cube Body */}
+              <Rect
+                x="5"
+                y="5"
+                width="28"
+                height="28"
+                rx="6"
+                fill="#18181B"
+                stroke={isAligned ? theme.colors.accent : '#27272A'}
+                strokeWidth="1.5"
+              />
+
+              {/* Gold Embroidered Kiswah Ribbon (Hizam) */}
+              <Rect
+                x="5"
+                y="13"
+                width="28"
+                height="4.5"
+                fill={theme.colors.accent}
+              />
+
+              {/* Kaaba Golden Door (Bab al-Kaaba) */}
+              <Rect
+                x="20"
+                y="20"
+                width="6.5"
+                height="10"
+                rx="1"
+                fill={theme.colors.accent}
+              />
+
+              {/* Isometric Top Bevel Highlight */}
+              <Path
+                d="M 6 10 L 19 6 L 32 10"
+                stroke="rgba(255,255,255,0.18)"
+                strokeWidth="1.2"
+                fill="none"
+              />
+            </Svg>
+          </View>
+
+          {/* Center Pivot Point */}
+          <View
+            style={[
+              styles.centerPivotOuter,
+              {
+                backgroundColor: theme.colors.surface,
+                borderColor: isAligned ? theme.colors.accent : theme.colors.primary,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.centerPivotInner,
+                { backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary },
+              ]}
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12,
+  },
+  dialCard: {
+    width: DIAL_SIZE,
+    height: DIAL_SIZE,
+    borderRadius: DIAL_SIZE / 2,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  dialRotator: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardinalText: {
+    position: 'absolute',
+    fontWeight: '800',
+    fontSize: 12,
+  },
+  cardinalN: {
+    top: 24,
+  },
+  cardinalS: {
+    bottom: 24,
+  },
+  cardinalE: {
+    right: 24,
+  },
+  cardinalW: {
+    left: 24,
+  },
+  needleLayer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  needleShaft: {
+    position: 'absolute',
+    top: 40,
+    width: 4,
+    height: RADIUS_VAL - 40,
+    borderRadius: 2,
+    borderWidth: 0.5,
+  },
+  kaabaContainer: {
+    position: 'absolute',
+    top: 14,
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerPivotOuter: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  centerPivotInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+});
