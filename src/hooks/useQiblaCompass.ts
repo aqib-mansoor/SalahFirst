@@ -71,3 +71,4 @@ export const useQiblaCompass = (lat: number = 32.9328, lng: number = 72.8553) =>
     hasSensor,
   };
 };
+

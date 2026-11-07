@@ -41,3 +41,4 @@ export const getCardinalDirection = (deg: number): string => {
   const index = Math.round(deg / 22.5) % 16;
   return directions[index];
 };
+
