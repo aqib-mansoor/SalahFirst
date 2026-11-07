@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import {
   getPrayerTimes,
   formatRemainingTime,

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, View, Pressable, ScrollView, TextInput } from 'react-native';
+import { Modal, StyleSheet, View, Pressable, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { searchWorldwideCity } from '@/utils/geocoding';
+import { LocationCityRow } from './LocationCityRow';
 
 export interface LocationBottomSheetProps {
   visible: boolean;
@@ -27,9 +29,12 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const [onlineCities, setOnlineCities] = useState<PresetCity[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [onlineError, setOnlineError] = useState<string | null>(null);
 
   const trimmed = search.trim().toLowerCase();
-  const filteredCities = trimmed
+  const filteredPresets = trimmed
     ? PRESET_CITIES.filter(
         (c) =>
           c.name.toLowerCase().includes(trimmed) ||
@@ -37,10 +42,34 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       )
     : PRESET_CITIES;
 
+  const displayCities = [...filteredPresets, ...onlineCities];
+
+  const handleOnlineSearch = async () => {
+    if (trimmed.length < 2) return;
+    setIsSearching(true);
+    setOnlineError(null);
+    const result = await searchWorldwideCity(search);
+    setIsSearching(false);
+    if (result.isOffline) {
+      setOnlineError(t('unableToSearchOnline', { city: search.trim() }));
+    } else if (result.cities.length === 0) {
+      setOnlineError(t('couldNotResolveCity', { city: search.trim() }));
+    } else {
+      setOnlineCities(result.cities);
+    }
+  };
+
+  const handleClose = () => {
+    setSearch('');
+    setOnlineCities([]);
+    setOnlineError(null);
+    onClose();
+  };
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={handleClose} />
 
         <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
           {/* Header Row */}
@@ -49,7 +78,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               {t('selectCity')}
             </AppText>
             <Pressable
-              onPress={onClose}
+              onPress={handleClose}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel="Close location selection"
@@ -64,7 +93,11 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           {/* Search Input */}
           <TextInput
             value={search}
-            onChangeText={setSearch}
+            onChangeText={(txt) => {
+              setSearch(txt);
+              setOnlineError(null);
+            }}
+            onSubmitEditing={handleOnlineSearch}
             placeholder={t('searchCityOrCountry')}
             placeholderTextColor={theme.colors.textMuted}
             style={[
@@ -77,6 +110,27 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             ]}
           />
 
+          {onlineError && (
+            <AppText variant="caption" color={theme.colors.error} style={{ marginHorizontal: SPACING.xs }}>
+              {onlineError}
+            </AppText>
+          )}
+
+          {trimmed.length >= 2 && filteredPresets.length === 0 && !isSearching && (
+            <Pressable
+              onPress={handleOnlineSearch}
+              style={[styles.onlineSearchBtn, { backgroundColor: theme.colors.mintTint }]}
+            >
+              <AppText variant="caption" color={theme.colors.primary} style={{ fontWeight: '700' }}>
+                Search worldwide for "{search.trim()}"
+              </AppText>
+            </Pressable>
+          )}
+
+          {isSearching && (
+            <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginVertical: SPACING.xs }} />
+          )}
+
           {/* Cities List */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
             {/* GPS Option */}
@@ -84,31 +138,31 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               <Pressable
                 onPress={() => {
                   onUseGps();
-                  onClose();
+                  handleClose();
                 }}
                 accessibilityRole="button"
                 accessibilityLabel="Use Live Device GPS"
                 accessibilityState={{ selected: isGps }}
                 style={({ pressed }) => [
-                  styles.cityCard,
+                  styles.gpsCard,
                   {
                     backgroundColor: isGps ? theme.colors.bannerGreen : theme.colors.surfaceElevated,
                     transform: [{ scale: pressed ? 0.98 : 1 }],
                   },
                 ]}
               >
-                <View style={styles.cityInfo}>
+                <View style={styles.gpsInfo}>
                   <AppText
                     variant="titleSmall"
                     color={isGps ? theme.colors.bannerGreenText : theme.colors.text}
-                    style={styles.cityName}
+                    style={styles.gpsName}
                   >
                     {t('useLiveGps')}
                   </AppText>
                   <AppText
                     variant="caption"
                     color={isGps ? theme.colors.accentLight : theme.colors.textMuted}
-                    style={styles.qiblaText}
+                    style={styles.gpsText}
                   >
                     {t('automaticGps')}
                   </AppText>
@@ -122,47 +176,20 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               </Pressable>
             )}
 
-            {filteredCities.map((city) => {
+            {displayCities.map((city) => {
               const isSelected =
                 !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
 
-              const cardBg = isSelected ? theme.colors.bannerGreen : theme.colors.surfaceElevated;
-              const textColor = isSelected ? theme.colors.bannerGreenText : theme.colors.text;
-              const subtextColor = isSelected ? theme.colors.accentLight : theme.colors.textMuted;
-
               return (
-                <Pressable
+                <LocationCityRow
                   key={city.id}
-                  onPress={() => {
-                    onSelectCity(city);
-                    onClose();
+                  city={city}
+                  isSelected={isSelected}
+                  onSelect={(c) => {
+                    onSelectCity(c);
+                    handleClose();
                   }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${city.name}, ${city.country}, Qibla angle ${city.qiblaDegrees} degrees`}
-                  accessibilityState={{ selected: isSelected }}
-                  style={({ pressed }) => [
-                    styles.cityCard,
-                    {
-                      backgroundColor: cardBg,
-                      transform: [{ scale: pressed ? 0.98 : 1 }],
-                    },
-                  ]}
-                >
-                  <View style={styles.cityInfo}>
-                    <AppText variant="titleSmall" color={textColor} style={styles.cityName}>
-                      {city.name}, {city.country}
-                    </AppText>
-                    <AppText variant="caption" color={subtextColor} style={styles.qiblaText}>
-                      Qibla: {city.qiblaDegrees}° • {city.methodName}
-                    </AppText>
-                  </View>
-
-                  {isSelected && (
-                    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13l4 4L19 7" stroke={theme.colors.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </Svg>
-                  )}
-                </Pressable>
+                />
               );
             })}
           </ScrollView>
@@ -173,14 +200,8 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    flex: 1,
-  },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1 },
   sheet: {
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
@@ -190,17 +211,9 @@ const styles = StyleSheet.create({
     maxHeight: '75%',
     gap: SPACING.sm,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: {
-    fontWeight: '800',
-  },
-  closeBtn: {
-    padding: SPACING.xs,
-  },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  title: { fontWeight: '800' },
+  closeBtn: { padding: SPACING.xs },
   searchInput: {
     borderWidth: 1,
     borderRadius: RADIUS.md,
@@ -209,25 +222,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: SPACING.xs,
   },
-  list: {
-    gap: SPACING.sm,
-    paddingBottom: SPACING.md,
+  onlineSearchBtn: {
+    padding: SPACING.sm,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
   },
-  cityCard: {
+  list: { gap: SPACING.sm, paddingBottom: SPACING.md },
+  gpsCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: SPACING.md,
     borderRadius: RADIUS.lg,
   },
-  cityInfo: {
-    gap: 2,
-    flex: 1,
-  },
-  cityName: {
-    fontWeight: '700',
-  },
-  qiblaText: {
-    fontWeight: '500',
-  },
+  gpsInfo: { gap: 2, flex: 1 },
+  gpsName: { fontWeight: '700' },
+  gpsText: { fontWeight: '500' },
 });

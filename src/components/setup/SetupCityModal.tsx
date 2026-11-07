@@ -8,14 +8,12 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
-import * as Location from 'expo-location';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
-import { getDefaultMethodForCountry } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
+import { searchWorldwideCity } from '@/utils/geocoding';
 
 export interface SetupCityModalProps {
   visible: boolean;
@@ -50,46 +48,18 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
     setIsGeocoding(true);
     setErrorMessage(null);
 
-    try {
-      const results = await Location.geocodeAsync(trimmedQuery);
-      if (results && results.length > 0) {
-        const { latitude, longitude } = results[0];
-        let cityName = trimmedQuery;
-        let countryName = 'Custom Location';
+    const result = await searchWorldwideCity(trimmedQuery);
+    setIsGeocoding(false);
 
-        try {
-          const rev = await Location.reverseGeocodeAsync({ latitude, longitude });
-          if (rev && rev.length > 0) {
-            cityName = rev[0].city || rev[0].name || rev[0].subregion || trimmedQuery;
-            countryName = rev[0].country || countryName;
-          }
-        } catch {}
-
-        const customCity: PresetCity = {
-          id: `custom-${Date.now()}`,
-          name: cityName,
-          country: countryName,
-          latitude,
-          longitude,
-          qiblaDegrees: calculateQiblaBearing(latitude, longitude),
-          methodName: getDefaultMethodForCountry(countryName),
-        };
-
-        onSelect(customCity);
-        setQuery('');
-        setErrorMessage(null);
-        onClose();
-      } else {
-        setErrorMessage(
-          t('couldNotResolveCity', { city: trimmedQuery })
-        );
-      }
-    } catch {
-      setErrorMessage(
-        t('unableToSearchOnline', { city: trimmedQuery })
-      );
-    } finally {
-      setIsGeocoding(false);
+    if (result.isOffline) {
+      setErrorMessage(t('unableToSearchOnline', { city: trimmedQuery }));
+    } else if (result.cities.length === 0) {
+      setErrorMessage(t('couldNotResolveCity', { city: trimmedQuery }));
+    } else {
+      onSelect(result.cities[0]);
+      setQuery('');
+      setErrorMessage(null);
+      onClose();
     }
   };
 
