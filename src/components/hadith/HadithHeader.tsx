@@ -45,7 +45,7 @@ export const HadithHeader: React.FC<HadithHeaderProps> = ({
         {showUrdu ? (
           <AppText
             variant="bodySmall"
-            color={theme.colors.white}
+            color={theme.colors.textInverse}
             style={styles.activeToggleText}
           >
             EN + اردو
