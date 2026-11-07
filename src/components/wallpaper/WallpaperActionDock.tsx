@@ -72,7 +72,7 @@ export const WallpaperActionDock: React.FC<WallpaperActionDockProps> = ({
             color="#114B36"
             style={[styles.btnLabel, styles.primaryBtnText]}
           >
-            Set Wallpaper
+            Export / Apply
           </AppText>
         </Pressable>
 

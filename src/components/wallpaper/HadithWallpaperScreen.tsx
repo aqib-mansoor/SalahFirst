@@ -106,11 +106,11 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
       if (isSharingAvailable) {
         await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
-          dialogTitle: `Apply ${activeTheme.name} Wallpaper`,
+          dialogTitle: `Export ${activeTheme.name} Wallpaper`,
         });
-        showToast('Wallpaper exported. Choose "Set as Wallpaper" in dialog.');
+        showToast('Image exported. Select "Use as Wallpaper" or apply via Gallery.');
       } else {
-        showToast('System wallpaper sharing is not supported on this device.');
+        showToast('System sharing is not available on this device.');
       }
     } catch {
       showToast('Error exporting wallpaper.');
