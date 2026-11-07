@@ -83,10 +83,10 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
         <View style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Prayer Focus Default Duration
+              {t('focusDefaultDuration')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              Currently 15 minutes
+              {t('fifteenMinutes')}
             </AppText>
           </View>
           {ChevronRight}
@@ -104,10 +104,10 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
 
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-                Backup / Export Local Data (JSON)
+                {t('backupExportTitle')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Save your prayer logs & streaks offline
+                {t('backupExportSubtitle')}
               </AppText>
             </View>
           </View>
@@ -122,7 +122,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
         {/* Row 4: Privacy Policy */}
         <Pressable onPress={onOpenPrivacyPolicy} style={styles.row}>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.privacyText}>
-            SalahFirst v1.0 • Privacy Policy (Zero Tracking)
+            {t('privacyPolicyTitle')}
           </AppText>
           <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
             <Circle cx="12" cy="12" r="10" stroke={theme.colors.textSubtle} strokeWidth="2" />

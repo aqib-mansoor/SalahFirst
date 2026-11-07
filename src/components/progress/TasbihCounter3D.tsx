@@ -138,8 +138,8 @@ export const TasbihCounter3D: React.FC = () => {
             </AppText>
           </View>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.cycleLabel}>
-            Step {phaseIndex + 1} of 3 • {currentPhase.transliteration}
-            {totalCycles > 0 ? ` (${totalCycles} completed)` : ''}
+            {t('step')} {phaseIndex + 1} {t('of')} 3 • {currentPhase.transliteration}
+            {totalCycles > 0 ? ` (${totalCycles} ${t('completedSuffix')})` : ''}
           </AppText>
         </View>
 

@@ -4,6 +4,7 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HadithActionButtonsProps {
   isSaved: boolean;
@@ -19,6 +20,7 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
   onSharePress,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -40,7 +42,7 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
           <Path d="M21 15L16 10L5 21" stroke={theme.colors.textInverse} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
         <AppText variant="titleSmall" color={theme.colors.textInverse} style={styles.actionLabel}>
-          Wallpaper
+          {t('wallpaper')}
         </AppText>
       </Pressable>
 
@@ -74,7 +76,7 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
           color={isSaved ? theme.colors.accent : theme.colors.text}
           style={styles.actionLabel}
         >
-          {isSaved ? 'Saved' : 'Save'}
+          {isSaved ? t('saved') : t('save')}
         </AppText>
       </Pressable>
 
@@ -114,7 +116,7 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
           />
         </Svg>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.actionLabel}>
-          Share
+          {t('share')}
         </AppText>
       </Pressable>
     </View>

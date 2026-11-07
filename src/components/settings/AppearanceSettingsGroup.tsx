@@ -108,10 +108,10 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
         <Pressable onPress={onOpenWallpaperGallery} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Hadith Wallpaper Gallery
+              {t('hadithWallpaperGallery')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              4 Islamic themes • High-resolution export
+              {t('wallpaperGallerySubtitle')}
             </AppText>
           </View>
           {ChevronRight}

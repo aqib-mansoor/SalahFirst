@@ -62,7 +62,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         <Pressable onPress={onCycleCalculationMethod} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Calculation Method
+              {t('calculationMethod')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
               {calculationMethodName}
@@ -70,7 +70,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
           </View>
           <View style={[styles.pillBadge, { backgroundColor: theme.colors.mintTint }]}>
             <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
-              Switch
+              {t('switchAction')}
             </AppText>
           </View>
         </Pressable>
@@ -81,10 +81,10 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         <Pressable onPress={onToggleJuristic} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Asr Juristic Preference
+              {t('asrJuristicPreference')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              Standard (Shafi'i/Maliki/Hanbali) or Hanafi
+              {t('standardOrHanafi')}
             </AppText>
           </View>
           <View style={[styles.pillBadge, { backgroundColor: theme.colors.mintTint }]}>
