@@ -28,7 +28,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           {
             backgroundColor: theme.colors.surface,
             borderColor: isAligned ? theme.colors.accent : theme.colors.border,
-            shadowColor: isAligned ? theme.colors.primary : theme.colors.textDark,
+            shadowColor: isAligned ? theme.colors.primary : theme.colors.text,
           },
         ]}
       >
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   dialRotator: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     left: 24,
   },
   needleLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

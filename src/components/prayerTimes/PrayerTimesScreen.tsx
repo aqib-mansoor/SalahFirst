@@ -18,10 +18,12 @@ import { PresetCity } from '@/data';
 
 export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
+  onNavigateTab?: (tab: HomeTab) => void;
 }
 
 export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateHome,
+  onNavigateTab,
 }) => {
   const theme = useTheme('light');
   const [activeTab, setActiveTab] = useState<HomeTab>('prayers');
@@ -40,6 +42,8 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
     setActiveTab(tab);
     if (tab === 'home' && onNavigateHome) {
       onNavigateHome();
+    } else if (onNavigateTab) {
+      onNavigateTab(tab);
     }
   };
 
