@@ -14,12 +14,14 @@ export interface HomeScreenProps {
   onOpenSettings?: () => void;
   onNavigateTab?: (tab: HomeTab) => void;
   onStartPrayerFocus?: () => void;
+  onOpenStreaks?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenSettings,
   onNavigateTab,
   onStartPrayerFocus,
+  onOpenStreaks,
 }) => {
   const theme = useTheme('light');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
@@ -52,6 +54,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           cityName={location.city || 'Chakwal'}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
+          onOpenStreaks={onOpenStreaks}
         />
 
         {/* Scrollable Dashboard Body */}
