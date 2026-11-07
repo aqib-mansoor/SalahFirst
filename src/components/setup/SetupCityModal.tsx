@@ -26,10 +26,15 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
   const theme = useTheme('light');
   const [query, setQuery] = useState('');
 
+  const trimmedQuery = query.trim();
   const filtered = PRESET_CITIES.filter(
     (c) =>
-      c.name.toLowerCase().includes(query.toLowerCase()) ||
-      c.country.toLowerCase().includes(query.toLowerCase())
+      c.name.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+      c.country.toLowerCase().includes(trimmedQuery.toLowerCase())
+  );
+
+  const hasExactMatch = PRESET_CITIES.some(
+    (c) => c.name.toLowerCase() === trimmedQuery.toLowerCase()
   );
 
   return (
@@ -61,6 +66,26 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               },
             ]}
           />
+
+          {trimmedQuery.length > 1 && !hasExactMatch && (
+            <Pressable
+              onPress={() => {
+                onSelect({
+                  id: `custom-${Date.now()}`,
+                  name: trimmedQuery,
+                  country: 'Selected Location',
+                  latitude: 33.6844,
+                  longitude: 73.0479,
+                });
+                onClose();
+              }}
+              style={[styles.customCityBox, { backgroundColor: theme.colors.mintTint }]}
+            >
+              <AppText variant="titleSmall" color={theme.colors.primary}>
+                + Use "{trimmedQuery}"
+              </AppText>
+            </Pressable>
+          )}
 
           <FlatList
             data={filtered}
@@ -122,9 +147,13 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
     fontSize: 14,
   },
+  customCityBox: {
+    padding: SPACING.md,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.md,
+  },
   cityItem: {
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
   },
 });
-

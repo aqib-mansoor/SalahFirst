@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable, Animated } from 'react-native';
 import { SETUP_QURAN_AYAT, QuranAyah } from '@/data';
-import { SPACING, RADIUS, TYPOGRAPHY } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -12,10 +12,41 @@ export const SetupAyahCarousel: React.FC = () => {
   const total = SETUP_QURAN_AYAT.length;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Animation values for smooth cross-fade transition
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const transitionTo = (newIndex: number) => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveIndex(newIndex);
+      slideAnim.setValue(6);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 280,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 280,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % total);
-    }, 5000);
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % total;
+        transitionTo(next);
+        return prev; // Let transitionTo update the active index
+      });
+    }, 5500);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -26,14 +57,9 @@ export const SetupAyahCarousel: React.FC = () => {
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
-      {/* Background Watermark */}
-      <IslamicWatermark
-        size={220}
-        opacity={0.16}
-        style={styles.watermark}
-      />
+      <IslamicWatermark size={220} opacity={0.16} style={styles.watermark} />
 
-      {/* Top Header Row */}
+      {/* Header Row */}
       <View style={styles.headerRow}>
         <View style={[styles.badgePill, { backgroundColor: theme.colors.surface }]}>
           <AppText variant="caption" color={theme.colors.accent} style={styles.badgeText}>
@@ -46,8 +72,13 @@ export const SetupAyahCarousel: React.FC = () => {
         </AppText>
       </View>
 
-      {/* Content Section: Arabic Ayah -> Urdu -> English */}
-      <View style={styles.contentSection}>
+      {/* Animated Ayah Content */}
+      <Animated.View
+        style={[
+          styles.contentSection,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+        ]}
+      >
         <AppText
           variant="ayahArabic"
           color={theme.colors.bannerGreenText}
@@ -73,21 +104,30 @@ export const SetupAyahCarousel: React.FC = () => {
         >
           "{currentAyah.english}"
         </AppText>
-      </View>
 
-      {/* Carousel Pagination Dots */}
+        <AppText
+          variant="caption"
+          color={theme.colors.accentLight}
+          align="right"
+          style={styles.referenceText}
+        >
+          — {currentAyah.reference}
+        </AppText>
+      </Animated.View>
+
+      {/* Pagination Indicator Dots */}
       <View style={styles.dotsRow}>
         {SETUP_QURAN_AYAT.map((item, index) => {
           const isActive = index === activeIndex;
           return (
             <Pressable
               key={item.id}
-              onPress={() => setActiveIndex(index)}
+              onPress={() => transitionTo(index)}
               style={[
                 styles.dot,
                 {
                   backgroundColor: isActive ? theme.colors.accent : theme.colors.textSubtle,
-                  width: isActive ? 18 : 6,
+                  width: isActive ? 20 : 6,
                   opacity: isActive ? 1 : 0.4,
                 },
               ]}
@@ -105,7 +145,7 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     overflow: 'hidden',
     position: 'relative',
-    minHeight: 180,
+    minHeight: 190,
     justifyContent: 'space-between',
   },
   watermark: {
@@ -116,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   badgePill: {
     paddingHorizontal: SPACING.sm + 2,
@@ -138,12 +178,17 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xs,
   },
   urduText: {
-    opacity: 0.9,
+    opacity: 0.95,
     lineHeight: 22,
   },
   englishText: {
     fontStyle: 'italic',
     lineHeight: 20,
+  },
+  referenceText: {
+    opacity: 0.8,
+    marginTop: 2,
+    fontSize: 11,
   },
   dotsRow: {
     flexDirection: 'row',

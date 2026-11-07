@@ -74,6 +74,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
         styles.base,
         sizeStyles[size],
         getContainerStyle(pressed),
+        { transform: [{ scale: pressed ? 0.98 : 1.0 }] },
         style,
       ]}
     >

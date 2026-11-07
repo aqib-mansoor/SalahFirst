@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, Text, Animated } from 'react-native';
 import { APP_CONFIG } from '@/constants/config';
 import { SPACING, TYPOGRAPHY } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -9,8 +9,42 @@ import { BrandLogo3D } from './BrandLogo3D';
 export const WelcomeBrand: React.FC = () => {
   const theme = useTheme();
 
+  // Entrance animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.92)).current;
+  const slideAnim = useRef(new Animated.Value(12)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, scaleAnim, slideAnim]);
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          opacity: fadeAnim,
+          transform: [{ scale: scaleAnim }, { translateY: slideAnim }],
+        },
+      ]}
+    >
       <BrandLogo3D size={110} style={styles.logo} />
 
       <Text style={styles.titleContainer}>
@@ -30,7 +64,7 @@ export const WelcomeBrand: React.FC = () => {
       >
         {APP_CONFIG.tagline}
       </AppText>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -55,4 +89,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
-
