@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { WelcomeScreen } from '@/components/welcome';
+import { SetupScreen } from '@/components/setup';
+import { storage } from '@/utils/storage';
+import { APP_CONFIG } from '@/constants/config';
 
 export default function App() {
-  const handleContinue = () => {
-    // Screen-by-screen progression: Ready for Setup Screen
+  const [currentStep, setCurrentStep] = useState<'welcome' | 'setup'>('welcome');
+
+  const handleContinueToSetup = () => {
+    setCurrentStep('setup');
+  };
+
+  const handleCompleteSetup = async () => {
+    await storage.set(APP_CONFIG.storageKeys.hasCompletedSetup, true);
+    // Ready for Home/Dashboard screen next
   };
 
   return (
     <SafeAreaProvider>
-      <WelcomeScreen onContinue={handleContinue} />
+      {currentStep === 'welcome' ? (
+        <WelcomeScreen onContinue={handleContinueToSetup} />
+      ) : (
+        <SetupScreen onComplete={handleCompleteSetup} />
+      )}
     </SafeAreaProvider>
   );
 }
