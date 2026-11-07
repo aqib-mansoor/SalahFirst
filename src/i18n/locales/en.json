@@ -208,5 +208,20 @@
   "streakEncouragementTitle": "Streak Encouragement",
   "streakEncouragementDesc": "Celebrate completing all 5 prayers in a day",
   "quietHoursTitle": "Quiet Hours",
-  "quietHoursDesc": "Silence gentle reminders between 22:00 and 05:00"
+  "quietHoursDesc": "Silence gentle reminders between 22:00 and 05:00",
+
+  "wallpaper": "Wallpaper",
+  "hadithWallpaperGallery": "Hadith Wallpaper Gallery",
+  "wallpaperGallerySubtitle": "4 Islamic themes • High-resolution export",
+  "calculationMethod": "Calculation Method",
+  "switchAction": "Switch",
+  "asrJuristicPreference": "Asr Juristic Preference",
+  "standardOrHanafi": "Standard (Shafi'i/Maliki/Hanbali) or Hanafi",
+  "azanSoundsAndAlerts": "Azan Sounds & Alerts",
+  "prePrayerGentleAndAzan": "Pre-prayer gentle reminder & full Azan",
+  "focusDefaultDuration": "Prayer Focus Default Duration",
+  "fifteenMinutes": "Currently 15 minutes",
+  "backupExportTitle": "Backup / Export Local Data (JSON)",
+  "backupExportSubtitle": "Save your prayer logs & streaks offline",
+  "privacyPolicyTitle": "SalahFirst v1.0 • Privacy Policy (Zero Tracking)"
 }

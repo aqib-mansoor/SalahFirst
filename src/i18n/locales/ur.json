@@ -208,5 +208,20 @@
   "streakEncouragementTitle": "تسلسل کی حوصلہ افزائی",
   "streakEncouragementDesc": "دن کی تمام 5 نمازیں مکمل ہونے پر مسرت کا اظہار",
   "quietHoursTitle": "پرسکون اوقات",
-  "quietHoursDesc": "رات 10 بجے سے صبح 5 بجے تک اضافی یاد دہانیاں خاموش رکھیں"
+  "quietHoursDesc": "رات 10 بجے سے صبح 5 بجے تک اضافی یاد دہانیاں خاموش رکھیں",
+
+  "wallpaper": "وال پیپر",
+  "hadithWallpaperGallery": "حدیث وال پیپر گیلری",
+  "wallpaperGallerySubtitle": "4 اسلامی تھیمز • اعلیٰ کوالٹی برآمد",
+  "calculationMethod": "طریقۂ حساب",
+  "switchAction": "تبدیل کریں",
+  "asrJuristicPreference": "عصر کی فقہی ترجیح",
+  "standardOrHanafi": "معیاری (شافعی/مالکی/حنبلی) یا حنفی",
+  "azanSoundsAndAlerts": "آوازِ اذان اور انتباہات",
+  "prePrayerGentleAndAzan": "قبل از نماز نرم یاد دہانی اور مکمل اذان",
+  "focusDefaultDuration": "نماز فوکس کا طے شدہ دورانیہ",
+  "fifteenMinutes": "فی الوقت 15 منٹ",
+  "backupExportTitle": "بیک اپ / مقامی ڈیٹا برآمد کریں (JSON)",
+  "backupExportSubtitle": "نماز لاگز اور تسلسل آف لائن محفوظ کریں",
+  "privacyPolicyTitle": "صلاۃ فرسٹ v1.0 • پرائیویسی پالیسی (بغیر ٹریکنگ)"
 }

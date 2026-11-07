@@ -209,5 +209,20 @@
   "streakEncouragementTitle": "تشجيع الاستمرارية",
   "streakEncouragementDesc": "احتفاء بإتمام الصلوات الخمس اليومية",
   "quietHoursTitle": "ساعات الهدوء",
-  "quietHoursDesc": "كتم التنبيهات غير الضرورية بين 22:00 و 05:00"
+  "quietHoursDesc": "كتم التنبيهات غير الضرورية بين 22:00 و 05:00",
+
+  "wallpaper": "خلفية",
+  "hadithWallpaperGallery": "معرض خلفيات الحديث",
+  "wallpaperGallerySubtitle": "4 سمات إسلامية • تصدير عالي الدقة",
+  "calculationMethod": "طريقة الحساب",
+  "switchAction": "تبديل",
+  "asrJuristicPreference": "المذهب الفقهي لصلاة العصر",
+  "standardOrHanafi": "جمهور الفقهاء (شافعي/مالكي/حنبلي) أو حنفي",
+  "azanSoundsAndAlerts": "أصوات الأذان والتنبيهات",
+  "prePrayerGentleAndAzan": "تذكير لطيف قبل الصلاة والأذان الكامل",
+  "focusDefaultDuration": "المدة الافتراضية لتركيز الصلاة",
+  "fifteenMinutes": "حالياً 15 دقيقة",
+  "backupExportTitle": "نسخ احتياطي / تصدير البيانات (JSON)",
+  "backupExportSubtitle": "احفظ سجلات الصلاة والاستمرارية دون إنترنت",
+  "privacyPolicyTitle": "صلاة فيرست v1.0 • سياسة الخصوصية (بدون تتبع)"
 }
