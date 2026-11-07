@@ -38,6 +38,7 @@ export type AppStep =
   | 'wallpaper';
 
 function AppContent() {
+  const theme = useTheme();
   const { language } = useTranslation();
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
@@ -94,6 +95,36 @@ function AppContent() {
     return () => subscription.remove();
   }, []);
 
+  // Handle Android hardware back button
+  useEffect(() => {
+    const onBackPress = () => {
+      if (currentStep === 'wallpaper') {
+        setCurrentStep('main');
+        return true;
+      }
+      if (currentStep === 'focus-config') {
+        setCurrentStep('main');
+        return true;
+      }
+      if (currentStep === 'azan-prefs') {
+        setCurrentStep('settings');
+        return true;
+      }
+      if (currentStep === 'settings') {
+        setCurrentStep('main');
+        return true;
+      }
+      if (currentStep === 'main' && activeTab !== 'home') {
+        setActiveTab('home');
+        return true;
+      }
+      return false;
+    };
+
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [currentStep, activeTab]);
+
   const handleContinueToSetup = () => {
     setCurrentStep('setup');
   };
@@ -126,6 +157,7 @@ function AppContent() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar style={theme.isDark ? 'light' : 'dark'} backgroundColor={theme.colors.background} />
       {currentStep === 'welcome' && (
         <WelcomeScreen onContinue={handleContinueToSetup} />
       )}

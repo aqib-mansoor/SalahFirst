@@ -6,36 +6,10 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { MisbahaBeadsSvg } from './MisbahaBeadsSvg';
+import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 
+export { DhikrPhase };
 const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
-
-export interface DhikrPhase {
-  arabic: string;
-  transliteration: string;
-  translation: string;
-  target: number;
-}
-
-const DHIKR_PHASES: DhikrPhase[] = [
-  {
-    arabic: 'سُبْحَانَ اللَّهِ',
-    transliteration: 'SubhanAllah',
-    translation: 'Glory be to Allah',
-    target: 33,
-  },
-  {
-    arabic: 'الْحَمْدُ لِلَّهِ',
-    transliteration: 'Alhamdulillah',
-    translation: 'Praise be to Allah',
-    target: 33,
-  },
-  {
-    arabic: 'اللَّهُ أَكْبَرُ',
-    transliteration: 'Allahu Akbar',
-    translation: 'Allah is the Greatest',
-    target: 34,
-  },
-];
 
 interface TasbihPersistedState {
   count: number;
@@ -142,7 +116,6 @@ export const TasbihCounter3D: React.FC = () => {
             {totalCycles > 0 ? ` (${totalCycles} ${t('completedSuffix')})` : ''}
           </AppText>
         </View>
-
         <Pressable
           onPress={handleReset}
           hitSlop={8}

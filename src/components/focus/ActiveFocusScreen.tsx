@@ -6,6 +6,7 @@ import { AppContainer, AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
 import { FocusCompletionModal } from './FocusCompletionModal';
+import { ActiveFocusActions } from './ActiveFocusActions';
 import { FocusDuration } from '@/types';
 import { useTranslation } from '@/context/LocalizationContext';
 import {
@@ -160,32 +161,10 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         </View>
 
         {/* Bottom Actions */}
-        <View style={styles.bottomRow}>
-          <Pressable
-            onPress={handleEmergencyCall}
-            accessibilityRole="button"
-            accessibilityLabel={t('emergencyCall')}
-            accessibilityHint="Opens phone dialer for emergency calls"
-            hitSlop={8}
-            style={styles.emergencyBtn}
-          >
-            <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.emergencyText}>
-              {t('emergencyCall')}
-            </AppText>
-          </Pressable>
-
-          <Pressable
-            onPress={handleExitEarly}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel={t('exitFocusEarly')}
-            accessibilityHint="Prompts to exit the current Salah focus session"
-          >
-            <AppText variant="bodySmall" color={PALETTE.white} style={styles.exitText}>
-              {t('exitFocusEarly')}
-            </AppText>
-          </Pressable>
-        </View>
+        <ActiveFocusActions
+          onEmergencyCall={handleEmergencyCall}
+          onExitEarly={handleExitEarly}
+        />
       </View>
 
       <FocusCompletionModal
