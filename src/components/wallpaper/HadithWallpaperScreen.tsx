@@ -120,12 +120,26 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   };
 
   const handleShareStatus = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     try {
-      await Share.share({
-        title: 'Share Authentic Hadith',
-        message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via SalahFirst`,
-      });
-    } catch {}
+      const uri = await captureActiveWallpaper();
+      if (uri && (await Sharing.isAvailableAsync())) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'image/png',
+          dialogTitle: 'Share Hadith Wallpaper',
+        });
+      } else {
+        await Share.share({
+          title: 'Share Authentic Hadith',
+          message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via SalahFirst`,
+        });
+      }
+    } catch {
+      showToast('Error sharing wallpaper.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal, StyleSheet, View, Pressable, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { Modal, StyleSheet, View, Pressable, ScrollView, TextInput } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -26,6 +26,16 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [search, setSearch] = useState('');
+
+  const trimmed = search.trim().toLowerCase();
+  const filteredCities = trimmed
+    ? PRESET_CITIES.filter(
+        (c) =>
+          c.name.toLowerCase().includes(trimmed) ||
+          c.country.toLowerCase().includes(trimmed)
+      )
+    : PRESET_CITIES;
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -51,15 +61,26 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             </Pressable>
           </View>
 
-          {/* Subtitle */}
-          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-            {t('chooseCityOffline')}
-          </AppText>
+          {/* Search Input */}
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('searchCityOrCountry')}
+            placeholderTextColor={theme.colors.textMuted}
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: theme.colors.surfaceElevated,
+                color: theme.colors.text,
+                borderColor: theme.colors.border,
+              },
+            ]}
+          />
 
           {/* Cities List */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
             {/* GPS Option */}
-            {onUseGps && (
+            {onUseGps && !trimmed && (
               <Pressable
                 onPress={() => {
                   onUseGps();
@@ -101,7 +122,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               </Pressable>
             )}
 
-            {PRESET_CITIES.map((city) => {
+            {filteredCities.map((city) => {
               const isSelected =
                 !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
 
@@ -180,8 +201,12 @@ const styles = StyleSheet.create({
   closeBtn: {
     padding: SPACING.xs,
   },
-  subtitle: {
-    lineHeight: 18,
+  searchInput: {
+    borderWidth: 1,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    fontSize: 14,
     marginBottom: SPACING.xs,
   },
   list: {

@@ -69,18 +69,18 @@ export const FocusDistractionCard: React.FC<FocusDistractionCardProps> = ({
       {/* Title & Badge */}
       <View style={styles.titleRow}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Pause Distracting Apps (Optional)
+          Avoid Distractions (Commitment)
         </AppText>
         <View style={[styles.badge, { backgroundColor: theme.colors.mintTint }]}>
           <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-            Android DND / Usage Access
+            Mindful Commitment
           </AppText>
         </View>
       </View>
 
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.description}>
-        Uses optional Android Do Not Disturb & gentle overlay reminders. Phone calls and emergency
-        access always remain available.
+        Set your intention to step away from distractions during prayer. Essential phone calls and
+        emergency access always remain available.
       </AppText>
 
       {/* 2x2 Non-Overlapping Grid */}
