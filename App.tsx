@@ -7,6 +7,7 @@ import { PrayerTimesScreen, AzanPrefsScreen } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { QiblaScreen } from '@/components/qibla';
+import { HadithScreen } from '@/components/hadith';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -87,6 +88,9 @@ export default function App() {
       )}
       {currentStep === 'main' && activeTab === 'qibla' && (
         <QiblaScreen onNavigateTab={setActiveTab} />
+      )}
+      {currentStep === 'main' && activeTab === 'hadith' && (
+        <HadithScreen onNavigateTab={setActiveTab} />
       )}
       {currentStep === 'settings' && (
         <SettingsScreen

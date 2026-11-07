@@ -77,7 +77,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           />
 
           {/* Daily Hadith Section */}
-          <HomeDailyHadith />
+          <HomeDailyHadith onReadFull={() => handleTabChange('hadith')} />
         </ScrollView>
 
         {/* Docked Bottom Navigation Bar */}
