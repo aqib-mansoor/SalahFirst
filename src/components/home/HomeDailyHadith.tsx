@@ -11,7 +11,7 @@ export interface HomeDailyHadithProps {
 }
 
 export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
 
   const arabicText = dailyHadith.arabic;

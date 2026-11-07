@@ -16,7 +16,7 @@ export const FocusDurationCard: React.FC<FocusDurationCardProps> = ({
   selectedDuration,
   onSelectDuration,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

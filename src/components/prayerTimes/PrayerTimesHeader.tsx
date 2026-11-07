@@ -13,7 +13,7 @@ export interface PrayerTimesHeaderProps {
 export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
   onOpenAzanPrefs,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const hijriDate = getIslamicDateFormatted();
   const gregorianDate = 'Sat, 7 Nov 2026';
 

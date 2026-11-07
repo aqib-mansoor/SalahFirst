@@ -19,7 +19,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
   relativePointerAngle,
   isAligned,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

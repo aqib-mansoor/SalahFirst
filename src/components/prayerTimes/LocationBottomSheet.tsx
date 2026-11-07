@@ -20,7 +20,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   onClose,
   onSelectCity,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>

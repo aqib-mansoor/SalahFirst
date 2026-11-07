@@ -18,7 +18,7 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
   methodName = 'University of Islamic Sciences, Karachi',
   onOpenLocationSheet,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>

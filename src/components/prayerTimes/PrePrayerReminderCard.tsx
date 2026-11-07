@@ -21,7 +21,7 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
   currentOffset,
   onSelectOffset,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

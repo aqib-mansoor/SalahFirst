@@ -20,7 +20,7 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
   onOpenStatistics,
   weekData,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const defaultDays: DayOverview[] = [
     { dayLabel: 'M', completed: 5, total: 5, isToday: false },

@@ -15,7 +15,7 @@ export interface SetupScreenProps {
 }
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const {
     location,
     isLoading,

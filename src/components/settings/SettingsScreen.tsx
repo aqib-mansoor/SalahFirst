@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme, useThemeState } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
@@ -25,14 +25,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onOpenAzanPrefs,
   onNavigateTab,
 }) => {
-  const theme = useTheme('light');
+  const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation } = useDeviceLocation();
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showWallpaper, setShowWallpaper] = useState(false);
   const [juristic, setJuristic] = useState<'Hanafi' | 'Standard'>('Hanafi');
   const [language, setLanguage] = useState<'English' | 'Urdu'>('English');
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   if (showWallpaper) {
     return (
@@ -85,8 +84,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
           {/* Appearance Settings */}
           <AppearanceSettingsGroup
-            isDarkMode={isDarkMode}
-            onToggleTheme={() => setIsDarkMode((p) => !p)}
+            themeMode={themeMode}
+            onSelectThemeMode={setThemeMode}
             onOpenWallpaperGallery={() => setShowWallpaper(true)}
           />
 

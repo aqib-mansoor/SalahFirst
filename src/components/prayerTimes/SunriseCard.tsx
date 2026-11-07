@@ -10,7 +10,7 @@ export interface SunriseCardProps {
 }
 
 export const SunriseCard: React.FC<SunriseCardProps> = ({ time = '06:39 AM' }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>

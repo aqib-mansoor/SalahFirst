@@ -17,7 +17,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
   completedCount,
   onTogglePrayer,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const progressPercent = Math.min(100, Math.max(0, (completedCount / 5) * 100));
 
   return (

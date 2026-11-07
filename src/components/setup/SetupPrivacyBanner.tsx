@@ -6,7 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 
 export const SetupPrivacyBanner: React.FC = () => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.privacyBg }]}>

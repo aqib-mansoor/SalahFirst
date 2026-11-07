@@ -19,7 +19,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
   totalHadiths,
   showUrdu,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

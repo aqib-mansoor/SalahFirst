@@ -16,7 +16,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   prayersCompleted,
   onTogglePrayer,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const prayerNames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 

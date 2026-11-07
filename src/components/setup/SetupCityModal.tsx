@@ -23,7 +23,7 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
   onClose,
   onSelect,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const [query, setQuery] = useState('');
 
   const trimmedQuery = query.trim();

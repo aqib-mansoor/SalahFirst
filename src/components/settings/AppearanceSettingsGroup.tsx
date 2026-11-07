@@ -4,23 +4,42 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { ThemeMode } from '@/types';
 
 export interface AppearanceSettingsGroupProps {
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
+  themeMode: ThemeMode;
+  onSelectThemeMode: (mode: ThemeMode) => void;
   onOpenWallpaperGallery?: () => void;
 }
 
+const MODES: { id: ThemeMode; label: string }[] = [
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+  { id: 'system', label: 'System' },
+];
+
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
-  isDarkMode,
-  onToggleTheme,
+  themeMode,
+  onSelectThemeMode,
   onOpenWallpaperGallery,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
+
+  const getSubtitle = () => {
+    if (themeMode === 'dark') return 'Deep Islamic Obsidian';
+    if (themeMode === 'light') return 'Warm Khorasan Cream';
+    return 'System Default (Auto)';
+  };
 
   const ChevronRight = (
     <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-      <Path d="M9 18l6-6-6-6" stroke={theme.colors.textSubtle} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <Path
+        d="M9 18l6-6-6-6"
+        stroke={theme.colors.textSubtle}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 
@@ -31,12 +50,17 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-        {/* Row 1: Theme Mode */}
-        <View style={styles.row}>
+        {/* Row 1: Theme Mode Info + 3-way Segmented Control */}
+        <View style={styles.themeRow}>
           <View style={styles.leftRow}>
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Circle cx="12" cy="12" r="5" stroke={theme.colors.primary} strokeWidth="2" />
-              <Path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" />
+              <Path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                stroke={theme.colors.primary}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </Svg>
 
             <View style={styles.textCol}>
@@ -44,25 +68,36 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
                 Theme Mode
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                {isDarkMode ? 'Deep Islamic Dark' : 'Warm Off-White Light'}
+                {getSubtitle()}
               </AppText>
             </View>
           </View>
 
-          <Pressable
-            onPress={onToggleTheme}
-            style={({ pressed }) => [
-              styles.switchBtn,
-              {
-                borderColor: theme.colors.border,
-                backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surface,
-              },
-            ]}
-          >
-            <AppText variant="caption" color={theme.colors.text} style={styles.switchBtnText}>
-              {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
-            </AppText>
-          </Pressable>
+          {/* 3-way Segmented Pill */}
+          <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+            {MODES.map((mode) => {
+              const isSelected = themeMode === mode.id;
+              return (
+                <Pressable
+                  key={mode.id}
+                  onPress={() => onSelectThemeMode(mode.id)}
+                  style={({ pressed }) => [
+                    styles.segmentItem,
+                    isSelected && [styles.segmentSelected, { backgroundColor: theme.colors.primary }],
+                    pressed && !isSelected && { opacity: 0.7 },
+                  ]}
+                >
+                  <AppText
+                    variant="caption"
+                    color={isSelected ? theme.colors.textInverse : theme.colors.textMuted}
+                    style={[styles.segmentText, isSelected && styles.segmentTextSelected]}
+                  >
+                    {mode.label}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
@@ -98,6 +133,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'hidden',
   },
+  themeRow: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    gap: SPACING.sm,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -109,7 +149,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
-    flex: 1,
   },
   textCol: {
     flex: 1,
@@ -119,19 +158,36 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontWeight: '700',
   },
-  switchBtn: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+  segmentTrack: {
+    flexDirection: 'row',
     borderRadius: RADIUS.md,
     borderWidth: 1,
+    padding: 3,
+    gap: 2,
   },
-  switchBtnText: {
+  segmentItem: {
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: RADIUS.sm + 2,
+  },
+  segmentSelected: {
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  segmentText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  segmentTextSelected: {
     fontWeight: '700',
-    fontSize: 11,
   },
   divider: {
     height: 1,
     width: '100%',
   },
 });
-

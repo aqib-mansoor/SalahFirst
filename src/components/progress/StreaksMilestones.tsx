@@ -10,7 +10,7 @@ export interface StreaksMilestonesProps {
 }
 
 export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStreak }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const is7Achieved = currentStreak >= 7;
   const is30Achieved = currentStreak >= 30;

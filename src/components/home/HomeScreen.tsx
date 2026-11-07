@@ -23,7 +23,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onStartPrayerFocus,
   onOpenStreaks,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const { location } = useDeviceLocation();
 

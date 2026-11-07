@@ -8,7 +8,7 @@ export interface KaabaEmblem3DProps {
 }
 
 export const KaabaEmblem3D: React.FC<KaabaEmblem3DProps> = ({ isAligned }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.kaabaContainer}>

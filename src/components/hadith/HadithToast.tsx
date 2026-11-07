@@ -11,7 +11,7 @@ export interface HadithToastProps {
 }
 
 export const HadithToast: React.FC<HadithToastProps> = ({ message, onDismiss }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   if (!message) return null;
 

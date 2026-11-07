@@ -14,7 +14,7 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
   onPrev,
   onNext,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

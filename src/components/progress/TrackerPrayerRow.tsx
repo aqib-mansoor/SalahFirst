@@ -15,7 +15,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
   prayer,
   onToggle,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <Pressable

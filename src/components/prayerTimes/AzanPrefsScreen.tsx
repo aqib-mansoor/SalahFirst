@@ -25,7 +25,7 @@ const PRAYERS_CONFIG: {
 ];
 
 export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const {
     alerts,
     isPlayingAudio,

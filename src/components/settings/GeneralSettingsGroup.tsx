@@ -18,7 +18,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   onToggleLanguage,
   onOpenPrivacyPolicy,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const ChevronRight = (
     <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">

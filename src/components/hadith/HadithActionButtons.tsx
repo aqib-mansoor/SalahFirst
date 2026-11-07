@@ -18,7 +18,7 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
   onSavePress,
   onSharePress,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

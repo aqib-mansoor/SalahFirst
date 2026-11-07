@@ -17,7 +17,7 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
   onToggleAutoStart,
   onTogglePlayAzan,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

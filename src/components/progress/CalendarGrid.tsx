@@ -17,7 +17,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onSelectDay,
   dayPrayerMap,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const totalDays = 30; // November

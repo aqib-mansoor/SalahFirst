@@ -34,7 +34,7 @@ const DHIKR_PHASES: DhikrPhase[] = [
 ];
 
 export const TasbihCounter3D: React.FC = () => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const [phaseIndex, setPhaseIndex] = useState<number>(0);
   const [count, setCount] = useState<number>(0);
 

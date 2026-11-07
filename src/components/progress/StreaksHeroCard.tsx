@@ -10,7 +10,7 @@ export interface StreaksHeroCardProps {
 }
 
 export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

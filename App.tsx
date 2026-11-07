@@ -17,6 +17,7 @@ import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 export type AppStep =
   | 'welcome'
@@ -72,72 +73,74 @@ export default function App() {
   };
 
   return (
-    <SafeAreaProvider>
-      {currentStep === 'welcome' && (
-        <WelcomeScreen onContinue={handleContinueToSetup} />
-      )}
-      {currentStep === 'setup' && (
-        <SetupScreen onComplete={handleCompleteSetup} />
-      )}
-      {currentStep === 'main' && activeTab === 'home' && (
-        <HomeScreen
-          onOpenSettings={() => setCurrentStep('settings')}
-          onNavigateTab={setActiveTab}
-          onStartPrayerFocus={() => setCurrentStep('focus-config')}
-          onOpenStreaks={() => {
-            setProgressSubTab('streaks');
-            setActiveTab('progress');
-          }}
-        />
-      )}
-      {currentStep === 'main' && activeTab === 'prayers' && (
-        <PrayerTimesScreen
-          onNavigateHome={() => setActiveTab('home')}
-          onNavigateTab={setActiveTab}
-        />
-      )}
-      {currentStep === 'main' && activeTab === 'qibla' && (
-        <QiblaScreen onNavigateTab={setActiveTab} />
-      )}
-      {currentStep === 'main' && activeTab === 'hadith' && (
-        <HadithScreen onNavigateTab={setActiveTab} />
-      )}
-      {currentStep === 'main' && activeTab === 'progress' && (
-        <ProgressScreen
-          initialSubTab={progressSubTab}
-          onNavigateTab={(tab) => {
-            setActiveTab(tab);
-            if (tab === 'progress') setProgressSubTab('tracker');
-          }}
-        />
-      )}
-      {currentStep === 'settings' && (
-        <SettingsScreen
-          onBack={() => setCurrentStep('main')}
-          onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
-          onNavigateTab={(tab) => {
-            setActiveTab(tab);
-            setCurrentStep('main');
-          }}
-        />
-      )}
-      {currentStep === 'azan-prefs' && (
-        <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
-      )}
-      {currentStep === 'focus-config' && (
-        <PrayerFocusConfigScreen
-          onBack={() => setCurrentStep('main')}
-          onBeginFocus={handleBeginFocus}
-        />
-      )}
-      {currentStep === 'focus-active' && (
-        <ActiveFocusScreen
-          duration={focusDuration}
-          prayerName={prayerData.nextPrayerName || 'Asr'}
-          onExit={() => setCurrentStep('main')}
-          onCompletePrayer={handleCompletePrayerFocus}
-        />
-      )}
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        {currentStep === 'welcome' && (
+          <WelcomeScreen onContinue={handleContinueToSetup} />
+        )}
+        {currentStep === 'setup' && (
+          <SetupScreen onComplete={handleCompleteSetup} />
+        )}
+        {currentStep === 'main' && activeTab === 'home' && (
+          <HomeScreen
+            onOpenSettings={() => setCurrentStep('settings')}
+            onNavigateTab={setActiveTab}
+            onStartPrayerFocus={() => setCurrentStep('focus-config')}
+            onOpenStreaks={() => {
+              setProgressSubTab('streaks');
+              setActiveTab('progress');
+            }}
+          />
+        )}
+        {currentStep === 'main' && activeTab === 'prayers' && (
+          <PrayerTimesScreen
+            onNavigateHome={() => setActiveTab('home')}
+            onNavigateTab={setActiveTab}
+          />
+        )}
+        {currentStep === 'main' && activeTab === 'qibla' && (
+          <QiblaScreen onNavigateTab={setActiveTab} />
+        )}
+        {currentStep === 'main' && activeTab === 'hadith' && (
+          <HadithScreen onNavigateTab={setActiveTab} />
+        )}
+        {currentStep === 'main' && activeTab === 'progress' && (
+          <ProgressScreen
+            initialSubTab={progressSubTab}
+            onNavigateTab={(tab) => {
+              setActiveTab(tab);
+              if (tab === 'progress') setProgressSubTab('tracker');
+            }}
+          />
+        )}
+        {currentStep === 'settings' && (
+          <SettingsScreen
+            onBack={() => setCurrentStep('main')}
+            onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+            onNavigateTab={(tab) => {
+              setActiveTab(tab);
+              setCurrentStep('main');
+            }}
+          />
+        )}
+        {currentStep === 'azan-prefs' && (
+          <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
+        )}
+        {currentStep === 'focus-config' && (
+          <PrayerFocusConfigScreen
+            onBack={() => setCurrentStep('main')}
+            onBeginFocus={handleBeginFocus}
+          />
+        )}
+        {currentStep === 'focus-active' && (
+          <ActiveFocusScreen
+            duration={focusDuration}
+            prayerName={prayerData.nextPrayerName || 'Asr'}
+            onExit={() => setCurrentStep('main')}
+            onCompletePrayer={handleCompletePrayerFocus}
+          />
+        )}
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

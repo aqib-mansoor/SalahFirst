@@ -17,7 +17,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   const tabs: { id: HomeTab; label: string }[] = [

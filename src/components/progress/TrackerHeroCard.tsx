@@ -10,7 +10,7 @@ export interface TrackerHeroCardProps {
 }
 
 export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const total = 5;
   const percentage = Math.round((completedCount / total) * 100);
   const remaining = total - completedCount;

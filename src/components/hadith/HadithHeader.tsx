@@ -13,7 +13,7 @@ export const HadithHeader: React.FC<HadithHeaderProps> = ({
   showUrdu,
   onToggleUrdu,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

@@ -18,7 +18,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
   onRequestGps,
   onOpenSettings,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   if (permissionDenied) {
     return (

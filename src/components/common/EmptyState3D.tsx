@@ -14,7 +14,7 @@ export const EmptyState3D: React.FC<EmptyState3DProps> = ({
   title,
   description,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

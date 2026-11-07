@@ -25,7 +25,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateHome,
   onNavigateTab,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const [activeTab, setActiveTab] = useState<HomeTab>('prayers');
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);

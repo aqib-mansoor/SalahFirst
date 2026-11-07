@@ -19,7 +19,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
   onOpenSettings,
   onOpenStreaks,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const hijriDate = getIslamicDateFormatted();
 
   return (

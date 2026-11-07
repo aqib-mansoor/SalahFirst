@@ -22,7 +22,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
   onRequestGps,
   onOpenSettings,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>

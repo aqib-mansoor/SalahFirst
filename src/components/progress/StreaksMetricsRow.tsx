@@ -15,7 +15,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
   longestStreakNote = 'Ramadan 1447',
   totalPrayers = 345,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

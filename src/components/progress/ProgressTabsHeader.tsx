@@ -15,7 +15,7 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const tabs: { id: ProgressSubTab; label: string }[] = [
     { id: 'tracker', label: 'Tracker' },

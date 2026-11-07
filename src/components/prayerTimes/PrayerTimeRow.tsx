@@ -25,7 +25,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   remainingTimeText,
   onCycleNotification,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const cardBg = isNext ? theme.colors.bannerGreen : theme.colors.surface;
   const textColor = isNext ? theme.colors.bannerGreenText : theme.colors.text;

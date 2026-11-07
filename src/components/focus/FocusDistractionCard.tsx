@@ -26,7 +26,7 @@ export const FocusDistractionCard: React.FC<FocusDistractionCardProps> = ({
   onToggleGames,
   onToggleNews,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const categories = [
     {

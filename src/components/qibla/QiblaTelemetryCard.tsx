@@ -21,7 +21,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
   cardinal,
   isAligned,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const diffDegrees = Math.round(
     relativePointerAngle > 180 ? 360 - relativePointerAngle : relativePointerAngle

@@ -25,7 +25,7 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   currentMode,
   onSelectMode,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View

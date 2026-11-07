@@ -18,7 +18,7 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
   qiblaBearing,
   cardinal,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>

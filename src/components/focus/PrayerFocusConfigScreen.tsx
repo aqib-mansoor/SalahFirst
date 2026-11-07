@@ -18,7 +18,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   onBack,
   onBeginFocus,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const [duration, setDuration] = useState<FocusDuration>(15);
   const [blockSocial, setBlockSocial] = useState(true);
   const [blockShortVideos, setBlockShortVideos] = useState(true);

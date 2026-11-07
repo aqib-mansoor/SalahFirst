@@ -17,7 +17,7 @@ export const WallpaperActionDock: React.FC<WallpaperActionDockProps> = ({
   onSetWallpaper,
   onShareStatus,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   return (

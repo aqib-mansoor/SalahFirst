@@ -10,7 +10,7 @@ export interface SettingsHeaderProps {
 }
 
 export const SettingsHeader: React.FC<SettingsHeaderProps> = ({ onBack }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.header}>

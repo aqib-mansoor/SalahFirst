@@ -15,7 +15,7 @@ export interface StreaksWeeklyChartProps {
 }
 
 export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartData }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   const defaultBars: DayBarData[] = [
     { dayName: 'Mon', completed: 5, total: 5 },

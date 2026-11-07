@@ -18,7 +18,7 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
   onPrevMonth,
   onNextMonth,
 }) => {
-  const theme = useTheme('light');
+  const theme = useTheme();
 
   return (
     <View style={styles.container}>
