@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
 import { getDefaultMethodForCountry } from '@/utils/prayerTimes';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface SetupCityModalProps {
   visible: boolean;
@@ -28,6 +29,7 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

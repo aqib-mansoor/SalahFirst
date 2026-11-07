@@ -6,6 +6,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { LocationActionButtons } from './LocationActionButtons';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface SetupLocationCardProps {
   location: UserLocation | null;
@@ -25,20 +26,21 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
   onSelectCityManually,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const getStatusBadge = () => {
     if (isLoading) {
-      return { text: 'Locating...', bg: theme.colors.mintTint, color: theme.colors.primary };
+      return { text: t('locating'), bg: theme.colors.mintTint, color: theme.colors.primary };
     }
     if (location) {
       return location.isGps
-        ? { text: 'GPS Locked', bg: theme.colors.mintTint, color: theme.colors.primary }
-        : { text: 'Manual City', bg: theme.colors.mintTint, color: theme.colors.primary };
+        ? { text: t('gpsLocked'), bg: theme.colors.mintTint, color: theme.colors.primary }
+        : { text: t('manualCity'), bg: theme.colors.mintTint, color: theme.colors.primary };
     }
     if (permissionDenied) {
-      return { text: 'Permission Needed', bg: theme.colors.border, color: theme.colors.textMuted };
+      return { text: t('permissionNeeded'), bg: theme.colors.border, color: theme.colors.textMuted };
     }
-    return { text: 'Location Not Set', bg: theme.colors.border, color: theme.colors.textMuted };
+    return { text: t('locationNotSet'), bg: theme.colors.border, color: theme.colors.textMuted };
   };
 
   const status = getStatusBadge();
@@ -63,18 +65,17 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
         <View style={styles.titleWrapper}>
           <View style={styles.headingBadgeRow}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-              Prayer Times Location
+              {t('prayerLocationTitle')}
             </AppText>
             <View style={[styles.gpsBadge, { backgroundColor: theme.colors.mintTint }]}>
               <AppText variant="caption" color={theme.colors.primary} style={styles.gpsBadgeText}>
-                {location && !location.isGps ? 'Manual' : 'Auto GPS'}
+                {location && !location.isGps ? t('manual') : t('autoGps')}
               </AppText>
             </View>
           </View>
 
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.description}>
-            Used locally to calculate precise Fajr to Isha times and Qibla bearing. Never leaves
-            your device.
+            {t('locationDesc')}
           </AppText>
         </View>
       </View>
@@ -105,8 +106,8 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
             {location
               ? `${location.city}${location.country ? `, ${location.country}` : ''}`
               : permissionDenied
-              ? 'Select city manually...'
-              : 'Detecting GPS Location...'}
+              ? `${t('selectCityManually')}...`
+              : t('detectingLocation')}
           </AppText>
         </View>
 
