@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HomeSalahTrackerProps {
   prayers: PrayerStatus[];
@@ -18,6 +19,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
   onTogglePrayer,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const progressPercent = Math.min(100, Math.max(0, (completedCount / 5) * 100));
 
   return (
@@ -25,10 +27,10 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
       {/* Section Header */}
       <View style={styles.headerRow}>
         <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-          Today's Salah
+          {t('todaysSalah')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.primary} style={styles.countText}>
-          {completedCount} of 5 prayers completed
+          {t('prayersCompletedCount', { count: completedCount, total: 5 })}
         </AppText>
       </View>
 
@@ -71,7 +73,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
                 color={isSelected ? theme.colors.primary : theme.colors.text}
                 style={styles.prayerName}
               >
-                {item.name}
+                {t(item.name.toLowerCase() as any) || item.name}
               </AppText>
 
               <AppText variant="caption" color={theme.colors.textMuted} style={styles.prayerTime}>

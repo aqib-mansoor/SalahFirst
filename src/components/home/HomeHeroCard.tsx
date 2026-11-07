@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HomeHeroCardProps {
   currentPrayerName: string;
@@ -26,6 +27,12 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   onStartPrayerFocus,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const localizedCurrentPrayer =
+    (t(currentPrayerName.toLowerCase() as any) as string) || currentPrayerName;
+  const localizedNextPrayer =
+    (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
@@ -36,7 +43,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         <View style={styles.currentTag}>
           <View style={[styles.goldDot, { backgroundColor: theme.colors.accentLight }]} />
           <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
-            CURRENT: {currentPrayerName} ({currentTimeFormatted})
+            {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
           </AppText>
         </View>
 
@@ -45,7 +52,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           color={isCurrentCompleted ? theme.colors.accentLight : theme.colors.textMuted}
           style={styles.completedTag}
         >
-          {isCurrentCompleted ? 'Completed ✓' : 'Pending'}
+          {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
         </AppText>
       </View>
 
@@ -53,7 +60,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.nextPrayerLabel}>
-            Next Prayer • <AppText variant="titleSmall" color={theme.colors.text}>{nextPrayerName}</AppText>
+            {t('nextPrayer')} • <AppText variant="titleSmall" color={theme.colors.text}>{localizedNextPrayer}</AppText>
           </AppText>
 
           <AppText variant="brandTitle" color={theme.colors.text} style={styles.countdownNumber}>
@@ -63,7 +70,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
         <View style={styles.rightAzan}>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.azanLabel}>
-            Azan Time
+            {t('azanTime')}
           </AppText>
           <AppText variant="titleLarge" color={theme.colors.accentLight} style={styles.azanTime}>
             {nextPrayerTimeFormatted}
@@ -75,7 +82,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       <Pressable
         onPress={onStartPrayerFocus}
         accessibilityRole="button"
-        accessibilityLabel="Start Prayer Focus, 15 minutes"
+        accessibilityLabel={`${t('startPrayerFocus')}, 15 min`}
         accessibilityHint="Opens dedicated quiet focus mode to dedicate time to prayer"
         style={({ pressed }) => [
           styles.focusButton,
@@ -89,7 +96,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </Svg>
         <AppText variant="titleSmall" color={theme.colors.buttonGoldText} style={styles.focusButtonText}>
-          Start Prayer Focus
+          {t('startPrayerFocus')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.buttonGoldText} style={styles.durationText}>
           15 min
