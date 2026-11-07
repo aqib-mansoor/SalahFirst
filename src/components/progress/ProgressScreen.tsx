@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { AppContainer, AppText } from '@/components/common';
@@ -17,6 +18,14 @@ import { StreaksMilestones } from './StreaksMilestones';
 import { CalendarMonthHeader } from './CalendarMonthHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarDayInspector } from './CalendarDayInspector';
+import {
+  getLast7Days,
+  calculateLongestStreak,
+  calculateTotalPrayers,
+} from '@/utils/trackerStatistics';
+import { generateCalendarMonth } from '@/utils/calendarUtils';
+
+const PRAYER_NAMES = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
 export interface ProgressScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
@@ -27,30 +36,84 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   onNavigateTab,
   initialSubTab = 'tracker',
 }) => {
+  const theme = useTheme();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
-  const [selectedCalendarDay, setSelectedCalendarDay] = useState<number>(7);
-  const [dayPrayerMap, setDayPrayerMap] = useState<Record<number, boolean[]>>({
-    1: [true, true, true, true, true],
-    2: [true, true, true, true, true],
-    3: [true, true, false, true, true],
-    4: [true, true, true, true, true],
-    5: [true, true, true, true, true],
-    6: [true, true, true, true, true],
-    7: [true, true, true, false, false],
-  });
+
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth());
+  const [selectedDay, setSelectedDay] = useState<number>(now.getDate());
 
   const { location } = useDeviceLocation();
-  const { prayersList, completedCount, streakCount, togglePrayer } = usePrayerTracker(location);
+  const {
+    prayersList,
+    completedCount,
+    streakCount,
+    historyMap,
+    togglePrayer,
+    toggleHistoricalPrayer,
+  } = usePrayerTracker(location);
 
-  const handleToggleCalendarPrayer = (prayerIdx: number) => {
-    const currentList = dayPrayerMap[selectedCalendarDay] || [false, false, false, false, false];
-    const updated = [...currentList];
-    updated[prayerIdx] = !updated[prayerIdx];
-    setDayPrayerMap((prev) => ({
-      ...prev,
-      [selectedCalendarDay]: updated,
-    }));
-  };
+  // Dynamic real stats derived from historyMap
+  const { dayOverview, dayBarData } = useMemo(
+    () => getLast7Days(historyMap),
+    [historyMap]
+  );
+  const { longestStreak, streakNote } = useMemo(
+    () => calculateLongestStreak(historyMap),
+    [historyMap]
+  );
+  const totalPrayers = useMemo(
+    () => calculateTotalPrayers(historyMap),
+    [historyMap]
+  );
+
+  // Dynamic month data for the calendar
+  const monthData = useMemo(
+    () => generateCalendarMonth(selectedYear, selectedMonth, historyMap, selectedDay),
+    [selectedYear, selectedMonth, historyMap, selectedDay]
+  );
+
+  const handlePrevMonth = useCallback(() => {
+    if (selectedMonth === 0) {
+      setSelectedYear((y) => y - 1);
+      setSelectedMonth(11);
+    } else {
+      setSelectedMonth((m) => m - 1);
+    }
+    setSelectedDay(1);
+  }, [selectedMonth]);
+
+  const handleNextMonth = useCallback(() => {
+    if (selectedMonth === 11) {
+      setSelectedYear((y) => y + 1);
+      setSelectedMonth(0);
+    } else {
+      setSelectedMonth((m) => m + 1);
+    }
+    setSelectedDay(1);
+  }, [selectedMonth]);
+
+  const selectedCell = useMemo(() => {
+    return monthData.cells.find((c) => c.dayNumber === selectedDay);
+  }, [monthData.cells, selectedDay]);
+
+  const dateLabel = useMemo(() => {
+    const d = new Date(selectedYear, selectedMonth, selectedDay);
+    const monthStr = d.toLocaleString('en-US', { month: 'short' });
+    return `${selectedDay} ${monthStr} ${selectedYear}`;
+  }, [selectedYear, selectedMonth, selectedDay]);
+
+  const handleToggleCalendarPrayer = useCallback(
+    (prayerIdx: number) => {
+      if (!selectedCell) return;
+      const prayerName = PRAYER_NAMES[prayerIdx];
+      if (prayerName) {
+        toggleHistoricalPrayer(selectedCell.dateKey, prayerName);
+      }
+    },
+    [selectedCell, toggleHistoricalPrayer]
+  );
 
   return (
     <AppContainer edges={['top']}>
@@ -68,10 +131,10 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'tracker' && (
             <>
               <View style={styles.headerTitles}>
-                <AppText variant="titleLarge" style={styles.title}>
+                <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
                   Your Salah Journey
                 </AppText>
-                <AppText variant="bodySmall" color="#8B9790" style={styles.subtitle}>
+                <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
                   Mark each prayer manually after offering Salah
                 </AppText>
               </View>
@@ -89,6 +152,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               </View>
 
               <TrackerWeekOverview
+                weekData={dayOverview}
                 onOpenStatistics={() => setActiveSubTab('streaks')}
               />
 
@@ -99,8 +163,12 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'streaks' && (
             <>
               <StreaksHeroCard streakDays={streakCount} />
-              <StreaksMetricsRow />
-              <StreaksWeeklyChart />
+              <StreaksMetricsRow
+                longestStreak={longestStreak}
+                longestStreakNote={streakNote}
+                totalPrayers={totalPrayers}
+              />
+              <StreaksWeeklyChart chartData={dayBarData} />
               <StreaksMilestones currentStreak={streakCount} />
               <TasbihCounter3D />
             </>
@@ -109,20 +177,20 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'calendar' && (
             <>
               <CalendarMonthHeader
-                monthName={new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
-                hijriMonth="Dhu al-Qi'dah 1447 AH"
-                onPrevMonth={() => {}}
-                onNextMonth={() => {}}
+                monthName={monthData.monthName}
+                hijriMonth={monthData.hijriMonth}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
               />
               <CalendarGrid
-                selectedDay={selectedCalendarDay}
-                todayDay={new Date().getDate()}
-                onSelectDay={setSelectedCalendarDay}
-                dayPrayerMap={dayPrayerMap}
+                leadingEmptyCount={monthData.leadingEmptyCount}
+                cells={monthData.cells}
+                onSelectDay={setSelectedDay}
               />
               <CalendarDayInspector
-                dateLabel={`${selectedCalendarDay} ${new Date().toLocaleString('en-US', { month: 'short' })} ${new Date().getFullYear()}`}
-                prayersCompleted={dayPrayerMap[selectedCalendarDay] || [false, false, false, false, false]}
+                dateLabel={dateLabel}
+                hasRecord={selectedCell?.hasRecord || false}
+                prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
                 onTogglePrayer={handleToggleCalendarPrayer}
               />
             </>

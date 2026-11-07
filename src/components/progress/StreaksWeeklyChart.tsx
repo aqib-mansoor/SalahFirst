@@ -65,7 +65,7 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
                       backgroundColor: isFull
                         ? theme.colors.primary
                         : bar.completed > 0
-                        ? theme.colors.secondary
+                        ? theme.colors.accentMuted
                         : theme.colors.border,
                       opacity: bar.hasRecord ? 1 : 0.4,
                     },
