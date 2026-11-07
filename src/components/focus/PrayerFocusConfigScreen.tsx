@@ -117,7 +117,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
                     color={isSelected ? theme.colors.textInverse : theme.colors.text}
                     style={styles.prayerPillText}
                   >
-                    {name}
+                    {t(name.toLowerCase() as any) || name}
                   </AppText>
                 </Pressable>
               );

@@ -4,6 +4,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface QiblaHeaderProps {
   cityName: string;
@@ -19,12 +20,13 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
   cardinal,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.titleColumn}>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-          Qibla Compass
+          {t('navQibla')}
         </AppText>
         <View style={styles.cityRow}>
           <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
@@ -43,7 +45,7 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
 
       <View style={[styles.bearingBadge, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.bearingLabel}>
-          Qibla Bearing
+          {t('qiblaAngle')}
         </AppText>
         <AppText variant="titleSmall" color={theme.colors.primary} style={styles.bearingValue}>
           {qiblaBearing}° {cardinal}

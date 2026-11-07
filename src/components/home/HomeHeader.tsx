@@ -5,6 +5,7 @@ import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { getIslamicDateFormatted } from '@/utils/prayerTimes';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HomeHeaderProps {
   cityName: string;
@@ -22,6 +23,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
   onSelectCity,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const hijriDate = getIslamicDateFormatted();
 
   return (
@@ -29,7 +31,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
       {/* Left: Greeting & Location */}
       <View style={styles.leftSection}>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.greeting}>
-          Assalamu Alaikum
+          {t('assalamuAlaikum')}
         </AppText>
 
         <Pressable
