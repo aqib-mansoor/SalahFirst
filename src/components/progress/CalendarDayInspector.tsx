@@ -60,6 +60,11 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             <Pressable
               key={name}
               onPress={() => onTogglePrayer(idx)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: isDone }}
+              accessibilityLabel={`${name} prayer`}
+              accessibilityHint={`Tap to toggle completion of ${name} for ${dateLabel}`}
+              hitSlop={6}
               style={({ pressed }) => [
                 styles.prayerChip,
                 isDone

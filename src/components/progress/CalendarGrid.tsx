@@ -59,6 +59,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
             <Pressable
               key={cell.dateKey}
               onPress={() => onSelectDay(cell.dayNumber)}
+              accessibilityRole="button"
+              accessibilityLabel={`Day ${cell.dayNumber}, ${
+                cell.hasRecord
+                  ? `${cell.completedPrayers.filter(Boolean).length} of 5 prayers completed`
+                  : 'unrecorded'
+              }`}
+              accessibilityState={{ selected: isSelected }}
+              hitSlop={4}
               style={[
                 styles.dayCell,
                 isSelected

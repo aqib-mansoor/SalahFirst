@@ -20,6 +20,11 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
   return (
     <Pressable
       onPress={onToggle}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: prayer.completed }}
+      accessibilityLabel={`${prayer.name} scheduled for ${prayer.time}`}
+      accessibilityHint={`Tap to mark ${prayer.name} as ${prayer.completed ? 'uncompleted' : 'completed'}`}
+      hitSlop={6}
       style={({ pressed }) => [
         styles.card,
         {

@@ -25,6 +25,9 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
       {/* 1. Wallpaper Action */}
       <Pressable
         onPress={onWallpaperPress}
+        accessibilityRole="button"
+        accessibilityLabel="Create Hadith Wallpaper"
+        accessibilityHint="Opens customizable HD wallpaper generator with this Hadith"
         style={({ pressed }) => [
           styles.actionCard,
           { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
@@ -44,6 +47,9 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
       {/* 2. Save / Saved Action */}
       <Pressable
         onPress={onSavePress}
+        accessibilityRole="button"
+        accessibilityLabel={isSaved ? "Saved to bookmarks" : "Save to bookmarks"}
+        accessibilityHint="Toggles offline bookmark for this Hadith"
         style={({ pressed }) => [
           styles.actionCard,
           {
@@ -75,6 +81,9 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
       {/* 3. Share Action */}
       <Pressable
         onPress={onSharePress}
+        accessibilityRole="button"
+        accessibilityLabel="Share Hadith"
+        accessibilityHint="Shares authentic Hadith text and translation"
         style={({ pressed }) => [
           styles.actionCard,
           { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
