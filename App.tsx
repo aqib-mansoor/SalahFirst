@@ -9,6 +9,8 @@ import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
+import { HadithWallpaperScreen } from '@/components/wallpaper';
+import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
@@ -28,7 +30,8 @@ export type AppStep =
   | 'settings'
   | 'azan-prefs'
   | 'focus-config'
-  | 'focus-active';
+  | 'focus-active'
+  | 'wallpaper';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
@@ -134,6 +137,7 @@ export default function App() {
               setProgressSubTab('streaks');
               setActiveTab('progress');
             }}
+            onOpenWallpaper={() => setCurrentStep('wallpaper')}
           />
         )}
         {currentStep === 'main' && activeTab === 'prayers' && (
@@ -194,6 +198,12 @@ export default function App() {
               setCurrentStep('main');
             }}
             onCompletePrayer={handleCompletePrayerFocus}
+          />
+        )}
+        {currentStep === 'wallpaper' && (
+          <HadithWallpaperScreen
+            hadith={VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
+            onClose={() => setCurrentStep('main')}
           />
         )}
       </SafeAreaProvider>

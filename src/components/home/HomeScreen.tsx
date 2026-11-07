@@ -15,6 +15,7 @@ export interface HomeScreenProps {
   onNavigateTab?: (tab: HomeTab) => void;
   onStartPrayerFocus?: () => void;
   onOpenStreaks?: () => void;
+  onOpenWallpaper?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -22,6 +23,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateTab,
   onStartPrayerFocus,
   onOpenStreaks,
+  onOpenWallpaper,
 }) => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
@@ -86,7 +88,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           />
 
           {/* Daily Hadith Section */}
-          <HomeDailyHadith onReadFull={() => handleTabChange('hadith')} />
+          <HomeDailyHadith
+            onReadFull={() => handleTabChange('hadith')}
+            onOpenWallpaper={onOpenWallpaper}
+          />
         </ScrollView>
 
         {/* Docked Bottom Navigation Bar */}
