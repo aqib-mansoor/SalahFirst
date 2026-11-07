@@ -3,8 +3,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { HomeScreen } from '@/components/home';
-import { PrayerTimesScreen } from '@/components/prayerTimes';
+import { PrayerTimesScreen, AzanPrefsScreen } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
+import { SettingsScreen } from '@/components/settings';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -12,7 +13,14 @@ import { FocusDuration } from '@/types';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
-export type AppStep = 'welcome' | 'setup' | 'main' | 'focus-config' | 'focus-active';
+export type AppStep =
+  | 'welcome'
+  | 'setup'
+  | 'main'
+  | 'settings'
+  | 'azan-prefs'
+  | 'focus-config'
+  | 'focus-active';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
@@ -65,13 +73,26 @@ export default function App() {
       )}
       {currentStep === 'main' && activeTab === 'home' && (
         <HomeScreen
-          onOpenSettings={() => setCurrentStep('welcome')}
+          onOpenSettings={() => setCurrentStep('settings')}
           onNavigateTab={setActiveTab}
           onStartPrayerFocus={() => setCurrentStep('focus-config')}
         />
       )}
       {currentStep === 'main' && activeTab === 'prayers' && (
         <PrayerTimesScreen onNavigateHome={() => setActiveTab('home')} />
+      )}
+      {currentStep === 'settings' && (
+        <SettingsScreen
+          onBack={() => setCurrentStep('main')}
+          onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+          onNavigateTab={(tab) => {
+            setActiveTab(tab);
+            setCurrentStep('main');
+          }}
+        />
+      )}
+      {currentStep === 'azan-prefs' && (
+        <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
       )}
       {currentStep === 'focus-config' && (
         <PrayerFocusConfigScreen
