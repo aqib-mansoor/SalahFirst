@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { ThemeMode } from '@/types';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface AppearanceSettingsGroupProps {
   themeMode: ThemeMode;
@@ -12,23 +13,24 @@ export interface AppearanceSettingsGroupProps {
   onOpenWallpaperGallery?: () => void;
 }
 
-const MODES: { id: ThemeMode; label: string }[] = [
-  { id: 'light', label: 'Light' },
-  { id: 'dark', label: 'Dark' },
-  { id: 'system', label: 'System' },
-];
-
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
   themeMode,
   onSelectThemeMode,
   onOpenWallpaperGallery,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const MODES: { id: ThemeMode; label: string }[] = [
+    { id: 'light', label: t('themeLight') },
+    { id: 'dark', label: t('themeDark') },
+    { id: 'system', label: t('themeSystem') },
+  ];
 
   const getSubtitle = () => {
-    if (themeMode === 'dark') return 'Deep Islamic Obsidian';
-    if (themeMode === 'light') return 'Warm Khorasan Cream';
-    return 'System Default (Auto)';
+    if (themeMode === 'dark') return t('themeDark');
+    if (themeMode === 'light') return t('themeLight');
+    return t('themeSystem');
   };
 
   const ChevronRight = (
@@ -46,7 +48,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
   return (
     <View style={styles.container}>
       <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-        APPEARANCE
+        {t('appearance').toUpperCase()}
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -65,7 +67,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
 
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-                Theme Mode
+                {t('theme')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
                 {getSubtitle()}

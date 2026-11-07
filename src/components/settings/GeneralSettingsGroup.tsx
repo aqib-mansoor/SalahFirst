@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface GeneralSettingsGroupProps {
   language: string;
@@ -19,6 +20,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   onOpenPrivacyPolicy,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const ChevronRight = (
     <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -54,7 +56,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   return (
     <View style={styles.container}>
       <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-        GENERAL & LOCAL STORAGE
+        {t('general').toUpperCase()}
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -62,10 +64,10 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
         <Pressable onPress={onToggleLanguage} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Interface & Hadith Language
+              {t('language')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              English & Urdu translation support
+              English, اردو & العربية
             </AppText>
           </View>
           <View style={[styles.pillBadge, { backgroundColor: theme.colors.mintTint }]}>

@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerSettingsGroupProps {
   cityName: string;
@@ -27,6 +28,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   onCycleCalculationMethod,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const ChevronRight = (
     <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -37,7 +39,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   return (
     <View style={styles.container}>
       <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-        PRAYER SETTINGS
+        {t('prayerTimes').toUpperCase()}
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -45,7 +47,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         <Pressable onPress={onOpenLocation} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Location
+              {t('locationAndCalculation')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
               {cityName}{country ? `, ${country}` : ''}
@@ -98,7 +100,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         <Pressable onPress={onOpenAzanPrefs} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              Azan Sounds & Notifications
+              {t('azanAudioReminders')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
               Makkah Haram • 15m pre-reminder
