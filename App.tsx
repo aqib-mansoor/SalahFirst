@@ -4,15 +4,23 @@ import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { HomeScreen } from '@/components/home';
 import { PrayerTimesScreen } from '@/components/prayerTimes';
+import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
+import { FocusDuration } from '@/types';
+import { usePrayerTracker } from '@/hooks/usePrayerTracker';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
-export type AppStep = 'welcome' | 'setup' | 'main';
+export type AppStep = 'welcome' | 'setup' | 'main' | 'focus-config' | 'focus-active';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
-  const [activeTab, setActiveTab] = useState<HomeTab>('prayers'); // Default to prayers or home
+  const [activeTab, setActiveTab] = useState<HomeTab>('home');
+  const [focusDuration, setFocusDuration] = useState<FocusDuration>(15);
+
+  const { location } = useDeviceLocation();
+  const { togglePrayer, prayerData } = usePrayerTracker(location);
 
   useEffect(() => {
     const checkSetupStatus = async () => {
@@ -34,7 +42,17 @@ export default function App() {
   const handleCompleteSetup = async () => {
     await storage.set(APP_CONFIG.storageKeys.hasCompletedSetup, true);
     setCurrentStep('main');
-    setActiveTab('prayers');
+    setActiveTab('home');
+  };
+
+  const handleBeginFocus = (duration: FocusDuration) => {
+    setFocusDuration(duration);
+    setCurrentStep('focus-active');
+  };
+
+  const handleCompletePrayerFocus = () => {
+    const currentName = prayerData.nextPrayerName || 'Asr';
+    togglePrayer(currentName);
   };
 
   return (
@@ -49,10 +67,25 @@ export default function App() {
         <HomeScreen
           onOpenSettings={() => setCurrentStep('welcome')}
           onNavigateTab={setActiveTab}
+          onStartPrayerFocus={() => setCurrentStep('focus-config')}
         />
       )}
       {currentStep === 'main' && activeTab === 'prayers' && (
         <PrayerTimesScreen onNavigateHome={() => setActiveTab('home')} />
+      )}
+      {currentStep === 'focus-config' && (
+        <PrayerFocusConfigScreen
+          onBack={() => setCurrentStep('main')}
+          onBeginFocus={handleBeginFocus}
+        />
+      )}
+      {currentStep === 'focus-active' && (
+        <ActiveFocusScreen
+          duration={focusDuration}
+          prayerName={prayerData.nextPrayerName || 'Asr'}
+          onExit={() => setCurrentStep('main')}
+          onCompletePrayer={handleCompletePrayerFocus}
+        />
       )}
     </SafeAreaProvider>
   );

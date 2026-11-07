@@ -13,11 +13,13 @@ import { HomeBottomNav, HomeTab } from './HomeBottomNav';
 export interface HomeScreenProps {
   onOpenSettings?: () => void;
   onNavigateTab?: (tab: HomeTab) => void;
+  onStartPrayerFocus?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenSettings,
   onNavigateTab,
+  onStartPrayerFocus,
 }) => {
   const theme = useTheme('light');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
@@ -64,6 +66,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             nextPrayerName={prayerData.nextPrayerName}
             nextPrayerTimeFormatted={prayerData.nextPrayerTimeFormatted}
             countdownText={countdownText}
+            onStartPrayerFocus={onStartPrayerFocus}
           />
 
           {/* Salah Tracker & Progress Bar */}
