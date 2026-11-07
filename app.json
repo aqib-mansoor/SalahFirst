@@ -36,7 +36,8 @@
           "savePhotosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery."
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-localization"
     ],
     "web": {
       "favicon": "./assets/favicon.png"

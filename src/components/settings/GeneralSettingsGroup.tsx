@@ -8,7 +8,7 @@ import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 
 export interface GeneralSettingsGroupProps {
-  language: 'English' | 'Urdu';
+  language: string;
   onToggleLanguage: () => void;
   onOpenPrivacyPolicy?: () => void;
 }

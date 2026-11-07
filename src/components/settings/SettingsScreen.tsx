@@ -128,10 +128,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           />
 
           <GeneralSettingsGroup
-            language={language === 'ur' ? 'Urdu' : 'English'}
-            onToggleLanguage={() =>
-              setLanguage(language === 'en' ? 'ur' : 'en')
+            language={
+              language === 'ur'
+                ? 'اردو (Urdu)'
+                : language === 'ar'
+                ? 'العربية (Arabic)'
+                : 'English'
             }
+            onToggleLanguage={() => {
+              if (language === 'en') setLanguage('ur');
+              else if (language === 'ur') setLanguage('ar');
+              else setLanguage('en');
+            }}
             onOpenPrivacyPolicy={handlePrivacyPolicy}
           />
         </ScrollView>
