@@ -1,4 +1,5 @@
-import { Coordinates, CalculationMethod, PrayerTimes, Prayer } from 'adhan';
+import { Coordinates, CalculationMethod, PrayerTimes, Madhab } from 'adhan';
+import { CalculationMethodName, JuristicMethod, SalahName } from '@/types';
 
 export interface FormattedPrayerTimes {
   fajr: string;
@@ -9,9 +10,17 @@ export interface FormattedPrayerTimes {
   isha: string;
   currentPrayerName: string;
   currentTimeFormatted: string;
-  nextPrayerName: string;
+  nextPrayerName: SalahName;
   nextPrayerTimeFormatted: string;
   nextPrayerDate: Date;
+  raw: {
+    fajr: Date;
+    sunrise: Date;
+    dhuhr: Date;
+    asr: Date;
+    maghrib: Date;
+    isha: Date;
+  };
 }
 
 const padZero = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
@@ -22,56 +31,157 @@ export const formatTime = (date: Date): string => {
   return `${hours}:${minutes}`;
 };
 
+export const formatRemainingTime = (targetDate: Date, now: Date = new Date()): string => {
+  const diffMs = targetDate.getTime() - now.getTime();
+  if (diffMs <= 0) return 'NOW';
+  const totalMins = Math.round(diffMs / 60000);
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  if (hours === 0) return `IN ${mins}M`;
+  if (mins === 0) return `IN ${hours}H`;
+  return `IN ${hours}H ${mins}M`;
+};
+
+export const getDefaultMethodForCountry = (country?: string): CalculationMethodName => {
+  if (!country) return 'Karachi';
+  const c = country.toLowerCase().trim();
+  if (c.includes('saudi') || c.includes('makkah') || c.includes('madinah')) return 'UmmAlQura';
+  if (c.includes('emirates') || c.includes('uae') || c.includes('dubai') || c.includes('abu dhabi')) return 'Dubai';
+  if (c.includes('egypt') || c.includes('sudan') || c.includes('jordan') || c.includes('lebanon') || c.includes('syria')) return 'Egyptian';
+  if (c.includes('united states') || c.includes('usa') || c.includes('canada')) return 'NorthAmerica';
+  if (c.includes('kuwait')) return 'Kuwait';
+  if (c.includes('qatar')) return 'Qatar';
+  if (c.includes('singapore') || c.includes('malaysia') || c.includes('indonesia')) return 'Singapore';
+  if (c.includes('turkey') || c.includes('türkiye')) return 'Turkey';
+  if (c.includes('pakistan') || c.includes('india') || c.includes('bangladesh') || c.includes('afghanistan')) return 'Karachi';
+  return 'Karachi';
+};
+
+export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
+  if (!country) return 'Hanafi';
+  const c = country.toLowerCase().trim();
+  if (c.includes('pakistan') || c.includes('india') || c.includes('bangladesh') || c.includes('turkey') || c.includes('türkiye') || c.includes('afghanistan')) {
+    return 'Hanafi';
+  }
+  return 'Standard';
+};
+
+const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
+  switch (method) {
+    case 'UmmAlQura': return CalculationMethod.UmmAlQura();
+    case 'Dubai': return CalculationMethod.Dubai();
+    case 'MuslimWorldLeague': return CalculationMethod.MuslimWorldLeague();
+    case 'Egyptian': return CalculationMethod.Egyptian();
+    case 'NorthAmerica': return CalculationMethod.NorthAmerica();
+    case 'MoonsightingCommittee': return CalculationMethod.MoonsightingCommittee();
+    case 'Kuwait': return CalculationMethod.Kuwait();
+    case 'Qatar': return CalculationMethod.Qatar();
+    case 'Singapore': return CalculationMethod.Singapore();
+    case 'Tehran': return CalculationMethod.Tehran();
+    case 'Turkey': return CalculationMethod.Turkey();
+    case 'Karachi':
+    default:
+      return CalculationMethod.Karachi();
+  }
+};
+
 export const getPrayerTimes = (
-  latitude: number = 32.9328,
-  longitude: number = 72.8553,
-  date: Date = new Date()
+  latitude: number,
+  longitude: number,
+  date: Date = new Date(),
+  method: CalculationMethodName = 'Karachi',
+  juristic: JuristicMethod = 'Hanafi'
 ): FormattedPrayerTimes => {
   const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
-  const pt = new PrayerTimes(coordinates, date, params);
+  const params = getMethodParams(method);
+  params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
 
-  const current = pt.currentPrayer();
-  const next = pt.nextPrayer();
+  const ptToday = new PrayerTimes(coordinates, date, params);
 
-  const prayerNameMap: Record<string, string> = {
-    [Prayer.Fajr]: 'Fajr',
-    [Prayer.Sunrise]: 'Sunrise',
-    [Prayer.Dhuhr]: 'Dhuhr',
-    [Prayer.Asr]: 'Asr',
-    [Prayer.Maghrib]: 'Maghrib',
-    [Prayer.Isha]: 'Isha',
-    [Prayer.None]: 'Isha',
-  };
+  const tomorrow = new Date(date);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const ptTomorrow = new PrayerTimes(coordinates, tomorrow, params);
 
-  const currentName = prayerNameMap[current] || 'Asr';
-  const nextName = prayerNameMap[next] || 'Maghrib';
+  const yesterday = new Date(date);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const ptYesterday = new PrayerTimes(coordinates, yesterday, params);
 
-  const currentTime = pt.timeForPrayer(current) || pt.asr;
-  const nextTime = pt.timeForPrayer(next) || pt.maghrib;
+  const now = date.getTime();
+  let currentName = 'ISHA';
+  let currentTime = ptYesterday.isha;
+  let nextName: SalahName = 'Fajr';
+  let nextTime = ptToday.fajr;
+
+  if (now < ptToday.fajr.getTime()) {
+    currentName = 'ISHA';
+    currentTime = ptYesterday.isha;
+    nextName = 'Fajr';
+    nextTime = ptToday.fajr;
+  } else if (now < ptToday.sunrise.getTime()) {
+    currentName = 'FAJR';
+    currentTime = ptToday.fajr;
+    nextName = 'Dhuhr';
+    nextTime = ptToday.dhuhr;
+  } else if (now < ptToday.dhuhr.getTime()) {
+    currentName = 'FAJR';
+    currentTime = ptToday.fajr;
+    nextName = 'Dhuhr';
+    nextTime = ptToday.dhuhr;
+  } else if (now < ptToday.asr.getTime()) {
+    currentName = 'DHUHR';
+    currentTime = ptToday.dhuhr;
+    nextName = 'Asr';
+    nextTime = ptToday.asr;
+  } else if (now < ptToday.maghrib.getTime()) {
+    currentName = 'ASR';
+    currentTime = ptToday.asr;
+    nextName = 'Maghrib';
+    nextTime = ptToday.maghrib;
+  } else if (now < ptToday.isha.getTime()) {
+    currentName = 'MAGHRIB';
+    currentTime = ptToday.maghrib;
+    nextName = 'Isha';
+    nextTime = ptToday.isha;
+  } else {
+    currentName = 'ISHA';
+    currentTime = ptToday.isha;
+    nextName = 'Fajr';
+    nextTime = ptTomorrow.fajr;
+  }
 
   return {
-    fajr: formatTime(pt.fajr),
-    sunrise: formatTime(pt.sunrise),
-    dhuhr: formatTime(pt.dhuhr),
-    asr: formatTime(pt.asr),
-    maghrib: formatTime(pt.maghrib),
-    isha: formatTime(pt.isha),
-    currentPrayerName: currentName.toUpperCase(),
+    fajr: formatTime(ptToday.fajr),
+    sunrise: formatTime(ptToday.sunrise),
+    dhuhr: formatTime(ptToday.dhuhr),
+    asr: formatTime(ptToday.asr),
+    maghrib: formatTime(ptToday.maghrib),
+    isha: formatTime(ptToday.isha),
+    currentPrayerName: currentName,
     currentTimeFormatted: formatTime(currentTime),
     nextPrayerName: nextName,
     nextPrayerTimeFormatted: formatTime(nextTime),
     nextPrayerDate: nextTime,
+    raw: {
+      fajr: ptToday.fajr,
+      sunrise: ptToday.sunrise,
+      dhuhr: ptToday.dhuhr,
+      asr: ptToday.asr,
+      maghrib: ptToday.maghrib,
+      isha: ptToday.isha,
+    },
   };
 };
 
 export const getRawPrayerTimes = (
-  latitude: number = 32.9328,
-  longitude: number = 72.8553,
-  date: Date = new Date()
+  latitude: number,
+  longitude: number,
+  date: Date = new Date(),
+  method: CalculationMethodName = 'Karachi',
+  juristic: JuristicMethod = 'Hanafi'
 ): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
   const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
+  const params = getMethodParams(method);
+  params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
   const pt = new PrayerTimes(coordinates, date, params);
   return {
     fajr: pt.fajr,
@@ -95,4 +205,3 @@ export const getIslamicDateFormatted = (date: Date = new Date()): string => {
     return '26 Dhu al-Qi’dah 1447';
   }
 };
-

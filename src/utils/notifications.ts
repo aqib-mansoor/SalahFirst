@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { PrayerAlertConfig, ReminderOffset } from '@/types';
+import { PrayerAlertConfig, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
 import { getRawPrayerTimes } from './prayerTimes';
 
 // Global notification handler for foreground and background display
@@ -69,6 +69,8 @@ export interface SchedulePrayerParams {
   latitude?: number;
   longitude?: number;
   alerts?: PrayerAlertConfig;
+  calculationMethod?: CalculationMethodName;
+  juristicMethod?: JuristicMethod;
 }
 
 /**
@@ -78,19 +80,21 @@ export const scheduleAllPrayerAlerts = async (
   params: SchedulePrayerParams
 ): Promise<number> => {
   try {
+    const { latitude, longitude, alerts, calculationMethod = 'Karachi', juristicMethod = 'Hanafi' } = params;
+    if (latitude === undefined || longitude === undefined) return 0;
+
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) return 0;
 
     // Cancel existing scheduled prayer notifications to avoid duplicate stacking
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    const { latitude, longitude, alerts } = params;
     const now = new Date();
     let scheduledCount = 0;
 
     const prayerScheduleDates = [
-      getRawPrayerTimes(latitude, longitude, new Date()), // Today
-      getRawPrayerTimes(latitude, longitude, new Date(Date.now() + 86400000)), // Tomorrow
+      getRawPrayerTimes(latitude, longitude, new Date(), calculationMethod, juristicMethod), // Today
+      getRawPrayerTimes(latitude, longitude, new Date(Date.now() + 86400000), calculationMethod, juristicMethod), // Tomorrow
     ];
 
     const prayers: { key: keyof PrayerAlertConfig; name: string }[] = [

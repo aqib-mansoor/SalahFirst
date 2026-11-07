@@ -5,19 +5,21 @@ import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 
-const FALLBACK_LOCATION: UserLocation = {
-  city: 'Detecting Location...',
-  country: 'Pakistan',
-  latitude: 33.6844,
-  longitude: 73.0479,
-  isGps: false,
-};
+// Global subscriber set to sync location instantaneously across all active screens
+const locationListeners = new Set<(loc: UserLocation) => void>();
+let globalCurrentLocation: UserLocation | null = null;
 
 export const useDeviceLocation = () => {
-  const [location, setLocation] = useState<UserLocation>(FALLBACK_LOCATION);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [location, setLocation] = useState<UserLocation | null>(globalCurrentLocation);
+  const [isLoading, setIsLoading] = useState<boolean>(!globalCurrentLocation);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [needsCitySelection, setNeedsCitySelection] = useState<boolean>(false);
+
+  const notifyAll = (newLoc: UserLocation) => {
+    globalCurrentLocation = newLoc;
+    locationListeners.forEach((listener) => listener(newLoc));
+  };
 
   const fetchCurrentGps = useCallback(async (isSilentBackground: boolean = false) => {
     try {
@@ -29,12 +31,16 @@ export const useDeviceLocation = () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setPermissionDenied(true);
+        if (!globalCurrentLocation) {
+          setNeedsCitySelection(true);
+        }
         setErrorMessage('Location permission required for accurate prayer times.');
         setIsLoading(false);
         return;
       }
 
       setPermissionDenied(false);
+      setNeedsCitySelection(false);
 
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
@@ -61,10 +67,14 @@ export const useDeviceLocation = () => {
       };
 
       setLocation(freshLocation);
+      notifyAll(freshLocation);
       await storage.set(APP_CONFIG.storageKeys.userLocation, freshLocation);
     } catch {
       if (!isSilentBackground) {
-        setErrorMessage('Unable to lock GPS. Please check location settings.');
+        setErrorMessage('Unable to lock GPS. Please select your city manually.');
+        if (!globalCurrentLocation) {
+          setNeedsCitySelection(true);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -77,34 +87,42 @@ export const useDeviceLocation = () => {
 
   const updateLocation = useCallback(async (newLoc: UserLocation) => {
     setLocation(newLoc);
+    notifyAll(newLoc);
+    setNeedsCitySelection(false);
     await storage.set(APP_CONFIG.storageKeys.userLocation, newLoc);
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    locationListeners.add(setLocation);
 
     const initializeLocation = async () => {
-      // 1. Instantly load cached location from local storage (0ms delay)
+      // 1. Instantly load cached location from local storage
       const cached = await storage.get<UserLocation | null>(
         APP_CONFIG.storageKeys.userLocation,
         null
       );
 
-      if (cached && isMounted) {
+      if (cached) {
+        globalCurrentLocation = cached;
         setLocation(cached);
         setIsLoading(false);
-        // 2. Silently verify/refresh GPS in background in case user moved
+        // Silently verify/refresh GPS in background
         fetchCurrentGps(true);
-      } else if (isMounted) {
-        // First run: request fresh GPS
+      } else {
+        // First run without saved location: request fresh GPS
         fetchCurrentGps(false);
       }
     };
 
-    initializeLocation();
+    if (!globalCurrentLocation) {
+      initializeLocation();
+    } else {
+      setLocation(globalCurrentLocation);
+      setIsLoading(false);
+    }
 
     return () => {
-      isMounted = false;
+      locationListeners.delete(setLocation);
     };
   }, [fetchCurrentGps]);
 
@@ -113,6 +131,7 @@ export const useDeviceLocation = () => {
     isLoading,
     permissionDenied,
     errorMessage,
+    needsCitySelection,
     requestGpsLocation: () => fetchCurrentGps(false),
     openSettings,
     updateLocation,

@@ -36,8 +36,8 @@ export default function App() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  useNotificationScheduler(location, alerts);
-  const { togglePrayer, prayerData } = usePrayerTracker(location);
+  const { togglePrayer, prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  useNotificationScheduler(location, alerts, calcMethod, juristic);
 
   useEffect(() => {
     const checkSetupStatus = async () => {

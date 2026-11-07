@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { UserLocation, PrayerAlertConfig } from '@/types';
+import { UserLocation, PrayerAlertConfig, CalculationMethodName, JuristicMethod } from '@/types';
 import {
   scheduleAllPrayerAlerts,
   requestNotificationPermission,
@@ -7,15 +7,19 @@ import {
 
 export const useNotificationScheduler = (
   location?: UserLocation,
-  alerts?: PrayerAlertConfig
+  alerts?: PrayerAlertConfig,
+  calculationMethod?: CalculationMethodName,
+  juristicMethod?: JuristicMethod
 ) => {
   const syncAlarms = useCallback(async () => {
     await scheduleAllPrayerAlerts({
       latitude: location?.latitude,
       longitude: location?.longitude,
       alerts,
+      calculationMethod,
+      juristicMethod,
     });
-  }, [location?.latitude, location?.longitude, alerts]);
+  }, [location?.latitude, location?.longitude, alerts, calculationMethod, juristicMethod]);
 
   // Synchronize scheduled prayer alarms whenever location or alert preferences change
   useEffect(() => {
