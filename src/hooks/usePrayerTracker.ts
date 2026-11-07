@@ -217,25 +217,19 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
   const completedCount = Object.values(completedMap).filter(Boolean).length;
 
   const prayersList: PrayerStatus[] = useMemo(() => {
-    const list: { name: string; time: string; targetDate: Date }[] = [
-      { name: 'Fajr', time: prayerData.fajr, targetDate: prayerData.raw.fajr },
-      { name: 'Dhuhr', time: prayerData.dhuhr, targetDate: prayerData.raw.dhuhr },
-      { name: 'Asr', time: prayerData.asr, targetDate: prayerData.raw.asr },
-      { name: 'Maghrib', time: prayerData.maghrib, targetDate: prayerData.raw.maghrib },
-      { name: 'Isha', time: prayerData.isha, targetDate: prayerData.raw.isha },
-    ];
-
-    return list.map((item) => ({
-      name: item.name,
-      time: item.time,
-      completed: !!completedMap[item.name],
-      isNext: prayerData.nextPrayerName === item.name,
-      isCurrent: prayerData.currentPrayerName === item.name.toUpperCase(),
-      remainingTimeText:
-        prayerData.nextPrayerName === item.name
-          ? formatRemainingTime(prayerData.nextPrayerDate)
-          : undefined,
-    }));
+    const names = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+    return names.map((name) => {
+      const lower = name.toLowerCase() as keyof typeof prayerData.raw;
+      return {
+        name,
+        time: (prayerData as any)[lower] || '--:--',
+        completed: !!completedMap[name],
+        isNext: prayerData.nextPrayerName === name,
+        isCurrent: prayerData.currentPrayerName === name.toUpperCase(),
+        remainingTimeText:
+          prayerData.nextPrayerName === name ? formatRemainingTime(prayerData.nextPrayerDate) : undefined,
+      };
+    });
   }, [prayerData, completedMap]);
 
   return {
