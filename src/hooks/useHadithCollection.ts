@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Share } from 'react-native';
-import { VERIFIED_HADITHS, HadithItem } from '@/data/hadiths';
+import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
 import { storage } from '@/utils/storage';
 
 const STORAGE_KEYS = {
@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
 };
 
 export const useHadithCollection = () => {
-  const [currentIndex, setCurrentIndex] = useState<number>(2); // Default to #3 to match screenshot
+  const [currentIndex, setCurrentIndex] = useState<number>(getDayOfYearHadithIndex());
   const [showUrdu, setShowUrdu] = useState<boolean>(false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
