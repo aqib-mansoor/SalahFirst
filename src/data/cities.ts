@@ -75,6 +75,8 @@ export const PRESET_CITIES: PresetCity[] = [
   createCity('uk-4', 'Glasgow', 'United Kingdom', 55.8642, -4.2518, 'Muslim World League'),
   createCity('fr-1', 'Paris', 'France', 48.8566, 2.3522, 'Muslim World League'),
   createCity('de-1', 'Berlin', 'Germany', 52.52, 13.405, 'Muslim World League'),
+  createCity('se-1', 'Stockholm', 'Sweden', 59.3293, 18.0686, 'Muslim World League'),
+  createCity('no-1', 'Tromsø', 'Norway', 69.6492, 18.9553, 'Muslim World League'),
 
   // North America
   createCity('us-1', 'New York', 'United States', 40.7128, -74.006, 'ISNA (North America)'),
@@ -84,8 +86,10 @@ export const PRESET_CITIES: PresetCity[] = [
   createCity('us-5', 'Dallas', 'United States', 32.7767, -96.797, 'ISNA (North America)'),
   createCity('ca-1', 'Toronto', 'Canada', 43.6532, -79.3832, 'ISNA (North America)'),
   createCity('ca-2', 'Montreal', 'Canada', 45.5017, -73.5673, 'ISNA (North America)'),
+  createCity('ca-3', 'Vancouver', 'Canada', 49.2827, -123.1207, 'ISNA (North America)'),
 
-  // India & Bangladesh
+  // East & South Asia
+  createCity('jp-1', 'Tokyo', 'Japan', 35.6762, 139.6503, 'Muslim World League'),
   createCity('in-1', 'Delhi', 'India', 28.7041, 77.1025, 'University of Islamic Sciences, Karachi'),
   createCity('in-2', 'Mumbai', 'India', 19.076, 72.8777, 'University of Islamic Sciences, Karachi'),
   createCity('in-3', 'Hyderabad', 'India', 17.385, 78.4867, 'University of Islamic Sciences, Karachi'),
