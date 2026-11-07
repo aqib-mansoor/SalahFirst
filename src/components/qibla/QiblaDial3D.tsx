@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Rect, Path, G, Line } from 'react-native-svg';
+import Svg, { Circle, Rect, G, Line } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { KaabaEmblem3D } from './KaabaEmblem3D';
 
 export interface QiblaDial3DProps {
   heading: number;
@@ -40,7 +41,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           ]}
         >
           <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
-            {/* Outer perimeter rings */}
             <Circle
               cx={RADIUS_VAL}
               cy={RADIUS_VAL}
@@ -58,8 +58,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
               strokeDasharray="3 3"
               fill="none"
             />
-
-            {/* Inner concentric guideline */}
             <Circle
               cx={RADIUS_VAL}
               cy={RADIUS_VAL}
@@ -107,7 +105,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             ))}
           </Svg>
 
-          {/* Cardinal Labels positioned around the dial */}
           <AppText
             variant="caption"
             color={theme.colors.accent}
@@ -145,65 +142,17 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             { transform: [{ rotate: `${relativePointerAngle}deg` }] },
           ]}
         >
-          {/* Shaft of needle */}
           <View
             style={[
               styles.needleShaft,
               {
-                backgroundColor: isAligned
-                  ? theme.colors.primary
-                  : theme.colors.primary,
+                backgroundColor: theme.colors.primary,
                 borderColor: theme.colors.accent,
               },
             ]}
           />
 
-          {/* 3D Isometric Kaaba Emblem at pointer tip */}
-          <View style={styles.kaabaContainer}>
-            <Svg width={38} height={38} viewBox="0 0 38 38">
-              {/* Isometric Cube Shadow */}
-              <Circle cx="19" cy="20" r="14" fill={isAligned ? 'rgba(204,161,95,0.25)' : 'rgba(0,0,0,0.1)'} />
-              
-              {/* Main Cube Body */}
-              <Rect
-                x="5"
-                y="5"
-                width="28"
-                height="28"
-                rx="6"
-                fill="#18181B"
-                stroke={isAligned ? theme.colors.accent : '#27272A'}
-                strokeWidth="1.5"
-              />
-
-              {/* Gold Embroidered Kiswah Ribbon (Hizam) */}
-              <Rect
-                x="5"
-                y="13"
-                width="28"
-                height="4.5"
-                fill={theme.colors.accent}
-              />
-
-              {/* Kaaba Golden Door (Bab al-Kaaba) */}
-              <Rect
-                x="20"
-                y="20"
-                width="6.5"
-                height="10"
-                rx="1"
-                fill={theme.colors.accent}
-              />
-
-              {/* Isometric Top Bevel Highlight */}
-              <Path
-                d="M 6 10 L 19 6 L 32 10"
-                stroke="rgba(255,255,255,0.18)"
-                strokeWidth="1.2"
-                fill="none"
-              />
-            </Svg>
-          </View>
+          <KaabaEmblem3D isAligned={isAligned} />
 
           {/* Center Pivot Point */}
           <View
@@ -256,18 +205,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 12,
   },
-  cardinalN: {
-    top: 24,
-  },
-  cardinalS: {
-    bottom: 24,
-  },
-  cardinalE: {
-    right: 24,
-  },
-  cardinalW: {
-    left: 24,
-  },
+  cardinalN: { top: 24 },
+  cardinalS: { bottom: 24 },
+  cardinalE: { right: 24 },
+  cardinalW: { left: 24 },
   needleLayer: {
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
@@ -280,14 +221,6 @@ const styles = StyleSheet.create({
     height: RADIUS_VAL - 40,
     borderRadius: 2,
     borderWidth: 0.5,
-  },
-  kaabaContainer: {
-    position: 'absolute',
-    top: 14,
-    width: 38,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   centerPivotOuter: {
     width: 24,
