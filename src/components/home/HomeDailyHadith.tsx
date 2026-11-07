@@ -34,7 +34,12 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
         <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
           Daily Hadith
         </AppText>
-        <Pressable onPress={onReadFull} hitSlop={8}>
+        <Pressable
+          onPress={onReadFull}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Read full Hadith"
+        >
           <AppText variant="bodySmall" color={theme.colors.primary} style={styles.readFull}>
             Read Full ›
           </AppText>
@@ -81,6 +86,9 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
               {/* Wallpaper / Image button */}
               <Pressable
                 onPress={onOpenWallpaper}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Generate Hadith Wallpaper"
                 style={({ pressed }) => [
                   styles.actionBtn,
                   { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint },
@@ -95,6 +103,9 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
               {/* Share button */}
               <Pressable
                 onPress={handleShare}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Share Hadith"
                 style={({ pressed }) => [
                   styles.actionBtn,
                   { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint },

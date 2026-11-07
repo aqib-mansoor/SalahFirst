@@ -50,6 +50,9 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
             <Pressable
               key={mode.id}
               onPress={() => onSelectMode(mode.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`${name} alert mode ${mode.label.replace('\n', ' ')}`}
               style={[
                 styles.modePill,
                 {

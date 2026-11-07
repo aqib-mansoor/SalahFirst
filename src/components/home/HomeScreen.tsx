@@ -62,6 +62,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}
+          onSelectCity={() => handleTabChange('prayers')}
         />
 
         {/* Scrollable Dashboard Body */}

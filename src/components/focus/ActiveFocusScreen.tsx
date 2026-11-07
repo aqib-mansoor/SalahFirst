@@ -159,13 +159,26 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
         {/* Bottom Actions */}
         <View style={styles.bottomRow}>
-          <Pressable onPress={handleEmergencyCall} style={styles.emergencyBtn}>
+          <Pressable
+            onPress={handleEmergencyCall}
+            accessibilityRole="button"
+            accessibilityLabel="Emergency Call Access"
+            accessibilityHint="Opens phone dialer for emergency calls"
+            hitSlop={8}
+            style={styles.emergencyBtn}
+          >
             <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.emergencyText}>
               Emergency Call Access
             </AppText>
           </Pressable>
 
-          <Pressable onPress={handleExitEarly} hitSlop={10}>
+          <Pressable
+            onPress={handleExitEarly}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel="Exit Focus Early"
+            accessibilityHint="Prompts to exit the current Salah focus session"
+          >
             <AppText variant="bodySmall" color={PALETTE.white} style={styles.exitText}>
               Exit Focus Early
             </AppText>

@@ -11,6 +11,7 @@ export interface HomeHeaderProps {
   streakCount: number;
   onOpenSettings?: () => void;
   onOpenStreaks?: () => void;
+  onSelectCity?: () => void;
 }
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -18,6 +19,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
   streakCount,
   onOpenSettings,
   onOpenStreaks,
+  onSelectCity,
 }) => {
   const theme = useTheme();
   const hijriDate = getIslamicDateFormatted();
@@ -30,7 +32,14 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
           Assalamu Alaikum
         </AppText>
 
-        <View style={styles.subtitleRow}>
+        <Pressable
+          onPress={onSelectCity}
+          disabled={!onSelectCity}
+          accessibilityRole={onSelectCity ? 'button' : undefined}
+          accessibilityLabel={`Location: ${cityName}`}
+          hitSlop={8}
+          style={styles.subtitleRow}
+        >
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.dateText}>
             {hijriDate} • {cityName}
           </AppText>
@@ -42,7 +51,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
             />
             <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.textMuted} strokeWidth="2" />
           </Svg>
-        </View>
+        </Pressable>
       </View>
 
       {/* Right: Streak & Settings */}
@@ -50,6 +59,10 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
         {/* Streak Pill */}
         <Pressable
           onPress={onOpenStreaks}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`Current streak: ${streakCount} days`}
+          accessibilityHint="Navigates to progress and streak statistics"
           style={({ pressed }) => [
             styles.pillBadge,
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
@@ -67,6 +80,10 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
         {/* Settings Button */}
         <Pressable
           onPress={onOpenSettings}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Open settings"
+          accessibilityHint="Navigates to settings and preferences"
           style={({ pressed }) => [
             styles.iconButton,
             {
