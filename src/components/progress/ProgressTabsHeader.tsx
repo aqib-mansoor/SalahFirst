@@ -25,13 +25,19 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={[styles.tabBarSurface, { backgroundColor: theme.colors.surfaceElevated }]}>
+      <View
+        accessibilityRole="tablist"
+        style={[styles.tabBarSurface, { backgroundColor: theme.colors.surfaceElevated }]}
+      >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <Pressable
               key={tab.id}
               onPress={() => onTabChange(tab.id)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={`${tab.label} view`}
               style={[
                 styles.tabItem,
                 isActive && {

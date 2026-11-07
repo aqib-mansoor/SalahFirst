@@ -35,6 +35,9 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
       <View style={styles.navRow}>
         <Pressable
           onPress={onPrevMonth}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Previous Month"
           style={({ pressed }) => [
             styles.navBtn,
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
@@ -48,6 +51,9 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
 
         <Pressable
           onPress={onNextMonth}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Next Month"
           style={({ pressed }) => [
             styles.navBtn,
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },

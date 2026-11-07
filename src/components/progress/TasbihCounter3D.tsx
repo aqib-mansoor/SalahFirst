@@ -141,7 +141,13 @@ export const TasbihCounter3D: React.FC = () => {
           </AppText>
         </View>
 
-        <Pressable onPress={handleReset} hitSlop={8} style={styles.resetBtn}>
+        <Pressable
+          onPress={handleReset}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Reset Tasbih counter"
+          style={styles.resetBtn}
+        >
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.resetText}>
             ↺ Reset
           </AppText>
@@ -161,6 +167,9 @@ export const TasbihCounter3D: React.FC = () => {
       {/* Interactive Tap Button */}
       <Pressable
         onPress={handleIncrement}
+        accessibilityRole="button"
+        accessibilityLabel={`${currentPhase.transliteration}, ${count} of ${currentPhase.target}`}
+        accessibilityHint="Tap to increment Dhikr count"
         style={({ pressed }) => [
           styles.tapButton,
           {

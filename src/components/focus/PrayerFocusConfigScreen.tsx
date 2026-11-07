@@ -49,7 +49,13 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
     >
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={onBack} hitSlop={12} style={[styles.backBtn, { borderColor: theme.colors.border }]}>
+        <Pressable
+          onPress={onBack}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Home"
+          style={[styles.backBtn, { borderColor: theme.colors.border }]}
+        >
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
             <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
@@ -93,6 +99,9 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
                 <Pressable
                   key={name}
                   onPress={() => setSelectedPrayer(name)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${name} prayer`}
+                  accessibilityState={{ selected: isSelected }}
                   style={[
                     styles.prayerPill,
                     {
