@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TrackerPrayerRowProps {
   prayer: PrayerStatus;
@@ -16,6 +17,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
   onToggle,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Pressable
@@ -61,10 +63,10 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
       {/* Middle Prayer Info */}
       <View style={styles.infoCol}>
         <AppText variant="titleMedium" color={theme.colors.text} style={styles.prayerName}>
-          {prayer.name}
+          {t(prayer.name.toLowerCase() as any) || prayer.name}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.scheduledTime}>
-          Scheduled {prayer.time}
+          {t('scheduledAt', { time: prayer.time })}
         </AppText>
       </View>
 
@@ -84,7 +86,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
           color={prayer.completed ? theme.colors.primary : theme.colors.textMuted}
           style={styles.badgeText}
         >
-          {prayer.completed ? 'Completed' : 'Pending'}
+          {prayer.completed ? t('completed') : t('pending')}
         </AppText>
       </View>
     </Pressable>

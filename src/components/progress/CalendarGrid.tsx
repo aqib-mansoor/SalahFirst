@@ -4,6 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { CalendarDayCell } from '@/utils/calendarUtils';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarGridProps {
   leadingEmptyCount: number;
@@ -17,6 +18,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onSelectDay,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   return (
@@ -62,8 +64,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               accessibilityRole="button"
               accessibilityLabel={`Day ${cell.dayNumber}, ${
                 cell.hasRecord
-                  ? `${cell.completedPrayers.filter(Boolean).length} of 5 prayers completed`
-                  : 'unrecorded'
+                  ? `${cell.completedPrayers.filter(Boolean).length} ${t('of')} 5 ${t('completedSuffix')}`
+                  : t('unrecorded')
               }`}
               accessibilityState={{ selected: isSelected }}
               hitSlop={4}

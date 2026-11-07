@@ -88,7 +88,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                 color={isDone ? theme.colors.primary : theme.colors.textMuted}
                 style={styles.chipName}
               >
-                {name}
+                {t(name.toLowerCase() as any) || name}
               </AppText>
 
               {isDone ? (
