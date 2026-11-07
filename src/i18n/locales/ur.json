@@ -171,5 +171,42 @@
   "verifiedCities": "تصدیق شدہ شہر",
   "searchingCoordinates": "آن لائن کوآرڈینیٹس تلاش ہو رہے ہیں...",
   "couldNotResolveCity": "\"{{city}}\" کے کوآرڈینیٹس معلوم نہیں ہو سکے۔ براہ کرم ہجے چیک کریں یا فہرست سے چنیں۔",
-  "unableToSearchOnline": "\"{{city}}\" کو آن لائن تلاش نہیں کیا جا سکا۔ نیچے دی گئی فہرست سے چنیں۔"
+  "unableToSearchOnline": "\"{{city}}\" کو آن لائن تلاش نہیں کیا جا سکا۔ نیچے دی گئی فہرست سے چنیں۔",
+
+  "notifPrayerTitleFajr": "فجر کا وقت ہو گیا ہے 🌙",
+  "notifPrayerBodyFajr": "اپنی صبح کی نماز کے لیے کچھ وقت نکالیں۔",
+  "notifPrayerTitleDhuhr": "ظہر کا وقت ہو گیا ہے",
+  "notifPrayerBodyDhuhr": "کچھ دیر رک کر نماز سے اپنا تعلق جوڑیں۔",
+  "notifPrayerTitleAsr": "عصر کا وقت ہو گیا ہے",
+  "notifPrayerBodyAsr": "اپنی سہ پہر کی نماز کے لیے ایک پرسکون وقفہ لیں۔",
+  "notifPrayerTitleMaghrib": "مغرب کا وقت ہو گیا ہے",
+  "notifPrayerBodyMaghrib": "غروبِ آفتاب کے وقت اللہ کا ذکر کریں اور نماز ادا کریں۔",
+  "notifPrayerTitleIsha": "عشاء کا وقت ہو گیا ہے",
+  "notifPrayerBodyIsha": "اپنے دن کا اختتام نمازِ عشاء کے ساتھ سکون سے کریں۔",
+
+  "notifMissedTitleFajr": "فجر ابھی تک نشان زد نہیں ہوئی",
+  "notifMissedBodyFajr": "اگر آپ نماز پڑھ چکے ہیں تو ٹریکر میں نشان زد کر دیں۔",
+  "notifMissedTitleDhuhr": "آپ نے ابھی تک ظہر کو نشان زد نہیں کیا",
+  "notifMissedBodyDhuhr": "اگر ابھی تک نماز نہیں پڑھی تو کچھ وقت نکال کر ادا کریں۔",
+  "notifMissedTitleAsr": "آپ نے ابھی تک عصر کو نشان زد نہیں کیا",
+  "notifMissedBodyAsr": "اگر ابھی تک نماز نہیں پڑھی تو کچھ وقت نکال کر ادا کریں۔",
+  "notifMissedTitleMaghrib": "آپ نے ابھی تک مغرب کو نشان زد نہیں کیا",
+  "notifMissedBodyMaghrib": "اگر ابھی تک نماز نہیں پڑھی تو کچھ وقت نکال کر ادا کریں۔",
+  "notifMissedTitleIsha": "آپ نے ابھی تک عشاء کو نشان زد نہیں کیا",
+  "notifMissedBodyIsha": "اگر ابھی تک نماز نہیں پڑھی تو کچھ وقت نکال کر ادا کریں۔",
+
+  "notifDailyReflectionTitle": "ایک لمحہ محاسبے کا 🤍",
+  "notifDailyReflectionBody": "آج آپ کی نمازیں کیسی رہیں؟ اپنے دن کا جائزہ لینے کے لیے ایک لمحہ نکالیں۔",
+  "notifStreakTitle": "الحمد للہ",
+  "notifStreakBody": "آپ نے آج کی تمام 5 نمازیں مکمل کر لیں۔ اللہ آپ کی عبادت قبول فرمائے۔",
+
+  "notificationsAndReminders": "اطلاعات اور یاد دہانیاں",
+  "missedPrayersTitle": "غیر نشان زدہ نمازوں کی یاد دہانی",
+  "missedPrayersDesc": "اگر نماز نشان زد نہ ہو تو 30 منٹ بعد نرم یاد دہانی",
+  "dailyReflectionTitle": "روزانہ جائزہ و محاسبہ",
+  "dailyReflectionDesc": "نمازوں کا جائزہ لینے کے لیے شام 8:45 پر یاد دہانی",
+  "streakEncouragementTitle": "تسلسل کی حوصلہ افزائی",
+  "streakEncouragementDesc": "دن کی تمام 5 نمازیں مکمل ہونے پر مسرت کا اظہار",
+  "quietHoursTitle": "پرسکون اوقات",
+  "quietHoursDesc": "رات 10 بجے سے صبح 5 بجے تک اضافی یاد دہانیاں خاموش رکھیں"
 }

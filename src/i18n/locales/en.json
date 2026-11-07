@@ -171,5 +171,42 @@
   "verifiedCities": "Verified Cities",
   "searchingCoordinates": "Searching coordinates online...",
   "couldNotResolveCity": "Could not resolve coordinates for \"{{city}}\". Please check spelling or select from the list below.",
-  "unableToSearchOnline": "Unable to search online for \"{{city}}\". Please select from the verified offline cities list below."
+  "unableToSearchOnline": "Unable to search online for \"{{city}}\". Please select from the verified offline cities list below.",
+
+  "notifPrayerTitleFajr": "Fajr is here 🌙",
+  "notifPrayerBodyFajr": "Take a moment for your morning prayer.",
+  "notifPrayerTitleDhuhr": "Time for Dhuhr",
+  "notifPrayerBodyDhuhr": "Pause for a moment and reconnect with Salah.",
+  "notifPrayerTitleAsr": "Time for Asr",
+  "notifPrayerBodyAsr": "Take a mindful break for your afternoon prayer.",
+  "notifPrayerTitleMaghrib": "Maghrib is here",
+  "notifPrayerBodyMaghrib": "Pause and remember Allah at dusk.",
+  "notifPrayerTitleIsha": "Time for Isha",
+  "notifPrayerBodyIsha": "End your day in tranquility with Isha prayer.",
+
+  "notifMissedTitleFajr": "Fajr hasn't been marked yet",
+  "notifMissedBodyFajr": "If you've already prayed, update your tracker.",
+  "notifMissedTitleDhuhr": "You haven't marked Dhuhr yet",
+  "notifMissedBodyDhuhr": "Take a moment for your prayer, if you haven't already.",
+  "notifMissedTitleAsr": "You haven't marked Asr yet",
+  "notifMissedBodyAsr": "Take a moment for your prayer, if you haven't already.",
+  "notifMissedTitleMaghrib": "You haven't marked Maghrib yet",
+  "notifMissedBodyMaghrib": "Take a moment for your prayer, if you haven't already.",
+  "notifMissedTitleIsha": "You haven't marked Isha yet",
+  "notifMissedBodyIsha": "Take a moment for your prayer, if you haven't already.",
+
+  "notifDailyReflectionTitle": "A moment to reflect 🤍",
+  "notifDailyReflectionBody": "How was your Salah today? Take a moment to review your day.",
+  "notifStreakTitle": "Alhamdulillah",
+  "notifStreakBody": "You completed all 5 prayers today. May Allah accept your worship.",
+
+  "notificationsAndReminders": "Notifications & Reminders",
+  "missedPrayersTitle": "Missed Prayer Reminders",
+  "missedPrayersDesc": "Gentle 30-min follow-up if a prayer hasn't been marked",
+  "dailyReflectionTitle": "Daily Reflection",
+  "dailyReflectionDesc": "Evening reminder at 20:45 to review your prayers",
+  "streakEncouragementTitle": "Streak Encouragement",
+  "streakEncouragementDesc": "Celebrate completing all 5 prayers in a day",
+  "quietHoursTitle": "Quiet Hours",
+  "quietHoursDesc": "Silence gentle reminders between 22:00 and 05:00"
 }

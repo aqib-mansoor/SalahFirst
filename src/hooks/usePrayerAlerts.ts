@@ -12,6 +12,12 @@ const DEFAULT_ALERTS: PrayerAlertConfig = {
   isha: 'VIBRATE',
   reminderOffset: '15m',
   exactAlarmsEnabled: true,
+  missedPrayerRemindersEnabled: true,
+  dailyReflectionEnabled: true,
+  streakEncouragementEnabled: true,
+  quietHoursEnabled: true,
+  quietHoursStart: '22:00',
+  quietHoursEnd: '05:00',
 };
 
 const prayerAlertListeners = new Set<() => void>();
@@ -25,9 +31,9 @@ export const usePrayerAlerts = () => {
 
   useEffect(() => {
     const loadAlerts = async () => {
-      const stored = await storage.get<PrayerAlertConfig | null>(STORAGE_KEY, null);
+      const stored = await storage.get<Partial<PrayerAlertConfig> | null>(STORAGE_KEY, null);
       if (stored) {
-        setAlerts(stored);
+        setAlerts({ ...DEFAULT_ALERTS, ...stored });
       }
     };
     loadAlerts();
@@ -77,11 +83,35 @@ export const usePrayerAlerts = () => {
     saveAlerts(updated);
   }, [alerts]);
 
+  const toggleMissedPrayerReminders = useCallback(() => {
+    const updated = { ...alerts, missedPrayerRemindersEnabled: !alerts.missedPrayerRemindersEnabled };
+    saveAlerts(updated);
+  }, [alerts]);
+
+  const toggleDailyReflection = useCallback(() => {
+    const updated = { ...alerts, dailyReflectionEnabled: !alerts.dailyReflectionEnabled };
+    saveAlerts(updated);
+  }, [alerts]);
+
+  const toggleStreakEncouragement = useCallback(() => {
+    const updated = { ...alerts, streakEncouragementEnabled: !alerts.streakEncouragementEnabled };
+    saveAlerts(updated);
+  }, [alerts]);
+
+  const toggleQuietHours = useCallback(() => {
+    const updated = { ...alerts, quietHoursEnabled: !alerts.quietHoursEnabled };
+    saveAlerts(updated);
+  }, [alerts]);
+
   return {
     alerts,
     setPrayerMode,
     cyclePrayerMode,
     setReminder,
     toggleExactAlarms,
+    toggleMissedPrayerReminders,
+    toggleDailyReflection,
+    toggleStreakEncouragement,
+    toggleQuietHours,
   };
 };
