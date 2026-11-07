@@ -3,5 +3,7 @@ export * from './PrayerTimesLocationCard';
 export * from './SunriseCard';
 export * from './PrayerTimeRow';
 export * from './LocationBottomSheet';
+export * from './PrePrayerReminderCard';
+export * from './PrayerAlertCard';
 export * from './AzanPrefsScreen';
 export * from './PrayerTimesScreen';

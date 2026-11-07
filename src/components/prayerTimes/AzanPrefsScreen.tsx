@@ -1,15 +1,28 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppText } from '@/components/common';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
-import { NotificationMode, ReminderOffset } from '@/types';
+import { PrePrayerReminderCard } from './PrePrayerReminderCard';
+import { PrayerAlertCard } from './PrayerAlertCard';
 
 export interface AzanPrefsScreenProps {
   onBack: () => void;
 }
+
+const PRAYERS_CONFIG: {
+  key: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+  name: string;
+  time: string;
+}[] = [
+  { key: 'fajr', name: 'Fajr', time: '05:18' },
+  { key: 'dhuhr', name: 'Dhuhr', time: '12:04' },
+  { key: 'asr', name: 'Asr', time: '15:32' },
+  { key: 'maghrib', name: 'Maghrib', time: '17:12' },
+  { key: 'isha', name: 'Isha', time: '18:38' },
+];
 
 export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
   const theme = useTheme('light');
@@ -21,32 +34,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     toggleExactAlarms,
     toggleAudioPreview,
   } = usePrayerAlerts();
-
-  const reminderOptions: { id: ReminderOffset; label: string }[] = [
-    { id: 'off', label: 'Off' },
-    { id: '10m', label: '10m\nbefore' },
-    { id: '15m', label: '15m\nbefore' },
-    { id: '30m', label: '30m\nbefore' },
-  ];
-
-  const alertModes: { id: NotificationMode; label: string }[] = [
-    { id: 'AZAN', label: 'Full\nAzan' },
-    { id: 'TONE', label: 'Tone' },
-    { id: 'VIBRATE', label: 'Vibrate' },
-    { id: 'SILENT', label: 'Silent' },
-  ];
-
-  const prayersConfig: {
-    key: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
-    name: string;
-    time: string;
-  }[] = [
-    { key: 'fajr', name: 'Fajr', time: '05:18' },
-    { key: 'dhuhr', name: 'Dhuhr', time: '12:04' },
-    { key: 'asr', name: 'Asr', time: '15:32' },
-    { key: 'maghrib', name: 'Maghrib', time: '17:12' },
-    { key: 'isha', name: 'Isha', time: '18:38' },
-  ];
 
   return (
     <AppContainer
@@ -113,85 +100,22 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           </Pressable>
         </View>
 
-        {/* Pre-Prayer Reminder */}
-        <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-            Pre-Prayer Gentle Reminder
-          </AppText>
-          <View style={styles.reminderRow}>
-            {reminderOptions.map((opt) => {
-              const active = alerts.reminderOffset === opt.id;
-              return (
-                <Pressable
-                  key={opt.id}
-                  onPress={() => setReminder(opt.id)}
-                  style={[
-                    styles.reminderPill,
-                    {
-                      backgroundColor: active ? theme.colors.primary : theme.colors.surfaceElevated,
-                    },
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    color={active ? theme.colors.surface : theme.colors.text}
-                    align="center"
-                    style={{ fontWeight: active ? '700' : '500' }}
-                  >
-                    {opt.label}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
+        {/* Pre-Prayer Gentle Reminder Card */}
+        <PrePrayerReminderCard
+          currentOffset={alerts.reminderOffset}
+          onSelectOffset={setReminder}
+        />
 
         {/* Individual Prayer Alert Cards */}
-        {prayersConfig.map((p) => {
-          const currentMode = alerts[p.key];
-          return (
-            <View
-              key={p.key}
-              style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
-            >
-              <View style={styles.prayerCardHeader}>
-                <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-                  {p.name} ({p.time})
-                </AppText>
-                <AppText variant="caption" color={theme.colors.primary} style={styles.boldText}>
-                  {currentMode}
-                </AppText>
-              </View>
-
-              <View style={styles.modesRow}>
-                {alertModes.map((mode) => {
-                  const active = currentMode === mode.id;
-                  return (
-                    <Pressable
-                      key={mode.id}
-                      onPress={() => setPrayerMode(p.key, mode.id)}
-                      style={[
-                        styles.modePill,
-                        {
-                          backgroundColor: active ? theme.colors.primary : theme.colors.surfaceElevated,
-                        },
-                      ]}
-                    >
-                      <AppText
-                        variant="caption"
-                        color={active ? theme.colors.surface : theme.colors.text}
-                        align="center"
-                        style={styles.modePillText}
-                      >
-                        {mode.label}
-                      </AppText>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-          );
-        })}
+        {PRAYERS_CONFIG.map((p) => (
+          <PrayerAlertCard
+            key={p.key}
+            name={p.name}
+            time={p.time}
+            currentMode={alerts[p.key]}
+            onSelectMode={(mode) => setPrayerMode(p.key, mode)}
+          />
+        ))}
       </ScrollView>
     </AppContainer>
   );
@@ -267,40 +191,5 @@ const styles = StyleSheet.create({
   },
   audioBtnText: {
     fontWeight: '700',
-  },
-  reminderRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 2,
-  },
-  reminderPill: {
-    flex: 1,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  prayerCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  modesRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 2,
-  },
-  modePill: {
-    flex: 1,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 40,
-  },
-  modePillText: {
-    fontWeight: '600',
-    fontSize: 11,
-    lineHeight: 14,
   },
 });
