@@ -14,6 +14,7 @@ import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
+import { AzanPrefsHeader } from './AzanPrefsHeader';
 
 export interface AzanPrefsScreenProps {
   onBack: () => void;
@@ -76,28 +77,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
       edges={['top', 'left', 'right', 'bottom']}
       style={{ backgroundColor: theme.colors.background }}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={onBack}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Back to prayer times"
-          style={[styles.backBtn, { borderColor: theme.colors.border }]}
-        >
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </Pressable>
-        <View style={styles.headerTextCol}>
-          <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-            {t('notificationsAndReminders')}
-          </AppText>
-          <AppText variant="caption" color={theme.colors.textMuted}>
-            {t('customizeAlerts')}
-          </AppText>
-        </View>
-      </View>
+      <AzanPrefsHeader onBack={onBack} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {!hasPermission && (
@@ -193,28 +173,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    gap: SPACING.md,
-  },
-  backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTextCol: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    fontWeight: '800',
-  },
   scroll: {
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xxl,
