@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Pressable, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -43,6 +44,7 @@ interface TasbihPersistedState {
 }
 
 export const TasbihCounter3D: React.FC = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [phaseIndex, setPhaseIndex] = useState<number>(0);
   const [count, setCount] = useState<number>(0);
@@ -98,12 +100,12 @@ export const TasbihCounter3D: React.FC = () => {
     if (count === 0 && phaseIndex === 0) return;
 
     Alert.alert(
-      'Reset Tasbih Counter?',
-      `You are at ${count} of ${currentPhase.target} ${currentPhase.transliteration}. Do you want to reset your counter?`,
+      t('resetTasbihTitle'),
+      t('resetTasbihConfirm'),
       [
-        { text: 'Keep Counting', style: 'cancel' },
+        { text: t('keepCounting'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('reset'),
           style: 'destructive',
           onPress: async () => {
             setCount(0);
@@ -132,7 +134,7 @@ export const TasbihCounter3D: React.FC = () => {
         <View style={styles.headerInfo}>
           <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
             <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-              AFTER-SALAH TASBIH
+              {t('afterSalahTasbih')}
             </AppText>
           </View>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.cycleLabel}>
@@ -149,7 +151,7 @@ export const TasbihCounter3D: React.FC = () => {
           style={styles.resetBtn}
         >
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.resetText}>
-            ↺ Reset
+            ↺ {t('reset')}
           </AppText>
         </Pressable>
       </View>
@@ -184,7 +186,7 @@ export const TasbihCounter3D: React.FC = () => {
             {count} / {currentPhase.target}
           </AppText>
           <AppText variant="caption" color={theme.colors.accentLight} style={styles.tapHint}>
-            Tap to count Dhikr
+            {t('tapToCount')}
           </AppText>
         </View>
       </Pressable>
