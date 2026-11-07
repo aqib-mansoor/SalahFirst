@@ -9,6 +9,7 @@ import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithActionButtons } from './HadithActionButtons';
 import { HadithPagination } from './HadithPagination';
+import { QuranReflectionCard3D } from './QuranReflectionCard3D';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
 
 export interface HadithScreenProps {
@@ -74,6 +75,8 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
             onPrev={prevHadith}
             onNext={nextHadith}
           />
+
+          <QuranReflectionCard3D />
         </ScrollView>
 
         <HomeBottomNav

@@ -2,6 +2,7 @@ export * from './ProgressTabsHeader';
 export * from './TrackerHeroCard';
 export * from './TrackerPrayerRow';
 export * from './TrackerWeekOverview';
+export * from './TasbihCounter3D';
 export * from './StreaksHeroCard';
 export * from './StreaksMetricsRow';
 export * from './StreaksWeeklyChart';

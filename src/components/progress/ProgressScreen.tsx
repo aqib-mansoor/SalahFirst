@@ -9,6 +9,7 @@ import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
 import { TrackerPrayerRow } from './TrackerPrayerRow';
 import { TrackerWeekOverview } from './TrackerWeekOverview';
+import { TasbihCounter3D } from './TasbihCounter3D';
 import { StreaksHeroCard } from './StreaksHeroCard';
 import { StreaksMetricsRow } from './StreaksMetricsRow';
 import { StreaksWeeklyChart } from './StreaksWeeklyChart';
@@ -90,6 +91,8 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               <TrackerWeekOverview
                 onOpenStatistics={() => setActiveSubTab('streaks')}
               />
+
+              <TasbihCounter3D />
             </>
           )}
 
@@ -99,6 +102,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               <StreaksMetricsRow />
               <StreaksWeeklyChart />
               <StreaksMilestones currentStreak={streakCount} />
+              <TasbihCounter3D />
             </>
           )}
 
