@@ -12,12 +12,23 @@ import { HomeBottomNav, HomeTab } from './HomeBottomNav';
 
 export interface HomeScreenProps {
   onOpenSettings?: () => void;
+  onNavigateTab?: (tab: HomeTab) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSettings }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({
+  onOpenSettings,
+  onNavigateTab,
+}) => {
   const theme = useTheme('light');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const { location } = useDeviceLocation();
+
+  const handleTabChange = (tab: HomeTab) => {
+    setActiveTab(tab);
+    if (onNavigateTab) {
+      onNavigateTab(tab);
+    }
+  };
 
   const {
     prayerData,
@@ -67,7 +78,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSettings }) => {
         </ScrollView>
 
         {/* Docked Bottom Navigation Bar */}
-        <HomeBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </View>
     </AppContainer>
   );

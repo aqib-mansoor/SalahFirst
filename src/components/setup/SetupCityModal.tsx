@@ -76,6 +76,8 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
                   country: 'Selected Location',
                   latitude: 33.6844,
                   longitude: 73.0479,
+                  qiblaDegrees: 256,
+                  methodName: 'University of Islamic Sciences, Karachi',
                 });
                 onClose();
               }}

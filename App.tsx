@@ -3,13 +3,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { HomeScreen } from '@/components/home';
+import { PrayerTimesScreen } from '@/components/prayerTimes';
+import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 
-export type AppStep = 'welcome' | 'setup' | 'home';
+export type AppStep = 'welcome' | 'setup' | 'main';
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState<AppStep>('home');
+  const [currentStep, setCurrentStep] = useState<AppStep>('main');
+  const [activeTab, setActiveTab] = useState<HomeTab>('prayers'); // Default to prayers or home
 
   useEffect(() => {
     const checkSetupStatus = async () => {
@@ -30,7 +33,8 @@ export default function App() {
 
   const handleCompleteSetup = async () => {
     await storage.set(APP_CONFIG.storageKeys.hasCompletedSetup, true);
-    setCurrentStep('home');
+    setCurrentStep('main');
+    setActiveTab('prayers');
   };
 
   return (
@@ -41,8 +45,14 @@ export default function App() {
       {currentStep === 'setup' && (
         <SetupScreen onComplete={handleCompleteSetup} />
       )}
-      {currentStep === 'home' && (
-        <HomeScreen onOpenSettings={() => setCurrentStep('welcome')} />
+      {currentStep === 'main' && activeTab === 'home' && (
+        <HomeScreen
+          onOpenSettings={() => setCurrentStep('welcome')}
+          onNavigateTab={setActiveTab}
+        />
+      )}
+      {currentStep === 'main' && activeTab === 'prayers' && (
+        <PrayerTimesScreen onNavigateHome={() => setActiveTab('home')} />
       )}
     </SafeAreaProvider>
   );
