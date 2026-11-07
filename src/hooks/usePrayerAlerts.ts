@@ -21,7 +21,6 @@ export const notifyPrayerAlertsChanged = () => {
 
 export const usePrayerAlerts = () => {
   const [alerts, setAlerts] = useState<PrayerAlertConfig>(DEFAULT_ALERTS);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   useEffect(() => {
@@ -78,17 +77,11 @@ export const usePrayerAlerts = () => {
     saveAlerts(updated);
   }, [alerts]);
 
-  const toggleAudioPreview = useCallback(() => {
-    setIsPlayingAudio((prev) => !prev);
-  }, []);
-
   return {
     alerts,
-    isPlayingAudio,
     setPrayerMode,
     cyclePrayerMode,
     setReminder,
     toggleExactAlarms,
-    toggleAudioPreview,
   };
 };

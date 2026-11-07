@@ -9,6 +9,7 @@ import {
 export const useQiblaCompass = (lat: number = 24.8607, lng: number = 67.0011) => {
   const [heading, setHeading] = useState<number>(0);
   const [hasSensor, setHasSensor] = useState<boolean>(true);
+  const [needsCalibration, setNeedsCalibration] = useState<boolean>(false);
   const smoothHeadingRef = useRef<number>(0);
 
   const qiblaBearing = useMemo(() => calculateQiblaBearing(lat, lng), [lat, lng]);
@@ -29,12 +30,20 @@ export const useQiblaCompass = (lat: number = 24.8607, lng: number = 67.0011) =>
           return;
         }
 
-        Magnetometer.setUpdateInterval(60); // 60ms interval
+        Magnetometer.setUpdateInterval(50); // 50ms interval for smooth tracking
 
         subscription = Magnetometer.addListener((data) => {
-          const { x, y } = data;
+          const { x, y, z } = data;
           let rawAngle = Math.atan2(-x, y) * (180 / Math.PI);
           if (rawAngle < 0) rawAngle += 360;
+
+          // Check magnetic magnitude for interference (normal Earth field ~30-65 uT)
+          const magnitude = Math.sqrt(x * x + y * y + z * z);
+          if (magnitude > 0 && (magnitude < 20 || magnitude > 85)) {
+            setNeedsCalibration(true);
+          } else {
+            setNeedsCalibration(false);
+          }
 
           // Low-pass filter smoothing for steady compass rotation
           let diff = rawAngle - smoothHeadingRef.current;
@@ -69,6 +78,6 @@ export const useQiblaCompass = (lat: number = 24.8607, lng: number = 67.0011) =>
     relativePointerAngle,
     isAligned,
     hasSensor,
+    needsCalibration,
   };
 };
-

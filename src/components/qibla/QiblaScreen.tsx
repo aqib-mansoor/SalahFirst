@@ -26,6 +26,8 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
     cardinal,
     relativePointerAngle,
     isAligned,
+    hasSensor,
+    needsCalibration,
   } = useQiblaCompass(lat, lng);
 
   return (
@@ -58,7 +60,10 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
             isAligned={isAligned}
           />
 
-          <QiblaCalibrationTip />
+          <QiblaCalibrationTip
+            hasSensor={hasSensor}
+            needsCalibration={needsCalibration}
+          />
         </ScrollView>
 
         <HomeBottomNav

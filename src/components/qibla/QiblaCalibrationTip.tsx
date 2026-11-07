@@ -5,7 +5,15 @@ import { RADIUS, SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 
-export const QiblaCalibrationTip: React.FC = () => {
+export interface QiblaCalibrationTipProps {
+  needsCalibration?: boolean;
+  hasSensor?: boolean;
+}
+
+export const QiblaCalibrationTip: React.FC<QiblaCalibrationTipProps> = ({
+  needsCalibration = false,
+  hasSensor = true,
+}) => {
   const theme = useTheme();
 
   return (
@@ -14,15 +22,26 @@ export const QiblaCalibrationTip: React.FC = () => {
         styles.card,
         {
           backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
+          borderColor: !hasSensor
+            ? theme.colors.border
+            : needsCalibration
+            ? theme.colors.accent
+            : theme.colors.border,
         },
       ]}
     >
-      <View style={[styles.iconWrapper, { backgroundColor: theme.colors.mintTint }]}>
+      <View
+        style={[
+          styles.iconWrapper,
+          {
+            backgroundColor: needsCalibration ? theme.colors.surfaceElevated : theme.colors.mintTint,
+          },
+        ]}
+      >
         <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
           <Path
             d="M4 4V9H4.582M20 20V15H19.418M19.938 9C19.488 5.61 16.592 3 13 3C9.134 3 6 6.134 6 10C6 11.5 6.47 12.89 7.276 14.04M4.062 15C4.512 18.39 7.408 21 11 21C14.866 21 18 17.866 18 14C18 12.5 17.53 11.11 16.724 9.96"
-            stroke={theme.colors.primary}
+            stroke={needsCalibration ? theme.colors.accent : theme.colors.primary}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -34,7 +53,11 @@ export const QiblaCalibrationTip: React.FC = () => {
         color={theme.colors.textMuted}
         style={styles.tipText}
       >
-        Move your phone in a gentle figure-8 motion away from magnetic cases to calibrate sensor accuracy.
+        {!hasSensor
+          ? 'Magnetometer hardware is unavailable on this device. Please align using the exact calculated Qibla bearing.'
+          : needsCalibration
+          ? 'Magnetic interference detected. Wave phone in a gentle figure-8 motion away from metal or magnets to calibrate.'
+          : 'Move your phone in a gentle figure-8 motion away from magnetic cases to maintain compass accuracy.'}
       </AppText>
     </View>
   );
@@ -63,4 +86,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

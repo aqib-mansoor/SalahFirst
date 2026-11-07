@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppText } from '@/components/common';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
+import { useAzanAudio } from '@/hooks/useAzanAudio';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { checkNotificationPermissions, requestNotificationPermission } from '@/utils/notifications';
@@ -30,12 +31,12 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
 
   const {
     alerts,
-    isPlayingAudio,
     setPrayerMode,
     setReminder,
     toggleExactAlarms,
-    toggleAudioPreview,
   } = usePrayerAlerts();
+
+  const { isPlaying, isLoading, toggle: toggleAudio } = useAzanAudio();
 
   const [hasPermission, setHasPermission] = useState(true);
 
@@ -135,18 +136,23 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         <View style={[styles.card, styles.rowBetween, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
           <View style={styles.audioInfo}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-              Makkah Haram Azan (Offline Audio)
+              Makkah Haram Azan (Audio Preview)
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              {isPlayingAudio ? 'Playing preview... Hayya ala-s-Salah' : 'Tap to preview offline recording'}
+              {isLoading
+                ? 'Connecting to audio stream...'
+                : isPlaying
+                ? 'Playing Makkah Haram Azan • Hayya alas-Salah'
+                : 'Tap to preview authentic Makkah Haram Azan'}
             </AppText>
           </View>
           <Pressable
-            onPress={toggleAudioPreview}
+            onPress={() => toggleAudio()}
+            disabled={isLoading}
             style={[styles.audioBtn, { backgroundColor: theme.colors.buttonGold }]}
           >
             <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.audioBtnText}>
-              {isPlayingAudio ? '⏹ Stop' : '▶ Play'}
+              {isLoading ? '⏳ ...' : isPlaying ? '⏹ Stop' : '▶ Play'}
             </AppText>
           </Pressable>
         </View>
