@@ -63,3 +63,4 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
 };
 
 export const useTranslation = () => useContext(LocalizationContext);
+
