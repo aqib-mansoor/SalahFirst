@@ -3,24 +3,21 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { CalendarDayCell } from '@/utils/calendarUtils';
 
 export interface CalendarGridProps {
-  selectedDay: number;
-  todayDay: number;
+  leadingEmptyCount: number;
+  cells: CalendarDayCell[];
   onSelectDay: (day: number) => void;
-  dayPrayerMap: Record<number, boolean[]>; // dayNumber -> boolean[5]
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
-  selectedDay,
-  todayDay,
+  leadingEmptyCount,
+  cells,
   onSelectDay,
-  dayPrayerMap,
 }) => {
   const theme = useTheme();
-
   const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const totalDays = 30; // November
 
   return (
     <View
@@ -48,20 +45,29 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
       {/* Days Grid */}
       <View style={styles.gridContainer}>
-        {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => {
-          const isSelected = day === selectedDay;
-          const isToday = day === todayDay;
-          const prayers = dayPrayerMap[day] || (day <= todayDay ? [true, true, true, true, true] : [false, false, false, false, false]);
+        {/* Leading empty cells for correct weekday offset */}
+        {Array.from({ length: leadingEmptyCount }).map((_, i) => (
+          <View key={`empty-${i}`} style={styles.emptyCell} />
+        ))}
+
+        {/* Real calendar cells */}
+        {cells.map((cell) => {
+          const isSelected = cell.isSelected;
+          const isToday = cell.isToday;
 
           return (
             <Pressable
-              key={day}
-              onPress={() => onSelectDay(day)}
+              key={cell.dateKey}
+              onPress={() => onSelectDay(cell.dayNumber)}
               style={[
                 styles.dayCell,
                 isSelected
                   ? { backgroundColor: theme.colors.primary }
                   : { backgroundColor: theme.colors.surfaceElevated },
+                isToday && !isSelected && {
+                  borderColor: theme.colors.accent,
+                  borderWidth: 1.5,
+                },
               ]}
             >
               <AppText
@@ -69,22 +75,31 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 color={isSelected ? theme.colors.textInverse : theme.colors.text}
                 style={[styles.dayNumber, (isSelected || isToday) && styles.todayNumber]}
               >
-                {day}
+                {cell.dayNumber}
               </AppText>
 
-              {/* 5 Dots beneath */}
+              {/* 5 Indicator Dots beneath */}
               <View style={styles.dotsRow}>
-                {prayers.map((done, dotIdx) => (
+                {cell.hasRecord ? (
+                  cell.completedPrayers.map((done, dotIdx) => (
+                    <View
+                      key={dotIdx}
+                      style={[
+                        styles.dot,
+                        done
+                          ? { backgroundColor: isSelected ? theme.colors.accent : theme.colors.primary }
+                          : { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.border },
+                      ]}
+                    />
+                  ))
+                ) : (
                   <View
-                    key={dotIdx}
                     style={[
-                      styles.dot,
-                      done
-                        ? { backgroundColor: isSelected ? theme.colors.accent : theme.colors.primary }
-                        : { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.border },
+                      styles.unrecordedDot,
+                      { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.border },
                     ]}
                   />
-                ))}
+                )}
               </View>
             </Pressable>
           );
@@ -116,7 +131,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+  },
+  emptyCell: {
+    width: '12.8%',
+    aspectRatio: 0.95,
   },
   dayCell: {
     width: '12.8%',
@@ -138,11 +157,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 2,
     alignItems: 'center',
+    minHeight: 4,
   },
   dot: {
     width: 3.5,
     height: 3.5,
     borderRadius: 2,
   },
+  unrecordedDot: {
+    width: 10,
+    height: 2,
+    borderRadius: 1,
+  },
 });
-

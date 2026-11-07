@@ -7,18 +7,20 @@ import { AppText } from '@/components/common';
 
 export interface CalendarDayInspectorProps {
   dateLabel: string;
+  hasRecord?: boolean;
   prayersCompleted: boolean[];
   onTogglePrayer: (prayerIndex: number) => void;
 }
 
 export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   dateLabel,
+  hasRecord = false,
   prayersCompleted,
   onTogglePrayer,
 }) => {
   const theme = useTheme();
-
   const prayerNames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const completedCount = prayersCompleted.filter(Boolean).length;
 
   return (
     <View
@@ -32,11 +34,20 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
     >
       {/* Header */}
       <View style={styles.headerRow}>
-        <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Log for {dateLabel}
-        </AppText>
+        <View style={styles.headerTitleCol}>
+          <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
+            Log for {dateLabel}
+          </AppText>
+          <AppText
+            variant="caption"
+            color={hasRecord ? theme.colors.primary : theme.colors.textMuted}
+            style={styles.statusSubtitle}
+          >
+            {hasRecord ? `${completedCount} of 5 completed` : 'No record yet — tap prayer to log'}
+          </AppText>
+        </View>
         <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
-          Tap day above to inspect
+          Tap prayer to log
         </AppText>
       </View>
 
@@ -100,7 +111,7 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
     padding: SPACING.md,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.xxl,
     borderWidth: 1,
     gap: SPACING.md,
   },
@@ -109,25 +120,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  headerTitleCol: {
+    gap: 2,
+    flex: 1,
+  },
   title: {
     fontWeight: '800',
   },
+  statusSubtitle: {
+    fontWeight: '600',
+  },
   tipText: {
-    fontWeight: '700',
+    fontWeight: '600',
   },
   chipsRow: {
     flexDirection: 'row',
+    gap: SPACING.xs + 2,
     justifyContent: 'space-between',
-    gap: 6,
   },
   prayerChip: {
     flex: 1,
-    paddingVertical: SPACING.xs + 3,
+    paddingVertical: SPACING.sm + 2,
     paddingHorizontal: 2,
     borderRadius: RADIUS.lg,
-    borderWidth: 1.2,
+    borderWidth: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 4,
   },
   chipName: {
@@ -135,12 +152,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   iconCircleDone: {
+    width: 18,
+    height: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dashText: {
+    fontSize: 14,
     fontWeight: '700',
-    fontSize: 12,
+    lineHeight: 18,
   },
 });
-
