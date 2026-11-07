@@ -11,3 +11,4 @@ export interface HadithItem {
   source: string;
   reference: string;
 }
+

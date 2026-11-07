@@ -36,3 +36,4 @@ export const getDayOfYearHadithIndex = (): number => {
   const dayOfYear = Math.floor(diff / oneDay);
   return (dayOfYear - 1 + VERIFIED_HADITHS.length) % VERIFIED_HADITHS.length;
 };
+
