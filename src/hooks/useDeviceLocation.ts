@@ -34,7 +34,7 @@ export const useDeviceLocation = () => {
         if (!globalCurrentLocation) {
           setNeedsCitySelection(true);
         }
-        setErrorMessage('Location permission required for accurate prayer times.');
+        setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
         setIsLoading(false);
         return;
       }
@@ -89,6 +89,8 @@ export const useDeviceLocation = () => {
     setLocation(newLoc);
     notifyAll(newLoc);
     setNeedsCitySelection(false);
+    setPermissionDenied(false);
+    setErrorMessage(null);
     await storage.set(APP_CONFIG.storageKeys.userLocation, newLoc);
   }, []);
 
@@ -106,8 +108,10 @@ export const useDeviceLocation = () => {
         globalCurrentLocation = cached;
         setLocation(cached);
         setIsLoading(false);
-        // Silently verify/refresh GPS in background
-        fetchCurrentGps(true);
+        // Only refresh GPS in background if user previously chose GPS! Never overwrite manual city!
+        if (cached.isGps) {
+          fetchCurrentGps(true);
+        }
       } else {
         // First run without saved location: request fresh GPS
         fetchCurrentGps(false);

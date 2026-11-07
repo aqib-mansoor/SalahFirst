@@ -27,7 +27,7 @@ const EMPTY_COMPLETED: Record<string, boolean> = {
   Isha: false,
 };
 
-const getTodayDateKey = (): string => {
+export const getTodayDateKey = (): string => {
   const d = new Date();
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -35,13 +35,14 @@ const getTodayDateKey = (): string => {
   return `${year}-${month}-${day}`;
 };
 
-const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number => {
+export const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number => {
   const today = new Date();
-  let streak = 0;
   const todayKey = getTodayDateKey();
   const todayCompleted = history[todayKey] ? Object.values(history[todayKey]).filter(Boolean).length : 0;
-  if (todayCompleted > 0) {
-    streak++;
+  let streak = 0;
+
+  if (todayCompleted === 5) {
+    streak = 1;
   }
 
   for (let i = 1; i <= 365; i++) {
@@ -53,7 +54,7 @@ const calculateStreakFromHistory = (history: Record<string, Record<string, boole
     const key = `${year}-${month}-${day}`;
     const dayData = history[key];
     const count = dayData ? Object.values(dayData).filter(Boolean).length : 0;
-    if (count > 0) {
+    if (count === 5) {
       streak++;
     } else {
       break;
@@ -62,7 +63,15 @@ const calculateStreakFromHistory = (history: Record<string, Record<string, boole
   return streak;
 };
 
-// Global preference listener to sync settings changes across all tracker instances
+export const calculateTotalPrayersLogged = (history: Record<string, Record<string, boolean>>): number => {
+  let total = 0;
+  Object.values(history).forEach((dayMap) => {
+    total += Object.values(dayMap).filter(Boolean).length;
+  });
+  return total;
+};
+
+// Global preference listener to sync state changes across all tracker instances
 const trackerPrefListeners = new Set<() => void>();
 export const notifyTrackerPreferencesChanged = () => {
   trackerPrefListeners.forEach((fn) => fn());
@@ -162,8 +171,55 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       setHistoryMap(updatedHistory);
       setStreakCount(calculateStreakFromHistory(updatedHistory));
       await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      notifyTrackerPreferencesChanged();
     },
     [completedMap, historyMap]
+  );
+
+  const setPrayerCompleted = useCallback(
+    async (prayerName: string, completed: boolean = true) => {
+      const todayKey = getTodayDateKey();
+      if (completedMap[prayerName] === completed) return;
+
+      const updatedToday = {
+        ...completedMap,
+        [prayerName]: completed,
+      };
+      const updatedHistory = {
+        ...historyMap,
+        [todayKey]: updatedToday,
+      };
+
+      setCompletedMap(updatedToday);
+      setHistoryMap(updatedHistory);
+      setStreakCount(calculateStreakFromHistory(updatedHistory));
+      await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      notifyTrackerPreferencesChanged();
+    },
+    [completedMap, historyMap]
+  );
+
+  const toggleHistoricalPrayer = useCallback(
+    async (dateKey: string, prayerName: string) => {
+      const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
+      const updatedDay = {
+        ...dayRecord,
+        [prayerName]: !dayRecord[prayerName],
+      };
+      const updatedHistory = {
+        ...historyMap,
+        [dateKey]: updatedDay,
+      };
+
+      if (dateKey === getTodayDateKey()) {
+        setCompletedMap(updatedDay);
+      }
+      setHistoryMap(updatedHistory);
+      setStreakCount(calculateStreakFromHistory(updatedHistory));
+      await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      notifyTrackerPreferencesChanged();
+    },
+    [historyMap]
   );
 
   const completedCount = Object.values(completedMap).filter(Boolean).length;
@@ -193,11 +249,14 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
   return {
     prayerData,
     prayersList,
+    historyMap,
     completedCount,
     countdownText,
     streakCount,
     calcMethod,
     juristic,
     togglePrayer,
+    setPrayerCompleted,
+    toggleHistoricalPrayer,
   };
 };

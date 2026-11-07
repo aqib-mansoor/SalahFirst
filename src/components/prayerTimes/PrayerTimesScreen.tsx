@@ -38,7 +38,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
 
-  const { location, updateLocation, needsCitySelection } = useDeviceLocation();
+  const { location, updateLocation, needsCitySelection, requestGpsLocation } = useDeviceLocation();
   const { prayerData, prayersList } = usePrayerTracker(location);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
 
@@ -137,8 +137,10 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
         <LocationBottomSheet
           visible={sheetVisible}
           currentCityName={location?.city || 'Select City'}
+          isGps={location?.isGps}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
+          onUseGps={requestGpsLocation}
         />
       </View>
     </AppContainer>

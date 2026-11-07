@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -9,6 +9,8 @@ import { SetupAyahCarousel } from './SetupAyahCarousel';
 import { SetupHeroText } from './SetupHeroText';
 import { SetupLocationCard } from './SetupLocationCard';
 import { SetupPrivacyBanner } from './SetupPrivacyBanner';
+import { SetupCityModal } from './SetupCityModal';
+import { PresetCity } from '@/data';
 
 export interface SetupScreenProps {
   onComplete?: () => void;
@@ -16,13 +18,26 @@ export interface SetupScreenProps {
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const theme = useTheme();
+  const [cityModalVisible, setCityModalVisible] = useState(false);
   const {
     location,
     isLoading,
     permissionDenied,
     requestGpsLocation,
     openSettings,
+    updateLocation,
   } = useDeviceLocation();
+
+  const handleSelectCity = (city: PresetCity) => {
+    updateLocation({
+      city: city.name,
+      country: city.country,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      isGps: false,
+    });
+    setCityModalVisible(false);
+  };
 
   const ChevronRight = (
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -56,6 +71,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
           permissionDenied={permissionDenied}
           onRequestGps={requestGpsLocation}
           onOpenSettings={openSettings}
+          onSelectCityManually={() => setCityModalVisible(true)}
         />
 
         {/* Offline Privacy Callout */}
@@ -68,6 +84,13 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
           size="lg"
           rightIcon={ChevronRight}
           style={[styles.getStartedButton, { backgroundColor: theme.colors.primary }]}
+        />
+
+        {/* Manual City Selector Modal */}
+        <SetupCityModal
+          visible={cityModalVisible}
+          onClose={() => setCityModalVisible(false)}
+          onSelect={handleSelectCity}
         />
       </View>
     </AppContainer>

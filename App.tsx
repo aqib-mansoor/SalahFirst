@@ -36,7 +36,7 @@ export default function App() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const { togglePrayer, prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  const { togglePrayer, setPrayerCompleted, prayerData, calcMethod, juristic } = usePrayerTracker(location);
   useNotificationScheduler(location, alerts, calcMethod, juristic);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function App() {
 
   const handleCompletePrayerFocus = () => {
     const currentName = prayerData.nextPrayerName || 'Asr';
-    togglePrayer(currentName);
+    setPrayerCompleted(currentName, true);
   };
 
   return (

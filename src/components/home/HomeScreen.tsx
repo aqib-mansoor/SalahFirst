@@ -25,7 +25,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
-  const { location } = useDeviceLocation();
+  const { location, permissionDenied } = useDeviceLocation();
 
   const handleTabChange = (tab: HomeTab) => {
     setActiveTab(tab);
@@ -56,7 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <View style={styles.container}>
         {/* Top Header */}
         <HomeHeader
-          cityName={location?.city || 'Detecting...'}
+          cityName={location?.city || (permissionDenied ? 'Select City' : 'Detecting...')}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}

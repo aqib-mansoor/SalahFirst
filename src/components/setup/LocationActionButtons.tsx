@@ -10,6 +10,7 @@ export interface LocationActionButtonsProps {
   permissionDenied: boolean;
   onRequestGps: () => void;
   onOpenSettings: () => void;
+  onSelectCityManually?: () => void;
 }
 
 export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
@@ -17,6 +18,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
   permissionDenied,
   onRequestGps,
   onOpenSettings,
+  onSelectCityManually,
 }) => {
   const theme = useTheme();
 
@@ -37,6 +39,25 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
             Enable Location in Settings
           </AppText>
         </Pressable>
+
+        {onSelectCityManually && (
+          <Pressable
+            onPress={onSelectCityManually}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.secondaryBtn,
+              {
+                backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint,
+                borderColor: theme.colors.primary,
+                transform: [{ scale: pressed ? 0.98 : 1 }],
+              },
+            ]}
+          >
+            <AppText variant="titleSmall" color={theme.colors.primary} style={styles.buttonText}>
+              Select City Manually
+            </AppText>
+          </Pressable>
+        )}
       </View>
     );
   }
@@ -71,6 +92,14 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
           {isLoading ? 'Detecting Precise GPS...' : 'Refresh GPS Location'}
         </AppText>
       </Pressable>
+
+      {onSelectCityManually && (
+        <Pressable onPress={onSelectCityManually} hitSlop={10} style={styles.manualLinkPressable}>
+          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.manualLinkText}>
+            Or select your city manually ›
+          </AppText>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -78,6 +107,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    gap: SPACING.sm,
   },
   actionButton: {
     width: '100%',
@@ -88,8 +118,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.sm,
   },
+  secondaryBtn: {
+    borderWidth: 1,
+  },
   buttonText: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  manualLinkPressable: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  manualLinkText: {
+    fontWeight: '600',
   },
 });

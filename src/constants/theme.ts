@@ -80,6 +80,7 @@ export interface ThemeColors {
   mintTintPressed: string;
   privacyBg: string;
   privacyText: string;
+  error: string;
 }
 
 export interface Theme {
@@ -114,6 +115,7 @@ export const darkTheme: Theme = {
     mintTintPressed: PALETTE.darkMintPressed,
     privacyBg: PALETTE.obsidianElevated,
     privacyText: PALETTE.sageMuted,
+    error: '#F87171',
   },
 };
 
@@ -144,6 +146,7 @@ export const lightTheme: Theme = {
     mintTintPressed: PALETTE.mintTintPressed,
     privacyBg: PALETTE.privacyBg,
     privacyText: PALETTE.privacyText,
+    error: '#DC2626',
   },
 };
 

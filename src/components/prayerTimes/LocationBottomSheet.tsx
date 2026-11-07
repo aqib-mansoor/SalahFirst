@@ -5,20 +5,23 @@ import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { UserLocation } from '@/types';
 
 export interface LocationBottomSheetProps {
   visible: boolean;
   currentCityName: string;
+  isGps?: boolean;
   onClose: () => void;
   onSelectCity: (city: PresetCity) => void;
+  onUseGps?: () => void;
 }
 
 export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   visible,
   currentCityName,
+  isGps = false,
   onClose,
   onSelectCity,
+  onUseGps,
 }) => {
   const theme = useTheme();
 
@@ -42,14 +45,54 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
           {/* Subtitle */}
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-            Choose a city manually for offline prayer calculation and Qibla angle:
+            Choose a verified city offline or use live device GPS:
           </AppText>
 
           {/* Cities List */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
+            {/* GPS Option */}
+            {onUseGps && (
+              <Pressable
+                onPress={() => {
+                  onUseGps();
+                  onClose();
+                }}
+                style={({ pressed }) => [
+                  styles.cityCard,
+                  {
+                    backgroundColor: isGps ? theme.colors.bannerGreen : theme.colors.surfaceElevated,
+                    transform: [{ scale: pressed ? 0.98 : 1 }],
+                  },
+                ]}
+              >
+                <View style={styles.cityInfo}>
+                  <AppText
+                    variant="titleSmall"
+                    color={isGps ? theme.colors.bannerGreenText : theme.colors.text}
+                    style={styles.cityName}
+                  >
+                    Use Live Device GPS
+                  </AppText>
+                  <AppText
+                    variant="caption"
+                    color={isGps ? theme.colors.accentLight : theme.colors.textMuted}
+                    style={styles.qiblaText}
+                  >
+                    Automatic detection via device hardware
+                  </AppText>
+                </View>
+
+                {isGps && (
+                  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                    <Path d="M5 13l4 4L19 7" stroke={theme.colors.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                )}
+              </Pressable>
+            )}
+
             {PRESET_CITIES.map((city) => {
               const isSelected =
-                city.name.toLowerCase() === currentCityName.toLowerCase();
+                !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
 
               const cardBg = isSelected ? theme.colors.bannerGreen : theme.colors.surfaceElevated;
               const textColor = isSelected ? theme.colors.bannerGreenText : theme.colors.text;
@@ -106,7 +149,9 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
-    padding: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xl,
     maxHeight: '75%',
     gap: SPACING.sm,
   },
@@ -119,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   closeBtn: {
-    padding: 4,
+    padding: SPACING.xs,
   },
   subtitle: {
     lineHeight: 18,
@@ -127,25 +172,23 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: SPACING.sm,
-    paddingBottom: SPACING.lg,
+    paddingBottom: SPACING.md,
   },
   cityCard: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    padding: SPACING.md,
     borderRadius: RADIUS.lg,
   },
   cityInfo: {
-    gap: 4,
+    gap: 2,
     flex: 1,
   },
   cityName: {
     fontWeight: '700',
   },
   qiblaText: {
-    fontSize: 11,
+    fontWeight: '500',
   },
 });
-

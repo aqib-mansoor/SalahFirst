@@ -25,11 +25,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    if (remainingSeconds <= 0) {
-      setIsCompleted(true);
-      return;
-    }
-
     const timer = setInterval(() => {
       setRemainingSeconds((prev) => {
         if (prev <= 1) {
@@ -42,7 +37,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [remainingSeconds]);
+  }, []);
 
   const handleExitEarly = () => {
     Alert.alert(
@@ -61,8 +56,12 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     });
   };
 
-  const handleFinishCelebration = () => {
+  const handleConfirmPrayed = () => {
     onCompletePrayer();
+    onExit();
+  };
+
+  const handleNotYet = () => {
     onExit();
   };
 
@@ -81,14 +80,19 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
             {prayerName} Focus • {duration}m
           </AppText>
 
-          <Pressable
-            onPress={() => setRemainingSeconds(0)}
-            style={styles.simulateBtn}
-          >
-            <AppText variant="caption" color={PALETTE.goldLight} style={styles.simulateText}>
-              Simulate Timer End
-            </AppText>
-          </Pressable>
+          {__DEV__ && (
+            <Pressable
+              onPress={() => {
+                setRemainingSeconds(0);
+                setIsCompleted(true);
+              }}
+              style={styles.simulateBtn}
+            >
+              <AppText variant="caption" color={PALETTE.goldLight} style={styles.simulateText}>
+                DEV: End Timer
+              </AppText>
+            </Pressable>
+          )}
         </View>
 
         {/* Center Timer & Motivation */}
@@ -100,7 +104,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
               Be present. Focus on your Salah.
             </AppText>
             <AppText variant="bodyMedium" color={theme.colors.textMuted} align="center" style={styles.motivationSub}>
-              Notifications from selected distracting apps are paused until your timer completes.
+              Set all distractions aside and dedicate this time purely to prayer.
             </AppText>
           </View>
         </View>
@@ -125,18 +129,34 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
       {isCompleted && (
         <View style={styles.completionOverlay}>
           <View style={[styles.completionCard, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
+              <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
+                FOCUS SESSION FINISHED
+              </AppText>
+            </View>
+
             <AppText variant="titleMedium" color={theme.colors.text} align="center" style={styles.congratsTitle}>
-              Salah Complete!
+              Did you complete your prayer?
             </AppText>
-            <AppText variant="bodyMedium" color={theme.colors.textMuted} align="center">
-              May Allah accept your prayer and bless your focus.
+
+            <AppText variant="bodySmall" color={theme.colors.textMuted} align="center" style={styles.congratsSub}>
+              {prayerName} • May Allah accept your worship and bless your focus.
             </AppText>
-            <AppButton
-              label="Return to Home"
-              onPress={handleFinishCelebration}
-              size="md"
-              style={[styles.completeBtn, { backgroundColor: theme.colors.primary }]}
-            />
+
+            <View style={styles.modalActions}>
+              <AppButton
+                label="Yes, I prayed"
+                onPress={handleConfirmPrayed}
+                size="md"
+                style={[styles.completeBtn, { backgroundColor: theme.colors.primary }]}
+              />
+
+              <Pressable onPress={handleNotYet} hitSlop={12} style={styles.notYetBtn}>
+                <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.notYetText}>
+                  Not yet
+                </AppText>
+              </Pressable>
+            </View>
           </View>
         </View>
       )}
@@ -216,7 +236,7 @@ const styles = StyleSheet.create({
   },
   completionOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: SPACING.xl,
@@ -228,11 +248,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.md,
   },
+  badgePill: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+  },
+  badgeText: {
+    fontWeight: '800',
+    fontSize: 10,
+    letterSpacing: 0.8,
+  },
   congratsTitle: {
     fontWeight: '800',
+    fontSize: 20,
+  },
+  congratsSub: {
+    lineHeight: 18,
+  },
+  modalActions: {
+    width: '100%',
+    gap: SPACING.sm,
+    marginTop: SPACING.xs,
+    alignItems: 'center',
   },
   completeBtn: {
     width: '100%',
-    marginTop: SPACING.sm,
+  },
+  notYetBtn: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+  },
+  notYetText: {
+    fontWeight: '600',
   },
 });

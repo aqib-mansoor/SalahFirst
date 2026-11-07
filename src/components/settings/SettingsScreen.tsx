@@ -45,7 +45,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNavigateTab,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
-  const { location, updateLocation } = useDeviceLocation();
+  const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
   const { calcMethod, juristic } = usePrayerTracker(location);
 
   const [sheetVisible, setSheetVisible] = useState(false);
@@ -140,8 +140,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         <LocationBottomSheet
           visible={sheetVisible}
           currentCityName={location?.city || 'Select City'}
+          isGps={location?.isGps}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
+          onUseGps={requestGpsLocation}
         />
       </View>
     </AppContainer>

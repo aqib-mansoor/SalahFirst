@@ -6,11 +6,15 @@ import {
   TextInput,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
+import { getDefaultMethodForCountry } from '@/utils/prayerTimes';
 
 export interface SetupCityModalProps {
   visible: boolean;
@@ -25,6 +29,8 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
 }) => {
   const theme = useTheme();
   const [query, setQuery] = useState('');
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const trimmedQuery = query.trim();
   const filtered = PRESET_CITIES.filter(
@@ -37,15 +43,69 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
     (c) => c.name.toLowerCase() === trimmedQuery.toLowerCase()
   );
 
+  const handleCustomGeocode = async () => {
+    if (trimmedQuery.length < 2) return;
+    setIsGeocoding(true);
+    setErrorMessage(null);
+
+    try {
+      const results = await Location.geocodeAsync(trimmedQuery);
+      if (results && results.length > 0) {
+        const { latitude, longitude } = results[0];
+        let cityName = trimmedQuery;
+        let countryName = 'Custom Location';
+
+        try {
+          const rev = await Location.reverseGeocodeAsync({ latitude, longitude });
+          if (rev && rev.length > 0) {
+            cityName = rev[0].city || rev[0].name || rev[0].subregion || trimmedQuery;
+            countryName = rev[0].country || countryName;
+          }
+        } catch {}
+
+        const customCity: PresetCity = {
+          id: `custom-${Date.now()}`,
+          name: cityName,
+          country: countryName,
+          latitude,
+          longitude,
+          qiblaDegrees: calculateQiblaBearing(latitude, longitude),
+          methodName: getDefaultMethodForCountry(countryName),
+        };
+
+        onSelect(customCity);
+        setQuery('');
+        setErrorMessage(null);
+        onClose();
+      } else {
+        setErrorMessage(
+          `Could not resolve coordinates for "${trimmedQuery}". Please check spelling or select from the list below.`
+        );
+      }
+    } catch {
+      setErrorMessage(
+        `Unable to search online for "${trimmedQuery}". Please select from the verified offline cities list below.`
+      );
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
+  const handleClose = () => {
+    setQuery('');
+    setErrorMessage(null);
+    onClose();
+  };
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.header}>
             <AppText variant="titleMedium" color={theme.colors.text}>
               Select City
             </AppText>
-            <Pressable onPress={onClose} hitSlop={12}>
+            <Pressable onPress={handleClose} hitSlop={12}>
               <AppText variant="bodyMedium" color={theme.colors.textMuted}>
                 Close
               </AppText>
@@ -56,7 +116,10 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
             placeholder="Search city or country..."
             placeholderTextColor={theme.colors.textSubtle}
             value={query}
-            onChangeText={setQuery}
+            onChangeText={(text) => {
+              setQuery(text);
+              if (errorMessage) setErrorMessage(null);
+            }}
             style={[
               styles.input,
               {
@@ -67,25 +130,33 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
             ]}
           />
 
+          {errorMessage && (
+            <View style={[styles.errorBox, { backgroundColor: theme.colors.surfaceElevated }]}>
+              <AppText variant="caption" color={theme.colors.error}>
+                {errorMessage}
+              </AppText>
+            </View>
+          )}
+
           {trimmedQuery.length > 1 && !hasExactMatch && (
             <Pressable
-              onPress={() => {
-                onSelect({
-                  id: `custom-${Date.now()}`,
-                  name: trimmedQuery,
-                  country: 'Selected Location',
-                  latitude: 33.6844,
-                  longitude: 73.0479,
-                  qiblaDegrees: 256,
-                  methodName: 'University of Islamic Sciences, Karachi',
-                });
-                onClose();
-              }}
-              style={[styles.customCityBox, { backgroundColor: theme.colors.mintTint }]}
+              onPress={handleCustomGeocode}
+              disabled={isGeocoding}
+              style={({ pressed }) => [
+                styles.customCityBox,
+                {
+                  backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint,
+                  opacity: isGeocoding ? 0.7 : 1,
+                },
+              ]}
             >
-              <AppText variant="titleSmall" color={theme.colors.primary}>
-                + Use "{trimmedQuery}"
-              </AppText>
+              {isGeocoding ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+              ) : (
+                <AppText variant="titleSmall" color={theme.colors.primary}>
+                  + Search online coordinates for "{trimmedQuery}"
+                </AppText>
+              )}
             </Pressable>
           )}
 
@@ -97,7 +168,7 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               <Pressable
                 onPress={() => {
                   onSelect(item);
-                  onClose();
+                  handleClose();
                 }}
                 style={({ pressed }) => [
                   styles.cityItem,
@@ -111,7 +182,7 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
                   {item.name}
                 </AppText>
                 <AppText variant="caption" color={theme.colors.textMuted}>
-                  {item.country}
+                  {item.country} • Qibla {item.qiblaDegrees}°
                 </AppText>
               </Pressable>
             )}
@@ -146,13 +217,20 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.md,
     borderWidth: 1,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
     fontSize: 14,
+  },
+  errorBox: {
+    padding: SPACING.sm,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.sm,
   },
   customCityBox: {
     padding: SPACING.md,
     borderRadius: RADIUS.md,
     marginBottom: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cityItem: {
     paddingVertical: SPACING.md,

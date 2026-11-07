@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { UserLocation } from '@/types';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -13,6 +13,7 @@ export interface SetupLocationCardProps {
   permissionDenied: boolean;
   onRequestGps: () => void;
   onOpenSettings: () => void;
+  onSelectCityManually?: () => void;
 }
 
 export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
@@ -21,8 +22,26 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
   permissionDenied,
   onRequestGps,
   onOpenSettings,
+  onSelectCityManually,
 }) => {
   const theme = useTheme();
+
+  const getStatusBadge = () => {
+    if (isLoading) {
+      return { text: 'Locating...', bg: theme.colors.mintTint, color: theme.colors.primary };
+    }
+    if (location) {
+      return location.isGps
+        ? { text: 'GPS Locked', bg: theme.colors.mintTint, color: theme.colors.primary }
+        : { text: 'Manual City', bg: theme.colors.mintTint, color: theme.colors.primary };
+    }
+    if (permissionDenied) {
+      return { text: 'Permission Needed', bg: theme.colors.border, color: theme.colors.textMuted };
+    }
+    return { text: 'Location Not Set', bg: theme.colors.border, color: theme.colors.textMuted };
+  };
+
+  const status = getStatusBadge();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -48,7 +67,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
             </AppText>
             <View style={[styles.gpsBadge, { backgroundColor: theme.colors.mintTint }]}>
               <AppText variant="caption" color={theme.colors.primary} style={styles.gpsBadgeText}>
-                Auto GPS
+                {location && !location.isGps ? 'Manual' : 'Auto GPS'}
               </AppText>
             </View>
           </View>
@@ -61,7 +80,17 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
       </View>
 
       {/* Selected Location Pill */}
-      <View style={[styles.locationBox, { backgroundColor: theme.colors.surfaceElevated }]}>
+      <Pressable
+        onPress={onSelectCityManually}
+        disabled={!onSelectCityManually}
+        style={({ pressed }) => [
+          styles.locationBox,
+          {
+            backgroundColor: theme.colors.surfaceElevated,
+            opacity: pressed && onSelectCityManually ? 0.85 : 1,
+          },
+        ]}
+      >
         <View style={styles.locationLeft}>
           {isLoading ? (
             <ActivityIndicator size="small" color={theme.colors.primary} />
@@ -73,16 +102,20 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
           )}
 
           <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.locationText}>
-            {location ? `${location.city}${location.country ? `, ${location.country}` : ''}` : 'Detecting GPS Location...'}
+            {location
+              ? `${location.city}${location.country ? `, ${location.country}` : ''}`
+              : permissionDenied
+              ? 'Select city manually...'
+              : 'Detecting GPS Location...'}
           </AppText>
         </View>
 
-        <View style={[styles.statusBadge, { backgroundColor: permissionDenied ? theme.colors.border : theme.colors.mintTint }]}>
-          <AppText variant="caption" color={permissionDenied ? theme.colors.textMuted : theme.colors.primary} style={styles.statusBadgeText}>
-            {isLoading ? 'Locating...' : permissionDenied ? 'Permission Needed' : 'GPS Locked'}
+        <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+          <AppText variant="caption" color={status.color} style={styles.statusBadgeText}>
+            {status.text}
           </AppText>
         </View>
-      </View>
+      </Pressable>
 
       {/* Action Button */}
       <LocationActionButtons
@@ -90,6 +123,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
         permissionDenied={permissionDenied}
         onRequestGps={onRequestGps}
         onOpenSettings={onOpenSettings}
+        onSelectCityManually={onSelectCityManually}
       />
     </View>
   );
@@ -121,7 +155,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    flexWrap: 'wrap',
   },
   title: {
     fontWeight: '700',
@@ -132,8 +165,8 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
   },
   gpsBadgeText: {
+    fontSize: 10,
     fontWeight: '700',
-    fontSize: 11,
   },
   description: {
     lineHeight: 18,
@@ -142,8 +175,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
+    padding: SPACING.md,
     borderRadius: RADIUS.lg,
     gap: SPACING.sm,
   },
@@ -154,8 +186,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationText: {
-    fontWeight: '700',
-    flexShrink: 1,
+    flex: 1,
+    fontWeight: '600',
   },
   statusBadge: {
     paddingHorizontal: SPACING.sm,
