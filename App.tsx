@@ -21,7 +21,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { LocalizationProvider } from '@/context/LocalizationContext';
+import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
 
 export type AppStep =
@@ -34,7 +34,8 @@ export type AppStep =
   | 'focus-active'
   | 'wallpaper';
 
-export default function App() {
+function AppContent() {
+  const { language } = useTranslation();
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const [progressSubTab, setProgressSubTab] = useState<ProgressSubTab>('tracker');
@@ -52,7 +53,7 @@ export default function App() {
     juristic,
   } = usePrayerTracker(location);
 
-  useNotificationScheduler(location, alerts, calcMethod, juristic);
+  useNotificationScheduler(location, alerts, calcMethod, juristic, language);
 
   // Check setup status and restore any active focus session on startup
   useEffect(() => {
@@ -208,7 +209,15 @@ export default function App() {
             onClose={() => setCurrentStep('main')}
           />
         )}
-        </SafeAreaProvider>
+      </SafeAreaProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <LocalizationProvider>
+        <AppContent />
       </LocalizationProvider>
     </ThemeProvider>
   );
