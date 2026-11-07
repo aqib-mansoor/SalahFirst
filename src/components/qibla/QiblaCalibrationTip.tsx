@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { RADIUS, SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface QiblaCalibrationTipProps {
   needsCalibration?: boolean;
@@ -15,6 +16,7 @@ export const QiblaCalibrationTip: React.FC<QiblaCalibrationTipProps> = ({
   hasSensor = true,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -54,9 +56,9 @@ export const QiblaCalibrationTip: React.FC<QiblaCalibrationTipProps> = ({
         style={styles.tipText}
       >
         {!hasSensor
-          ? 'Magnetometer hardware is unavailable on this device. Please align using the exact calculated Qibla bearing.'
+          ? t('sensorUnavailable')
           : needsCalibration
-          ? 'Magnetic interference detected. Wave phone in a gentle figure-8 motion away from metal or magnets to calibrate.'
+          ? t('magneticInterference')
           : 'Move your phone in a gentle figure-8 motion away from magnetic cases to maintain compass accuracy.'}
       </AppText>
     </View>

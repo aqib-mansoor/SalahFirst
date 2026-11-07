@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { RADIUS, SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface QiblaTelemetryCardProps {
   heading: number;
@@ -22,6 +23,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
   isAligned,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const diffDegrees = Math.round(
     relativePointerAngle > 180 ? 360 - relativePointerAngle : relativePointerAngle
@@ -49,8 +51,8 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
           style={styles.guidanceText}
         >
           {isAligned
-            ? 'Facing the Holy Kaaba in Makkah'
-            : `Rotate phone until pointer aligns (${diffDegrees}°)`}
+            ? t('facingKaaba')
+            : `${t('rotatePhone')} (${diffDegrees}°)`}
         </AppText>
       </View>
 
@@ -63,7 +65,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
       >
         <View style={styles.metricItem}>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
-            Live Heading
+            {t('liveHeading')}
           </AppText>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.metricValue}>
             {heading}°
@@ -74,7 +76,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
 
         <View style={styles.metricItem}>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
-            Qibla Angle
+            {t('qiblaAngle')}
           </AppText>
           <AppText variant="titleSmall" color={theme.colors.primary} style={styles.metricValue}>
             {qiblaBearing}° {cardinal}
@@ -85,7 +87,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
 
         <View style={styles.metricItem}>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
-            Distance
+            {t('distance')}
           </AppText>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.metricValue}>
             {distanceKm.toLocaleString()} km
