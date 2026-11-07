@@ -74,6 +74,9 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Focus Mode Button */}
       <Pressable
         onPress={onStartPrayerFocus}
+        accessibilityRole="button"
+        accessibilityLabel="Start Prayer Focus, 15 minutes"
+        accessibilityHint="Opens dedicated quiet focus mode to dedicate time to prayer"
         style={({ pressed }) => [
           styles.focusButton,
           {

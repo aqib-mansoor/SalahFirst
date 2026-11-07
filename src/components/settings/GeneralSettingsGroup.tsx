@@ -29,7 +29,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   const handleExportBackup = async () => {
     try {
       const tracker = await storage.get(APP_CONFIG.storageKeys.prayerTracker, {});
-      const streak = await storage.get(APP_CONFIG.storageKeys.streak, 12);
+      const streak = await storage.get(APP_CONFIG.storageKeys.streak, 0);
       const backupData = JSON.stringify(
         {
           appName: 'SalahFirst',

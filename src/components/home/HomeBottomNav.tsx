@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
 
@@ -19,13 +20,14 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const tabs: { id: HomeTab; label: string }[] = [
-    { id: 'home', label: 'Home' },
-    { id: 'prayers', label: 'Prayer Times' },
-    { id: 'qibla', label: 'Qibla' },
-    { id: 'hadith', label: 'Hadith' },
-    { id: 'progress', label: 'Progress' },
+    { id: 'home', label: t('navHome') },
+    { id: 'prayers', label: t('navPrayers') },
+    { id: 'qibla', label: t('navQibla') },
+    { id: 'hadith', label: t('navHadith') },
+    { id: 'progress', label: t('navProgress') },
   ];
 
   const renderIcon = (tabId: HomeTab, isActive: boolean) => {
@@ -87,6 +89,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           paddingBottom: Math.max(insets.bottom, 10),
         },
       ]}
+      accessibilityRole="tablist"
     >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
@@ -96,6 +99,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             key={tab.id}
             onPress={() => onTabChange(tab.id)}
             style={styles.tabButton}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
+            accessibilityLabel={tab.label}
+            hitSlop={8}
           >
             {renderIcon(tab.id, isActive)}
             <AppText
@@ -125,6 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     flex: 1,
+    minHeight: 48,
   },
   homeIconWrapper: {
     alignItems: 'center',
@@ -141,4 +149,3 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 });
-

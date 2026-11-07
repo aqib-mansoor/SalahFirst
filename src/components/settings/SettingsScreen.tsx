@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
-import { useTheme, useThemeState } from '@/hooks/useTheme';
+import { useThemeState } from '@/hooks/useTheme';
+import { useTranslation } from '@/context/LocalizationContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
 import { AppContainer } from '@/components/common';
@@ -48,9 +49,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
   const { calcMethod, juristic } = usePrayerTracker(location);
 
+  const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showWallpaper, setShowWallpaper] = useState(false);
-  const [language, setLanguage] = useState<'English' | 'Urdu'>('English');
 
   if (showWallpaper) {
     return (
@@ -127,9 +128,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           />
 
           <GeneralSettingsGroup
-            language={language}
+            language={language === 'ur' ? 'Urdu' : 'English'}
             onToggleLanguage={() =>
-              setLanguage((p) => (p === 'English' ? 'Urdu' : 'English'))
+              setLanguage(language === 'en' ? 'ur' : 'en')
             }
             onOpenPrivacyPolicy={handlePrivacyPolicy}
           />

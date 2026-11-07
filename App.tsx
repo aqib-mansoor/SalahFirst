@@ -21,6 +21,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { LocalizationProvider } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
 
 export type AppStep =
@@ -121,7 +122,8 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <SafeAreaProvider>
+      <LocalizationProvider>
+        <SafeAreaProvider>
         {currentStep === 'welcome' && (
           <WelcomeScreen onContinue={handleContinueToSetup} />
         )}
@@ -206,7 +208,8 @@ export default function App() {
             onClose={() => setCurrentStep('main')}
           />
         )}
-      </SafeAreaProvider>
+        </SafeAreaProvider>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

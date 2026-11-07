@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import Svg, { Path } from 'react-native-svg';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
@@ -33,7 +33,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
       </View>
 
       {/* Progress Bar Track */}
-      <View style={[styles.progressTrack, { backgroundColor: PALETTE.trackBg }]}>
+      <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
         <View
           style={[
             styles.progressFill,
@@ -43,7 +43,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
       </View>
 
       {/* 5 Prayer Cards Grid */}
-      <View style={styles.cardsRow}>
+      <View style={styles.cardsRow} accessibilityRole="toolbar" accessibilityLabel="Daily Prayers Tracker">
         {prayers.map((item) => {
           const isSelected = item.isNext;
 
@@ -51,6 +51,11 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
             <Pressable
               key={item.name}
               onPress={() => onTogglePrayer(item.name)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: item.completed }}
+              accessibilityLabel={`${item.name} at ${item.time}`}
+              accessibilityHint={`Tap to mark ${item.name} as ${item.completed ? 'uncompleted' : 'completed'}`}
+              hitSlop={6}
               style={({ pressed }) => [
                 styles.prayerCard,
                 {
@@ -137,6 +142,8 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     gap: 4,
+    minHeight: 80,
+    justifyContent: 'space-between',
   },
   prayerName: {
     fontWeight: '700',
@@ -178,4 +185,3 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
 });
-
