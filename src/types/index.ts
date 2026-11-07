@@ -1,14 +1,22 @@
 /**
  * Core Shared TypeScript Interfaces
  */
-import { ThemeColors } from '@/constants/theme';
 
 export type ThemeMode = 'dark' | 'light' | 'system';
+
+export interface UserLocation {
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  isGps: boolean;
+}
 
 export interface UserPreferences {
   themeMode: ThemeMode;
   notificationsEnabled: boolean;
   hapticFeedback: boolean;
+  location?: UserLocation;
 }
 
 export type SalahName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -25,4 +33,3 @@ export interface StoredPrayerRecord {
   date: string; // YYYY-MM-DD
   completedPrayers: Record<SalahName, boolean>;
 }
-
