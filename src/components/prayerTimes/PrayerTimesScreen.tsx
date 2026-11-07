@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -21,6 +21,14 @@ export interface PrayerTimesScreenProps {
   onNavigateTab?: (tab: HomeTab) => void;
 }
 
+const ARABIC_NAMES: Record<string, string> = {
+  Fajr: 'الفجر',
+  Dhuhr: 'الظهر',
+  Asr: 'العصر',
+  Maghrib: 'المغرب',
+  Isha: 'العشاء',
+};
+
 export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateHome,
   onNavigateTab,
@@ -30,9 +38,15 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
 
-  const { location, updateLocation } = useDeviceLocation();
-  const { prayerData } = usePrayerTracker(location);
+  const { location, updateLocation, needsCitySelection } = useDeviceLocation();
+  const { prayerData, prayersList } = usePrayerTracker(location);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
+
+  useEffect(() => {
+    if (needsCitySelection && !location) {
+      setSheetVisible(true);
+    }
+  }, [needsCitySelection, location]);
 
   if (showAzanPrefs) {
     return <AzanPrefsScreen onBack={() => setShowAzanPrefs(false)} />;
@@ -57,45 +71,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
     });
   };
 
-  const prayers = [
-    {
-      name: 'Fajr',
-      arabicName: 'الفجر',
-      time: prayerData.fajr,
-      key: 'fajr' as const,
-      isNext: false,
-    },
-    {
-      name: 'Dhuhr',
-      arabicName: 'الظهر',
-      time: prayerData.dhuhr,
-      key: 'dhuhr' as const,
-      isNext: false,
-    },
-    {
-      name: 'Asr',
-      arabicName: 'العصر',
-      time: prayerData.asr,
-      key: 'asr' as const,
-      isNext: false,
-    },
-    {
-      name: 'Maghrib',
-      arabicName: 'المغرب',
-      time: prayerData.maghrib,
-      key: 'maghrib' as const,
-      isNext: true,
-      remainingText: 'IN 1H 24M',
-    },
-    {
-      name: 'Isha',
-      arabicName: 'العشاء',
-      time: prayerData.isha,
-      key: 'isha' as const,
-      isNext: false,
-    },
-  ];
-
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
@@ -108,28 +83,31 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
 
           {/* Location Selector Card */}
           <PrayerTimesLocationCard
-            cityName={location.city || 'Chakwal'}
-            country={location.country || 'Pakistan'}
+            cityName={location?.city || 'Detecting Location...'}
+            country={location?.country || ''}
             onOpenLocationSheet={() => setSheetVisible(true)}
           />
 
           {/* Sunrise Card */}
-          <SunriseCard time={`${prayerData.sunrise} AM`} />
+          <SunriseCard time={prayerData.sunrise} />
 
           {/* Prayer Time Rows */}
           <View style={styles.prayerList}>
-            {prayers.map((p) => (
-              <PrayerTimeRow
-                key={p.name}
-                name={p.name}
-                arabicName={p.arabicName}
-                time={p.time}
-                notification={alerts[p.key]}
-                isNext={p.isNext}
-                remainingTimeText={p.remainingText}
-                onCycleNotification={() => cyclePrayerMode(p.key)}
-              />
-            ))}
+            {prayersList.map((p) => {
+              const key = p.name.toLowerCase() as 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+              return (
+                <PrayerTimeRow
+                  key={p.name}
+                  name={p.name}
+                  arabicName={ARABIC_NAMES[p.name] || ''}
+                  time={p.time}
+                  notification={alerts[key]}
+                  isNext={p.isNext}
+                  remainingTimeText={p.remainingTimeText}
+                  onCycleNotification={() => cyclePrayerMode(key)}
+                />
+              );
+            })}
           </View>
 
           {/* Configure Audio Footer Button */}
@@ -158,7 +136,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
         {/* Location Bottom Sheet */}
         <LocationBottomSheet
           visible={sheetVisible}
-          currentCityName={location.city || 'Chakwal'}
+          currentCityName={location?.city || 'Select City'}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
         />
@@ -194,4 +172,3 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
-

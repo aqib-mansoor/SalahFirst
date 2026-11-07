@@ -3,6 +3,7 @@ import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme, useThemeState } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
 import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
@@ -13,12 +14,30 @@ import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
+import { storage } from '@/utils/storage';
+import { APP_CONFIG } from '@/constants/config';
+import { CalculationMethodName, JuristicMethod } from '@/types';
 
 export interface SettingsScreenProps {
   onBack: () => void;
   onOpenAzanPrefs: () => void;
   onNavigateTab: (tab: HomeTab) => void;
 }
+
+const CALC_LABELS: Record<CalculationMethodName, string> = {
+  Karachi: 'University of Islamic Sciences, Karachi',
+  UmmAlQura: 'Umm al-Qura University, Makkah',
+  Dubai: 'Dubai (UAE)',
+  MuslimWorldLeague: 'Muslim World League',
+  Egyptian: 'Egyptian General Authority',
+  NorthAmerica: 'ISNA (North America)',
+  MoonsightingCommittee: 'Moonsighting Committee Worldwide',
+  Kuwait: 'State of Kuwait',
+  Qatar: 'Qatar Ministry of Awqaf',
+  Singapore: 'MUIS Singapore',
+  Tehran: 'University of Tehran',
+  Turkey: 'Diyanet, Turkey',
+};
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onBack,
@@ -27,10 +46,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation } = useDeviceLocation();
+  const { calcMethod, juristic } = usePrayerTracker(location);
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showWallpaper, setShowWallpaper] = useState(false);
-  const [juristic, setJuristic] = useState<'Hanafi' | 'Standard'>('Hanafi');
   const [language, setLanguage] = useState<'English' | 'Urdu'>('English');
 
   if (showWallpaper) {
@@ -52,6 +71,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     });
   };
 
+  const handleToggleJuristic = async () => {
+    const nextJuristic: JuristicMethod = juristic === 'Hanafi' ? 'Standard' : 'Hanafi';
+    await storage.set(APP_CONFIG.storageKeys.juristicMethod, nextJuristic);
+    notifyTrackerPreferencesChanged();
+  };
+
+  const handleCycleCalcMethod = async () => {
+    const methods: CalculationMethodName[] = [
+      'Karachi',
+      'UmmAlQura',
+      'Dubai',
+      'MuslimWorldLeague',
+      'Egyptian',
+      'NorthAmerica',
+      'MoonsightingCommittee',
+    ];
+    const currentIndex = methods.indexOf(calcMethod);
+    const nextMethod = methods[(currentIndex + 1) % methods.length];
+    await storage.set(APP_CONFIG.storageKeys.calculationMethod, nextMethod);
+    notifyTrackerPreferencesChanged();
+  };
+
   const handlePrivacyPolicy = () => {
     Alert.alert(
       'SalahFirst Privacy Policy',
@@ -65,31 +106,26 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        {/* Header */}
         <SettingsHeader onBack={onBack} />
 
-        {/* Scrollable Groups */}
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-          {/* Prayer Settings */}
           <PrayerSettingsGroup
-            cityName={location.city || 'Chakwal'}
-            country={location.country || 'Pakistan'}
+            cityName={location?.city || 'Detecting Location...'}
+            country={location?.country || ''}
             juristicMethod={juristic}
+            calculationMethodName={CALC_LABELS[calcMethod] || calcMethod}
             onOpenLocation={() => setSheetVisible(true)}
             onOpenAzanPrefs={onOpenAzanPrefs}
-            onToggleJuristic={() =>
-              setJuristic((p) => (p === 'Hanafi' ? 'Standard' : 'Hanafi'))
-            }
+            onToggleJuristic={handleToggleJuristic}
+            onCycleCalculationMethod={handleCycleCalcMethod}
           />
 
-          {/* Appearance Settings */}
           <AppearanceSettingsGroup
             themeMode={themeMode}
             onSelectThemeMode={setThemeMode}
             onOpenWallpaperGallery={() => setShowWallpaper(true)}
           />
 
-          {/* General & Local Storage */}
           <GeneralSettingsGroup
             language={language}
             onToggleLanguage={() =>
@@ -99,13 +135,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           />
         </ScrollView>
 
-        {/* Bottom Nav */}
         <HomeBottomNav activeTab="home" onTabChange={onNavigateTab} />
 
-        {/* Location Bottom Sheet */}
         <LocationBottomSheet
           visible={sheetVisible}
-          currentCityName={location.city || 'Chakwal'}
+          currentCityName={location?.city || 'Select City'}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
         />
@@ -124,4 +158,3 @@ const styles = StyleSheet.create({
     gap: SPACING.lg,
   },
 });
-

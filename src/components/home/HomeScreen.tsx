@@ -43,6 +43,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     togglePrayer,
   } = usePrayerTracker(location);
 
+  const currentPrayerItem = prayersList.find(
+    (p) => p.name.toUpperCase() === prayerData.currentPrayerName
+  );
+  const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
+
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
@@ -51,7 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <View style={styles.container}>
         {/* Top Header */}
         <HomeHeader
-          cityName={location.city || 'Chakwal'}
+          cityName={location?.city || 'Detecting...'}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}
@@ -69,6 +74,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             nextPrayerName={prayerData.nextPrayerName}
             nextPrayerTimeFormatted={prayerData.nextPrayerTimeFormatted}
             countdownText={countdownText}
+            isCurrentCompleted={isCurrentCompleted}
             onStartPrayerFocus={onStartPrayerFocus}
           />
 

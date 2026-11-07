@@ -9,18 +9,22 @@ export interface PrayerSettingsGroupProps {
   cityName: string;
   country: string;
   juristicMethod: 'Hanafi' | 'Standard';
+  calculationMethodName?: string;
   onOpenLocation: () => void;
   onOpenAzanPrefs: () => void;
   onToggleJuristic: () => void;
+  onCycleCalculationMethod?: () => void;
 }
 
 export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   cityName,
   country,
   juristicMethod,
+  calculationMethodName = 'University of Islamic Sciences, Karachi',
   onOpenLocation,
   onOpenAzanPrefs,
   onToggleJuristic,
+  onCycleCalculationMethod,
 }) => {
   const theme = useTheme();
 
@@ -44,7 +48,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
               Location
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              {cityName}, {country}
+              {cityName}{country ? `, ${country}` : ''}
             </AppText>
           </View>
           {ChevronRight}
@@ -53,19 +57,21 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
         {/* Row 2: Calculation Method */}
-        <View style={styles.row}>
+        <Pressable onPress={onCycleCalculationMethod} style={styles.row}>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
               Calculation Method
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              University of Islamic Sciences, Karachi
+              {calculationMethodName}
             </AppText>
           </View>
-          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.autoTag}>
-            Auto
-          </AppText>
-        </View>
+          <View style={[styles.pillBadge, { backgroundColor: theme.colors.mintTint }]}>
+            <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
+              Switch
+            </AppText>
+          </View>
+        </Pressable>
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 

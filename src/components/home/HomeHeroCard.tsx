@@ -12,6 +12,7 @@ export interface HomeHeroCardProps {
   nextPrayerName: string;
   nextPrayerTimeFormatted: string;
   countdownText: string;
+  isCurrentCompleted?: boolean;
   onStartPrayerFocus?: () => void;
 }
 
@@ -21,6 +22,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   nextPrayerName,
   nextPrayerTimeFormatted,
   countdownText,
+  isCurrentCompleted = false,
   onStartPrayerFocus,
 }) => {
   const theme = useTheme();
@@ -38,8 +40,12 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           </AppText>
         </View>
 
-        <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.completedTag}>
-          Completed ✓
+        <AppText
+          variant="bodySmall"
+          color={isCurrentCompleted ? theme.colors.accentLight : theme.colors.textMuted}
+          style={styles.completedTag}
+        >
+          {isCurrentCompleted ? 'Completed ✓' : 'Pending'}
         </AppText>
       </View>
 
