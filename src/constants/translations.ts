@@ -34,6 +34,9 @@ export const TRANSLATIONS = {
     nextPrayer: 'Next Prayer',
     azanTime: 'Azan Time',
     startPrayerFocus: 'Start Prayer Focus',
+    // Hadith Screen
+    prevHadith: 'Previous Hadith',
+    nextHadith: 'Next Hadith',
     dailyHadith: 'Daily Hadith',
     readFull: 'Read Full',
     detectingLocation: 'Detecting Location...',
@@ -120,6 +123,9 @@ export const TRANSLATIONS = {
     nextPrayer: 'اگلی نماز',
     azanTime: 'وقت اذان',
     startPrayerFocus: 'نماز فوکس موڈ',
+    // Hadith Screen
+    prevHadith: 'پچھلی حدیث',
+    nextHadith: 'اگلی حدیث',
     dailyHadith: 'آج کی حدیث',
     readFull: 'مکمل پڑھیں',
     detectingLocation: 'مقام تلاش ہو رہا ہے...',

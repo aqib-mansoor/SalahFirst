@@ -44,7 +44,13 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
           <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1} style={styles.methodText}>
             {methodName} •
           </AppText>
-          <Pressable onPress={onOpenLocationSheet} hitSlop={6}>
+          <Pressable
+            onPress={onOpenLocationSheet}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Change location or calculation method"
+            accessibilityHint="Opens location selection sheet"
+          >
             <AppText variant="caption" color={theme.colors.primary} style={styles.changeLink}>
               Change
             </AppText>

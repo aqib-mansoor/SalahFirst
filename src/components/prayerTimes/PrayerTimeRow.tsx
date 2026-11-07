@@ -87,6 +87,9 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         <Pressable
           onPress={onCycleNotification}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`${name} notification: ${notification}`}
+          accessibilityHint="Double tap to cycle notification mode"
           style={({ pressed }) => [
             styles.bellButton,
             {

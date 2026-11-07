@@ -15,7 +15,12 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
 }) => {
   const theme = useTheme();
   const hijriDate = getIslamicDateFormatted();
-  const gregorianDate = 'Sat, 7 Nov 2026';
+  const gregorianDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date());
 
   return (
     <View style={styles.container}>
@@ -30,6 +35,10 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
 
       <Pressable
         onPress={onOpenAzanPrefs}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="Azan Preferences"
+        accessibilityHint="Opens notification sound and alert configuration"
         style={({ pressed }) => [
           styles.prefsButton,
           {

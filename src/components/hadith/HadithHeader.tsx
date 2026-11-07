@@ -28,6 +28,11 @@ export const HadithHeader: React.FC<HadithHeaderProps> = ({
 
       <Pressable
         onPress={onToggleUrdu}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: showUrdu }}
+        accessibilityLabel="Toggle Urdu translation"
+        accessibilityHint="Shows or hides verified Urdu translations for Hadiths"
+        hitSlop={8}
         style={({ pressed }) => [
           styles.toggleButton,
           showUrdu

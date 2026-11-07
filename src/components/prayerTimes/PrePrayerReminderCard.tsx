@@ -41,6 +41,9 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
             <Pressable
               key={opt.id}
               onPress={() => onSelectOffset(opt.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`Pre-prayer reminder ${opt.label.replace('\n', ' ')}`}
               style={[
                 styles.reminderPill,
                 {

@@ -72,7 +72,13 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={onBack} hitSlop={12} style={[styles.backBtn, { borderColor: theme.colors.border }]}>
+        <Pressable
+          onPress={onBack}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Back to prayer times"
+          style={[styles.backBtn, { borderColor: theme.colors.border }]}
+        >
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
             <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
@@ -101,6 +107,8 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
             </View>
             <Pressable
               onPress={handleRequestPermission}
+              accessibilityRole="button"
+              accessibilityLabel="Enable Notifications"
               style={[styles.enableBtn, { backgroundColor: theme.colors.primary }]}
             >
               <AppText variant="caption" color={theme.colors.textInverse} style={styles.enableBtnText}>
@@ -121,7 +129,11 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
                 Local Prayer Alarms Enabled
               </AppText>
             </View>
-            <Pressable onPress={toggleExactAlarms}>
+            <Pressable
+              onPress={toggleExactAlarms}
+              accessibilityRole="button"
+              accessibilityLabel={alerts.exactAlarmsEnabled ? 'Mute All Prayer Alarms' : 'Enable Prayer Alarms'}
+            >
               <AppText variant="titleSmall" color={theme.colors.primary} style={styles.muteAll}>
                 {alerts.exactAlarmsEnabled ? 'Mute All' : 'Enable'}
               </AppText>
@@ -149,6 +161,8 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           <Pressable
             onPress={() => toggleAudio()}
             disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel={isPlaying ? 'Stop Makkah Haram Azan Preview' : 'Play Makkah Haram Azan Preview'}
             style={[styles.audioBtn, { backgroundColor: theme.colors.buttonGold }]}
           >
             <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.audioBtnText}>

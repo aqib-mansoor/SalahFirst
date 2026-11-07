@@ -36,7 +36,13 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
               Select Your Location
             </AppText>
-            <Pressable onPress={onClose} hitSlop={12} style={styles.closeBtn}>
+            <Pressable
+              onPress={onClose}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Close location selection"
+              style={styles.closeBtn}
+            >
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                 <Path d="M18 6L6 18M6 6l12 12" stroke={theme.colors.textMuted} strokeWidth="2" strokeLinecap="round" />
               </Svg>
@@ -57,6 +63,9 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                   onUseGps();
                   onClose();
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Use Live Device GPS"
+                accessibilityState={{ selected: isGps }}
                 style={({ pressed }) => [
                   styles.cityCard,
                   {
@@ -105,6 +114,9 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                     onSelectCity(city);
                     onClose();
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${city.name}, ${city.country}, Qibla angle ${city.qiblaDegrees} degrees`}
+                  accessibilityState={{ selected: isSelected }}
                   style={({ pressed }) => [
                     styles.cityCard,
                     {

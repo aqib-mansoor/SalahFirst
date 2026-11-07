@@ -3,6 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useTranslation } from '@/context/LocalizationContext';
 import { AppText } from '@/components/common';
 
 export interface HadithPaginationProps {
@@ -15,12 +16,17 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
   onNext,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       {/* Previous Button */}
       <Pressable
         onPress={onPrev}
+        accessibilityRole="button"
+        accessibilityLabel={t('prevHadith')}
+        accessibilityHint="Navigates to the previous verified Hadith"
+        hitSlop={8}
         style={({ pressed }) => [
           styles.navButton,
           { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
@@ -37,13 +43,17 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
           />
         </Svg>
         <AppText variant="bodySmall" color={theme.colors.text} style={styles.navLabel}>
-          Previous Hadith
+          {t('prevHadith')}
         </AppText>
       </Pressable>
 
       {/* Next Button */}
       <Pressable
         onPress={onNext}
+        accessibilityRole="button"
+        accessibilityLabel={t('nextHadith')}
+        accessibilityHint="Navigates to the next verified Hadith"
+        hitSlop={8}
         style={({ pressed }) => [
           styles.navButton,
           { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
@@ -51,7 +61,7 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         ]}
       >
         <AppText variant="bodySmall" color={theme.colors.text} style={styles.navLabel}>
-          Next Hadith
+          {t('nextHadith')}
         </AppText>
         <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
           <Path
