@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, Share, Alert, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { captureRef } from 'react-native-view-shot';
+import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
@@ -26,7 +26,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const captureViewRef = useRef<View>(null);
+  const captureViewRef = useRef<ViewShotRef>(null);
 
   const activeTheme = WALLPAPER_THEMES[activeThemeIndex];
 
@@ -46,11 +46,8 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
 
   const captureActiveWallpaper = async (): Promise<string | null> => {
     try {
-      if (!captureViewRef.current) return null;
-      return await captureRef(captureViewRef, {
-        format: 'png',
-        quality: 1.0,
-      });
+      if (!captureViewRef.current?.capture) return null;
+      return await captureViewRef.current.capture();
     } catch {
       return null;
     }
@@ -73,7 +70,6 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         await MediaLibrary.saveToLibraryAsync(uri);
         showToast(`HD Wallpaper (${activeTheme.name}) saved to gallery!`);
       } else {
-        // Fallback to native sharing if media permission was denied
         const isSharingAvailable = await Sharing.isAvailableAsync();
         if (isSharingAvailable) {
           await Sharing.shareAsync(uri, {
@@ -160,9 +156,9 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
       />
 
       {/* Hidden Render Target for High-Resolution Image Capture */}
-      <View
+      <ViewShot
         ref={captureViewRef}
-        collapsable={false}
+        options={{ format: 'png', quality: 1.0 }}
         style={[styles.hiddenCaptureView, { width, height }]}
       >
         <WallpaperSlide
@@ -171,7 +167,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
           width={width}
           height={height}
         />
-      </View>
+      </ViewShot>
 
       {/* 3-Button Action Dock */}
       <WallpaperActionDock

@@ -75,3 +75,4 @@ export const isAzanPlaying = async (): Promise<boolean> => {
     return false;
   }
 };
+
