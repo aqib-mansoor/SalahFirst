@@ -4,6 +4,7 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
 
 export interface HomeDailyHadithProps {
   onReadFull?: () => void;
@@ -11,11 +12,11 @@ export interface HomeDailyHadithProps {
 
 export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {
   const theme = useTheme('light');
+  const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
 
-  const arabicText = 'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ الصَّلاَةُ لِوَقْتِهَا';
-  const englishText =
-    '"The most beloved of deeds to Allah is the prayer offered at its stated time."';
-  const sourceText = 'Sahih al-Bukhari • Book 10, Hadith 1';
+  const arabicText = dailyHadith.arabic;
+  const englishText = dailyHadith.english;
+  const sourceText = `${dailyHadith.source} • ${dailyHadith.reference}`;
 
   const handleShare = async () => {
     try {
@@ -47,7 +48,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) 
           {/* Badge */}
           <View style={[styles.badgePill, { backgroundColor: theme.colors.surfaceElevated }]}>
             <AppText variant="caption" color={theme.colors.textMuted} style={styles.badgeText}>
-              VERIFIED HADITH • BUNDLED JSON #1
+              {dailyHadith.badge}
             </AppText>
           </View>
 
