@@ -8,6 +8,7 @@ export interface PresetCity {
   longitude: number;
   qiblaDegrees: number;
   methodName: string;
+  region?: string;
 }
 
 const createCity = (

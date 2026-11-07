@@ -26,6 +26,8 @@ export interface UserLocation {
   latitude: number;
   longitude: number;
   isGps: boolean;
+  region?: string;
+  timezone?: string;
 }
 
 export type NotificationMode = 'AZAN' | 'TONE' | 'VIBRATE' | 'SILENT';

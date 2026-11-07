@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
+import { reverseGeocodeCoordinates } from '@/utils/geocoding';
 
 // Global subscriber set to sync location instantaneously across all active screens
 const locationListeners = new Set<(loc: UserLocation) => void>();
@@ -47,22 +48,15 @@ export const useDeviceLocation = () => {
       });
 
       const { latitude, longitude } = position.coords;
-      const reverseList = await Location.reverseGeocodeAsync({ latitude, longitude });
-
-      let city = 'Current City';
-      let country = 'Current Country';
-
-      if (reverseList.length > 0) {
-        const place = reverseList[0];
-        city = place.city || place.subregion || place.district || place.name || 'Current City';
-        country = place.country || place.region || 'Current Country';
-      }
+      const rev = await reverseGeocodeCoordinates(latitude, longitude);
 
       const freshLocation: UserLocation = {
-        city,
-        country,
+        city: rev.city,
+        region: rev.region,
+        country: rev.country,
         latitude,
         longitude,
+        timezone: rev.timezone,
         isGps: true,
       };
 
