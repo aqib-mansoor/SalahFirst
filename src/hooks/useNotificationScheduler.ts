@@ -5,6 +5,7 @@ import {
   scheduleAllPrayerAlerts,
   requestNotificationPermission,
 } from '@/utils/notifications';
+import { addTrackerListener } from './usePrayerTracker';
 
 export const useNotificationScheduler = (
   location?: UserLocation | null,
@@ -26,6 +27,13 @@ export const useNotificationScheduler = (
   // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {
     syncAlarms();
+  }, [syncAlarms]);
+
+  // Re-synchronize alarms when prayer tracker completions or preferences change
+  useEffect(() => {
+    return addTrackerListener(() => {
+      syncAlarms();
+    });
   }, [syncAlarms]);
 
   // Re-synchronize alarms when the app returns from background to foreground
