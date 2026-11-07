@@ -14,9 +14,15 @@ const DEFAULT_ALERTS: PrayerAlertConfig = {
   exactAlarmsEnabled: true,
 };
 
+const prayerAlertListeners = new Set<() => void>();
+export const notifyPrayerAlertsChanged = () => {
+  prayerAlertListeners.forEach((fn) => fn());
+};
+
 export const usePrayerAlerts = () => {
   const [alerts, setAlerts] = useState<PrayerAlertConfig>(DEFAULT_ALERTS);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   useEffect(() => {
     const loadAlerts = async () => {
@@ -26,11 +32,18 @@ export const usePrayerAlerts = () => {
       }
     };
     loadAlerts();
-  }, []);
+
+    const handleChange = () => setReloadTrigger((prev) => prev + 1);
+    prayerAlertListeners.add(handleChange);
+    return () => {
+      prayerAlertListeners.delete(handleChange);
+    };
+  }, [reloadTrigger]);
 
   const saveAlerts = async (updated: PrayerAlertConfig) => {
     setAlerts(updated);
     await storage.set(STORAGE_KEY, updated);
+    notifyPrayerAlertsChanged();
   };
 
   const setPrayerMode = useCallback(
@@ -79,4 +92,3 @@ export const usePrayerAlerts = () => {
     toggleAudioPreview,
   };
 };
-

@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import { UserLocation, PrayerAlertConfig, CalculationMethodName, JuristicMethod } from '@/types';
 import {
   scheduleAllPrayerAlerts,
@@ -21,9 +22,19 @@ export const useNotificationScheduler = (
     });
   }, [location?.latitude, location?.longitude, alerts, calculationMethod, juristicMethod]);
 
-  // Synchronize scheduled prayer alarms whenever location or alert preferences change
+  // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {
     syncAlarms();
+  }, [syncAlarms]);
+
+  // Re-synchronize alarms when the app returns from background to foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') {
+        syncAlarms();
+      }
+    });
+    return () => subscription.remove();
   }, [syncAlarms]);
 
   const requestPermissions = useCallback(async () => {
@@ -39,4 +50,3 @@ export const useNotificationScheduler = (
     requestPermissions,
   };
 };
-

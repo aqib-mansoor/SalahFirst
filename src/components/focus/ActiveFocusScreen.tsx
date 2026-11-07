@@ -1,43 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Pressable, Alert, Linking } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, View, Pressable, Alert, Linking, AppState, AppStateStatus } from 'react-native';
 import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppContainer, AppText, AppButton } from '@/components/common';
+import { AppContainer, AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
+import { FocusCompletionModal } from './FocusCompletionModal';
 import { FocusDuration } from '@/types';
+import {
+  FocusSession,
+  createFocusSession,
+  saveActiveFocusSession,
+  clearActiveFocusSession,
+  calculateRemainingSeconds,
+} from '@/utils/focusSession';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
   prayerName?: string;
+  existingSession?: FocusSession | null;
   onExit: () => void;
   onCompletePrayer: () => void;
 }
 
 export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   duration = 15,
-  prayerName = 'Asr / Maghrib',
+  prayerName = 'Asr',
+  existingSession = null,
   onExit,
   onCompletePrayer,
 }) => {
   const theme = useTheme('dark');
-  const [remainingSeconds, setRemainingSeconds] = useState(duration * 60);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const sessionRef = useRef<FocusSession>(
+    existingSession || createFocusSession(prayerName, duration)
+  );
 
+  const [remainingSeconds, setRemainingSeconds] = useState(() =>
+    calculateRemainingSeconds(sessionRef.current)
+  );
+  const [isCompleted, setIsCompleted] = useState(
+    () => calculateRemainingSeconds(sessionRef.current) <= 0
+  );
+
+  // Persist session to AsyncStorage on mount
   useEffect(() => {
-    const timer = setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setIsCompleted(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
+    saveActiveFocusSession(sessionRef.current);
   }, []);
+
+  const tick = useCallback(() => {
+    const left = calculateRemainingSeconds(sessionRef.current);
+    setRemainingSeconds(left);
+    if (left <= 0) {
+      setIsCompleted(true);
+    }
+  }, []);
+
+  // Interval timer for real-time countdown
+  useEffect(() => {
+    if (isCompleted) return;
+
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [isCompleted, tick]);
+
+  // Handle app coming to foreground from background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'active') {
+        tick();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [tick]);
 
   const handleExitEarly = () => {
     Alert.alert(
@@ -45,7 +80,14 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
       'Are you sure you want to end your Salah Focus session before the timer finishes?',
       [
         { text: 'Stay Focused', style: 'cancel' },
-        { text: 'Exit', style: 'destructive', onPress: onExit },
+        {
+          text: 'Exit',
+          style: 'destructive',
+          onPress: async () => {
+            await clearActiveFocusSession();
+            onExit();
+          },
+        },
       ]
     );
   };
@@ -56,14 +98,19 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     });
   };
 
-  const handleConfirmPrayed = () => {
+  const handleConfirmPrayed = async () => {
+    await clearActiveFocusSession();
     onCompletePrayer();
     onExit();
   };
 
-  const handleNotYet = () => {
+  const handleNotYet = async () => {
+    await clearActiveFocusSession();
     onExit();
   };
+
+  const effectivePrayer = sessionRef.current.prayerName;
+  const effectiveDuration = sessionRef.current.durationMinutes;
 
   return (
     <AppContainer
@@ -77,12 +124,13 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         {/* Top Header */}
         <View style={styles.header}>
           <AppText variant="titleSmall" color={PALETTE.goldLight} style={styles.headerTitle}>
-            {prayerName} Focus • {duration}m
+            {effectivePrayer} Focus • {effectiveDuration}m
           </AppText>
 
           {__DEV__ && (
             <Pressable
               onPress={() => {
+                sessionRef.current.targetEndTimestamp = Date.now();
                 setRemainingSeconds(0);
                 setIsCompleted(true);
               }}
@@ -125,41 +173,12 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         </View>
       </View>
 
-      {/* Completion Modal Overlay */}
-      {isCompleted && (
-        <View style={styles.completionOverlay}>
-          <View style={[styles.completionCard, { backgroundColor: theme.colors.surface }]}>
-            <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
-              <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-                FOCUS SESSION FINISHED
-              </AppText>
-            </View>
-
-            <AppText variant="titleMedium" color={theme.colors.text} align="center" style={styles.congratsTitle}>
-              Did you complete your prayer?
-            </AppText>
-
-            <AppText variant="bodySmall" color={theme.colors.textMuted} align="center" style={styles.congratsSub}>
-              {prayerName} • May Allah accept your worship and bless your focus.
-            </AppText>
-
-            <View style={styles.modalActions}>
-              <AppButton
-                label="Yes, I prayed"
-                onPress={handleConfirmPrayed}
-                size="md"
-                style={[styles.completeBtn, { backgroundColor: theme.colors.primary }]}
-              />
-
-              <Pressable onPress={handleNotYet} hitSlop={12} style={styles.notYetBtn}>
-                <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.notYetText}>
-                  Not yet
-                </AppText>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      )}
+      <FocusCompletionModal
+        visible={isCompleted}
+        prayerName={effectivePrayer}
+        onConfirmPrayed={handleConfirmPrayed}
+        onNotYet={handleNotYet}
+      />
     </AppContainer>
   );
 };
@@ -233,52 +252,5 @@ const styles = StyleSheet.create({
   exitText: {
     fontWeight: '700',
     textDecorationLine: 'underline',
-  },
-  completionOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  completionCard: {
-    width: '100%',
-    padding: SPACING.xl,
-    borderRadius: RADIUS.xxl,
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  badgePill: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-  },
-  badgeText: {
-    fontWeight: '800',
-    fontSize: 10,
-    letterSpacing: 0.8,
-  },
-  congratsTitle: {
-    fontWeight: '800',
-    fontSize: 20,
-  },
-  congratsSub: {
-    lineHeight: 18,
-  },
-  modalActions: {
-    width: '100%',
-    gap: SPACING.sm,
-    marginTop: SPACING.xs,
-    alignItems: 'center',
-  },
-  completeBtn: {
-    width: '100%',
-  },
-  notYetBtn: {
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-  },
-  notYetText: {
-    fontWeight: '600',
   },
 });

@@ -9,16 +9,23 @@ import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
 
+const PRAYER_OPTIONS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
 export interface PrayerFocusConfigScreenProps {
+  initialPrayer?: string;
+  prayerTimesMap?: Record<string, string>;
   onBack: () => void;
-  onBeginFocus: (duration: FocusDuration) => void;
+  onBeginFocus: (duration: FocusDuration, prayerName: string) => void;
 }
 
 export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = ({
+  initialPrayer = 'Asr',
+  prayerTimesMap,
   onBack,
   onBeginFocus,
 }) => {
   const theme = useTheme();
+  const [selectedPrayer, setSelectedPrayer] = useState<string>(initialPrayer);
   const [duration, setDuration] = useState<FocusDuration>(15);
   const [blockSocial, setBlockSocial] = useState(true);
   const [blockShortVideos, setBlockShortVideos] = useState(true);
@@ -32,6 +39,8 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </Svg>
   );
+
+  const targetTime = prayerTimesMap ? prayerTimesMap[selectedPrayer.toLowerCase()] : undefined;
 
   return (
     <AppContainer
@@ -60,8 +69,49 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             Time to reconnect.
           </AppText>
           <AppText variant="bodyLarge" color={theme.colors.textMuted} style={styles.subtitle}>
-            Put distractions aside and make time for Salah.
+            Put distractions aside and dedicate this time purely to Salah.
           </AppText>
+        </View>
+
+        {/* Target Prayer Selection Card */}
+        <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+          <View style={styles.prayerHeaderRow}>
+            <AppText variant="titleSmall" color={theme.colors.text} style={styles.cardTitle}>
+              Select Prayer for Focus
+            </AppText>
+            {targetTime && (
+              <AppText variant="caption" color={theme.colors.accent} style={styles.timeTag}>
+                Azan: {targetTime}
+              </AppText>
+            )}
+          </View>
+
+          <View style={styles.prayerPillsRow}>
+            {PRAYER_OPTIONS.map((name) => {
+              const isSelected = selectedPrayer.toLowerCase() === name.toLowerCase();
+              return (
+                <Pressable
+                  key={name}
+                  onPress={() => setSelectedPrayer(name)}
+                  style={[
+                    styles.prayerPill,
+                    {
+                      backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceElevated,
+                      borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+                    },
+                  ]}
+                >
+                  <AppText
+                    variant="caption"
+                    color={isSelected ? theme.colors.textInverse : theme.colors.text}
+                    style={styles.prayerPillText}
+                  >
+                    {name}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         {/* 1. Duration Card */}
@@ -92,9 +142,9 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
         {/* Begin Focus Button */}
         <AppButton
-          label={`Begin Focus (${duration} min)`}
+          label={`Begin ${selectedPrayer} Focus (${duration} min)`}
           leftIcon={CrescentMoonIcon}
-          onPress={() => onBeginFocus(duration)}
+          onPress={() => onBeginFocus(duration, selectedPrayer)}
           size="lg"
           style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
         />
@@ -144,6 +194,39 @@ const styles = StyleSheet.create({
   subtitle: {
     lineHeight: 22,
   },
+  card: {
+    padding: SPACING.md,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    gap: SPACING.sm,
+  },
+  prayerHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontWeight: '700',
+  },
+  timeTag: {
+    fontWeight: '700',
+  },
+  prayerPillsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    justifyContent: 'space-between',
+  },
+  prayerPill: {
+    flex: 1,
+    paddingVertical: SPACING.xs + 3,
+    alignItems: 'center',
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+  },
+  prayerPillText: {
+    fontWeight: '700',
+    fontSize: 11,
+  },
   beginButton: {
     width: '100%',
     borderRadius: RADIUS.lg,
@@ -151,4 +234,3 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
 });
-

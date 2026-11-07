@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { HomeScreen } from '@/components/home';
@@ -18,6 +19,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
 
 export type AppStep =
   | 'welcome'
@@ -33,23 +35,55 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const [progressSubTab, setProgressSubTab] = useState<ProgressSubTab>('tracker');
   const [focusDuration, setFocusDuration] = useState<FocusDuration>(15);
+  const [focusPrayerName, setFocusPrayerName] = useState<string>('Asr');
+  const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const { togglePrayer, setPrayerCompleted, prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  const {
+    prayersList,
+    setPrayerCompleted,
+    prayerData,
+    calcMethod,
+    juristic,
+  } = usePrayerTracker(location);
+
   useNotificationScheduler(location, alerts, calcMethod, juristic);
 
+  // Check setup status and restore any active focus session on startup
   useEffect(() => {
-    const checkSetupStatus = async () => {
+    const initApp = async () => {
       const hasCompleted = await storage.get<boolean>(
         APP_CONFIG.storageKeys.hasCompletedSetup,
         false
       );
       if (!hasCompleted) {
         setCurrentStep('welcome');
+        return;
+      }
+
+      const savedSession = await getActiveFocusSession();
+      if (savedSession && savedSession.status === 'active') {
+        setActiveSession(savedSession);
+        setFocusPrayerName(savedSession.prayerName);
+        setFocusDuration(savedSession.durationMinutes);
+        setCurrentStep('focus-active');
       }
     };
-    checkSetupStatus();
+    initApp();
+  }, []);
+
+  // Listen for user tapping a scheduled prayer alert notification
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      if (data && data.prayerName) {
+        setFocusPrayerName(String(data.prayerName));
+        setCurrentStep('focus-config');
+      }
+    });
+
+    return () => subscription.remove();
   }, []);
 
   const handleContinueToSetup = () => {
@@ -62,14 +96,24 @@ export default function App() {
     setActiveTab('home');
   };
 
-  const handleBeginFocus = (duration: FocusDuration) => {
+  const handleOpenFocusConfig = () => {
+    const currentPending = prayersList.find(
+      (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
+    );
+    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Asr');
+    setFocusPrayerName(suggested);
+    setCurrentStep('focus-config');
+  };
+
+  const handleBeginFocus = (duration: FocusDuration, prayerName: string) => {
     setFocusDuration(duration);
+    setFocusPrayerName(prayerName);
+    setActiveSession(null);
     setCurrentStep('focus-active');
   };
 
   const handleCompletePrayerFocus = () => {
-    const currentName = prayerData.nextPrayerName || 'Asr';
-    setPrayerCompleted(currentName, true);
+    setPrayerCompleted(focusPrayerName, true);
   };
 
   return (
@@ -85,7 +129,7 @@ export default function App() {
           <HomeScreen
             onOpenSettings={() => setCurrentStep('settings')}
             onNavigateTab={setActiveTab}
-            onStartPrayerFocus={() => setCurrentStep('focus-config')}
+            onStartPrayerFocus={handleOpenFocusConfig}
             onOpenStreaks={() => {
               setProgressSubTab('streaks');
               setActiveTab('progress');
@@ -128,6 +172,14 @@ export default function App() {
         )}
         {currentStep === 'focus-config' && (
           <PrayerFocusConfigScreen
+            initialPrayer={focusPrayerName}
+            prayerTimesMap={{
+              fajr: prayerData.fajr,
+              dhuhr: prayerData.dhuhr,
+              asr: prayerData.asr,
+              maghrib: prayerData.maghrib,
+              isha: prayerData.isha,
+            }}
             onBack={() => setCurrentStep('main')}
             onBeginFocus={handleBeginFocus}
           />
@@ -135,8 +187,12 @@ export default function App() {
         {currentStep === 'focus-active' && (
           <ActiveFocusScreen
             duration={focusDuration}
-            prayerName={prayerData.nextPrayerName || 'Asr'}
-            onExit={() => setCurrentStep('main')}
+            prayerName={focusPrayerName}
+            existingSession={activeSession}
+            onExit={() => {
+              setActiveSession(null);
+              setCurrentStep('main');
+            }}
             onCompletePrayer={handleCompletePrayerFocus}
           />
         )}
