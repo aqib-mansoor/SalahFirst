@@ -122,12 +122,10 @@ function AppContent() {
   };
 
   return (
-    <ThemeProvider>
-      <LocalizationProvider>
-        <SafeAreaProvider>
-        {currentStep === 'welcome' && (
-          <WelcomeScreen onContinue={handleContinueToSetup} />
-        )}
+    <SafeAreaProvider>
+      {currentStep === 'welcome' && (
+        <WelcomeScreen onContinue={handleContinueToSetup} />
+      )}
         {currentStep === 'setup' && (
           <SetupScreen onComplete={handleCompleteSetup} />
         )}
