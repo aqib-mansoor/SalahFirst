@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem } from '@/data/hadiths';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
+import { HadithTranslationSelector } from './HadithTranslationSelector';
 
 export interface HadithCardProps {
   hadith: HadithItem;
@@ -16,12 +16,6 @@ export interface HadithCardProps {
   onSelectTranslationMode: (mode: HadithTranslationMode) => void;
 }
 
-const TRANSLATION_OPTIONS: { id: HadithTranslationMode; label: string }[] = [
-  { id: 'en', label: 'English' },
-  { id: 'ur', label: 'اردو' },
-  { id: 'both', label: 'Both' },
-];
-
 export const HadithCard: React.FC<HadithCardProps> = ({
   hadith,
   currentIndex,
@@ -30,7 +24,6 @@ export const HadithCard: React.FC<HadithCardProps> = ({
   onSelectTranslationMode,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
 
   return (
     <View
@@ -92,48 +85,10 @@ export const HadithCard: React.FC<HadithCardProps> = ({
       </View>
 
       {/* Sleek Translation Mode Segmented Track */}
-      <View
-        style={[
-          styles.translationTrack,
-          {
-            backgroundColor: theme.colors.surfaceElevated,
-            borderColor: theme.colors.border,
-          },
-        ]}
-      >
-        {TRANSLATION_OPTIONS.map((opt) => {
-          const active = translationMode === opt.id;
-          const displayLabel = opt.id === 'both' ? (t('translationBoth') || 'Both') : opt.label;
-          return (
-            <Pressable
-              key={opt.id}
-              onPress={() => onSelectTranslationMode(opt.id)}
-              hitSlop={4}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              accessibilityLabel={`${displayLabel} translation`}
-              style={[
-                styles.segment,
-                active && [
-                  styles.activeSegment,
-                  {
-                    backgroundColor: theme.colors.surface,
-                    borderColor: theme.colors.primary,
-                  },
-                ],
-              ]}
-            >
-              <AppText
-                variant="caption"
-                color={active ? theme.colors.primary : theme.colors.textMuted}
-                style={[styles.segmentLabel, active && styles.activeSegmentLabel]}
-              >
-                {displayLabel}
-              </AppText>
-            </Pressable>
-          );
-        })}
-      </View>
+      <HadithTranslationSelector
+        translationMode={translationMode}
+        onSelectTranslationMode={onSelectTranslationMode}
+      />
 
       {/* Arabic Calligraphy Content */}
       <View style={styles.arabicSection}>
@@ -231,35 +186,6 @@ const styles = StyleSheet.create({
   counterText: {
     fontWeight: '800',
     fontSize: 13,
-  },
-  translationTrack: {
-    flexDirection: 'row',
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    padding: 3,
-    gap: 4,
-  },
-  segment: {
-    flex: 1,
-    paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeSegment: {
-    borderWidth: 1.5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  segmentLabel: {
-    fontWeight: '600',
-    fontSize: 11,
-  },
-  activeSegmentLabel: {
-    fontWeight: '700',
   },
   arabicSection: {
     paddingVertical: SPACING.xs,
