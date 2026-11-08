@@ -5,10 +5,10 @@ import { storage } from '@/utils/storage';
 const STORAGE_KEY = '@salahfirst_alerts';
 
 const DEFAULT_ALERTS: PrayerAlertConfig = {
-  fajr: 'AZAN',
-  dhuhr: 'AZAN',
+  fajr: 'TONE',
+  dhuhr: 'TONE',
   asr: 'TONE',
-  maghrib: 'AZAN',
+  maghrib: 'TONE',
   isha: 'VIBRATE',
   reminderOffset: '15m',
   exactAlarmsEnabled: true,
@@ -61,7 +61,7 @@ export const usePrayerAlerts = () => {
 
   const cyclePrayerMode = useCallback(
     (prayer: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha') => {
-      const modes: NotificationMode[] = ['AZAN', 'TONE', 'VIBRATE', 'SILENT'];
+      const modes: NotificationMode[] = ['TONE', 'VIBRATE', 'SILENT'];
       const currentIndex = modes.indexOf(alerts[prayer]);
       const nextMode = modes[(currentIndex + 1) % modes.length];
       const updated = { ...alerts, [prayer]: nextMode };

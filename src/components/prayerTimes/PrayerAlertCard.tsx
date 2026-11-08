@@ -13,7 +13,6 @@ export interface PrayerAlertCardProps {
 }
 
 const ALERT_MODES: { id: NotificationMode; label: string }[] = [
-  { id: 'AZAN', label: 'Full\nAzan' },
   { id: 'TONE', label: 'Tone' },
   { id: 'VIBRATE', label: 'Vibrate' },
   { id: 'SILENT', label: 'Silent' },
@@ -27,6 +26,19 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
 }) => {
   const theme = useTheme();
 
+  const isModeActive = (modeId: NotificationMode) => {
+    if (modeId === 'TONE') {
+      return currentMode === 'TONE' || currentMode === 'AZAN';
+    }
+    return currentMode === modeId;
+  };
+
+  const getDisplayModeName = () => {
+    if (currentMode === 'VIBRATE') return 'Vibrate';
+    if (currentMode === 'SILENT') return 'Silent';
+    return 'Tone';
+  };
+
   return (
     <View
       style={[
@@ -39,20 +51,20 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
           {name} ({time})
         </AppText>
         <AppText variant="caption" color={theme.colors.primary} style={styles.boldText}>
-          {currentMode}
+          {getDisplayModeName()}
         </AppText>
       </View>
 
       <View style={styles.modesRow}>
         {ALERT_MODES.map((mode) => {
-          const active = currentMode === mode.id;
+          const active = isModeActive(mode.id);
           return (
             <Pressable
               key={mode.id}
               onPress={() => onSelectMode(mode.id)}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
-              accessibilityLabel={`${name} alert mode ${mode.label.replace('\n', ' ')}`}
+              accessibilityLabel={`${name} alert mode ${mode.label}`}
               style={[
                 styles.modePill,
                 {
