@@ -8,7 +8,19 @@ export const AZAN_PRESET_URLS = {
 
 export type AzanReciterKey = keyof typeof AZAN_PRESET_URLS;
 
-const DEFAULT_AZAN_URL = AZAN_PRESET_URLS.makkah;
+// 100% Offline Bundled Local Audio Assets
+export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
+  makkah: require('../../assets/audio/azan_makkah.mp3'),
+  madinah: require('../../assets/audio/azan_madinah.mp3'),
+  alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
+};
+
+// Exact seconds offset to eliminate pre-recitation silence/delay (e.g. Makkah starts at 3.8s)
+export const AZAN_START_OFFSETS: Record<AzanReciterKey, number> = {
+  makkah: 3.8,
+  madinah: 0,
+  alAqsa: 0,
+};
 
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
@@ -17,7 +29,7 @@ export const configureAudioMode = async (): Promise<void> => {
   try {
     await setAudioModeAsync({
       playsInSilentMode: true,
-      shouldPlayInBackground: false,
+      shouldPlayInBackground: true,
       interruptionMode: 'duckOthers',
     });
   } catch {}
@@ -25,14 +37,29 @@ export const configureAudioMode = async (): Promise<void> => {
 
 export const playAzanAudio = async (
   onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void,
-  customUri?: string
+  reciterOrUri?: AzanReciterKey | string
 ): Promise<boolean> => {
   try {
     await stopAzanAudio();
     await configureAudioMode();
 
-    const uri = customUri || DEFAULT_AZAN_URL;
-    const player = createAudioPlayer(uri);
+    const isReciterKey = reciterOrUri && reciterOrUri in AZAN_PRESET_URLS;
+    const reciterKey: AzanReciterKey = isReciterKey ? (reciterOrUri as AzanReciterKey) : 'makkah';
+
+    // Prioritize bundled local offline asset first, fallback to remote CDN
+    const source = isReciterKey
+      ? (AZAN_LOCAL_ASSETS[reciterKey] || AZAN_PRESET_URLS[reciterKey])
+      : (reciterOrUri || AZAN_LOCAL_ASSETS.makkah);
+
+    const player = createAudioPlayer(source);
+
+    // Apply start offset to skip intro silence (e.g. 3.8s for Makkah) so Azan recites immediately
+    const startOffset = isReciterKey ? (AZAN_START_OFFSETS[reciterKey] || 0) : 0;
+    if (startOffset > 0) {
+      try {
+        await player.seekTo(startOffset);
+      } catch {}
+    }
 
     currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
       if ((status as any).error) {

@@ -26,14 +26,13 @@ export const useAzanAudio = () => {
     setError(null);
     setIsLoading(true);
 
-    const uri = AZAN_PRESET_URLS[key];
     const success = await playAzanAudio((playing, finished) => {
       setIsPlaying(playing && !finished);
       if (finished) {
         setIsLoading(false);
         setIsPaused(false);
       }
-    }, uri);
+    }, key);
 
     setIsLoading(false);
     setIsPlaying(success);

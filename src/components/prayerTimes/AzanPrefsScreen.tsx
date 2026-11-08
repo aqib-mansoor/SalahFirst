@@ -15,6 +15,7 @@ import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
+import { MasterAlarmCard } from './MasterAlarmCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
 
 export interface AzanPrefsScreenProps {
@@ -81,6 +82,10 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     }
   };
 
+  const activeAlarmCount = alerts.exactAlarmsEnabled !== false
+    ? PRAYERS_LIST.filter((p) => alerts[p.key] !== 'SILENT').length
+    : 0;
+
   return (
     <AppContainer
       edges={['top', 'left', 'right', 'bottom']}
@@ -116,30 +121,12 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         )}
 
         {/* Master Alarms Toggle Card */}
-        <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          <View style={styles.alarmTop}>
-            <View style={styles.alarmTitleRow}>
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke={theme.colors.primary} strokeWidth="2" />
-              </Svg>
-              <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-                {t('localAlarmsEnabled')}
-              </AppText>
-            </View>
-            <Pressable
-              onPress={toggleExactAlarms}
-              accessibilityRole="button"
-              accessibilityLabel={alerts.exactAlarmsEnabled ? 'Mute All' : 'Enable'}
-            >
-              <AppText variant="titleSmall" color={theme.colors.primary} style={styles.muteAll}>
-                {alerts.exactAlarmsEnabled ? 'Mute All' : 'Enable'}
-              </AppText>
-            </Pressable>
-          </View>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.infoText}>
-            SalahFirst schedules offline local alerts calculated for your location.
-          </AppText>
-        </View>
+        <MasterAlarmCard
+          enabled={alerts.exactAlarmsEnabled !== false}
+          activeCount={activeAlarmCount}
+          totalCount={PRAYERS_LIST.length}
+          onToggle={toggleExactAlarms}
+        />
 
         {/* Smart Reminders & Quiet Hours Preferences */}
         <NotificationPreferencesCard
@@ -214,27 +201,7 @@ const styles = StyleSheet.create({
   enableBtnText: {
     fontWeight: '700',
   },
-  card: {
-    padding: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    gap: SPACING.sm,
-  },
-  alarmTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  alarmTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
-  },
   boldText: {
-    fontWeight: '700',
-  },
-  muteAll: {
     fontWeight: '700',
   },
   infoText: {
