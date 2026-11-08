@@ -160,7 +160,7 @@ function AppContent() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style={theme.isDark ? 'light' : 'dark'} />
+      <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
       {currentStep === 'welcome' && (
         <WelcomeScreen onContinue={handleContinueToSetup} />
       )}
