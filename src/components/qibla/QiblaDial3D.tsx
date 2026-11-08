@@ -2,13 +2,18 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Rect, G, Line } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
+import { SPACING } from '@/constants/theme';
 import { AppText } from '@/components/common';
+import { TurnDirection } from '@/hooks/useQiblaCompass';
 import { KaabaEmblem3D } from './KaabaEmblem3D';
+import { QiblaGuidancePill } from './QiblaGuidancePill';
 
 export interface QiblaDial3DProps {
   heading: number;
   relativePointerAngle: number;
   isAligned: boolean;
+  turnDirection: TurnDirection;
+  turnDegrees: number;
 }
 
 const DIAL_SIZE = 280;
@@ -18,12 +23,14 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
   heading,
   relativePointerAngle,
   isAligned,
+  turnDirection,
+  turnDegrees,
 }) => {
   const theme = useTheme();
 
   return (
     <View style={styles.container}>
-      {/* Outer Alignment Glow Ring when facing Kaaba */}
+      {/* Outer Compass Dial Card */}
       <View
         style={[
           styles.dialCard,
@@ -174,6 +181,13 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           </View>
         </View>
       </View>
+
+      {/* Guidance Pill Sub-component */}
+      <QiblaGuidancePill
+        isAligned={isAligned}
+        turnDirection={turnDirection}
+        turnDegrees={turnDegrees}
+      />
     </View>
   );
 };
@@ -182,7 +196,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 8,
+    gap: SPACING.md,
+    marginVertical: 4,
   },
   dialCard: {
     width: DIAL_SIZE,

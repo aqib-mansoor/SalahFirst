@@ -9,16 +9,12 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface QiblaHeaderProps {
   cityName: string;
   country: string;
-  qiblaBearing: number;
-  cardinal: string;
   onChangeLocation?: () => void;
 }
 
 export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
   cityName,
   country,
-  qiblaBearing,
-  cardinal,
   onChangeLocation,
 }) => {
   const theme = useTheme();
@@ -54,28 +50,13 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
             {cityName}{country ? `, ${country}` : ''}
           </AppText>
           {onChangeLocation && (
-            <AppText variant="caption" color={theme.colors.primary} style={styles.changeAction}>
-              {t('changeLocation') || 'Change'}
-            </AppText>
+            <View style={[styles.changeBadge, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+              <AppText variant="caption" color={theme.colors.primary} style={styles.changeAction}>
+                {t('changeLocation') || 'Change'}
+              </AppText>
+            </View>
           )}
         </Pressable>
-      </View>
-
-      <View
-        style={[
-          styles.bearingBadge,
-          {
-            backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
-          },
-        ]}
-      >
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.bearingLabel}>
-          {t('qiblaAngle')}
-        </AppText>
-        <AppText variant="titleSmall" color={theme.colors.primary} style={styles.bearingValue}>
-          {qiblaBearing}° {cardinal}
-        </AppText>
       </View>
     </View>
   );
@@ -83,16 +64,12 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
     paddingBottom: SPACING.xs,
   },
   titleColumn: {
-    flex: 1,
-    gap: 3,
+    gap: 4,
   },
   title: {
     fontWeight: '800',
@@ -100,30 +77,19 @@ const styles = StyleSheet.create({
   cityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   cityName: {
     fontWeight: '600',
-    maxWidth: 160,
+  },
+  changeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
   },
   changeAction: {
     fontWeight: '700',
-    fontSize: 11,
-    textDecorationLine: 'underline',
-  },
-  bearingBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    alignItems: 'flex-end',
-    gap: 2,
-  },
-  bearingLabel: {
     fontSize: 10,
-    fontWeight: '600',
-  },
-  bearingValue: {
-    fontWeight: '800',
   },
 });

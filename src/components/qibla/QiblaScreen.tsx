@@ -57,12 +57,10 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
   return (
     <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
-        {/* Header with City and Qibla Bearing Badge */}
+        {/* Clean, Spacious Flow Header with City & Change Action */}
         <QiblaHeader
           cityName={location?.city || t('detectingLocation')}
           country={location?.country || ''}
-          qiblaBearing={qiblaBearing}
-          cardinal={cardinal}
           onChangeLocation={() => setSheetVisible(true)}
         />
 
@@ -74,25 +72,24 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Dynamic Directional Guidance & 3-Metric Telemetry */}
-          <QiblaTelemetryCard
+          {/* Central Compass Dial with Integrated Directional Guidance Pill */}
+          <QiblaDial3D
             heading={heading}
-            qiblaBearing={qiblaBearing}
-            distanceKm={distanceKm}
-            cardinal={cardinal}
+            relativePointerAngle={relativePointerAngle}
             isAligned={isAligned}
             turnDirection={turnDirection}
             turnDegrees={turnDegrees}
           />
 
-          {/* Central Compass Dial with Rub el Hizb and Kaaba Needle */}
-          <QiblaDial3D
+          {/* Unified 3-Metric Telemetry Track (Heading, Qibla Bearing, Distance) */}
+          <QiblaTelemetryCard
             heading={heading}
-            relativePointerAngle={relativePointerAngle}
-            isAligned={isAligned}
+            qiblaBearing={qiblaBearing}
+            distanceKm={distanceKm}
+            cardinal={cardinal}
           />
 
-          {/* Calibration Guidance & Sensor Status */}
+          {/* Calibration Alert (Renders ONLY if interference is actively detected) */}
           <QiblaCalibrationTip
             hasSensor={hasSensor}
             needsCalibration={needsCalibration}
