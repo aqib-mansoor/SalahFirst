@@ -10,14 +10,18 @@ import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
 import { TrackerPrayerRow } from './TrackerPrayerRow';
+import { TrackerSunnahCard } from './TrackerSunnahCard';
 import { TrackerWeekOverview } from './TrackerWeekOverview';
+import { TrackerWisdomBanner } from './TrackerWisdomBanner';
 import { StreaksHeroCard } from './StreaksHeroCard';
 import { StreaksMetricsRow } from './StreaksMetricsRow';
 import { StreaksWeeklyChart } from './StreaksWeeklyChart';
+import { StreaksPrayerBreakdown } from './StreaksPrayerBreakdown';
 import { StreaksMilestones } from './StreaksMilestones';
 import { CalendarMonthHeader } from './CalendarMonthHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarDayInspector } from './CalendarDayInspector';
+import { CalendarMonthSummaryCard } from './CalendarMonthSummaryCard';
 import {
   getLast7Days,
   calculateLongestStreak,
@@ -55,7 +59,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     toggleHistoricalPrayer,
   } = usePrayerTracker(location);
 
-  // Dynamic real stats derived from historyMap
+  // Derived statistics
   const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
   const { longestStreak, streakNote } = useMemo(() => calculateLongestStreak(historyMap), [historyMap]);
   const totalPrayers = useMemo(() => calculateTotalPrayers(historyMap), [historyMap]);
@@ -108,11 +112,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   return (
     <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
-        {/* Harmonized Sacred Sub-tab Switcher */}
-        <ProgressTabsHeader
-          activeTab={activeSubTab}
-          onTabChange={setActiveSubTab}
-        />
+        <ProgressTabsHeader activeTab={activeSubTab} onTabChange={setActiveSubTab} />
 
         <ScrollView
           contentContainerStyle={[
@@ -145,22 +145,18 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 ))}
               </View>
 
-              <TrackerWeekOverview
-                weekData={dayOverview}
-                onOpenStatistics={() => setActiveSubTab('streaks')}
-              />
+              <TrackerSunnahCard />
+              <TrackerWeekOverview weekData={dayOverview} onOpenStatistics={() => setActiveSubTab('streaks')} />
+              <TrackerWisdomBanner />
             </>
           )}
 
           {activeSubTab === 'streaks' && (
             <>
               <StreaksHeroCard streakDays={streakCount} />
-              <StreaksMetricsRow
-                longestStreak={longestStreak}
-                longestStreakNote={streakNote}
-                totalPrayers={totalPrayers}
-              />
+              <StreaksMetricsRow longestStreak={longestStreak} longestStreakNote={streakNote} totalPrayers={totalPrayers} />
               <StreaksWeeklyChart chartData={dayBarData} />
+              <StreaksPrayerBreakdown historyMap={historyMap} streakCount={streakCount} />
               <StreaksMilestones currentStreak={streakCount} />
             </>
           )}
@@ -185,14 +181,16 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
                 onTogglePrayer={handleToggleCalendarPrayer}
               />
+              <CalendarMonthSummaryCard
+                monthName={monthData.monthName}
+                hijriMonth={monthData.hijriMonth}
+                cells={monthData.cells}
+              />
             </>
           )}
         </ScrollView>
 
-        <HomeBottomNav
-          activeTab="progress"
-          onTabChange={onNavigateTab}
-        />
+        <HomeBottomNav activeTab="progress" onTabChange={onNavigateTab} />
       </View>
     </AppContainer>
   );
