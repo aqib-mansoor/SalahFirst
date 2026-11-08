@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
@@ -37,6 +38,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   initialSubTab = 'tracker',
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
 
   const now = new Date();
@@ -95,7 +97,8 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
   const handleToggleCalendarPrayer = useCallback(
     (prayerIdx: number) => {
-      if (!selectedCell) return;
+      // Loophole prevention: Disallow logging future prayers
+      if (!selectedCell || selectedCell.isFuture) return;
       const prayerName = PRAYER_NAMES[prayerIdx];
       if (prayerName) {
         toggleHistoricalPrayer(selectedCell.dateKey, prayerName);
@@ -107,14 +110,17 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   return (
     <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
-        {/* Stable Flow Header */}
+        {/* Harmonized Sacred Sub-tab Switcher */}
         <ProgressTabsHeader
           activeTab={activeSubTab}
           onTabChange={setActiveSubTab}
         />
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: Math.max(insets.bottom, 16) + 85 },
+          ]}
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
@@ -160,7 +166,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               />
               <StreaksWeeklyChart chartData={dayBarData} />
               <StreaksMilestones currentStreak={streakCount} />
-              <TasbihCounter3D />
             </>
           )}
 
@@ -180,6 +185,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               <CalendarDayInspector
                 dateLabel={dateLabel}
                 hasRecord={selectedCell?.hasRecord || false}
+                isFuture={selectedCell?.isFuture || false}
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
                 onTogglePrayer={handleToggleCalendarPrayer}
               />
@@ -202,7 +208,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: SPACING.xs,
-    paddingBottom: 100,
     gap: SPACING.md,
   },
   headerTitles: {
