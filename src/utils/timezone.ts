@@ -168,3 +168,4 @@ export const createCalendarDateForCalculation = (
   const { year, month, day } = getLocalDateComponents(instant, timezone);
   return new Date(year, month, day, 12, 0, 0);
 };
+
