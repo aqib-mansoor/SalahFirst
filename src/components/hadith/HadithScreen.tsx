@@ -43,7 +43,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
   }
 
   return (
-    <AppContainer edges={['top']}>
+    <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
         <HadithToast message={toastMessage} onDismiss={dismissToast} />
 

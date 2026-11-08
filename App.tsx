@@ -221,10 +221,6 @@ function AppContent() {
           onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
           onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
           onOpenTerms={() => setCurrentStep('terms')}
-          onNavigateTab={(tab) => {
-            setActiveTab(tab);
-            setCurrentStep('main');
-          }}
         />
       )}
       {currentStep === 'privacy-policy' && (

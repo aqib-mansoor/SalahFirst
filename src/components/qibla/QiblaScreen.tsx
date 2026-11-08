@@ -29,7 +29,7 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
   } = useQiblaCompass(location?.latitude, location?.longitude);
 
   return (
-    <AppContainer edges={['top']}>
+    <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
         {/* Stable Flow Header */}
         <QiblaHeader

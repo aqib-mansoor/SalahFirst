@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useThemeState } from '@/hooks/useTheme';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -7,19 +7,13 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
-import { HadithWallpaperScreen } from '@/components/wallpaper';
-import { VERIFIED_HADITHS } from '@/data/hadiths';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
-import { storage } from '@/utils/storage';
-import { APP_CONFIG } from '@/constants/config';
 import { CalculationMethodName, JuristicMethod } from '@/types';
-import { fetchAlAdhanTimings, comparePrayerTimings } from '@/utils/aladhanApi';
 import { useAppDispatch } from '@/store/hooks';
 import { setCalculationMethod, setJuristicMethod } from '@/store/slices/prayerSlice';
 
@@ -28,7 +22,6 @@ export interface SettingsScreenProps {
   onOpenAzanPrefs: () => void;
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
-  onNavigateTab: (tab: HomeTab) => void;
 }
 
 const CALC_LABELS: Record<CalculationMethodName, string> = {
@@ -51,25 +44,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onOpenAzanPrefs,
   onOpenPrivacyPolicy,
   onOpenTerms,
-  onNavigateTab,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
-  const { prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  const { calcMethod, juristic } = usePrayerTracker(location);
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
-
   const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
-  const [showWallpaper, setShowWallpaper] = useState(false);
-
-  if (showWallpaper) {
-    return (
-      <HadithWallpaperScreen
-        hadith={VERIFIED_HADITHS[2]}
-        onClose={() => setShowWallpaper(false)}
-      />
-    );
-  }
+  const dispatch = useAppDispatch();
 
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({
@@ -80,8 +62,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       isGps: false,
     });
   };
-
-  const dispatch = useAppDispatch();
 
   const handleToggleJuristic = () => {
     const nextJuristic: JuristicMethod = juristic === 'Hanafi' ? 'Standard' : 'Hanafi';
@@ -110,52 +90,25 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     notifyTrackerPreferencesChanged();
   };
 
-  const handleVerifyAlAdhan = async () => {
-    if (!location?.latitude || !location?.longitude) {
-      Alert.alert('Location Required', 'Please enable GPS or select a city before verifying.');
-      return;
-    }
-    const res = await fetchAlAdhanTimings(
-      location.latitude,
-      location.longitude,
-      new Date(),
-      calcMethod,
-      juristic
-    );
-    if (!res.success || !res.timings) {
-      Alert.alert(
-        'AlAdhan API Offline',
-        res.error || 'Network unavailable. SalahFirst continues calculating locally 100% offline.'
-      );
-      return;
-    }
-    const diffs = comparePrayerTimings(
-      {
-        fajr: prayerData.fajr,
-        sunrise: prayerData.sunrise,
-        dhuhr: prayerData.dhuhr,
-        asr: prayerData.asr,
-        maghrib: prayerData.maghrib,
-        isha: prayerData.isha,
-      },
-      res.timings
-    );
-    const summary = diffs
-      .map((d) => `${d.prayer}: Local ${d.localTime} vs API ${d.apiTime} (${d.diffMinutes >= 0 ? '+' : ''}${d.diffMinutes}m)`)
-      .join('\n');
-    Alert.alert(
-      `AlAdhan Comparison (${res.meta?.methodName || calcMethod})`,
-      `Date: ${res.dateFormatted || 'Today'}\n\n${summary}`
-    );
+  const handleToggleLanguage = () => {
+    if (language === 'en') setLanguage('ur');
+    else if (language === 'ur') setLanguage('ar');
+    else setLanguage('en');
   };
+
+  const languageLabel =
+    language === 'ur'
+      ? 'اردو (Urdu)'
+      : language === 'ar'
+      ? 'العربية (Arabic)'
+      : 'English';
 
   return (
     <AppContainer
-      edges={['top', 'left', 'right']}
+      edges={['top', 'left', 'right', 'bottom']}
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        {/* Stable Flow Header */}
         <SettingsHeader onBack={onBack} />
 
         <ScrollView
@@ -173,34 +126,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenAzanPrefs={onOpenAzanPrefs}
             onToggleJuristic={handleToggleJuristic}
             onCycleCalculationMethod={handleCycleCalcMethod}
-            onVerifyAlAdhan={handleVerifyAlAdhan}
           />
 
           <AppearanceSettingsGroup
             themeMode={themeMode}
             onSelectThemeMode={setThemeMode}
-            onOpenWallpaperGallery={() => setShowWallpaper(true)}
+            languageLabel={languageLabel}
+            onToggleLanguage={handleToggleLanguage}
           />
 
           <GeneralSettingsGroup
-            language={
-              language === 'ur'
-                ? 'اردو (Urdu)'
-                : language === 'ar'
-                ? 'العربية (Arabic)'
-                : 'English'
-            }
-            onToggleLanguage={() => {
-              if (language === 'en') setLanguage('ur');
-              else if (language === 'ur') setLanguage('ar');
-              else setLanguage('en');
-            }}
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
           />
         </ScrollView>
-
-        <HomeBottomNav activeTab="home" onTabChange={onNavigateTab} />
 
         <LocationBottomSheet
           visible={sheetVisible}
@@ -221,7 +160,8 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: SPACING.lg,
-    paddingBottom: 100,
+    paddingTop: SPACING.xs,
+    paddingBottom: SPACING.xxl,
     gap: SPACING.lg,
   },
 });

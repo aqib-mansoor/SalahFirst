@@ -105,7 +105,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   );
 
   return (
-    <AppContainer edges={['top']}>
+    <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
         {/* Stable Flow Header */}
         <ProgressTabsHeader
