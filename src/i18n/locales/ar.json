@@ -316,5 +316,9 @@
   "nafl": "نفل",
   "prohibited": "منهي عنه",
   "lastThirdPill": "الثلث الأخير",
-  "waitingForIshraq": "في انتظار الإشراق"
+  "waitingForIshraq": "في انتظار الإشراق",
+  "hijriDateAdjustment": "تعديل التاريخ الهجري",
+  "appearanceAndLanguage": "المظهر واللغة",
+  "aboutAndLegal": "حول التطبيق والشروط القانونية",
+  "appOfflineNotice": "١٠٠٪ بدون إنترنت • بدون إعلانات • بدون تتبع"
 }

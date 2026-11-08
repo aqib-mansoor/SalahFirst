@@ -10,13 +10,15 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface AppearanceSettingsGroupProps {
   themeMode: ThemeMode;
   onSelectThemeMode: (mode: ThemeMode) => void;
-  onOpenWallpaperGallery?: () => void;
+  languageLabel: string;
+  onToggleLanguage: () => void;
 }
 
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
   themeMode,
   onSelectThemeMode,
-  onOpenWallpaperGallery,
+  languageLabel,
+  onToggleLanguage,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -27,35 +29,23 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
     { id: 'system', label: t('themeSystem') },
   ];
 
-  const getSubtitle = () => {
+  const getThemeSubtitle = () => {
     if (themeMode === 'dark') return t('themeDark');
     if (themeMode === 'light') return t('themeLight');
     return t('themeSystem');
   };
 
-  const ChevronRight = (
-    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M9 18l6-6-6-6"
-        stroke={theme.colors.textSubtle}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-
   return (
     <View style={styles.container}>
-      <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-        {t('appearance').toUpperCase()}
+      <AppText variant="caption" color={theme.colors.textSecondary} style={styles.sectionLabel}>
+        {t('appearanceAndLanguage').toUpperCase()}
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
         {/* Row 1: Theme Mode Info + 3-way Segmented Control */}
         <View style={styles.themeRow}>
           <View style={styles.leftRow}>
-            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
               <Circle cx="12" cy="12" r="5" stroke={theme.colors.primary} strokeWidth="2" />
               <Path
                 d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
@@ -66,17 +56,17 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
             </Svg>
 
             <View style={styles.textCol}>
-              <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('theme')}
               </AppText>
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                {getSubtitle()}
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                {getThemeSubtitle()}
               </AppText>
             </View>
           </View>
 
           {/* 3-way Segmented Pill */}
-          <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+          <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
             {MODES.map((mode) => {
               const isSelected = themeMode === mode.id;
               return (
@@ -91,7 +81,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
                 >
                   <AppText
                     variant="caption"
-                    color={isSelected ? theme.colors.textInverse : theme.colors.textMuted}
+                    color={isSelected ? theme.colors.textOnPrimary : theme.colors.textSecondary}
                     style={[styles.segmentText, isSelected && styles.segmentTextSelected]}
                   >
                     {mode.label}
@@ -104,17 +94,28 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 2: Hadith Wallpaper Gallery */}
-        <Pressable onPress={onOpenWallpaperGallery} style={styles.row}>
-          <View style={styles.textCol}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              {t('hadithWallpaperGallery')}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {t('wallpaperGallerySubtitle')}
+        {/* Row 2: App Language Toggle */}
+        <Pressable onPress={onToggleLanguage} style={styles.row}>
+          <View style={styles.leftRow}>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Circle cx="12" cy="12" r="10" stroke={theme.colors.primary} strokeWidth="2" />
+              <Path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <View style={styles.textCol}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                {t('language')}
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                English, اردو & العربية
+              </AppText>
+            </View>
+          </View>
+
+          <View style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryTint }]}>
+            <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
+              {languageLabel}
             </AppText>
           </View>
-          {ChevronRight}
         </Pressable>
       </View>
     </View>
@@ -151,11 +152,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
+    flex: 1,
+    paddingRight: SPACING.sm,
   },
   textCol: {
     flex: 1,
     gap: 2,
-    paddingRight: SPACING.sm,
   },
   rowTitle: {
     fontWeight: '700',
@@ -186,6 +188,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   segmentTextSelected: {
+    fontWeight: '700',
+  },
+  pillBadge: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+  },
+  pillText: {
     fontWeight: '700',
   },
   divider: {

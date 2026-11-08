@@ -1,23 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, Alert, Share } from 'react-native';
-import Svg, { Path, Circle, Rect } from 'react-native-svg';
+import { StyleSheet, View, Pressable } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { storage } from '@/utils/storage';
-import { APP_CONFIG } from '@/constants/config';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface GeneralSettingsGroupProps {
-  language: string;
-  onToggleLanguage: () => void;
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
 }
 
 export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
-  language,
-  onToggleLanguage,
   onOpenPrivacyPolicy,
   onOpenTerms,
 }) => {
@@ -26,138 +20,89 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
 
   const ChevronRight = (
     <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-      <Path d="M9 18l6-6-6-6" stroke={theme.colors.textSubtle} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M9 18l6-6-6-6" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 
-  const handleExportBackup = async () => {
-    try {
-      const tracker = await storage.get(APP_CONFIG.storageKeys.prayerTracker, {});
-      const streak = await storage.get(APP_CONFIG.storageKeys.streak, 0);
-      const backupData = JSON.stringify(
-        {
-          appName: 'SalahFirst',
-          version: '1.0.0',
-          exportDate: new Date().toISOString(),
-          prayerTracker: tracker,
-          streakDays: streak,
-        },
-        null,
-        2
-      );
-
-      await Share.share({
-        message: backupData,
-        title: 'SalahFirst_Backup.json',
-      });
-    } catch {
-      Alert.alert('Backup Export', 'Could not export local JSON backup.');
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-        {t('general').toUpperCase()}
+      <AppText variant="caption" color={theme.colors.textSecondary} style={styles.sectionLabel}>
+        {t('aboutAndLegal').toUpperCase()}
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-        {/* Row 1: Language */}
-        <Pressable onPress={onToggleLanguage} style={styles.row}>
-          <View style={styles.textCol}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              {t('language')}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              English, اردو & العربية
-            </AppText>
-          </View>
-          <View style={[styles.pillBadge, { backgroundColor: theme.colors.mintTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
-              {language}
-            </AppText>
-          </View>
-        </Pressable>
-
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-        {/* Row 2: Default Focus Duration */}
-        <View style={styles.row}>
-          <View style={styles.textCol}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              {t('focusDefaultDuration')}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {t('fifteenMinutes')}
-            </AppText>
-          </View>
-          {ChevronRight}
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-        {/* Row 3: Backup / Export Local Data */}
-        <Pressable onPress={handleExportBackup} style={styles.row}>
-          <View style={styles.leftRow}>
-            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-              <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" />
-            </Svg>
-
-            <View style={styles.textCol}>
-              <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-                {t('backupExportTitle')}
-              </AppText>
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                {t('backupExportSubtitle')}
-              </AppText>
-            </View>
-          </View>
-
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </Pressable>
-
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-        {/* Row 4: Native Privacy Policy Screen */}
+        {/* Row 1: Native Privacy Policy */}
         <Pressable
           onPress={onOpenPrivacyPolicy}
           accessibilityRole="button"
           accessibilityLabel={t('privacyPolicyMenuTitle')}
           style={styles.row}
         >
-          <View style={styles.textCol}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              {t('privacyPolicyMenuTitle')}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {t('privacyPolicyMenuDesc')}
-            </AppText>
+          <View style={styles.leftRow}>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <View style={styles.textCol}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                {t('privacyPolicyMenuTitle')}
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                {t('privacyPolicyMenuDesc')}
+              </AppText>
+            </View>
           </View>
           {ChevronRight}
         </Pressable>
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 5: Native Terms & Conditions Screen */}
+        {/* Row 2: Native Terms & Conditions */}
         <Pressable
           onPress={onOpenTerms}
           accessibilityRole="button"
           accessibilityLabel={t('termsMenuTitle')}
           style={styles.row}
         >
-          <View style={styles.textCol}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-              {t('termsMenuTitle')}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {t('termsMenuDesc')}
-            </AppText>
+          <View style={styles.leftRow}>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <View style={styles.textCol}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                {t('termsMenuTitle')}
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                {t('termsMenuDesc')}
+              </AppText>
+            </View>
           </View>
           {ChevronRight}
         </Pressable>
+
+        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+
+        {/* Row 3: App Version & Offline-First Badge */}
+        <View style={styles.infoRow}>
+          <View style={styles.leftRow}>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <View style={styles.textCol}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                SalahFirst v1.0.0
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                {t('appOfflineNotice')}
+              </AppText>
+            </View>
+          </View>
+          <View style={[styles.pillBadge, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <AppText variant="caption" color={theme.colors.accent} style={styles.pillText}>
+              Offline
+            </AppText>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -184,16 +129,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
   },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+  },
   leftRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
     flex: 1,
+    paddingRight: SPACING.sm,
   },
   textCol: {
     flex: 1,
     gap: 2,
-    paddingRight: SPACING.sm,
   },
   rowTitle: {
     fontWeight: '700',
@@ -206,12 +158,8 @@ const styles = StyleSheet.create({
   pillText: {
     fontWeight: '700',
   },
-  privacyText: {
-    fontWeight: '500',
-  },
   divider: {
     height: 1,
     width: '100%',
   },
 });
-
