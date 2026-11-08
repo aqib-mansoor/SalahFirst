@@ -21,6 +21,7 @@ import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { FocusDuration } from '@/types';
+import { ScreenTransitionWrapper } from '@/components/common';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
@@ -165,9 +166,12 @@ function AppContent() {
   return (
     <SafeAreaProvider>
       <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
-      {currentStep === 'welcome' && (
-        <WelcomeScreen onContinue={handleContinueToSetup} />
-      )}
+      <ScreenTransitionWrapper
+        transitionKey={currentStep === 'main' ? `main-${activeTab}` : `step-${currentStep}`}
+      >
+        {currentStep === 'welcome' && (
+          <WelcomeScreen onContinue={handleContinueToSetup} />
+        )}
         {currentStep === 'setup' && (
           <SetupScreen onComplete={handleCompleteSetup} />
         )}
@@ -257,7 +261,8 @@ function AppContent() {
             onClose={() => setCurrentStep('main')}
           />
         )}
-      </SafeAreaProvider>
+      </ScreenTransitionWrapper>
+    </SafeAreaProvider>
   );
 }
 
