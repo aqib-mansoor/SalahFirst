@@ -54,6 +54,36 @@ export const calculateNightBoundaries = (maghribDate: Date, fajrDate: Date) => {
   };
 };
 
+export interface DailyNaflSchedule {
+  tahajjudRange: string;
+  lastThirdRange: string;
+  ishraqRange: string;
+  duhaRange: string;
+  zawalRange: string;
+}
+
+export const calculateDailyNaflSchedule = (
+  raw: RawPrayerTimesSet,
+  tomorrowFajr?: Date,
+  timezone?: string
+): DailyNaflSchedule => {
+  const sunriseMs = raw.sunrise.getTime();
+  const ishraqStart = new Date(sunriseMs + SUNRISE_PROHIBITED_MARGIN_MS);
+  const ishraqEnd = new Date(sunriseMs + SUNRISE_PROHIBITED_MARGIN_MS + ISHRAQ_DURATION_MS);
+  const zawalStart = new Date(raw.dhuhr.getTime() - ZAWAL_PROHIBITED_MARGIN_MS);
+
+  const nextFajr = tomorrowFajr || new Date(raw.fajr.getTime() + 86400000);
+  const night = calculateNightBoundaries(raw.maghrib, nextFajr);
+
+  return {
+    tahajjudRange: `${formatTimeInTimezone(raw.isha, timezone)} – ${formatTimeInTimezone(nextFajr, timezone)}`,
+    lastThirdRange: `${formatTimeInTimezone(night.lastThirdStart, timezone)} – ${formatTimeInTimezone(nextFajr, timezone)}`,
+    ishraqRange: `${formatTimeInTimezone(ishraqStart, timezone)} – ${formatTimeInTimezone(ishraqEnd, timezone)}`,
+    duhaRange: `${formatTimeInTimezone(ishraqEnd, timezone)} – ${formatTimeInTimezone(zawalStart, timezone)}`,
+    zawalRange: `${formatTimeInTimezone(zawalStart, timezone)} – ${formatTimeInTimezone(raw.dhuhr, timezone)}`,
+  };
+};
+
 export const createFallbackPeriod = (instant: Date = new Date(), timezone?: string): CurrentPrayerPeriod => ({
   id: 'fajr',
   nameKey: 'selectCity',

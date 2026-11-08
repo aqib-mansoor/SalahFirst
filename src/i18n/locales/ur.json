@@ -319,5 +319,15 @@
   "hijriDateAdjustment": "ہجری تاریخ ایڈجسٹمنٹ",
   "appearanceAndLanguage": "ظاہری شکل اور زبان",
   "aboutAndLegal": "معلومات اور قانونی شرائط",
-  "appOfflineNotice": "۱۰۰٪ آف لائن • اشتہارات سے پاک • نو ٹریکنگ"
+  "appOfflineNotice": "۱۰۰٪ آف لائن • اشتہارات سے پاک • نو ٹریکنگ",
+  "naflAndProhibitedTimes": "نوافل اور مکروہ اوقات",
+  "sunMilestones": "سورج کے اوقات",
+  "sunset": "غروبِ آفتاب",
+  "notificationModeAzan": "اذان الرٹ",
+  "notificationModeVibrate": "وائبریشن",
+  "notificationModeSilent": "خاموش",
+  "notificationModeOff": "بند",
+  "nowActive": "جاری ہے",
+  "viewingDate": "منتخب تاریخ",
+  "returnToToday": "آج"
 }

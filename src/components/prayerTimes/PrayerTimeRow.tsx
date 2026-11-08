@@ -1,10 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { NotificationMode } from '@/types';
+import { NotificationModeIcon } from './NotificationModeIcons';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerTimeRowProps {
   name: string;
@@ -12,6 +13,7 @@ export interface PrayerTimeRowProps {
   time: string;
   notification: NotificationMode;
   isNext?: boolean;
+  isCurrent?: boolean;
   remainingTimeText?: string;
   onCycleNotification?: () => void;
 }
@@ -22,16 +24,45 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   time,
   notification,
   isNext = false,
+  isCurrent = false,
   remainingTimeText,
   onCycleNotification,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
-  const cardBg = isNext ? theme.colors.secondaryTint : theme.colors.surface;
-  const textColor = theme.colors.textPrimary;
-  const subtextColor = theme.colors.textSecondary;
-  const bellBg = isNext ? theme.colors.surface : theme.colors.secondaryTint;
-  const bellColor = theme.colors.primary;
+  // Dynamic styling based on current / next / normal state
+  let cardBg = theme.colors.surface;
+  let borderColor = theme.colors.border;
+  let dotColor = theme.colors.border;
+
+  if (isCurrent) {
+    cardBg = theme.colors.secondaryTint;
+    borderColor = theme.colors.primary;
+    dotColor = theme.colors.primary;
+  } else if (isNext) {
+    borderColor = theme.colors.accent;
+    dotColor = theme.colors.accent;
+  }
+
+  // Bell button mode styles
+  let bellColor = theme.colors.textMuted;
+  let bellBg = theme.colors.surfaceElevated;
+  let notifLabel = t('notificationModeOff');
+
+  if (notification === 'azan') {
+    bellColor = theme.colors.primary;
+    bellBg = theme.colors.secondaryTint;
+    notifLabel = t('notificationModeAzan');
+  } else if (notification === 'vibrate') {
+    bellColor = theme.colors.accent;
+    bellBg = theme.colors.accentTint;
+    notifLabel = t('notificationModeVibrate');
+  } else if (notification === 'silent') {
+    bellColor = theme.colors.text;
+    bellBg = theme.colors.surfaceElevated;
+    notifLabel = t('notificationModeSilent');
+  }
 
   return (
     <View
@@ -39,48 +70,51 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         styles.card,
         {
           backgroundColor: cardBg,
-          borderColor: isNext ? theme.colors.accent : theme.colors.border,
-          borderWidth: isNext ? 1.5 : 1,
+          borderColor,
+          borderWidth: isCurrent || isNext ? 1.5 : 1,
         },
       ]}
     >
-      {/* Left Column: Indicator + Prayer Names + Notification tag */}
+      {/* Left Column: Indicator + Prayer Names + Localized notification mode */}
       <View style={styles.leftSection}>
-        <View
-          style={[
-            styles.dot,
-            { backgroundColor: isNext ? theme.colors.accent : theme.colors.primary },
-          ]}
-        />
+        <View style={[styles.dot, { backgroundColor: dotColor }]} />
 
         <View style={styles.nameColumn}>
           <View style={styles.namesRow}>
-            <AppText variant="titleSmall" color={textColor} style={styles.prayerTitle}>
-              {name}
+            <AppText variant="titleSmall" color={theme.colors.text} style={styles.prayerTitle}>
+              {t(name.toLowerCase() as any) || name}
             </AppText>
-            <AppText variant="titleSmall" color={textColor} style={styles.arabicTitle}>
+            <AppText variant="titleSmall" color={theme.colors.textMuted} style={styles.arabicTitle}>
               {arabicName}
             </AppText>
           </View>
 
-          <AppText variant="caption" color={subtextColor} style={styles.notifLabel}>
-            Notification: {notification}
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.notifLabel}>
+            {notifLabel}
           </AppText>
         </View>
       </View>
 
-      {/* Center Dedicated Non-Overlapping Next Badge */}
-      {isNext && (
-        <View style={[styles.nextBadge, { backgroundColor: theme.colors.accent }]}>
-          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.nextBadgeText}>
-            NEXT • {remainingTimeText || 'IN 1H 24M'}
+      {/* Center Status Badge: Current (NOW) or Next (COUNTDOWN) */}
+      {isCurrent && !isNext && (
+        <View style={[styles.statusBadge, { backgroundColor: theme.colors.primary }]}>
+          <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.badgeText}>
+            {t('nowActive')}
           </AppText>
         </View>
       )}
 
-      {/* Right Column: Time + Bell Toggle Button */}
+      {isNext && (
+        <View style={[styles.statusBadge, { backgroundColor: theme.colors.accent }]}>
+          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.badgeText}>
+            NEXT • {remainingTimeText || 'SOON'}
+          </AppText>
+        </View>
+      )}
+
+      {/* Right Column: Time + Mode Icon Button */}
       <View style={styles.rightSection}>
-        <AppText variant="titleMedium" color={textColor} style={styles.timeText}>
+        <AppText variant="titleMedium" color={theme.colors.text} style={styles.timeText}>
           {time}
         </AppText>
 
@@ -88,27 +122,18 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
           onPress={onCycleNotification}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={`${name} notification: ${notification}`}
-          accessibilityHint="Double tap to cycle notification mode"
+          accessibilityLabel={`${name} alert: ${notifLabel}`}
+          accessibilityHint="Cycles between Azan, Vibrate, Silent, and Off"
           style={({ pressed }) => [
-            styles.bellButton,
+            styles.modeButton,
             {
               backgroundColor: bellBg,
               borderColor: theme.colors.border,
-              borderWidth: 1,
               transform: [{ scale: pressed ? 0.94 : 1 }],
             },
           ]}
         >
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
-              stroke={bellColor}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
+          <NotificationModeIcon mode={notification} color={bellColor} size={18} />
         </Pressable>
       </View>
     </View>
@@ -126,11 +151,6 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     marginVertical: 4,
     gap: SPACING.sm,
-    shadowColor: '#202923',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
   },
   leftSection: {
     flexDirection: 'row',
@@ -156,23 +176,23 @@ const styles = StyleSheet.create({
   },
   arabicTitle: {
     fontWeight: '600',
-    opacity: 0.9,
+    opacity: 0.85,
   },
   notifLabel: {
     fontSize: 11,
     letterSpacing: 0.2,
   },
-  nextBadge: {
+  statusBadge: {
     paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: RADIUS.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nextBadgeText: {
+  badgeText: {
     fontWeight: '800',
     fontSize: 10,
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   rightSection: {
     flexDirection: 'row',
@@ -183,10 +203,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.2,
   },
-  bellButton: {
+  modeButton: {
     width: 38,
     height: 38,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -23,6 +23,21 @@ export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => 
   return /pakistan|india|bangladesh|turkey|türkiye|afghanistan/.test(c) ? 'Hanafi' : 'Standard';
 };
 
+export const CALCULATION_METHOD_LABELS: Record<CalculationMethodName, string> = {
+  Karachi: 'University of Islamic Sciences, Karachi',
+  MuslimWorldLeague: 'Muslim World League',
+  Egyptian: 'Egyptian General Authority',
+  UmmAlQura: 'Umm al-Qura University, Makkah',
+  Dubai: 'Dubai (UAE)',
+  Kuwait: 'Kuwait',
+  Qatar: 'Qatar',
+  Singapore: 'Singapore (MUIS)',
+  Turkey: 'Turkey (Diyanet)',
+  Tehran: 'Institute of Geophysics, Tehran',
+  NorthAmerica: 'Islamic Society of North America (ISNA)',
+  MoonsightingCommittee: 'Moonsighting Committee',
+};
+
 export const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
   const map: Record<string, () => any> = {
     UmmAlQura: CalculationMethod.UmmAlQura,

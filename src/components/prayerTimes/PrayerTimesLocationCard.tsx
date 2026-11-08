@@ -7,10 +7,11 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 import { JuristicMethod } from '@/types';
+import { CALCULATION_METHOD_LABELS } from '@/utils/prayerCalculationBase';
 
 export interface PrayerTimesLocationCardProps {
-  cityName: string;
-  country: string;
+  cityName?: string;
+  country?: string;
   methodName?: string;
   juristicMethod?: JuristicMethod;
   onOpenLocationSheet: () => void;
@@ -19,12 +20,15 @@ export interface PrayerTimesLocationCardProps {
 export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = ({
   cityName,
   country,
-  methodName = 'University of Islamic Sciences, Karachi',
+  methodName = CALCULATION_METHOD_LABELS.Karachi,
   juristicMethod = 'Hanafi',
   onOpenLocationSheet,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const displayCity = cityName || t('detectingLocation');
+  const locationLabel = country ? `${displayCity}, ${country}` : displayCity;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -42,8 +46,8 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
       </View>
 
       <View style={styles.textColumn}>
-        <AppText variant="titleSmall" color={theme.colors.text} style={styles.cityTitle}>
-          {cityName}, {country}
+        <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.cityTitle}>
+          {locationLabel}
         </AppText>
 
         <View style={styles.methodRow}>

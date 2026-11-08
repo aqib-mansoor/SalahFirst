@@ -319,5 +319,15 @@
   "hijriDateAdjustment": "Hijri Date Adjustment",
   "appearanceAndLanguage": "Appearance & Language",
   "aboutAndLegal": "About & Legal",
-  "appOfflineNotice": "100% Offline • Ad-Free • No Tracking"
+  "appOfflineNotice": "100% Offline • Ad-Free • No Tracking",
+  "naflAndProhibitedTimes": "Nafl & Prohibited Times",
+  "sunMilestones": "Sun Milestones",
+  "sunset": "Sunset",
+  "notificationModeAzan": "Azan Alert",
+  "notificationModeVibrate": "Vibrate",
+  "notificationModeSilent": "Silent",
+  "notificationModeOff": "Off",
+  "nowActive": "NOW",
+  "viewingDate": "Viewing Date",
+  "returnToToday": "Today"
 }

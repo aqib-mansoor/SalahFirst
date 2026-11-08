@@ -8,6 +8,7 @@ import {
 } from './prayerCalculationBase';
 
 export * from './prayerCalculationBase';
+export * from './currentPrayerPeriod';
 
 export interface FormattedPrayerTimes {
   fajr: string;

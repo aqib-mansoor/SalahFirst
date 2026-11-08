@@ -320,5 +320,15 @@
   "hijriDateAdjustment": "تعديل التاريخ الهجري",
   "appearanceAndLanguage": "المظهر واللغة",
   "aboutAndLegal": "حول التطبيق والشروط القانونية",
-  "appOfflineNotice": "١٠٠٪ بدون إنترنت • بدون إعلانات • بدون تتبع"
+  "appOfflineNotice": "١٠٠٪ بدون إنترنت • بدون إعلانات • بدون تتبع",
+  "naflAndProhibitedTimes": "النوافل والأوقات المكروهة",
+  "sunMilestones": "أوقات الشمس",
+  "sunset": "الغروب",
+  "notificationModeAzan": "تنبيه الأذان",
+  "notificationModeVibrate": "اهتزاز",
+  "notificationModeSilent": "صامت",
+  "notificationModeOff": "إيقاف",
+  "nowActive": "الآن",
+  "viewingDate": "التاريخ المحدد",
+  "returnToToday": "اليوم"
 }

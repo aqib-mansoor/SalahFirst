@@ -5,7 +5,6 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { useHijriDate } from '@/hooks/useHijriDate';
 
 export interface PrayerTimesHeaderProps {
   onOpenAzanPrefs: () => void;
@@ -18,13 +17,6 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { hijriDateFormatted } = useHijriDate(countryName);
-  const gregorianDate = new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date());
 
   return (
     <View style={styles.container}>
@@ -32,9 +24,11 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
           {t('prayerTimes')}
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.dateSubtitle}>
-          {gregorianDate} • {hijriDateFormatted}
-        </AppText>
+        {countryName ? (
+          <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1}>
+            {countryName}
+          </AppText>
+        ) : null}
       </View>
 
       <Pressable
@@ -60,14 +54,9 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
             strokeLinecap="round"
           />
         </Svg>
-        <View style={styles.buttonTextColumn}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.prefsText}>
-            Azan
-          </AppText>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.prefsText}>
-            Prefs
-          </AppText>
-        </View>
+        <AppText variant="caption" color={theme.colors.primary} style={styles.prefsText}>
+          {t('navSettings')}
+        </AppText>
       </Pressable>
     </View>
   );
@@ -80,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
-    paddingBottom: SPACING.sm,
+    paddingBottom: SPACING.xs,
   },
   titleColumn: {
     flex: 1,
@@ -89,25 +78,17 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '800',
   },
-  dateSubtitle: {
-    lineHeight: 18,
-  },
   prefsButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
-  },
-  buttonTextColumn: {
-    alignItems: 'flex-start',
   },
   prefsText: {
     fontWeight: '700',
     fontSize: 11,
-    lineHeight: 13,
   },
 });
-
