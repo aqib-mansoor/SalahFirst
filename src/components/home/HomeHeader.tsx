@@ -30,17 +30,8 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Left: Islamic Greeting & Tappable Location/Date Pill */}
+      {/* Left: Greeting & Tappable Location/Date Pill */}
       <View style={styles.leftSection}>
-        {/* Sacred Bismillah Accent */}
-        <AppText
-          variant="caption"
-          color={theme.colors.primary}
-          style={styles.bismillah}
-        >
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </AppText>
-
         {/* Greeting Title */}
         <AppText
           variant="titleLarge"
@@ -167,7 +158,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm + 2,
     paddingBottom: SPACING.sm,
@@ -176,12 +167,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
     paddingRight: SPACING.sm,
-  },
-  bismillah: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-    opacity: 0.9,
   },
   greeting: {
     fontWeight: '800',
@@ -207,7 +192,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs + 2,
-    marginTop: 4,
   },
   streakBadge: {
     flexDirection: 'row',
