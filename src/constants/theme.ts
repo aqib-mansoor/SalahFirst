@@ -55,6 +55,21 @@ export const PALETTE = {
   transparent: 'transparent',
 } as const;
 
+export const WELCOME_THEME = {
+  background: PALETTE.emeraldDark,
+  surface: PALETTE.emeraldSurface,
+  watermark: PALETTE.emeraldWatermark,
+  watermarkGold: PALETTE.gold,
+  titleWhite: PALETTE.white,
+  titleAccent: PALETTE.gold,
+  bismillah: PALETTE.goldLight,
+  tagline: PALETTE.sageLight,
+  badge: PALETTE.sageMuted,
+  buttonBg: PALETTE.gold,
+  buttonPressed: PALETTE.goldDark,
+  buttonText: PALETTE.emeraldDeep,
+} as const;
+
 export interface ThemeColors {
   background: string;
   surface: string;

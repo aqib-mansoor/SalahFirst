@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AppContainer } from '@/components/common';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { WELCOME_THEME } from '@/constants/theme';
 import { IslamicWatermark } from './IslamicWatermark';
 import { WelcomeHeader } from './WelcomeHeader';
 import { WelcomeBrand } from './WelcomeBrand';
@@ -14,16 +16,23 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onContinue = () => {},
 }) => {
   return (
-    <AppContainer style={styles.container}>
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={[styles.container, { backgroundColor: WELCOME_THEME.background }]}
+    >
+      <StatusBar style="light" />
+
       {/* Background Islamic Geometric Watermarks */}
       <IslamicWatermark
         size={340}
-        opacity={0.2}
+        opacity={0.25}
+        color={WELCOME_THEME.watermark}
         style={styles.topRightWatermark}
       />
       <IslamicWatermark
         size={360}
-        opacity={0.2}
+        opacity={0.25}
+        color={WELCOME_THEME.watermark}
         style={styles.bottomLeftWatermark}
       />
 
@@ -37,7 +46,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
         <WelcomeFooter onContinue={onContinue} />
       </View>
-    </AppContainer>
+    </SafeAreaView>
   );
 };
 
@@ -65,4 +74,3 @@ const styles = StyleSheet.create({
     left: -90,
   },
 });
-

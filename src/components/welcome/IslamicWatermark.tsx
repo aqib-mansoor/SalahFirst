@@ -2,20 +2,23 @@ import React from 'react';
 import { StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
 import Svg, { Rect, Circle, G } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
+import { WELCOME_THEME } from '@/constants/theme';
 
 export interface IslamicWatermarkProps {
   size?: number;
   opacity?: number;
+  color?: string;
   style?: StyleProp<ViewStyle>;
 }
 
 export const IslamicWatermark: React.FC<IslamicWatermarkProps> = ({
   size = 280,
   opacity = 0.35,
+  color,
   style,
 }) => {
   const theme = useTheme();
-  const strokeColor = theme.colors.watermark;
+  const strokeColor = color || theme.colors.watermark || WELCOME_THEME.watermark;
   const half = size / 2;
   const squareSize = size * 0.62;
   const squareOffset = (size - squareSize) / 2;
@@ -60,4 +63,3 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 });
-

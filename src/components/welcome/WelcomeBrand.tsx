@@ -1,14 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, Animated } from 'react-native';
 import { APP_CONFIG } from '@/constants/config';
-import { SPACING, TYPOGRAPHY } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { SPACING, TYPOGRAPHY, WELCOME_THEME } from '@/constants/theme';
 import { AppText } from '@/components/common';
 import { BrandLogo3D } from './BrandLogo3D';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export const WelcomeBrand: React.FC = () => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   // Entrance animations
@@ -47,20 +45,20 @@ export const WelcomeBrand: React.FC = () => {
         },
       ]}
     >
-      <BrandLogo3D size={110} style={styles.logo} />
+      <BrandLogo3D size={132} style={styles.logo} />
 
       <Text style={styles.titleContainer}>
-        <Text style={[styles.titleWord, { color: theme.colors.text }]}>
+        <Text style={[styles.titleWord, { color: WELCOME_THEME.titleWhite }]}>
           {APP_CONFIG.nameFirst}
         </Text>
-        <Text style={[styles.titleWord, { color: theme.colors.accent }]}>
+        <Text style={[styles.titleWord, { color: WELCOME_THEME.titleAccent }]}>
           {APP_CONFIG.nameSecond}
         </Text>
       </Text>
 
       <AppText
         variant="bodyLarge"
-        color={theme.colors.textMuted}
+        color={WELCOME_THEME.tagline}
         align="center"
         style={styles.tagline}
       >
@@ -76,7 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginBottom: SPACING.xxl,
+    marginBottom: SPACING.xl,
   },
   titleContainer: {
     ...TYPOGRAPHY.brandTitle,

@@ -1,18 +1,15 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { APP_CONFIG } from '@/constants/config';
-import { SPACING } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { SPACING, WELCOME_THEME } from '@/constants/theme';
 import { AppText } from '@/components/common';
 
 export const WelcomeHeader: React.FC = () => {
-  const theme = useTheme();
-
   return (
     <View style={styles.header}>
       <AppText
         variant="arabicMotto"
-        color={theme.colors.accentMuted}
+        color={WELCOME_THEME.bismillah}
         align="center"
         style={styles.text}
       >

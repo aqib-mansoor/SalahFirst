@@ -1,9 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { APP_CONFIG } from '@/constants/config';
-import { SPACING } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { SPACING, WELCOME_THEME } from '@/constants/theme';
 import { AppButton, AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -12,14 +10,13 @@ export interface WelcomeFooterProps {
 }
 
 export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   const ChevronRight = (
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
       <Path
         d="M9 18L15 12L9 6"
-        stroke={theme.colors.buttonGoldText}
+        stroke={WELCOME_THEME.buttonText}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -34,13 +31,14 @@ export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
         onPress={onContinue}
         variant="gold"
         size="lg"
+        textColor={WELCOME_THEME.buttonText}
         rightIcon={ChevronRight}
         style={styles.button}
       />
 
       <AppText
         variant="caption"
-        color={theme.colors.textSubtle}
+        color={WELCOME_THEME.badge}
         align="center"
         style={styles.privacyBadge}
       >
@@ -65,4 +63,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
-
