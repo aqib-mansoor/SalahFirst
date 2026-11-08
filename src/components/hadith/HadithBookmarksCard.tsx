@@ -40,15 +40,15 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
           },
         ]}
       >
-        {/* Header */}
+        {/* Header with Warm Gold Bookmark Badge */}
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z"
-                  fill={theme.colors.primary}
-                  stroke={theme.colors.primary}
+                  fill={theme.colors.accent}
+                  stroke={theme.colors.accent}
                   strokeWidth="2"
                 />
               </Svg>
@@ -62,12 +62,12 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
             style={[
               styles.countBadge,
               {
-                backgroundColor: theme.colors.surfaceElevated,
-                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.accentTint,
+                borderColor: theme.colors.accent,
               },
             ]}
           >
-            <AppText variant="caption" color={theme.colors.primary} style={styles.countText}>
+            <AppText variant="caption" color={theme.colors.warning} style={styles.countText}>
               {savedHadiths.length} {t('saved')}
             </AppText>
           </View>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   countText: {
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 11,
   },
   rowsList: {

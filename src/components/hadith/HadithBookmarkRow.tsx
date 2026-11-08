@@ -45,17 +45,17 @@ export const HadithBookmarkRow: React.FC<HadithBookmarkRowProps> = ({
           styles.indexPill,
           {
             backgroundColor: isSelected
-              ? theme.colors.primary
+              ? theme.colors.accentTint
               : theme.colors.surface,
             borderColor: isSelected
-              ? theme.colors.primary
+              ? theme.colors.accent
               : theme.colors.border,
           },
         ]}
       >
         <AppText
           variant="caption"
-          color={isSelected ? theme.colors.textInverse : theme.colors.primary}
+          color={isSelected ? theme.colors.warning : theme.colors.textMuted}
           style={styles.indexText}
         >
           #{itemIndex + 1}
@@ -153,4 +153,3 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 });
-
