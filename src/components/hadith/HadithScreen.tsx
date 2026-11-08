@@ -10,6 +10,7 @@ import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithPagination } from './HadithPagination';
 import { HadithBookmarksCard } from './HadithBookmarksCard';
+import { HadithBookmarksSheet } from './HadithBookmarksSheet';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
 
 export interface HadithScreenProps {
@@ -18,6 +19,7 @@ export interface HadithScreenProps {
 
 export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => {
   const [showWallpaper, setShowWallpaper] = useState(false);
+  const [showBookmarksSheet, setShowBookmarksSheet] = useState(false);
   const insets = useSafeAreaInsets();
   const {
     currentHadith,
@@ -85,8 +87,18 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
             savedHadiths={savedHadiths}
             currentIndex={currentIndex}
             onSelectHadith={jumpToHadith}
+            onOpenAllBookmarks={() => setShowBookmarksSheet(true)}
           />
         </ScrollView>
+
+        {/* 50+ Bookmarks Dedicated Modal Sheet */}
+        <HadithBookmarksSheet
+          visible={showBookmarksSheet}
+          savedHadiths={savedHadiths}
+          currentIndex={currentIndex}
+          onSelectHadith={jumpToHadith}
+          onClose={() => setShowBookmarksSheet(false)}
+        />
 
         <HomeBottomNav
           activeTab="hadith"

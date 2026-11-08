@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -12,12 +12,16 @@ export interface HadithBookmarksCardProps {
   savedHadiths: HadithItem[];
   currentIndex: number;
   onSelectHadith: (index: number) => void;
+  onOpenAllBookmarks: () => void;
 }
+
+const MAX_PREVIEW_ITEMS = 3;
 
 export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
   savedHadiths,
   currentIndex,
   onSelectHadith,
+  onOpenAllBookmarks,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -28,6 +32,9 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
       onSelectHadith(idx);
     }
   };
+
+  const previewItems = savedHadiths.slice(0, MAX_PREVIEW_ITEMS);
+  const hasMore = savedHadiths.length > MAX_PREVIEW_ITEMS;
 
   return (
     <View style={styles.container}>
@@ -58,7 +65,9 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
             </AppText>
           </View>
 
-          <View
+          <Pressable
+            onPress={onOpenAllBookmarks}
+            hitSlop={6}
             style={[
               styles.countBadge,
               {
@@ -70,13 +79,13 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
             <AppText variant="caption" color={theme.colors.warning} style={styles.countText}>
               {savedHadiths.length} {t('saved')}
             </AppText>
-          </View>
+          </Pressable>
         </View>
 
-        {/* Content: Vertical Preview Rows OR Clean Empty State */}
+        {/* Content: Top 3 Preview Rows OR Clean Empty State */}
         {savedHadiths.length > 0 ? (
           <View style={styles.rowsList}>
-            {savedHadiths.map((item) => {
+            {previewItems.map((item) => {
               const itemIdx = VERIFIED_HADITHS.findIndex((h) => h.id === item.id);
               const isSelected = itemIdx === currentIndex;
 
@@ -90,6 +99,40 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
                 />
               );
             })}
+
+            {/* View All Button when > 3 items */}
+            {hasMore && (
+              <Pressable
+                onPress={onOpenAllBookmarks}
+                accessibilityRole="button"
+                accessibilityLabel={`View all ${savedHadiths.length} saved bookmarks`}
+                style={({ pressed }) => [
+                  styles.viewAllBtn,
+                  {
+                    backgroundColor: theme.colors.surfaceElevated,
+                    borderColor: theme.colors.border,
+                  },
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <AppText
+                  variant="caption"
+                  color={theme.colors.primary}
+                  style={styles.viewAllText}
+                >
+                  {t('viewAllBookmarks', { count: savedHadiths.length }) || `View All (${savedHadiths.length})`}
+                </AppText>
+                <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M5 12H19M19 12L12 5M19 12L12 19"
+                    stroke={theme.colors.primary}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              </Pressable>
+            )}
           </View>
         ) : (
           <View style={styles.emptyContainer}>
@@ -146,6 +189,19 @@ const styles = StyleSheet.create({
   },
   rowsList: {
     gap: SPACING.xs + 2,
+  },
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.xs + 3,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    gap: 6,
+    marginTop: 2,
+  },
+  viewAllText: {
+    fontWeight: '700',
   },
   emptyContainer: {
     paddingVertical: SPACING.md,

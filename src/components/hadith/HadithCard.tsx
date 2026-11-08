@@ -109,43 +109,46 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         onSelectTranslationMode={onSelectTranslationMode}
       />
 
-      {/* Arabic Calligraphy Content */}
-      <View style={styles.arabicSection}>
-        <AppText
-          variant="arabicMotto"
-          color={theme.colors.text}
-          style={styles.arabicText}
-        >
-          {hadith.arabic}
-        </AppText>
-      </View>
-
-      {/* Divider */}
-      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-      {/* English Translation */}
-      {(translationMode === 'en' || translationMode === 'both') && (
-        <AppText
-          variant="bodyMedium"
-          color={theme.colors.text}
-          style={styles.englishText}
-        >
-          {hadith.english}
-        </AppText>
-      )}
-
-      {/* Urdu Translation */}
-      {(translationMode === 'ur' || translationMode === 'both') && (
-        <View style={[styles.urduBox, { backgroundColor: theme.colors.privacyBg }]}>
+      {/* Stable Minimum-Height Content Block to Prevent Layout Jitter */}
+      <View style={styles.stableContentBlock}>
+        {/* Arabic Calligraphy Content */}
+        <View style={styles.arabicSection}>
           <AppText
-            variant="bodyMedium"
-            color={theme.colors.privacyText}
-            style={styles.urduText}
+            variant="arabicMotto"
+            color={theme.colors.text}
+            style={styles.arabicText}
           >
-            {hadith.urdu}
+            {hadith.arabic}
           </AppText>
         </View>
-      )}
+
+        {/* Divider */}
+        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+
+        {/* English Translation */}
+        {(translationMode === 'en' || translationMode === 'both') && (
+          <AppText
+            variant="bodyMedium"
+            color={theme.colors.text}
+            style={styles.englishText}
+          >
+            {hadith.english}
+          </AppText>
+        )}
+
+        {/* Urdu Translation */}
+        {(translationMode === 'ur' || translationMode === 'both') && (
+          <View style={[styles.urduBox, { backgroundColor: theme.colors.privacyBg }]}>
+            <AppText
+              variant="bodyMedium"
+              color={theme.colors.privacyText}
+              style={styles.urduText}
+            >
+              {hadith.urdu}
+            </AppText>
+          </View>
+        )}
+      </View>
 
       {/* Source Citation & Actions Footer */}
       <View style={styles.footerRow}>
@@ -215,6 +218,11 @@ const styles = StyleSheet.create({
   counterText: {
     fontWeight: '800',
     fontSize: 13,
+  },
+  stableContentBlock: {
+    minHeight: 250,
+    justifyContent: 'center',
+    gap: SPACING.sm + 2,
   },
   arabicSection: {
     paddingVertical: SPACING.xs,
