@@ -5,3 +5,4 @@ export * from './usePrayerAlerts';
 export * from './useQiblaCompass';
 export * from './useHadithCollection';
 export * from './useNotificationScheduler';
+export * from './useHijriDate';

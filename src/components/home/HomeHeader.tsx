@@ -4,11 +4,12 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { getIslamicDateFormatted } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
+import { useHijriDate } from '@/hooks/useHijriDate';
 
 export interface HomeHeaderProps {
   cityName: string;
+  countryName?: string;
   streakCount: number;
   onOpenSettings?: () => void;
   onOpenStreaks?: () => void;
@@ -17,14 +18,15 @@ export interface HomeHeaderProps {
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({
   cityName,
+  countryName,
   streakCount,
   onOpenSettings,
   onOpenStreaks,
   onSelectCity,
 }) => {
   const theme = useTheme();
-  const { t, language } = useTranslation();
-  const hijriDate = getIslamicDateFormatted(new Date(), language);
+  const { t } = useTranslation();
+  const { hijriDateFormatted } = useHijriDate(countryName);
 
   return (
     <View style={styles.container}>
@@ -43,7 +45,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
           style={styles.subtitleRow}
         >
           <AppText variant="bodySmall" color={theme.colors.textSecondary} style={styles.dateText}>
-            {hijriDate} • {cityName}
+            {hijriDateFormatted} • {cityName}
           </AppText>
           <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
             <Path

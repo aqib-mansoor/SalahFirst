@@ -1,6 +1,7 @@
 import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule, PolarCircleResolution } from 'adhan';
-import { CalculationMethodName, JuristicMethod, SalahName } from '@/types';
+import { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
+import { getCurrentPrayerPeriod, createFallbackPeriod } from './currentPrayerPeriod';
 
 export interface FormattedPrayerTimes {
   fajr: string;
@@ -22,6 +23,7 @@ export interface FormattedPrayerTimes {
     maghrib: Date;
     isha: Date;
   };
+  currentPeriod: CurrentPrayerPeriod;
 }
 
 export const formatTime = (date: Date, timezone?: string): string =>
@@ -58,7 +60,7 @@ export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => 
   return /pakistan|india|bangladesh|turkey|türkiye|afghanistan/.test(c) ? 'Hanafi' : 'Standard';
 };
 
-const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
+export const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
   const map: Record<string, () => any> = {
     UmmAlQura: CalculationMethod.UmmAlQura,
     Dubai: CalculationMethod.Dubai,
@@ -76,7 +78,7 @@ const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
   return (map[method] || CalculationMethod.Karachi)();
 };
 
-const createRobustPrayerTimes = (
+export const createRobustPrayerTimes = (
   coords: Coordinates,
   date: Date,
   params: ReturnType<typeof getMethodParams>
@@ -131,6 +133,7 @@ export const getPrayerTimes = (
         maghrib: dummyDate,
         isha: dummyDate,
       },
+      currentPeriod: createFallbackPeriod(dummyDate, timezone),
     };
   }
 
@@ -149,37 +152,38 @@ export const getPrayerTimes = (
   yesterday.setDate(yesterday.getDate() - 1);
   const ptYesterday = createRobustPrayerTimes(coordinates, yesterday, params);
 
+  const currentPeriod = getCurrentPrayerPeriod({
+    latitude,
+    longitude,
+    date,
+    method,
+    juristic,
+    timezone,
+    rawToday: ptToday,
+    rawTomorrow: ptTomorrow,
+    rawYesterday: ptYesterday,
+  });
+
   const now = date.getTime();
-  let currentName = 'ISHA';
-  let currentTime = ptYesterday.isha;
   let nextName: SalahName = 'Fajr';
   let nextTime = ptToday.fajr;
 
   if (now < ptToday.fajr.getTime()) {
-    // Keep initial defaults
-  } else if (now < ptToday.sunrise.getTime() || now < ptToday.dhuhr.getTime()) {
-    currentName = 'FAJR';
-    currentTime = ptToday.fajr;
+    nextName = 'Fajr';
+    nextTime = ptToday.fajr;
+  } else if (now < ptToday.dhuhr.getTime()) {
     nextName = 'Dhuhr';
     nextTime = ptToday.dhuhr;
   } else if (now < ptToday.asr.getTime()) {
-    currentName = 'DHUHR';
-    currentTime = ptToday.dhuhr;
     nextName = 'Asr';
     nextTime = ptToday.asr;
   } else if (now < ptToday.maghrib.getTime()) {
-    currentName = 'ASR';
-    currentTime = ptToday.asr;
     nextName = 'Maghrib';
     nextTime = ptToday.maghrib;
   } else if (now < ptToday.isha.getTime()) {
-    currentName = 'MAGHRIB';
-    currentTime = ptToday.maghrib;
     nextName = 'Isha';
     nextTime = ptToday.isha;
   } else {
-    currentName = 'ISHA';
-    currentTime = ptToday.isha;
     nextName = 'Fajr';
     nextTime = ptTomorrow.fajr;
   }
@@ -191,8 +195,8 @@ export const getPrayerTimes = (
     asr: formatTimeInTimezone(ptToday.asr, timezone),
     maghrib: formatTimeInTimezone(ptToday.maghrib, timezone),
     isha: formatTimeInTimezone(ptToday.isha, timezone),
-    currentPrayerName: currentName,
-    currentTimeFormatted: formatTimeInTimezone(currentTime, timezone),
+    currentPrayerName: currentPeriod.nameKey,
+    currentTimeFormatted: currentPeriod.startTimeFormatted,
     nextPrayerName: nextName,
     nextPrayerTimeFormatted: formatTimeInTimezone(nextTime, timezone),
     nextPrayerDate: nextTime,
@@ -204,6 +208,7 @@ export const getPrayerTimes = (
       maghrib: ptToday.maghrib,
       isha: ptToday.isha,
     },
+    currentPeriod,
   };
 };
 
@@ -230,4 +235,4 @@ export const getRawPrayerTimes = (
   };
 };
 
-export { getIslamicDateFormatted } from './hijriCalendar';
+export { getIslamicDateFormatted, createRobustPrayerTimes } from './hijriCalendar';

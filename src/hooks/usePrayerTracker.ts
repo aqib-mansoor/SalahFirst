@@ -127,9 +127,9 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       const now = new Date().getTime();
       let diff = prayerData.nextPrayerDate.getTime() - now;
 
-      if (diff <= 0) {
+      if (diff <= 0 || (prayerData.currentPeriod && now >= prayerData.currentPeriod.endTime.getTime())) {
         setRefreshTrigger((prev) => prev + 1);
-        diff = 0;
+        diff = Math.max(0, diff);
       }
 
       const totalSeconds = Math.max(0, Math.floor(diff / 1000));
@@ -222,7 +222,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
         time: (prayerData as any)[lower] || '--:--',
         completed: !!completedMap[name],
         isNext: prayerData.nextPrayerName === name,
-        isCurrent: prayerData.currentPrayerName === name.toUpperCase(),
+        isCurrent: prayerData.currentPeriod?.obligatorySalahName === name,
         remainingTimeText:
           prayerData.nextPrayerName === name ? formatRemainingTime(prayerData.nextPrayerDate) : undefined,
       };

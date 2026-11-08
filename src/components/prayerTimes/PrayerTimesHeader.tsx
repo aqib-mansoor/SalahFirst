@@ -4,19 +4,21 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { getIslamicDateFormatted } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
+import { useHijriDate } from '@/hooks/useHijriDate';
 
 export interface PrayerTimesHeaderProps {
   onOpenAzanPrefs: () => void;
+  countryName?: string;
 }
 
 export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
   onOpenAzanPrefs,
+  countryName,
 }) => {
   const theme = useTheme();
-  const { t, language } = useTranslation();
-  const hijriDate = getIslamicDateFormatted(new Date(), language);
+  const { t } = useTranslation();
+  const { hijriDateFormatted } = useHijriDate(countryName);
   const gregorianDate = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
     day: 'numeric',
@@ -31,7 +33,7 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
           {t('prayerTimes')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.dateSubtitle}>
-          {gregorianDate} • {hijriDate}
+          {gregorianDate} • {hijriDateFormatted}
         </AppText>
       </View>
 

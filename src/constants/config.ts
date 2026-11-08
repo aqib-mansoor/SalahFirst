@@ -20,6 +20,7 @@ export const APP_CONFIG = {
     streak: '@salahfirst_streak',
     calculationMethod: '@salahfirst_calc_method',
     juristicMethod: '@salahfirst_juristic_method',
+    hijriAdjustment: '@salahfirst_hijri_adjustment',
   },
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',

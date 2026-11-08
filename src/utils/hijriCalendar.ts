@@ -1,7 +1,7 @@
 /**
  * Real Islamic (Hijri) Calendar Calculation Utility
  * Provides 100% offline, astronomical and Umm al-Qura compatible Hijri date calculations.
- * Eliminates dummy dates and gracefully falls back to robust algorithms when Intl is absent.
+ * Supports country-based regional moon-sighting offsets & manual user adjustments.
  */
 
 export interface HijriDateComponents {
@@ -55,6 +55,43 @@ export const HIJRI_MONTHS = {
     'ذی الحجہ',
   ],
 } as const;
+
+/**
+ * Countries where local moon sighting conventions typically align 1 day behind Saudi Umm al-Qura.
+ */
+const SIGHTING_MINUS_ONE_PATTERNS = [
+  'pakistan',
+  'pk',
+  'india',
+  'in',
+  'bangladesh',
+  'bd',
+  'morocco',
+  'ma',
+  'oman',
+  'om',
+  'sri lanka',
+  'lk',
+  'nepal',
+  'np',
+  'south africa',
+  'za',
+];
+
+/**
+ * Determines the default Hijri offset based on detected or selected country.
+ * e.g., Pakistan, India, Bangladesh -> -1 day; Saudi Arabia, UAE, North America -> 0 days.
+ */
+export const getCountryDefaultHijriAdjustment = (country?: string | null): number => {
+  if (!country) return 0;
+  const lower = country.trim().toLowerCase();
+  for (const pattern of SIGHTING_MINUS_ONE_PATTERNS) {
+    if (lower === pattern || lower.includes(pattern)) {
+      return -1;
+    }
+  }
+  return 0;
+};
 
 /**
  * Robust astronomical Julian Day conversion to Hijri components.
@@ -134,21 +171,23 @@ const tryIntlHijri = (date: Date, locale: string = 'en'): string | null => {
 
 /**
  * Formats a Gregorian date into a real Islamic (Hijri) date string.
- * Example: "28 Jumada al-Awwal 1448 AH" or "28 جمادى الأولى 1448 هـ"
+ * Supports country-based and manual adjustment offsets.
+ * Example: "28 Jumada al-Awwal 1448 AH" (Saudia) or "27 Jumada al-Awwal 1448 AH" (Pakistan)
  */
 export const getIslamicDateFormatted = (
   date: Date = new Date(),
   locale: string = 'en',
   adjustment: number = 0
 ): string => {
+  const d = date instanceof Date ? date : new Date(date);
+  const targetDate = adjustment !== 0 ? new Date(d.getTime() + adjustment * 86400000) : d;
+
   // First attempt native Intl if available and authentic
-  if (adjustment === 0) {
-    const intlResult = tryIntlHijri(date, locale);
-    if (intlResult) return intlResult;
-  }
+  const intlResult = tryIntlHijri(targetDate, locale);
+  if (intlResult) return intlResult;
 
   // Pure self-contained offline calculation
-  const hijri = gregorianToHijri(date, adjustment);
+  const hijri = gregorianToHijri(d, adjustment);
   const normalizedLocale = locale === 'ar' ? 'ar' : locale === 'ur' ? 'ur' : 'en';
   const monthList = HIJRI_MONTHS[normalizedLocale] || HIJRI_MONTHS.en;
   const monthName = monthList[hijri.month - 1] || monthList[0];
@@ -174,4 +213,3 @@ export const getIslamicMonthFormatted = (
 
   return `${monthName} ${hijri.year} ${suffix}`;
 };
-

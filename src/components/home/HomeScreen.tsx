@@ -60,6 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Top Header */}
         <HomeHeader
           cityName={location?.city || (permissionDenied ? 'Select City' : 'Detecting...')}
+          countryName={location?.country}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}
