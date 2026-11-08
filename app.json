@@ -33,7 +33,12 @@
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "androidNavigationBar": {
+        "visible": "always",
+        "barStyle": "light-content",
+        "backgroundColor": "#00000000"
+      }
     },
     "plugins": [
       [

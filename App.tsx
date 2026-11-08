@@ -26,6 +26,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { useTheme } from '@/hooks/useTheme';
+import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
@@ -63,6 +64,11 @@ function AppContent() {
   } = usePrayerTracker(location);
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
+
+  useTransparentNavigationBar({
+    isDark: theme.isDark,
+    forceLightButtons: currentStep === 'welcome' || currentStep === 'wallpaper',
+  });
 
   // Check setup status and restore any active focus session on startup
   useEffect(() => {
