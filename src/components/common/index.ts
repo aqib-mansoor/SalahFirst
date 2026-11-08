@@ -2,6 +2,7 @@ export * from './AppText';
 export * from './AppButton';
 export * from './AppCard';
 export * from './AppHeader';
+export * from './ScreenHeader';
 export * from './AppContainer';
 export * from './AppIcon';
 export * from './EmptyState3D';

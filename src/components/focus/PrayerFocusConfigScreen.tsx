@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppContainer, AppText, AppButton } from '@/components/common';
+import { AppContainer, AppText, AppButton, ScreenHeader } from '@/components/common';
 import { FocusPrayerSelector, FocusPrayerSelection } from './FocusPrayerSelector';
 import { FocusCongregationDelayCard } from './FocusCongregationDelayCard';
 import { FocusDurationCard } from './FocusDurationCard';
@@ -89,26 +88,19 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       contentContainerStyle={styles.screenContainer}
     >
       <View style={styles.screenContainer}>
-        {/* Header Bar */}
-        <View style={styles.header}>
-          <Pressable
-            onPress={onBack}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Back to Home"
-            style={[styles.backBtn, { borderColor: theme.colors.border }]}
-          >
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </Pressable>
-
-          <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
-              {t('prayerFocusMode')}
-            </AppText>
-          </View>
-        </View>
+        <ScreenHeader
+          title={t('timeToReconnect') as string}
+          subtitle={t('focusSub') as string}
+          onBack={onBack}
+          backAccessibilityLabel="Back to Home"
+          rightAction={
+            <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
+              <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
+                {t('prayerFocusMode')}
+              </AppText>
+            </View>
+          }
+        />
 
         <ScrollView
           style={styles.scrollWrapper}
@@ -116,16 +108,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           showsVerticalScrollIndicator={false}
           bounces={true}
         >
-          {/* Title Section */}
-          <View style={styles.titleSection}>
-            <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-              {t('timeToReconnect')}
-            </AppText>
-            <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-              {t('focusSub')}
-            </AppText>
-          </View>
-
           {/* 1. Prayer Selector */}
           <FocusPrayerSelector
             selectedPrayer={selectedPrayer}
@@ -215,21 +197,6 @@ const styles = StyleSheet.create({
   scrollWrapper: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
-    gap: SPACING.md,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   headerBadge: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
@@ -238,9 +205,6 @@ const styles = StyleSheet.create({
   headerBadgeText: { fontWeight: '800', fontSize: 11, letterSpacing: 0.6 },
   scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
   dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1 },
-  titleSection: { gap: 3, marginBottom: SPACING.xs },
-  title: { fontWeight: '800', fontSize: 22, letterSpacing: -0.3 },
-  subtitle: { fontSize: 13, lineHeight: 18 },
   actionColumn: { gap: SPACING.sm, alignItems: 'center' },
   beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 52 },
   secondaryLink: { paddingVertical: 6, paddingHorizontal: SPACING.md },

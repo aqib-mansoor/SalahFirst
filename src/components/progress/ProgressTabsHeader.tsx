@@ -75,8 +75,9 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xs,
+    paddingVertical: SPACING.md,
+    minHeight: 56,
+    justifyContent: 'center',
   },
   tabBarSurface: {
     flexDirection: 'row',
