@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#114B36"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.salahfirst.app"
@@ -54,7 +49,15 @@
         }
       ],
       "expo-sharing",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#114B36"
+        }
+      ]
     ],
     "web": {
       "favicon": "./assets/favicon.png"
