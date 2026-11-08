@@ -7,5 +7,6 @@ export * from './PrayerFocusConfigScreen';
 export * from './ActiveFocusTimer';
 export * from './FocusCompletionModal';
 export * from './ActiveFocusActions';
+export * from './ActiveFocusHeader';
 export * from './ActiveFocusScreen';
 
