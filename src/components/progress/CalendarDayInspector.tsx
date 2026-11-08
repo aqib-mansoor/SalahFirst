@@ -84,7 +84,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                 isDone
                   ? {
                       backgroundColor: theme.colors.mintTint,
-                      borderColor: theme.colors.accent,
+                      borderColor: theme.colors.border,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,

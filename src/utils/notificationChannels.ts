@@ -5,6 +5,7 @@ export const PRAYER_CHANNEL_ID = 'salahfirst-prayer-alerts';
 export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
 export const MISSED_CHANNEL_ID = 'salahfirst-missed-reminders';
 export const REFLECTION_CHANNEL_ID = 'salahfirst-reflection';
+export const INSPIRATION_CHANNEL_ID = 'salahfirst-daily-inspiration';
 
 export const setupNotificationChannels = async (): Promise<void> => {
   if (Platform.OS !== 'android') return;
@@ -44,6 +45,16 @@ export const setupNotificationChannels = async (): Promise<void> => {
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 100, 100, 100],
     lightColor: '#114B36',
+    enableLights: true,
+    enableVibrate: true,
+    sound: 'default',
+  });
+
+  await Notifications.setNotificationChannelAsync(INSPIRATION_CHANNEL_ID, {
+    name: 'Daily Islamic Inspiration',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    vibrationPattern: [0, 150, 100, 150],
+    lightColor: '#CCA15F',
     enableLights: true,
     enableVibrate: true,
     sound: 'default',

@@ -103,8 +103,8 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
         style={[
           styles.sunnahStrip,
           {
-            backgroundColor: theme.colors.accentTint,
-            borderColor: 'rgba(243, 196, 64, 0.35)',
+            backgroundColor: theme.colors.surfaceElevated,
+            borderColor: theme.colors.border,
           },
         ]}
       >

@@ -78,17 +78,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 isSelected
                   ? {
                       backgroundColor: theme.colors.primary,
-                      borderColor: theme.colors.accent,
-                      borderWidth: 1.2,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
                       borderColor: isToday
-                        ? theme.colors.accent
-                        : isFull
-                        ? 'rgba(243, 196, 64, 0.35)'
+                        ? theme.colors.primary
                         : 'transparent',
-                      borderWidth: isToday || isFull ? 1 : 0,
+                      borderWidth: isToday ? 1.2 : 0,
                     },
                 isFuture && styles.futureCell,
               ]}
@@ -99,7 +95,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   isSelected
                     ? theme.colors.textInverse
                     : isToday
-                    ? theme.colors.accent
+                    ? theme.colors.primary
                     : isFuture
                     ? theme.colors.textMuted
                     : theme.colors.text

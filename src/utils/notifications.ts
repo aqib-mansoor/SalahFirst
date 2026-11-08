@@ -11,6 +11,7 @@ import {
   REMINDER_CHANNEL_ID,
   MISSED_CHANNEL_ID,
   REFLECTION_CHANNEL_ID,
+  INSPIRATION_CHANNEL_ID,
   setupNotificationChannels,
   checkNotificationPermissions,
   requestNotificationPermission,
@@ -22,6 +23,7 @@ export {
   REMINDER_CHANNEL_ID,
   MISSED_CHANNEL_ID,
   REFLECTION_CHANNEL_ID,
+  INSPIRATION_CHANNEL_ID,
   setupNotificationChannels,
   checkNotificationPermissions,
   requestNotificationPermission,
@@ -100,7 +102,17 @@ export const scheduleAllPrayerAlerts = async (
     const { granted } = await checkNotificationPermissions();
     if (!granted) return 0;
 
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    // Safely cancel only prayer and pre-reminder notifications so inspiration notifications are preserved
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
+    for (const notif of scheduled) {
+      if (
+        notif.identifier.startsWith('salahfirst-prayer-') ||
+        notif.identifier.startsWith('salahfirst-pre-') ||
+        notif.identifier.startsWith('salahfirst-missed-')
+      ) {
+        await Notifications.cancelScheduledNotificationAsync(notif.identifier).catch(() => {});
+      }
+    }
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
     const history = await storage.get<Record<string, Record<string, boolean>>>(
