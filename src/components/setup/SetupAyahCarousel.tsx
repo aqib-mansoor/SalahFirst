@@ -61,13 +61,13 @@ export const SetupAyahCarousel: React.FC = () => {
 
       {/* Header Row */}
       <View style={styles.headerRow}>
-        <View style={[styles.badgePill, { backgroundColor: theme.colors.surface }]}>
-          <AppText variant="caption" color={theme.colors.accent} style={styles.badgeText}>
+        <View style={styles.badgePill}>
+          <AppText variant="caption" style={styles.badgeText}>
             SALAHFIRST SETUP
           </AppText>
         </View>
 
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.stepText}>
+        <AppText variant="caption" style={styles.stepText}>
           Step 1 of 1
         </AppText>
       </View>
@@ -81,34 +81,24 @@ export const SetupAyahCarousel: React.FC = () => {
       >
         <AppText
           variant="ayahArabic"
-          color={theme.colors.bannerGreenText}
-          align="right"
           style={styles.arabicText}
         >
           {currentAyah.arabic}
         </AppText>
 
         <AppText
-          variant="bodySmall"
-          color={theme.colors.accentLight}
-          align="right"
           style={styles.urduText}
         >
           {currentAyah.urdu}
         </AppText>
 
         <AppText
-          variant="bodyMedium"
-          color={theme.colors.textMuted}
           style={styles.englishText}
         >
           "{currentAyah.english}"
         </AppText>
 
         <AppText
-          variant="caption"
-          color={theme.colors.accentLight}
-          align="right"
           style={styles.referenceText}
         >
           — {currentAyah.reference}
@@ -126,9 +116,8 @@ export const SetupAyahCarousel: React.FC = () => {
               style={[
                 styles.dot,
                 {
-                  backgroundColor: isActive ? theme.colors.accent : theme.colors.textSubtle,
-                  width: isActive ? 20 : 6,
-                  opacity: isActive ? 1 : 0.4,
+                  backgroundColor: isActive ? '#FBBF24' : 'rgba(255, 255, 255, 0.35)',
+                  width: isActive ? 22 : 6,
                 },
               ]}
             />
@@ -145,8 +134,10 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     overflow: 'hidden',
     position: 'relative',
-    minHeight: 190,
+    minHeight: 200,
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   watermark: {
     top: -20,
@@ -159,36 +150,56 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   badgePill: {
-    paddingHorizontal: SPACING.sm + 2,
+    paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   badgeText: {
     fontWeight: '800',
-    letterSpacing: 0.8,
+    letterSpacing: 1,
+    fontSize: 10,
+    color: '#FEF08A',
   },
   stepText: {
     fontWeight: '600',
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.75)',
   },
   contentSection: {
-    gap: SPACING.xs + 2,
+    gap: SPACING.xs + 3,
     marginVertical: SPACING.xs,
   },
   arabicText: {
-    marginBottom: SPACING.xs,
+    color: '#FFFFFF',
+    fontSize: 22,
+    lineHeight: 36,
+    fontWeight: '700',
+    textAlign: 'right',
   },
   urduText: {
-    opacity: 0.95,
-    lineHeight: 22,
+    color: '#FEF3C7',
+    fontSize: 13.5,
+    lineHeight: 23,
+    fontWeight: '500',
+    textAlign: 'right',
   },
   englishText: {
-    fontStyle: 'italic',
+    color: '#FFFFFF',
+    fontSize: 13,
     lineHeight: 20,
+    fontStyle: 'italic',
+    opacity: 0.95,
   },
   referenceText: {
-    opacity: 0.8,
+    color: '#FDE68A',
+    fontSize: 11.5,
+    fontWeight: '600',
+    textAlign: 'right',
+    opacity: 0.9,
     marginTop: 2,
-    fontSize: 11,
   },
   dotsRow: {
     flexDirection: 'row',

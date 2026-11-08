@@ -10,7 +10,7 @@ import { RADIUS, SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from './AppText';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'gold';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface AppButtonProps {
@@ -22,6 +22,7 @@ export interface AppButtonProps {
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  textColor?: string;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -36,6 +37,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
   loading = false,
   leftIcon,
   rightIcon,
+  textColor: customTextColor,
   style,
   accessibilityLabel,
   accessibilityHint,
@@ -44,11 +46,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
   const getContainerStyle = (pressed: boolean): ViewStyle => {
     const isPrimary = variant === 'primary';
+    const isGold = variant === 'gold';
     const isSecondary = variant === 'secondary';
     const isOutline = variant === 'outline';
 
     return {
       backgroundColor: isPrimary
+        ? pressed
+          ? theme.colors.primaryPressed
+          : theme.colors.primary
+        : isGold
         ? pressed
           ? theme.colors.buttonGoldPressed
           : theme.colors.buttonGold
@@ -67,8 +74,13 @@ export const AppButton: React.FC<AppButtonProps> = ({
     lg: { paddingVertical: SPACING.lg, paddingHorizontal: SPACING.xl, minHeight: 56 },
   };
 
-  const textColor =
-    variant === 'primary' ? theme.colors.buttonGoldText : theme.colors.text;
+  const resolvedTextColor =
+    customTextColor ||
+    (variant === 'primary'
+      ? theme.colors.textInverse
+      : variant === 'gold'
+      ? theme.colors.buttonGoldText
+      : theme.colors.text);
 
   return (
     <Pressable
@@ -87,13 +99,13 @@ export const AppButton: React.FC<AppButtonProps> = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={textColor} size="small" />
+        <ActivityIndicator color={resolvedTextColor} size="small" />
       ) : (
         <>
           {leftIcon}
           <AppText
             variant={size === 'sm' ? 'bodySmall' : 'titleSmall'}
-            color={textColor}
+            color={resolvedTextColor}
             style={styles.label}
           >
             {label}

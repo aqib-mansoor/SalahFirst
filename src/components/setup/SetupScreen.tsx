@@ -45,7 +45,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
       <Path
         d="M9 18L15 12L9 6"
-        stroke={theme.colors.surface}
+        stroke={theme.colors.textInverse}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -83,9 +83,10 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         <AppButton
           label={t('getStarted')}
           onPress={onComplete || (() => {})}
+          variant="primary"
           size="lg"
           rightIcon={ChevronRight}
-          style={[styles.getStartedButton, { backgroundColor: theme.colors.primary }]}
+          style={styles.getStartedButton}
         />
 
         {/* Manual City Selector Modal */}

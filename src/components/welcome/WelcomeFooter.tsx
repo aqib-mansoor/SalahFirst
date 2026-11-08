@@ -32,6 +32,7 @@ export const WelcomeFooter: React.FC<WelcomeFooterProps> = ({ onContinue }) => {
       <AppButton
         label={t('continueToSetup')}
         onPress={onContinue}
+        variant="gold"
         size="lg"
         rightIcon={ChevronRight}
         style={styles.button}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { Linking, AppState } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
@@ -42,6 +42,25 @@ export const useDeviceLocation = () => {
 
       setPermissionDenied(false);
       setNeedsCitySelection(false);
+
+      // Fast-path: quickly reverse geocode last known position if available
+      try {
+        const lastKnown = await Location.getLastKnownPositionAsync();
+        if (lastKnown && !globalCurrentLocation) {
+          const rev = await reverseGeocodeCoordinates(lastKnown.coords.latitude, lastKnown.coords.longitude);
+          const quickLoc: UserLocation = {
+            city: rev.city,
+            region: rev.region,
+            country: rev.country,
+            latitude: lastKnown.coords.latitude,
+            longitude: lastKnown.coords.longitude,
+            timezone: rev.timezone,
+            isGps: true,
+          };
+          setLocation(quickLoc);
+          notifyAll(quickLoc);
+        }
+      } catch {}
 
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
@@ -119,8 +138,23 @@ export const useDeviceLocation = () => {
       setIsLoading(false);
     }
 
+    // Auto-detect when user grants permission after opening phone Settings
+    const appStateSub = AppState.addEventListener('change', async (nextState) => {
+      if (nextState === 'active') {
+        try {
+          const { status } = await Location.getForegroundPermissionsAsync();
+          if (status === 'granted') {
+            setPermissionDenied(false);
+            setNeedsCitySelection(false);
+            fetchCurrentGps(false);
+          }
+        } catch {}
+      }
+    });
+
     return () => {
       locationListeners.delete(setLocation);
+      appStateSub.remove();
     };
   }, [fetchCurrentGps]);
 
