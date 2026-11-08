@@ -40,10 +40,8 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) 
         </Pressable>
       </View>
 
-      {/* Sacred Parchment Card with Warm Gold Border & Left Accent */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: 'rgba(243, 196, 64, 0.40)' }]}>
-        <View style={[styles.leftGoldAccent, { backgroundColor: theme.colors.accent }]} />
-
+      {/* Clean Sacred Hadith Card */}
+      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
         {/* Background Subtle Arabesque Watermark & Corner Ornaments */}
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
           <Svg width="100%" height="100%" viewBox="0 0 340 220" preserveAspectRatio="none">
@@ -176,39 +174,48 @@ const styles = StyleSheet.create({
   title: { fontWeight: '800', letterSpacing: -0.2 },
   readFull: { fontWeight: '700' },
   card: {
-    borderRadius: RADIUS.xl, borderWidth: 1.2, overflow: 'hidden', position: 'relative',
-    shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    overflow: 'hidden',
+    position: 'relative',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  leftGoldAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3.5 },
-  cardContent: { padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.sm + 2 },
+  cardContent: {
+    padding: SPACING.md,
+    gap: SPACING.xs + 2,
+  },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   badgePill: {
-    paddingHorizontal: SPACING.sm + 2, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 1,
-  },
-  badgeText: { fontWeight: '800', letterSpacing: 0.8, fontSize: 10 },
-  verifiedPill: {
     paddingHorizontal: SPACING.sm + 2, paddingVertical: 2.5, borderRadius: RADIUS.full, borderWidth: 1,
   },
-  verifiedText: { fontSize: 10.5, fontWeight: '700' },
-  arabicBlock: { paddingVertical: SPACING.xs, paddingHorizontal: 4 },
-  arabicText: { fontSize: 21, lineHeight: 36, fontWeight: '700' },
+  badgeText: { fontWeight: '800', letterSpacing: 0.8, fontSize: 9.5 },
+  verifiedPill: {
+    paddingHorizontal: SPACING.sm + 2, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1,
+  },
+  verifiedText: { fontSize: 10, fontWeight: '700' },
+  arabicBlock: { paddingVertical: 2, paddingHorizontal: 2 },
+  arabicText: { fontSize: 18.5, lineHeight: 31, fontWeight: '700' },
   translationPanel: {
-    borderRadius: RADIUS.lg, borderWidth: 1, padding: SPACING.md, gap: SPACING.xs + 2,
+    borderRadius: RADIUS.md, borderWidth: 1, paddingVertical: SPACING.sm + 2, paddingHorizontal: SPACING.md, gap: SPACING.xs,
   },
   panelHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2,
   },
-  panelLabel: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
+  panelLabel: { fontSize: 10.5, fontWeight: '600', letterSpacing: 0.2 },
   langToggleBox: {
-    flexDirection: 'row', borderRadius: RADIUS.full, borderWidth: 1, padding: 2, gap: 2,
+    flexDirection: 'row', borderRadius: RADIUS.full, borderWidth: 1, padding: 1.5, gap: 2,
   },
   langBtn: {
-    paddingHorizontal: SPACING.sm + 2, paddingVertical: 2.5, borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full,
   },
-  langBtnText: { fontSize: 11, fontWeight: '700' },
-  urduText: { fontSize: 14.5, lineHeight: 25, fontWeight: '500' },
-  englishText: { fontSize: 13.5, lineHeight: 22, fontStyle: 'italic' },
-  footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  langBtnText: { fontSize: 10.5, fontWeight: '700' },
+  urduText: { fontSize: 13.5, lineHeight: 22, fontWeight: '500' },
+  englishText: { fontSize: 12.8, lineHeight: 19, fontStyle: 'italic' },
+  footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   sourceWrapper: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  sourceText: { fontSize: 11.5, fontWeight: '600', flex: 1 },
+  sourceText: { fontSize: 11, fontWeight: '600', flex: 1 },
 });
