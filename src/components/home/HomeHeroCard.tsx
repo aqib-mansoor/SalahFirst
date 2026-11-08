@@ -18,8 +18,8 @@ export interface HomeHeroCardProps {
   currentObligatoryName?: string;
   isCurrentCompleted?: boolean;
   allCompleted?: boolean;
-  showFocusButton?: boolean;
-  focusPendingNotice?: string | null;
+  progressRatio?: number;
+  offsetBadge?: string | null;
   onStartPrayerFocus?: () => void;
   periodCategory?: PrayerPeriodCategory;
   periodId?: string;
@@ -34,8 +34,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   currentObligatoryName,
   isCurrentCompleted = false,
   allCompleted = false,
-  showFocusButton = false,
-  focusPendingNotice,
+  progressRatio = 0,
+  offsetBadge,
   onStartPrayerFocus,
   periodCategory = 'obligatory',
   periodId,
@@ -70,6 +70,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const localizedObligatory = currentObligatoryName
     ? (t(currentObligatoryName.toLowerCase() as any) as string) || currentObligatoryName
     : localizedCurrentPrayer;
+
+  const progressPercent = Math.round(Math.max(4, Math.min(100, progressRatio * 100)));
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
@@ -108,9 +110,17 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
-          <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
-            {countdownText}
-          </AppText>
+          
+          <View style={styles.countdownRow}>
+            <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
+              {countdownText}
+            </AppText>
+            <View style={styles.leftBadge}>
+              <AppText variant="caption" color={theme.colors.accentLight} style={styles.leftBadgeText}>
+                left
+              </AppText>
+            </View>
+          </View>
         </View>
 
         <View style={styles.rightAzan}>
@@ -123,7 +133,19 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         </View>
       </View>
 
-      {/* Bottom Row: Dynamic Completion Banner, Focus CTA, or Offset Notice */}
+      {/* Subtle Progress Bar */}
+      <View style={styles.progressContainer}>
+        <View style={[styles.progressTrack, { backgroundColor: 'rgba(255, 255, 255, 0.12)' }]}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${progressPercent}%`, backgroundColor: theme.colors.accent },
+            ]}
+          />
+        </View>
+      </View>
+
+      {/* Bottom Row: Dynamic Celebration Banner or Dedicated Focus Button */}
       {allCompleted ? (
         <HeroCompletionBanner
           message={(t('allPrayersCompleted') as string) || 'All 5 prayers completed! Alhamdulillah'}
@@ -132,27 +154,20 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         <HeroCompletionBanner
           message={`${localizedObligatory} completed! Alhamdulillah`}
         />
-      ) : showFocusButton ? (
+      ) : (
         <HeroFocusButton
           prayerName={localizedObligatory}
           durationMinutes={15}
           onPress={onStartPrayerFocus}
         />
-      ) : focusPendingNotice ? (
-        <View style={styles.offsetNoticePill}>
-          <View style={[styles.miniDot, { backgroundColor: theme.colors.accent }]} />
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.offsetNoticeText}>
-            {focusPendingNotice}
-          </AppText>
-        </View>
-      ) : null}
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 200,
+    minHeight: 220,
     borderRadius: RADIUS.xl,
     padding: SPACING.md + 4,
     overflow: 'hidden',
@@ -165,6 +180,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 14,
     elevation: 4,
+    gap: SPACING.sm,
   },
   topRow: {
     flexDirection: 'row',
@@ -185,10 +201,21 @@ const styles = StyleSheet.create({
   currentText: { fontWeight: '700', fontSize: 11, letterSpacing: 0.3 },
   statusPill: { paddingHorizontal: SPACING.sm + 4, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 0.8 },
   statusText: { fontWeight: '700', fontSize: 11 },
-  centerRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginVertical: SPACING.xs, zIndex: 1 },
+  centerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: 2,
+    zIndex: 1,
+  },
   leftCountdown: { gap: 2 },
   nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
   nextPrayerBold: { fontWeight: '700', fontSize: 13 },
+  countdownRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
   countdownNumber: {
     fontSize: 32,
     fontWeight: '700',
@@ -196,38 +223,34 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontVariant: ['tabular-nums'],
   },
-  rightAzan: {
-    alignItems: 'flex-end',
-    gap: 1,
-  },
-  azanLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  azanTime: {
-    fontSize: 22,
-    fontWeight: '800',
-  },
-  offsetNoticePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(0, 0, 0, 0.18)',
-    borderRadius: RADIUS.full,
-    paddingVertical: 3,
-    paddingHorizontal: SPACING.sm + 2,
-    gap: 6,
+  leftBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.22)',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
     borderWidth: 0.8,
-    borderColor: 'rgba(247, 207, 87, 0.20)',
+    borderColor: 'rgba(247, 207, 87, 0.30)',
   },
-  miniDot: {
-    width: 4.5,
-    height: 4.5,
-    borderRadius: 2.5,
+  leftBadgeText: {
+    fontWeight: '700',
+    fontSize: 10.5,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
-  offsetNoticeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+  rightAzan: { alignItems: 'flex-end', gap: 1 },
+  azanLabel: { fontSize: 11, fontWeight: '600' },
+  azanTime: { fontSize: 22, fontWeight: '800' },
+  progressContainer: {
+    paddingVertical: 2,
+    zIndex: 1,
+  },
+  progressTrack: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
   },
 });

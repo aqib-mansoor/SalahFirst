@@ -65,7 +65,8 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
 
   const todayKey = getTodayDateKey(userLocation?.timezone);
   const completedMap = historyMap[todayKey] || EMPTY_COMPLETED;
-  const [countdownText, setCountdownText] = useState<string>('--:--:--');
+  const [countdownText, setCountdownText] = useState<string>('00:00:00');
+  const [periodProgressRatio, setPeriodProgressRatio] = useState<number>(0);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   useEffect(() => {
@@ -115,7 +116,16 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
       const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-      setCountdownText(`- ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+      setCountdownText(`${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+
+      if (prayerData.currentPeriod) {
+        const start = prayerData.currentPeriod.startTime.getTime();
+        const end = prayerData.currentPeriod.endTime.getTime();
+        const span = end - start;
+        if (span > 0) {
+          setPeriodProgressRatio(Math.min(1, Math.max(0, (now - start) / span)));
+        }
+      }
     };
 
     updateCountdown();
@@ -210,6 +220,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     historyMap,
     completedCount,
     countdownText,
+    periodProgressRatio,
     streakCount,
     calcMethod,
     juristic,
