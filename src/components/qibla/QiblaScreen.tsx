@@ -13,7 +13,6 @@ import { QiblaHeader } from './QiblaHeader';
 import { QiblaDial3D } from './QiblaDial3D';
 import { QiblaTelemetryCard } from './QiblaTelemetryCard';
 import { MakkahSanctuaryCard } from './MakkahSanctuaryCard';
-import { QiblaVerificationCard } from './QiblaVerificationCard';
 import { QiblaCalibrationTip } from './QiblaCalibrationTip';
 
 export interface QiblaScreenProps {
@@ -95,9 +94,6 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
             distanceKm={distanceKm}
             qiblaBearing={qiblaBearing}
           />
-
-          {/* Qibla Verification & Sun Alignment Card */}
-          <QiblaVerificationCard />
 
           {/* Calibration Alert (Renders ONLY if interference is actively detected) */}
           <QiblaCalibrationTip
