@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { StyleSheet, View, Pressable, LayoutAnimation } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -7,14 +7,6 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { IslamicNavIcon } from './IslamicNavIcons';
 
-// Enable layout animation on Android (legacy architecture only)
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental &&
-  !(global as any).nativeFabricUIManager
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
 
