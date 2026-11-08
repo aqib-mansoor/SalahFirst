@@ -9,6 +9,8 @@ import { HeroFocusButton } from './HeroFocusButton';
 import { HeroCompletionBanner } from './HeroCompletionBanner';
 import { HeroGeometricWatermark } from './HeroGeometricWatermark';
 
+const OBLIGATORY_PRAYERS = new Set(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+
 export interface HomeHeroCardProps {
   currentPrayerName: string;
   currentTimeFormatted: string;
@@ -35,7 +37,6 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   isCurrentCompleted = false,
   allCompleted = false,
   progressRatio = 0,
-  offsetBadge,
   onStartPrayerFocus,
   periodCategory = 'obligatory',
   periodId,
@@ -67,9 +68,17 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     obligatory: defaultObligatory,
   }[periodCategory] || defaultObligatory;
 
-  const localizedObligatory = currentObligatoryName
-    ? (t(currentObligatoryName.toLowerCase() as any) as string) || currentObligatoryName
-    : localizedCurrentPrayer;
+  // Strict 5-prayer focus: never name Nafl/Tahajjud on the focus button
+  const targetObligatory =
+    currentObligatoryName && OBLIGATORY_PRAYERS.has(currentObligatoryName)
+      ? currentObligatoryName
+      : nextPrayerName && OBLIGATORY_PRAYERS.has(nextPrayerName)
+      ? nextPrayerName
+      : undefined;
+
+  const localizedFocusPrayer = targetObligatory
+    ? (t(targetObligatory.toLowerCase() as any) as string) || targetObligatory
+    : undefined;
 
   const progressPercent = Math.round(Math.max(4, Math.min(100, progressRatio * 100)));
 
@@ -110,17 +119,9 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
-          
-          <View style={styles.countdownRow}>
-            <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
-              {countdownText}
-            </AppText>
-            <View style={styles.leftBadge}>
-              <AppText variant="caption" color={theme.colors.accentLight} style={styles.leftBadgeText}>
-                left
-              </AppText>
-            </View>
-          </View>
+          <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
+            {countdownText}
+          </AppText>
         </View>
 
         <View style={styles.rightAzan}>
@@ -152,11 +153,11 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         />
       ) : isCurrentCompleted && currentObligatoryName ? (
         <HeroCompletionBanner
-          message={`${localizedObligatory} completed! Alhamdulillah`}
+          message={`${localizedFocusPrayer || currentObligatoryName} completed! Alhamdulillah`}
         />
       ) : (
         <HeroFocusButton
-          prayerName={localizedObligatory}
+          prayerName={localizedFocusPrayer}
           durationMinutes={15}
           onPress={onStartPrayerFocus}
         />
@@ -211,31 +212,12 @@ const styles = StyleSheet.create({
   leftCountdown: { gap: 2 },
   nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
   nextPrayerBold: { fontWeight: '700', fontSize: 13 },
-  countdownRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-  },
   countdownNumber: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '700',
-    lineHeight: 40,
-    letterSpacing: 0.6,
+    lineHeight: 42,
+    letterSpacing: 0.8,
     fontVariant: ['tabular-nums'],
-  },
-  leftBadge: {
-    backgroundColor: 'rgba(0, 0, 0, 0.22)',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
-    borderWidth: 0.8,
-    borderColor: 'rgba(247, 207, 87, 0.30)',
-  },
-  leftBadgeText: {
-    fontWeight: '700',
-    fontSize: 10.5,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
   },
   rightAzan: { alignItems: 'flex-end', gap: 1 },
   azanLabel: { fontSize: 11, fontWeight: '600' },

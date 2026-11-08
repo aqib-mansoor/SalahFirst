@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: SPACING.sm + 4,
-    borderRadius: RADIUS.full,
+    borderRadius: RADIUS.lg,
     gap: SPACING.sm,
     shadowColor: '#202923',
     shadowOffset: { width: 0, height: 2 },
