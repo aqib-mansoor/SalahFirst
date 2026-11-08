@@ -1,6 +1,8 @@
+import tzLookup from 'tz-lookup';
+
 /**
  * Production-ready Offline Timezone Resolver & Formatting Utilities
- * Resolves IANA timezones by coordinates and country, and formats prayer times in local timezone.
+ * Resolves accurate IANA timezones using a local boundary quadtree lookup with in-memory caching.
  */
 
 export interface LocalDateComponents {
@@ -10,7 +12,10 @@ export interface LocalDateComponents {
   dateKey: string; // YYYY-MM-DD
 }
 
-// Country to primary IANA Timezone mapping
+// In-memory cache to guarantee zero overhead on repeated lookups
+const timezoneCache = new Map<string, string>();
+
+// Country to primary IANA Timezone fallback (used only if coordinate lookup fails)
 const COUNTRY_TIMEZONE_MAP: Record<string, string> = {
   pakistan: 'Asia/Karachi',
   'saudi arabia': 'Asia/Riyadh',
@@ -25,8 +30,6 @@ const COUNTRY_TIMEZONE_MAP: Record<string, string> = {
   egypt: 'Africa/Cairo',
   'united kingdom': 'Europe/London',
   uk: 'Europe/London',
-  england: 'Europe/London',
-  scotland: 'Europe/London',
   france: 'Europe/Paris',
   germany: 'Europe/Berlin',
   sweden: 'Europe/Stockholm',
@@ -59,49 +62,45 @@ export const resolveTimezone = (
   longitude: number,
   country?: string
 ): string => {
+  if (isNaN(latitude) || isNaN(longitude)) {
+    throw new Error(`Invalid geographical coordinates: (${latitude}, ${longitude})`);
+  }
+
+  const cacheKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  if (timezoneCache.has(cacheKey)) {
+    return timezoneCache.get(cacheKey)!;
+  }
+
+  // 1. Primary Offline Boundary Lookup via tz-lookup (covers irregular borders, non-DST states, half-hour zones)
+  try {
+    const tz = tzLookup(latitude, longitude);
+    if (tz && typeof tz === 'string') {
+      timezoneCache.set(cacheKey, tz);
+      return tz;
+    }
+  } catch {}
+
+  // 2. Secondary Fallback: Country Mapping
   const c = (country || '').toLowerCase().trim();
-
-  // 1. Multi-timezone countries resolved by longitude ranges
-  if (c.includes('united states') || c === 'usa' || c === 'us') {
-    if (latitude > 50 && longitude < -130) return 'America/Anchorage';
-    if (latitude < 25 && longitude < -150) return 'Pacific/Honolulu';
-    if (longitude < -114) return 'America/Los_Angeles';
-    if (longitude < -102) return 'America/Denver';
-    if (longitude < -85.5) return 'America/Chicago';
-    return 'America/New_York';
-  }
-
-  if (c.includes('canada') || c === 'ca') {
-    if (longitude < -114) return 'America/Vancouver';
-    if (longitude < -102) return 'America/Edmonton';
-    if (longitude < -85) return 'America/Winnipeg';
-    if (longitude < -68) return 'America/Toronto';
-    return 'America/Halifax';
-  }
-
-  if (c.includes('australia') || c === 'au') {
-    if (longitude < 129) return 'Australia/Perth';
-    if (longitude < 141) return 'Australia/Adelaide';
-    return 'Australia/Sydney';
-  }
-
-  if (c.includes('indonesia') || c === 'id') {
-    if (longitude < 110) return 'Asia/Jakarta';
-    if (longitude < 125) return 'Asia/Makassar';
-    return 'Asia/Jayapura';
-  }
-
-  // 2. Direct Country Lookup
   for (const [key, tz] of Object.entries(COUNTRY_TIMEZONE_MAP)) {
-    if (c.includes(key)) return tz;
+    if (c.includes(key)) {
+      timezoneCache.set(cacheKey, tz);
+      return tz;
+    }
   }
 
-  // 3. Fallback: Longitude-based GMT offset band
-  const offsetHours = Math.round(longitude / 15);
-  const sign = offsetHours >= 0 ? '+' : '-';
-  const abs = Math.abs(offsetHours);
-  const pad = abs < 10 ? `0${abs}` : `${abs}`;
-  return `Etc/GMT${sign === '+' ? '-' : '+'}${pad}`; // POSIX invert
+  // 3. Coordinate validation check before falling back to POSIX GMT band
+  if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
+    const offsetHours = Math.round(longitude / 15);
+    const sign = offsetHours >= 0 ? '+' : '-';
+    const abs = Math.abs(offsetHours);
+    const pad = abs < 10 ? `0${abs}` : `${abs}`;
+    const gmtTz = `Etc/GMT${sign === '+' ? '-' : '+'}${pad}`;
+    timezoneCache.set(cacheKey, gmtTz);
+    return gmtTz;
+  }
+
+  throw new Error(`Unable to determine IANA timezone for coordinates (${latitude}, ${longitude})`);
 };
 
 export const getLocalDateComponents = (
@@ -168,4 +167,3 @@ export const createCalendarDateForCalculation = (
   const { year, month, day } = getLocalDateComponents(instant, timezone);
   return new Date(year, month, day, 12, 0, 0);
 };
-
