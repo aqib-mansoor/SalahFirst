@@ -148,38 +148,19 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             {
               backgroundColor: theme.colors.surface,
               borderTopColor: theme.colors.border,
-              paddingBottom: Math.max(insets.bottom, 16),
+              paddingBottom: Math.max(insets.bottom, 16) + 8,
             },
           ]}
         >
-          <View style={styles.actionColumn}>
-            <AppButton
-              label={
-                isSaved
-                  ? '✓ Settings Saved'
-                  : selectedPrayer === 'All'
-                  ? 'Save All Focus Settings'
-                  : `Save ${selectedPrayer} Settings`
-              }
-              onPress={handleSaveAndReturn}
-              size="lg"
-              style={[
-                styles.beginButton,
-                { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary },
-              ]}
-            />
-            <Pressable
-              onPress={() => onBeginFocus(duration, effectivePrayer)}
-              hitSlop={8}
-              style={styles.secondaryLink}
-              accessibilityRole="button"
-              accessibilityLabel={`Begin ${effectivePrayer} Focus now`}
-            >
-              <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
-                Begin Focus Now ({effectivePrayer} • {duration}m) ›
-              </AppText>
-            </Pressable>
-          </View>
+          <AppButton
+            label={isSaved ? '✓ Settings Saved' : 'Save Settings'}
+            onPress={handleSaveAndReturn}
+            size="lg"
+            style={[
+              styles.beginButton,
+              { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary },
+            ]}
+          />
         </View>
       </View>
     </AppContainer>
@@ -195,8 +176,5 @@ const styles = StyleSheet.create({
   },
   scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
   dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1 },
-  actionColumn: { gap: SPACING.sm, alignItems: 'center' },
   beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 52 },
-  secondaryLink: { paddingVertical: 6, paddingHorizontal: SPACING.md },
-  secondaryText: { fontWeight: '700', fontSize: 13 },
 });
