@@ -4,6 +4,5 @@ export * from './QiblaGuidancePill';
 export * from './QiblaDial3D';
 export * from './QiblaTelemetryCard';
 export * from './MakkahSanctuaryCard';
-export * from './QiblaVerificationCard';
 export * from './QiblaCalibrationTip';
 export * from './QiblaScreen';
