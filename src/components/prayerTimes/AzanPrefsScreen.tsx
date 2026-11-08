@@ -46,7 +46,15 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     toggleQuietHours,
   } = usePrayerAlerts();
 
-  const { isPlaying, isLoading, error: audioError, toggle: toggleAudio } = useAzanAudio();
+  const insets = useSafeAreaInsets();
+  const {
+    isPlaying,
+    isLoading,
+    error: audioError,
+    currentReciter,
+    selectReciter,
+    toggle: toggleAudio,
+  } = useAzanAudio();
   const [hasPermission, setHasPermission] = useState(true);
 
   const verifyPermissions = async () => {
@@ -80,7 +88,10 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     >
       <AzanPrefsHeader onBack={onBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + SPACING.xxl }]}
+      >
         {!hasPermission && (
           <View style={[styles.warningBanner, { backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }]}>
             <View style={styles.warningContent}>
@@ -146,7 +157,9 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         <AzanAudioPreviewCard
           isLoading={isLoading}
           isPlaying={isPlaying}
+          currentReciter={currentReciter}
           error={audioError}
+          onSelectReciter={selectReciter}
           onToggle={toggleAudio}
         />
 
