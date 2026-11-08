@@ -93,13 +93,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           subtitle={t('focusSub') as string}
           onBack={onBack}
           backAccessibilityLabel="Back to Home"
-          rightAction={
-            <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
-              <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
-                {t('prayerFocusMode')}
-              </AppText>
-            </View>
-          }
         />
 
         <ScrollView
@@ -197,12 +190,6 @@ const styles = StyleSheet.create({
   scrollWrapper: {
     flex: 1,
   },
-  headerBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-  },
-  headerBadgeText: { fontWeight: '800', fontSize: 11, letterSpacing: 0.6 },
   scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
   dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1 },
   actionColumn: { gap: SPACING.sm, alignItems: 'center' },
