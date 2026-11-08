@@ -7,16 +7,18 @@ export interface IslamicNavIconProps {
   tabId: HomeTab;
   isActive: boolean;
   size?: number;
+  customColor?: string;
 }
 
 export const IslamicNavIcon: React.FC<IslamicNavIconProps> = ({
   tabId,
   isActive,
   size = 22,
+  customColor,
 }) => {
   const theme = useTheme();
-  const strokeColor = isActive ? theme.colors.accent : theme.colors.textSecondary;
-  const fillColor = isActive ? theme.colors.accentTint : 'none';
+  const strokeColor = customColor ?? (isActive ? theme.colors.accent : theme.colors.textSecondary);
+  const fillColor = customColor ? 'none' : (isActive ? theme.colors.accentTint : 'none');
 
   switch (tabId) {
     case 'home':

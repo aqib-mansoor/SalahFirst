@@ -33,97 +33,141 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   return (
     <View
       style={[
-        styles.navBar,
+        styles.floatingWrapper,
         {
-          backgroundColor: theme.isDark ? 'rgba(18, 26, 20, 0.95)' : 'rgba(255, 255, 255, 0.97)',
-          borderTopColor: theme.colors.border,
-          paddingBottom: Math.max(insets.bottom, SPACING.xs),
+          paddingBottom: Math.max(insets.bottom, 12),
         },
       ]}
-      accessibilityRole="tablist"
+      pointerEvents="box-none"
     >
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.id;
+      {/* Elevated Floating Pill Dock */}
+      <View
+        style={[
+          styles.islandDock,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
+        ]}
+        accessibilityRole="tablist"
+        pointerEvents="auto"
+      >
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
 
-        return (
-          <Pressable
-            key={tab.id}
-            onPress={() => onTabChange(tab.id)}
-            style={({ pressed }) => [
-              styles.tabButton,
-              isActive && [
-                styles.activeTabButton,
-                {
-                  backgroundColor: theme.colors.accentTint,
-                  borderColor: theme.colors.accent,
-                },
-              ],
-              pressed && { opacity: 0.75 },
-            ]}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: isActive }}
-            accessibilityLabel={tab.label}
-            hitSlop={6}
-          >
-            <IslamicNavIcon tabId={tab.id} isActive={isActive} size={21} />
+          if (isActive) {
+            return (
+              <Pressable
+                key={tab.id}
+                onPress={() => onTabChange(tab.id)}
+                style={({ pressed }) => [
+                  styles.activePill,
+                  {
+                    backgroundColor: theme.colors.primary,
+                    shadowColor: theme.colors.primary,
+                  },
+                  pressed && { opacity: 0.85 },
+                ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: true }}
+                accessibilityLabel={tab.label}
+                hitSlop={6}
+              >
+                <IslamicNavIcon
+                  tabId={tab.id}
+                  isActive={true}
+                  size={19}
+                  customColor={theme.colors.textOnPrimary}
+                />
+                <AppText
+                  variant="caption"
+                  color={theme.colors.textOnPrimary}
+                  style={styles.activeLabel}
+                  numberOfLines={1}
+                >
+                  {tab.label}
+                </AppText>
+              </Pressable>
+            );
+          }
 
-            <AppText
-              variant="caption"
-              color={isActive ? theme.colors.textPrimary : theme.colors.textSecondary}
-              style={[
-                styles.tabLabel,
-                {
-                  fontWeight: isActive ? '800' : '600',
-                  color: isActive ? theme.colors.textPrimary : theme.colors.textSecondary,
-                },
+          return (
+            <Pressable
+              key={tab.id}
+              onPress={() => onTabChange(tab.id)}
+              style={({ pressed }) => [
+                styles.inactiveTab,
+                pressed && { opacity: 0.6 },
               ]}
-              numberOfLines={1}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: false }}
+              accessibilityLabel={tab.label}
+              hitSlop={8}
             >
-              {tab.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
+              <IslamicNavIcon
+                tabId={tab.id}
+                isActive={false}
+                size={22}
+                customColor={theme.colors.textSecondary}
+              />
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  floatingWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    borderTopWidth: 1,
-    paddingTop: SPACING.xs + 2,
-    paddingHorizontal: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    backgroundColor: 'transparent',
+  },
+  islandDock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    width: '100%',
+    maxWidth: 420,
+  },
+  activePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: RADIUS.full,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 3,
   },
-  tabButton: {
-    flex: 1,
+  activeLabel: {
+    fontWeight: '800',
+    fontSize: 12.5,
+    letterSpacing: 0.2,
+  },
+  inactiveTab: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    paddingVertical: 5,
-    paddingHorizontal: 4,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    minHeight: 46,
-  },
-  activeTabButton: {
-    borderWidth: 1,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  tabLabel: {
-    fontSize: 10.5,
-    letterSpacing: 0.1,
+    paddingVertical: 10,
+    paddingHorizontal: 11,
+    borderRadius: RADIUS.full,
+    minHeight: 44,
   },
 });
