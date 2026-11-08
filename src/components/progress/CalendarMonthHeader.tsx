@@ -23,7 +23,7 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.titleCol}>
-        <AppText variant="titleLarge" color={theme.colors.text} style={styles.monthTitle}>
+        <AppText variant="titleMedium" color={theme.colors.text} style={styles.monthTitle}>
           {monthName}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.hijriTitle}>
@@ -44,8 +44,14 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
             pressed && { opacity: 0.7 },
           ]}
         >
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 18L9 12L15 6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M15 18L9 12L15 6"
+              stroke={theme.colors.text}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </Svg>
         </Pressable>
 
@@ -60,8 +66,14 @@ export const CalendarMonthHeader: React.FC<CalendarMonthHeaderProps> = ({
             pressed && { opacity: 0.7 },
           ]}
         >
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 18L15 12L9 6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M9 18L15 12L9 6"
+              stroke={theme.colors.text}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </Svg>
         </Pressable>
       </View>
@@ -78,22 +90,25 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.xs,
   },
   titleCol: {
-    gap: 2,
+    gap: 1,
   },
   monthTitle: {
     fontWeight: '800',
+    fontSize: 16,
+    lineHeight: 22,
   },
   hijriTitle: {
     fontWeight: '600',
+    fontSize: 11,
   },
   navRow: {
     flexDirection: 'row',
-    gap: SPACING.xs + 2,
+    gap: 6,
   },
   navBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.lg,
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

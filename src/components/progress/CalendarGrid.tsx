@@ -79,7 +79,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   ? {
                       backgroundColor: theme.colors.primary,
                       borderColor: theme.colors.accent,
-                      borderWidth: 1.5,
+                      borderWidth: 1.2,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
@@ -88,7 +88,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                         : isFull
                         ? 'rgba(243, 196, 64, 0.35)'
                         : 'transparent',
-                      borderWidth: isToday || isFull ? 1.2 : 0,
+                      borderWidth: isToday || isFull ? 1 : 0,
                     },
                 isFuture && styles.futureCell,
               ]}
@@ -162,10 +162,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    padding: SPACING.md,
-    borderRadius: RADIUS.xxl,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
-    gap: SPACING.sm,
+    gap: SPACING.xs,
   },
   weekdaysRow: {
     flexDirection: 'row',
@@ -174,8 +175,8 @@ const styles = StyleSheet.create({
   },
   weekdayText: {
     fontWeight: '700',
-    fontSize: 11,
-    width: 38,
+    fontSize: 10,
+    width: 34,
     textAlign: 'center',
   },
   gridContainer: {
@@ -184,41 +185,41 @@ const styles = StyleSheet.create({
   },
   emptyCell: {
     width: '14.28%',
-    height: 48,
+    height: 40,
   },
   dayCell: {
     width: '14.28%',
-    height: 48,
-    borderRadius: RADIUS.md,
+    height: 40,
+    borderRadius: RADIUS.sm + 2,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
-    gap: 3,
+    paddingVertical: 2,
+    gap: 2,
   },
   futureCell: {
     opacity: 0.45,
   },
   dayNumber: {
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: 11,
   },
   todayNumber: {
     fontWeight: '800',
   },
   dotsRow: {
     flexDirection: 'row',
-    gap: 2,
+    gap: 1.5,
     alignItems: 'center',
-    height: 6,
+    height: 4,
   },
   dot: {
-    width: 3.5,
-    height: 3.5,
-    borderRadius: 2,
+    width: 2.8,
+    height: 2.8,
+    borderRadius: 1.4,
   },
   unrecordedDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
+    width: 2.2,
+    height: 2.2,
+    borderRadius: 1.1,
   },
 });

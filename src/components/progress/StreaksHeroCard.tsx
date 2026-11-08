@@ -14,7 +14,6 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
   const theme = useTheme();
   const { t } = useTranslation();
 
-  // Dynamic spiritual motivation based on consistency
   const spiritualQuote =
     streakDays === 0
       ? t('beginYourStreak') || 'Begin your sacred prayer streak today.'
@@ -30,28 +29,28 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(243, 196, 64, 0.45)',
+          borderColor: 'rgba(243, 196, 64, 0.4)',
         },
       ]}
     >
-      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.16} />
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.14} />
 
       <View style={styles.contentCol}>
         <AppText variant="caption" color={theme.colors.accentLight} style={styles.label}>
           {t('currentStreak')}
         </AppText>
-        <AppText variant="titleLarge" color={theme.colors.textOnPrimary} style={styles.streakNumber}>
+        <AppText variant="titleMedium" color={theme.colors.textOnPrimary} style={styles.streakNumber}>
           {streakDays}{' '}
-          <AppText variant="titleMedium" color={theme.colors.textOnPrimary} style={styles.unitText}>
+          <AppText variant="bodySmall" color={theme.colors.textOnPrimary} style={styles.unitText}>
             {t('daysFiveOfFive')}
           </AppText>
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.subtext}>
+        <AppText variant="caption" color={theme.colors.accentLight} style={styles.subtext}>
           {spiritualQuote}
         </AppText>
       </View>
 
-      {/* Luminous Flame Badge with Gold Border Ring */}
+      {/* Slim Flame Badge with Gold Border Ring */}
       <View
         style={[
           styles.flameBadge,
@@ -61,7 +60,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
           },
         ]}
       >
-        <Svg width={30} height={30} viewBox="0 0 24 24" fill="none">
+        <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
           <Path
             d="M8.5 14.5C8.5 16.43 10.07 18 12 18C13.93 18 15.5 16.43 15.5 14.5C15.5 12.5 13.5 10.5 12 8C10.5 10.5 8.5 12.5 8.5 14.5Z"
             fill={theme.colors.accent}
@@ -69,7 +68,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
           <Path
             d="M12 2C8 6 6 9.5 6 13.5C6 16.81 8.69 19.5 12 19.5C15.31 19.5 18 16.81 18 13.5C18 9.5 16 6 12 2Z"
             stroke={theme.colors.accent}
-            strokeWidth="1.6"
+            strokeWidth="1.5"
             strokeLinejoin="round"
           />
         </Svg>
@@ -81,8 +80,9 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.xxl,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md + 2,
+    borderRadius: RADIUS.xl,
     borderWidth: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
@@ -90,47 +90,45 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   contentCol: {
     flex: 1,
-    gap: 4,
+    gap: 2,
     zIndex: 2,
     marginRight: SPACING.sm,
   },
   label: {
     fontWeight: '800',
-    letterSpacing: 0.8,
+    fontSize: 10.5,
+    letterSpacing: 0.6,
   },
   streakNumber: {
     fontWeight: '800',
-    fontSize: 24,
+    fontSize: 20,
+    lineHeight: 25,
   },
   unitText: {
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
   },
   subtext: {
-    lineHeight: 18,
+    lineHeight: 15,
+    fontSize: 10.5,
     marginTop: 2,
     fontStyle: 'italic',
     opacity: 0.95,
   },
   flameBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1.5,
+    width: 46,
+    height: 46,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.2,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
   },
 });

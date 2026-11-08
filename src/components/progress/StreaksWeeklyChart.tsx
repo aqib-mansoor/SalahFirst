@@ -23,7 +23,7 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
   );
 
   const bars = chartData && chartData.length > 0 ? chartData : fallbackBars;
-  const maxBarHeight = 90;
+  const maxBarHeight = 65;
 
   return (
     <View
@@ -54,8 +54,8 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
           const isFull = bar.completed === bar.total && bar.completed > 0;
           const barHeight =
             bar.completed > 0
-              ? Math.max(14, (bar.completed / bar.total) * maxBarHeight)
-              : 6;
+              ? Math.max(10, (bar.completed / bar.total) * maxBarHeight)
+              : 4;
 
           return (
             <View key={idx} style={styles.barColumn}>
@@ -117,10 +117,11 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    padding: SPACING.md + 2,
-    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
-    gap: SPACING.md,
+    gap: SPACING.sm,
   },
   headerRow: {
     flexDirection: 'row',
@@ -128,7 +129,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontWeight: '800',
+    fontWeight: '700',
+    fontSize: 13,
   },
   legendRow: {
     flexDirection: 'row',
@@ -136,9 +138,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   legendDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
   },
   timeframe: {
     fontWeight: '700',
@@ -148,48 +150,48 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 125,
+    height: 98,
     paddingHorizontal: SPACING.xs,
   },
   barColumn: {
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
     flex: 1,
   },
   topScoreZone: {
-    height: 18,
+    height: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goldStarPill: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 13,
+    height: 13,
+    borderRadius: 6.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goldStarText: {
-    fontSize: 10,
-    lineHeight: 12,
+    fontSize: 8.5,
+    lineHeight: 10,
     fontWeight: '800',
   },
   scoreText: {
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: '600',
   },
   barTrack: {
-    height: 90,
+    height: 65,
     justifyContent: 'flex-end',
     alignItems: 'center',
     width: '100%',
   },
   barFill: {
-    width: 24,
-    borderRadius: RADIUS.md,
+    width: 20,
+    borderRadius: RADIUS.sm,
   },
   dayLabel: {
     fontWeight: '600',
-    fontSize: 11,
+    fontSize: 10,
   },
   dayLabelActive: {
     fontWeight: '800',

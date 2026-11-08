@@ -50,7 +50,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             {isFuture
               ? 'Future date'
               : hasRecord
-              ? `${completedCount} ${t('of')} 5 ${t('completedSuffix')}`
+              ? `${completedCount} of 5 completed`
               : t('noRecordYet')}
           </AppText>
         </View>
@@ -104,7 +104,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
 
               {isDone ? (
                 <View style={styles.iconCircleDone}>
-                  <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                  <Svg width={10} height={10} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M20 6L9 17L4 12"
                       stroke={theme.colors.primary}
@@ -130,10 +130,11 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    padding: SPACING.md,
-    borderRadius: RADIUS.xxl,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
-    gap: SPACING.md,
+    gap: SPACING.sm,
   },
   headerRow: {
     flexDirection: 'row',
@@ -141,49 +142,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleCol: {
-    gap: 2,
+    gap: 1,
     flex: 1,
   },
   title: {
-    fontWeight: '800',
+    fontWeight: '700',
+    fontSize: 13,
   },
   statusSubtitle: {
     fontWeight: '600',
+    fontSize: 10.5,
   },
   tipText: {
     fontWeight: '700',
-    fontSize: 11,
+    fontSize: 10.5,
   },
   chipsRow: {
     flexDirection: 'row',
-    gap: SPACING.xs + 2,
+    gap: 4,
     justifyContent: 'space-between',
   },
   prayerChip: {
     flex: 1,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: 6,
     paddingHorizontal: 2,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.2,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   chipDisabled: {
     opacity: 0.45,
   },
   chipName: {
     fontWeight: '700',
-    fontSize: 11,
+    fontSize: 10,
   },
   iconCircleDone: {
-    width: 18,
-    height: 18,
+    width: 14,
+    height: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dashText: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '700',
-    lineHeight: 18,
+    lineHeight: 14,
   },
 });
