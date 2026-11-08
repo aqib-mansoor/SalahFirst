@@ -36,18 +36,12 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
-      {/* Dual Islamic Geometry Canvas Watermarks */}
+      {/* Elegant Canvas Watermark positioned cleanly in top-right away from text */}
       <IslamicWatermark
-        size={250}
-        opacity={0.24}
+        size={260}
+        opacity={0.14}
         color={PALETTE.emeraldWatermark}
         style={styles.watermarkTopRight}
-      />
-      <IslamicWatermark
-        size={220}
-        opacity={0.16}
-        color={PALETTE.goldLight}
-        style={styles.watermarkBottomLeft}
       />
 
       {/* Top Row: Current Prayer Pill + Completed Status */}
@@ -136,12 +130,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   watermarkTopRight: {
-    top: -30,
-    right: -45,
-  },
-  watermarkBottomLeft: {
-    bottom: -45,
-    left: -40,
+    top: -40,
+    right: -40,
   },
   topRow: {
     flexDirection: 'row',
@@ -196,22 +186,25 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.sm,
   },
   leftCountdown: {
-    gap: 4,
+    gap: 3,
   },
   nextPrayerLabel: {
     fontSize: 13,
+    lineHeight: 18,
     color: PALETTE.goldLight,
   },
   nextPrayerBold: {
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 13.5,
   },
   countdownNumber: {
-    fontSize: 36,
-    fontWeight: '800',
+    fontSize: 34,
+    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: -0.5,
+    lineHeight: 44,
+    letterSpacing: 0.8,
+    fontVariant: ['tabular-nums'],
   },
   rightAzan: {
     alignItems: 'flex-end',
