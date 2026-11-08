@@ -21,25 +21,33 @@ export const HadithToast: React.FC<HadithToastProps> = ({ message, onDismiss }) 
         style={[
           styles.toastCard,
           {
-            backgroundColor: theme.colors.primary,
-            borderColor: theme.colors.accent,
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
           },
         ]}
       >
         <View style={styles.contentRow}>
-          {/* Checkmark icon */}
-          <View style={styles.checkIconWrapper}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+          {/* Subtle Mint Icon Box */}
+          <View
+            style={[
+              styles.checkIconWrapper,
+              { backgroundColor: theme.colors.secondaryTint },
+            ]}
+          >
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
               <Path
-                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.2L5.5 11.7L6.91 10.29L10 13.37L17.09 6.28L18.5 7.7L10 16.2Z"
-                fill={theme.colors.accent}
+                d="M20 6L9 17L4 12"
+                stroke={theme.colors.primary}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </Svg>
           </View>
 
           <AppText
             variant="bodySmall"
-            color={theme.colors.textInverse}
+            color={theme.colors.text}
             style={styles.toastText}
           >
             {message}
@@ -47,12 +55,18 @@ export const HadithToast: React.FC<HadithToastProps> = ({ message, onDismiss }) 
         </View>
 
         {/* Close Button */}
-        <Pressable onPress={onDismiss} hitSlop={10} style={styles.closeBtn}>
+        <Pressable
+          onPress={onDismiss}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Dismiss notification"
+          style={styles.closeBtn}
+        >
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
             <Path
               d="M18 6L6 18M6 6L18 18"
-              stroke={theme.colors.textInverse}
-              strokeWidth="2.5"
+              stroke={theme.colors.textMuted}
+              strokeWidth="2"
               strokeLinecap="round"
             />
           </Svg>
@@ -77,7 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -88,17 +102,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   checkIconWrapper: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
+    borderRadius: RADIUS.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toastText: {
-    fontWeight: '700',
+    fontWeight: '600',
     flex: 1,
+    fontSize: 12,
   },
   closeBtn: {
     padding: 4,
-    marginLeft: SPACING.sm,
   },
 });
