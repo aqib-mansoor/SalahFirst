@@ -10,6 +10,7 @@ import {
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
 import { HadithItem } from '@/data/hadiths';
 import { WallpaperSlide } from './WallpaperSlide';
+import { WallpaperPhoneOverlay, WallpaperPreviewMode } from './WallpaperPhoneOverlay';
 import { RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -21,6 +22,7 @@ export interface WallpaperCarouselProps {
   cardWidth: number;
   cardHeight: number;
   itemFullWidth: number;
+  previewMode?: WallpaperPreviewMode;
 }
 
 export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
@@ -31,6 +33,7 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
   cardWidth,
   cardHeight,
   itemFullWidth,
+  previewMode = 'clean',
 }) => {
   const theme = useTheme();
   const { width } = useWindowDimensions();
@@ -119,6 +122,14 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
                   width={cardWidth}
                   height={cardHeight}
                   isPhonePreview={true}
+                />
+
+                {/* Interactive Phone Lock Screen / Home Screen Overlay */}
+                <WallpaperPhoneOverlay
+                  mode={previewMode}
+                  isDarkTheme={item.isDark}
+                  width={cardWidth}
+                  height={cardHeight}
                 />
               </View>
             </Animated.View>
