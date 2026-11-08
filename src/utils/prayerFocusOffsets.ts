@@ -84,3 +84,4 @@ export const calculateFocusReadiness = (
     minutesRemaining: Math.ceil(diffMs / 60000),
   };
 };
+
