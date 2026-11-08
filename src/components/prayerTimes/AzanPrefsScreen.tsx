@@ -45,7 +45,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     toggleQuietHours,
   } = usePrayerAlerts();
 
-  const { isPlaying, isLoading, toggle: toggleAudio } = useAzanAudio();
+  const { isPlaying, isLoading, error: audioError, toggle: toggleAudio } = useAzanAudio();
   const [hasPermission, setHasPermission] = useState(true);
 
   const verifyPermissions = async () => {
@@ -145,6 +145,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         <AzanAudioPreviewCard
           isLoading={isLoading}
           isPlaying={isPlaying}
+          error={audioError}
           onToggle={toggleAudio}
         />
 

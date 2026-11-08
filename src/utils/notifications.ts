@@ -122,7 +122,7 @@ export const scheduleAllPrayerAlerts = async (
       const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod, timezone);
 
       for (const prayer of PRAYERS_LIST) {
-        const mode = alerts ? alerts[prayer.key] : 'AZAN';
+        const mode = alerts ? alerts[prayer.key] : 'TONE';
         if (mode === 'SILENT') continue;
 
         const prayerDate = raw[prayer.name.toLowerCase() as keyof typeof raw] as Date;

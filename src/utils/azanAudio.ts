@@ -66,6 +66,30 @@ export const stopAzanAudio = async (): Promise<void> => {
   }
 };
 
+export const pauseAzanAudio = async (): Promise<boolean> => {
+  try {
+    if (currentSound) {
+      await currentSound.pauseAsync();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
+export const resumeAzanAudio = async (): Promise<boolean> => {
+  try {
+    if (currentSound) {
+      await currentSound.playAsync();
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
 export const isAzanPlaying = async (): Promise<boolean> => {
   try {
     if (!currentSound) return false;

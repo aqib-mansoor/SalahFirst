@@ -8,12 +8,14 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface AzanAudioPreviewCardProps {
   isLoading: boolean;
   isPlaying: boolean;
+  error?: string | null;
   onToggle: () => void;
 }
 
 export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
   isLoading,
   isPlaying,
+  error,
   onToggle,
 }) => {
   const theme = useTheme();
@@ -30,11 +32,16 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
           {t('makkahAzanPreview')}
         </AppText>
-        <AppText variant="caption" color={theme.colors.textMuted}>
+        <AppText
+          variant="caption"
+          color={error ? theme.colors.error : theme.colors.textMuted}
+        >
           {isLoading
             ? 'Connecting to audio stream...'
             : isPlaying
             ? 'Playing Makkah Haram Azan • Hayya alas-Salah'
+            : error
+            ? error
             : t('tapToPreviewAzan')}
         </AppText>
       </View>
