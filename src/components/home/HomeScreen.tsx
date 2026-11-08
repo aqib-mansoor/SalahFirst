@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
@@ -70,7 +71,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Hero Banner with Countdown & Azan */}
+          {/* Hero Banner with Canvas & Countdown */}
           <HomeHeroCard
             currentPrayerName={prayerData.currentPrayerName}
             currentTimeFormatted={prayerData.currentTimeFormatted}
@@ -81,14 +82,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             onStartPrayerFocus={onStartPrayerFocus}
           />
 
-          {/* Salah Tracker & Progress Bar */}
+          {/* Salah Tracker with Honesty Confirmation Modal */}
           <HomeSalahTracker
             prayers={prayersList}
             completedCount={completedCount}
             onTogglePrayer={togglePrayer}
           />
 
-          {/* Daily Hadith Section */}
+          {/* Mature Daily Hadith Section with Arabic, Urdu & English */}
           <HomeDailyHadith
             onReadFull={() => handleTabChange('hadith')}
             onOpenWallpaper={onOpenWallpaper}
@@ -107,7 +108,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xs,
+    paddingBottom: SPACING.xl,
+    gap: SPACING.lg,
   },
 });
-

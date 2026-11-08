@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable, Share } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
@@ -16,13 +16,14 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
 
   const arabicText = dailyHadith.arabic;
+  const urduText = dailyHadith.urdu;
   const englishText = dailyHadith.english;
   const sourceText = `${dailyHadith.source} • ${dailyHadith.reference}`;
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${arabicText}\n\n${englishText}\n\n— ${sourceText}\n(Shared via SalahFirst)`,
+        message: `${arabicText}\n\n${urduText}\n\n"${englishText}"\n\n— ${sourceText}\n(Shared via SalahFirst)`,
       });
     } catch {}
   };
@@ -38,24 +39,26 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
           onPress={onReadFull}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel="Read full Hadith"
+          accessibilityLabel="Read full Hadith collection"
         >
-          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.readFull}>
+          <AppText variant="bodySmall" color={PALETTE.emeraldDark} style={styles.readFull}>
             Read Full ›
           </AppText>
         </Pressable>
       </View>
 
-      {/* Hadith Card with Left Gold Accent */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-        <View style={[styles.leftGoldAccent, { backgroundColor: theme.colors.accent }]} />
+      {/* Mature Hadith Card with Left Gold Accent Bar */}
+      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <View style={styles.leftGoldAccent} />
 
         <View style={styles.cardContent}>
-          {/* Badge */}
-          <View style={[styles.badgePill, { backgroundColor: theme.colors.surfaceElevated }]}>
-            <AppText variant="caption" color={theme.colors.textMuted} style={styles.badgeText}>
-              {dailyHadith.badge}
-            </AppText>
+          {/* Badge & Category */}
+          <View style={styles.badgeRow}>
+            <View style={styles.badgePill}>
+              <AppText variant="caption" color={PALETTE.goldDark} style={styles.badgeText}>
+                {dailyHadith.badge}
+              </AppText>
+            </View>
           </View>
 
           {/* Arabic Calligraphy */}
@@ -68,22 +71,27 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
             {arabicText}
           </AppText>
 
-          {/* English Translation */}
-          <AppText variant="bodyMedium" color={theme.colors.textMuted} style={styles.englishText}>
-            {englishText}
+          {/* Urdu Translation */}
+          <AppText color="#475569" align="right" style={styles.urduText}>
+            {urduText}
           </AppText>
 
-          {/* Divider */}
-          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+          {/* English Translation */}
+          <AppText color="#334155" style={styles.englishText}>
+            "{englishText}"
+          </AppText>
+
+          {/* Fine Divider */}
+          <View style={styles.divider} />
 
           {/* Footer: Source + Action Buttons */}
           <View style={styles.footerRow}>
-            <AppText variant="caption" color={theme.colors.textSubtle} style={styles.sourceText}>
+            <AppText variant="caption" color={theme.colors.textMuted} style={styles.sourceText}>
               {sourceText}
             </AppText>
 
             <View style={styles.actionsRow}>
-              {/* Wallpaper / Image button */}
+              {/* Wallpaper Generator Button */}
               <Pressable
                 onPress={onOpenWallpaper}
                 hitSlop={8}
@@ -95,12 +103,12 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
                 ]}
               >
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Rect x="3" y="3" width="18" height="18" rx="2" stroke={theme.colors.primary} strokeWidth="2" />
-                  <Path d="M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" stroke={theme.colors.primary} strokeWidth="2" />
+                  <Rect x="3" y="3" width="18" height="18" rx="2" stroke={PALETTE.emeraldDark} strokeWidth="2" />
+                  <Path d="M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" stroke={PALETTE.emeraldDark} strokeWidth="2" />
                 </Svg>
               </Pressable>
 
-              {/* Share button */}
+              {/* Share Button */}
               <Pressable
                 onPress={handleShare}
                 hitSlop={8}
@@ -112,13 +120,8 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
                 ]}
               >
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path
-                    d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"
-                    stroke={theme.colors.primary}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <Path d="M4 12V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V12" stroke={PALETTE.emeraldDark} strokeWidth="2" strokeLinecap="round" />
+                  <Path d="M16 6L12 2L8 6M12 2V15" stroke={PALETTE.emeraldDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </Svg>
               </Pressable>
             </View>
@@ -131,8 +134,6 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: SPACING.lg,
-    marginVertical: SPACING.sm,
     gap: SPACING.sm,
   },
   headerRow: {
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '800',
+    letterSpacing: -0.2,
   },
   readFull: {
     fontWeight: '700',
@@ -149,53 +151,73 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: RADIUS.xl,
     borderWidth: 1,
+    borderColor: '#E6EAE8',
     overflow: 'hidden',
     position: 'relative',
-    flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   leftGoldAccent: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
     width: 4,
-    height: '100%',
+    backgroundColor: PALETTE.gold,
   },
   cardContent: {
-    flex: 1,
     padding: SPACING.lg,
+    paddingLeft: SPACING.lg + 4,
     gap: SPACING.sm,
   },
+  badgeRow: {
+    flexDirection: 'row',
+  },
   badgePill: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: SPACING.sm,
+    paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.full,
+    backgroundColor: '#FBF8F2',
+    borderWidth: 1,
+    borderColor: '#EFE7DA',
   },
   badgeText: {
+    fontWeight: '800',
+    letterSpacing: 0.8,
     fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
   },
   arabicText: {
     fontSize: 20,
+    lineHeight: 34,
     fontWeight: '700',
-    lineHeight: 32,
-    marginVertical: 2,
+  },
+  urduText: {
+    fontSize: 14,
+    lineHeight: 24,
+    fontWeight: '500',
   },
   englishText: {
+    fontSize: 13.5,
+    lineHeight: 21,
     fontStyle: 'italic',
-    lineHeight: 22,
   },
   divider: {
     height: 1,
-    width: '100%',
-    marginVertical: 4,
+    backgroundColor: '#F1F5F9',
+    marginVertical: SPACING.xs,
   },
   footerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   sourceText: {
+    fontSize: 11.5,
+    fontWeight: '600',
     flex: 1,
-    fontWeight: '500',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -210,4 +232,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
