@@ -32,6 +32,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
     isSaved,
     toastMessage,
     toggleSave,
+    toggleSaveById,
     shareHadith,
     dismissToast,
     nextHadith,
@@ -97,6 +98,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
           savedHadiths={savedHadiths}
           currentIndex={currentIndex}
           onSelectHadith={jumpToHadith}
+          onRemoveBookmark={toggleSaveById}
           onClose={() => setShowBookmarksSheet(false)}
         />
 

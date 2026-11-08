@@ -175,7 +175,6 @@
   "version": "الإصدار",
   "offlineFirst": "يعمل 100% دون إنترنت وبخصوصية تامة",
   "noDataCollected": "لا تخرج أي بيانات من جهازك",
-  "changeLocation": "تغيير",
   "useLiveGps": "استخدام GPS المباشر",
   "automaticGps": "تحديد تلقائي عبر أجهزة الهاتف",
   "chooseCityOffline": "اختر مدينة دون اتصال أو استخدم GPS:",

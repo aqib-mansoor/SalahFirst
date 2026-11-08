@@ -175,7 +175,6 @@
   "version": "ورژن",
   "offlineFirst": "مکمل طور پر آف لائن اور محفوظ",
   "noDataCollected": "آپ کا کوئی ذاتی ڈیٹا ڈیوائس سے باہر نہیں جاتا",
-  "changeLocation": "تبدیل کریں",
   "useLiveGps": "لائیو GPS استعمال کریں",
   "automaticGps": "ڈیوائس ہارڈ ویئر کے ذریعے خودکار تلاش",
   "chooseCityOffline": "آف لائن شہر منتخب کریں یا لائیو GPS استعمال کریں:",

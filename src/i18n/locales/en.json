@@ -175,7 +175,6 @@
   "version": "Version",
   "offlineFirst": "100% Offline & Private",
   "noDataCollected": "No data leaves your device",
-  "changeLocation": "Change",
   "useLiveGps": "Use Live Device GPS",
   "automaticGps": "Automatic detection via device hardware",
   "chooseCityOffline": "Choose a verified city offline or use live device GPS:",

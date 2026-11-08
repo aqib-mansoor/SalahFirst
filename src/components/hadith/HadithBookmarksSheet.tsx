@@ -1,20 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import {
-  StyleSheet,
-  View,
-  Modal,
-  Pressable,
-  TextInput,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, View, Modal, Pressable, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem, VERIFIED_HADITHS } from '@/data/hadiths';
 import { HadithBookmarksSheetHeader } from './HadithBookmarksSheetHeader';
+import { HadithBookmarksSheetFilter } from './HadithBookmarksSheetFilter';
 import { HadithSavedCardItem } from './HadithSavedCardItem';
 
 export interface HadithBookmarksSheetProps {
@@ -105,108 +98,16 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
             onClose={onClose}
           />
 
-          {/* Quick Collection Filter Chips */}
-          {sources.length > 1 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterTrack}
-            >
-              <Pressable
-                onPress={() => setSelectedSource('all')}
-                style={[
-                  styles.filterChip,
-                  {
-                    backgroundColor: selectedSource === 'all'
-                      ? theme.colors.primary
-                      : theme.colors.surfaceElevated,
-                    borderColor: selectedSource === 'all'
-                      ? theme.colors.primary
-                      : theme.colors.border,
-                  },
-                ]}
-              >
-                <AppText
-                  variant="caption"
-                  color={selectedSource === 'all' ? theme.colors.textInverse : theme.colors.text}
-                  style={styles.filterChipText}
-                >
-                  {t('filterAll') || 'All'} ({savedHadiths.length})
-                </AppText>
-              </Pressable>
-
-              {sources.map((src) => {
-                const count = savedHadiths.filter((h) => h.source.includes(src)).length;
-                const active = selectedSource === src;
-                return (
-                  <Pressable
-                    key={src}
-                    onPress={() => setSelectedSource(active ? 'all' : src)}
-                    style={[
-                      styles.filterChip,
-                      {
-                        backgroundColor: active
-                          ? theme.colors.primary
-                          : theme.colors.surfaceElevated,
-                        borderColor: active
-                          ? theme.colors.primary
-                          : theme.colors.border,
-                      },
-                    ]}
-                  >
-                    <AppText
-                      variant="caption"
-                      color={active ? theme.colors.textInverse : theme.colors.text}
-                      style={styles.filterChipText}
-                    >
-                      {src} ({count})
-                    </AppText>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
-
-          {/* Search Input when 4+ saved items */}
-          {savedHadiths.length >= 4 && (
-            <View
-              style={[
-                styles.searchBox,
-                {
-                  backgroundColor: theme.colors.surfaceElevated,
-                  borderColor: theme.colors.border,
-                },
-              ]}
-            >
-              <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                  stroke={theme.colors.textMuted}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </Svg>
-              <TextInput
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder={t('searchBookmarks') || 'Search bookmarks...'}
-                placeholderTextColor={theme.colors.textMuted}
-                style={[styles.searchInput, { color: theme.colors.text }]}
-              />
-              {searchQuery.length > 0 && (
-                <Pressable onPress={() => setSearchQuery('')} hitSlop={6}>
-                  <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M18 6L6 18M6 6L18 18"
-                      stroke={theme.colors.textMuted}
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </Svg>
-                </Pressable>
-              )}
-            </View>
-          )}
+          {/* Quick Collection Filters & Search Bar */}
+          <HadithBookmarksSheetFilter
+            totalCount={savedHadiths.length}
+            sources={sources}
+            selectedSource={selectedSource}
+            searchQuery={searchQuery}
+            onSelectSource={setSelectedSource}
+            onChangeSearchQuery={setSearchQuery}
+            getSourceCount={(src) => savedHadiths.filter((h) => h.source.includes(src)).length}
+          />
 
           {/* Scrollable list of Rich Mini-Cards */}
           <ScrollView
@@ -261,36 +162,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
-  },
-  filterTrack: {
-    flexDirection: 'row',
-    gap: SPACING.xs + 2,
-    paddingBottom: SPACING.sm,
-  },
-  filterChip: {
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: 5,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-  },
-  filterChipText: {
-    fontWeight: '700',
-    fontSize: 11,
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    gap: SPACING.xs + 2,
-    marginBottom: SPACING.sm,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 13,
-    paddingVertical: 0,
   },
   scrollList: {
     maxHeight: 440,
