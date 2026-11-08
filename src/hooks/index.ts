@@ -7,3 +7,5 @@ export * from './useHadithCollection';
 export * from './useNotificationScheduler';
 export * from './useHijriDate';
 export * from './useTransparentNavigationBar';
+export * from './useAzanAudio';
+export * from './useAzanAutoReciter';

@@ -16,5 +16,7 @@ export * from './PrayerAlertCard';
 export * from './NotificationPreferencesCard';
 export * from './AzanAudioPreviewCard';
 export * from './AzanPrefsHeader';
+export * from './MasterAlarmCard';
+export * from './FloatingAzanBanner';
 export * from './AzanPrefsScreen';
 export * from './PrayerTimesScreen';

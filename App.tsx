@@ -8,7 +8,7 @@ import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { MainTabShell } from '@/components/home';
-import { AzanPrefsScreen } from '@/components/prayerTimes';
+import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
@@ -23,6 +23,7 @@ import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
+import { useAzanAutoReciter } from '@/hooks/useAzanAutoReciter';
 import { useTheme } from '@/hooks/useTheme';
 import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
 import { ThemeProvider } from '@/context/ThemeContext';
@@ -62,6 +63,13 @@ function AppContent() {
   } = usePrayerTracker(location);
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
+
+  const { isReciting, recitingPrayer, stopRecitation } = useAzanAutoReciter({
+    location,
+    alerts,
+    calculationMethod: calcMethod,
+    juristicMethod: juristic,
+  });
 
   useTransparentNavigationBar({
     isDark: theme.isDark,
@@ -230,6 +238,11 @@ function AppContent() {
           onClose={() => setCurrentStep('main')}
         />
       )}
+      <FloatingAzanBanner
+        visible={isReciting}
+        prayerName={recitingPrayer}
+        onStop={stopRecitation}
+      />
     </SafeAreaProvider>
   );
 }
