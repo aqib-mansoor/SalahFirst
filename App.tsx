@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
@@ -7,16 +7,14 @@ import { Provider } from 'react-redux';
 import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
-import { HomeScreen } from '@/components/home';
-import { PrayerTimesScreen, AzanPrefsScreen } from '@/components/prayerTimes';
+import { MainTabShell } from '@/components/home';
+import { AzanPrefsScreen } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
-import { QiblaScreen } from '@/components/qibla';
-import { HadithScreen } from '@/components/hadith';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
 import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
-import { ProgressScreen, ProgressSubTab } from '@/components/progress';
+import { ProgressSubTab } from '@/components/progress';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -111,20 +109,12 @@ function AppContent() {
   // Handle Android hardware back button
   useEffect(() => {
     const onBackPress = () => {
-      if (currentStep === 'wallpaper') {
-        setCurrentStep('main');
-        return true;
-      }
-      if (currentStep === 'focus-config') {
+      if (currentStep === 'wallpaper' || currentStep === 'focus-config' || currentStep === 'settings') {
         setCurrentStep('main');
         return true;
       }
       if (currentStep === 'azan-prefs' || currentStep === 'privacy-policy' || currentStep === 'terms') {
         setCurrentStep('settings');
-        return true;
-      }
-      if (currentStep === 'settings') {
-        setCurrentStep('main');
         return true;
       }
       if (currentStep === 'main' && activeTab !== 'home') {
@@ -180,45 +170,15 @@ function AppContent() {
 
       {/* Persistent Zero-Unmount Tab Shell */}
       {currentStep === 'main' && (
-        <View style={styles.mainContainer}>
-          <View style={[styles.tabContent, activeTab !== 'home' && styles.hiddenTab]}>
-            <HomeScreen
-              onOpenSettings={() => setCurrentStep('settings')}
-              onNavigateTab={setActiveTab}
-              onStartPrayerFocus={handleOpenFocusConfig}
-              onOpenStreaks={() => {
-                setProgressSubTab('streaks');
-                setActiveTab('progress');
-              }}
-              onOpenWallpaper={() => setCurrentStep('wallpaper')}
-            />
-          </View>
-
-          <View style={[styles.tabContent, activeTab !== 'prayers' && styles.hiddenTab]}>
-            <PrayerTimesScreen
-              onNavigateHome={() => setActiveTab('home')}
-              onNavigateTab={setActiveTab}
-            />
-          </View>
-
-          <View style={[styles.tabContent, activeTab !== 'qibla' && styles.hiddenTab]}>
-            <QiblaScreen onNavigateTab={setActiveTab} />
-          </View>
-
-          <View style={[styles.tabContent, activeTab !== 'hadith' && styles.hiddenTab]}>
-            <HadithScreen onNavigateTab={setActiveTab} />
-          </View>
-
-          <View style={[styles.tabContent, activeTab !== 'progress' && styles.hiddenTab]}>
-            <ProgressScreen
-              initialSubTab={progressSubTab}
-              onNavigateTab={(tab) => {
-                setActiveTab(tab);
-                if (tab === 'progress') setProgressSubTab('tracker');
-              }}
-            />
-          </View>
-        </View>
+        <MainTabShell
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          progressSubTab={progressSubTab}
+          setProgressSubTab={setProgressSubTab}
+          onOpenSettings={() => setCurrentStep('settings')}
+          onStartPrayerFocus={handleOpenFocusConfig}
+          onOpenWallpaper={() => setCurrentStep('wallpaper')}
+        />
       )}
 
       {currentStep === 'settings' && (
@@ -273,18 +233,6 @@ function AppContent() {
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-  },
-  tabContent: {
-    flex: 1,
-  },
-  hiddenTab: {
-    display: 'none',
-  },
-});
 
 export default function App() {
   return (
