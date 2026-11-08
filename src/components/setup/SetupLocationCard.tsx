@@ -38,7 +38,7 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
         : { text: t('manualCity'), bg: theme.colors.mintTint, color: theme.colors.primary };
     }
     if (permissionDenied) {
-      return { text: t('permissionNeeded'), bg: theme.colors.border, color: theme.colors.textMuted };
+      return { text: t('permissionNeeded'), bg: '#FEE2E2', color: '#DC2626' };
     }
     return { text: t('locationNotSet'), bg: theme.colors.border, color: theme.colors.textMuted };
   };
@@ -83,12 +83,14 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
       {/* Selected Location Pill */}
       <Pressable
         onPress={onSelectCityManually}
-        disabled={!onSelectCityManually}
+        disabled={!onSelectCityManually || isLoading}
         style={({ pressed }) => [
           styles.locationBox,
           {
             backgroundColor: theme.colors.surfaceElevated,
-            opacity: pressed && onSelectCityManually ? 0.85 : 1,
+            borderColor: theme.colors.border,
+            borderWidth: 1,
+            opacity: pressed && onSelectCityManually && !isLoading ? 0.85 : 1,
           },
         ]}
       >
@@ -102,8 +104,15 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
             </Svg>
           )}
 
-          <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.locationText}>
-            {location
+          <AppText
+            variant="titleSmall"
+            color={isLoading ? theme.colors.primary : theme.colors.text}
+            numberOfLines={1}
+            style={[styles.locationText, isLoading && styles.loadingText]}
+          >
+            {isLoading
+              ? t('detectingLocation')
+              : location
               ? `${location.city}${location.country ? `, ${location.country}` : ''}`
               : permissionDenied
               ? `${t('selectCityManually')}...`
@@ -189,6 +198,10 @@ const styles = StyleSheet.create({
   locationText: {
     flex: 1,
     fontWeight: '600',
+  },
+  loadingText: {
+    fontStyle: 'italic',
+    fontWeight: '500',
   },
   statusBadge: {
     paddingHorizontal: SPACING.sm,
