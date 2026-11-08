@@ -7,4 +7,5 @@ export * from './HomeBottomNav';
 export * from './PrayerConfirmModal';
 export * from './HomePrayerCardItem';
 export * from './HomeTasbihWidget';
+export * from './OrbitingMisbahaHalo';
 export * from './HomeScreen';

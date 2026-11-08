@@ -47,6 +47,25 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
         },
       ]}
     >
+      {/* Islamic Arch & Star Canvas Layer */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Svg width="100%" height="100%" viewBox="0 0 60 90" preserveAspectRatio="none">
+          <Path
+            d="M 8,90 L 8,42 Q 8,14 30,5 Q 52,14 52,42 L 52,90"
+            stroke={isCurrentActive ? theme.colors.accent : item.completed ? theme.colors.primary : theme.colors.border}
+            strokeWidth={isCurrentActive ? 1.1 : 0.8}
+            strokeDasharray={isCurrentActive ? undefined : '2 2'}
+            opacity={isCurrentActive ? 0.32 : item.completed ? 0.22 : 0.15}
+            fill="none"
+          />
+          <Path
+            d="M 30,5 L 31.5,8 L 34.5,8 L 32,10 L 33,13 L 30,11.5 L 27,13 L 28,10 L 25.5,8 L 28.5,8 Z"
+            fill={isCurrentActive ? theme.colors.accent : item.completed ? theme.colors.primary : 'none'}
+            opacity={isCurrentActive ? 0.40 : item.completed ? 0.25 : 0}
+          />
+        </Svg>
+      </View>
+
       {isCurrentActive && (
         <View style={[styles.activeNowBadge, { backgroundColor: theme.colors.accent }]}>
           <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.nowBadgeText}>

@@ -3,9 +3,10 @@ import { StyleSheet, View, Pressable, Alert } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
+import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 
 const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
 
@@ -82,7 +83,7 @@ export const HomeTasbihWidget: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Section Header */}
       <View style={styles.headerRow}>
         <View style={styles.titleWithBadge}>
           <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
@@ -108,60 +109,58 @@ export const HomeTasbihWidget: React.FC = () => {
         </Pressable>
       </View>
 
-      {/* Interactive Card */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: 'rgba(243, 196, 64, 0.40)' }]}>
-        <View style={[styles.leftAccentBar, { backgroundColor: theme.colors.accent }]} />
+      {/* Royal Emerald Jewel Card with Gold Mihrab Canvas */}
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.colors.primaryHero,
+            borderColor: 'rgba(243, 196, 64, 0.40)',
+          },
+        ]}
+      >
+        <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} />
 
         <View style={styles.cardInner}>
-          {/* Left: Dhikr Info */}
+          {/* Left: Dhikr Info & Progress */}
           <View style={styles.leftCol}>
             <View style={styles.phasePillRow}>
-              <View style={[styles.phasePill, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.primary }]}>
-                <AppText variant="caption" color={theme.colors.primary} style={styles.phaseText}>
+              <View style={[styles.phasePill, { backgroundColor: 'rgba(243, 196, 64, 0.22)', borderColor: theme.colors.accent }]}>
+                <AppText variant="caption" color={theme.colors.accentLight} style={styles.phaseText}>
                   Phase {phaseIndex + 1} of 3
                 </AppText>
               </View>
-              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.targetCountText}>
+              <AppText variant="caption" color="rgba(255, 255, 255, 0.75)" style={styles.targetCountText}>
                 Goal: {currentPhase.target}
               </AppText>
             </View>
 
-            <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.arabicDhikr}>
+            <AppText variant="titleMedium" color="#FFFFFF" style={styles.arabicDhikr}>
               {currentPhase.arabic}
             </AppText>
 
-            <AppText variant="bodySmall" color={theme.colors.textSecondary} style={styles.translitText}>
-              {currentPhase.transliteration} • <AppText color={theme.colors.textSecondary} style={styles.meaningText}>{currentPhase.translation}</AppText>
+            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.translitText}>
+              {currentPhase.transliteration} • <AppText color="rgba(255, 255, 255, 0.85)" style={styles.meaningText}>{currentPhase.translation}</AppText>
             </AppText>
 
-            {/* Progress */}
+            {/* Mini Progress Track */}
             <View style={styles.progressRow}>
-              <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}>
+              <View style={[styles.progressTrack, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
                 <View style={[styles.progressFill, { backgroundColor: theme.colors.accent, width: `${progressPercent}%` }]} />
               </View>
-              <AppText variant="caption" color={theme.colors.primary} style={styles.progressFraction}>
+              <AppText variant="caption" color={theme.colors.accentLight} style={styles.progressFraction}>
                 {count}/{currentPhase.target}
               </AppText>
             </View>
           </View>
 
-          {/* Right: Tactile Circular Tap Button */}
-          <Pressable
+          {/* Right: Orbiting Misbaha Bead Step & Tactile Tap Button */}
+          <OrbitingMisbahaHalo
+            count={count}
+            target={currentPhase.target}
             onPress={handleIncrement}
-            accessibilityRole="button"
-            accessibilityLabel={`Count ${count} of ${currentPhase.target}`}
-            style={({ pressed }) => [
-              styles.tapButton,
-              {
-                backgroundColor: theme.colors.primary,
-                borderColor: theme.colors.accent,
-                transform: [{ scale: pressed ? 0.94 : 1 }],
-              },
-            ]}
-          >
-            <AppText style={styles.tapCountNumber}>{count}</AppText>
-            <AppText variant="caption" color={theme.colors.accent} style={styles.tapSubLabel}>TAP</AppText>
-          </Pressable>
+            theme={theme}
+          />
         </View>
       </View>
     </View>
@@ -179,9 +178,8 @@ const styles = StyleSheet.create({
   resetText: { fontWeight: '600' },
   card: {
     borderRadius: RADIUS.xl, borderWidth: 1.2, overflow: 'hidden', position: 'relative',
-    shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2,
+    shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.22, shadowRadius: 14, elevation: 4,
   },
-  leftAccentBar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3.5 },
   cardInner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md,
@@ -189,21 +187,13 @@ const styles = StyleSheet.create({
   leftCol: { flex: 1, gap: 4 },
   phasePillRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   phasePill: { paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1 },
-  phaseText: { fontWeight: '700', fontSize: 10 },
+  phaseText: { fontWeight: '800', fontSize: 10 },
   targetCountText: { fontSize: 11, fontWeight: '500' },
-  arabicDhikr: { fontSize: 19, fontWeight: '700', lineHeight: 28 },
-  translitText: { fontSize: 12, fontWeight: '700' },
+  arabicDhikr: { fontSize: 20, fontWeight: '700', lineHeight: 28 },
+  translitText: { fontSize: 12.5, fontWeight: '700' },
   meaningText: { fontWeight: '400' },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginTop: 4 },
   progressTrack: { flex: 1, height: 5, borderRadius: RADIUS.full, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: RADIUS.full },
-  progressFraction: { fontSize: 11, fontWeight: '700' },
-  tapButton: {
-    width: 74, height: 74, borderRadius: 37, borderWidth: 2.5,
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#072418', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
-  },
-  tapCountNumber: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', lineHeight: 30, fontVariant: ['tabular-nums'] },
-  tapSubLabel: { fontSize: 9.5, fontWeight: '800', letterSpacing: 1 },
+  progressFraction: { fontSize: 11, fontWeight: '800' },
 });
