@@ -18,6 +18,7 @@ import { PresetCity } from '@/data';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { CalculationMethodName, JuristicMethod } from '@/types';
+import { fetchAlAdhanTimings, comparePrayerTimings } from '@/utils/aladhanApi';
 
 export interface SettingsScreenProps {
   onBack: () => void;
@@ -47,7 +48,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
-  const { calcMethod, juristic } = usePrayerTracker(location);
+  const { prayerData, calcMethod, juristic } = usePrayerTracker(location);
 
   const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
@@ -87,11 +88,60 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       'Egyptian',
       'NorthAmerica',
       'MoonsightingCommittee',
+      'Kuwait',
+      'Qatar',
+      'Singapore',
+      'Tehran',
+      'Turkey',
     ];
     const currentIndex = methods.indexOf(calcMethod);
     const nextMethod = methods[(currentIndex + 1) % methods.length];
     await storage.set(APP_CONFIG.storageKeys.calculationMethod, nextMethod);
     notifyTrackerPreferencesChanged();
+  };
+
+  const handleVerifyAlAdhan = async () => {
+    if (!location?.latitude || !location?.longitude) {
+      Alert.alert('Location Required', 'Please enable GPS or select a city before verifying.');
+      return;
+    }
+    const res = await fetchAlAdhanTimings(
+      location.latitude,
+      location.longitude,
+      new Date(),
+      calcMethod,
+      juristic
+    );
+    if (!res.success || !res.timings) {
+      Alert.alert(
+        'AlAdhan API Offline',
+        res.error || 'Network unavailable. SalahFirst continues calculating locally 100% offline.'
+      );
+      return;
+    }
+    const diffs = comparePrayerTimings(
+      {
+        fajr: prayerData.fajr,
+        sunrise: prayerData.sunrise,
+        dhuhr: prayerData.dhuhr,
+        asr: prayerData.asr,
+        maghrib: prayerData.maghrib,
+        isha: prayerData.isha,
+      },
+      res.timings
+    );
+    const summary = diffs
+      .map(
+        (d) =>
+          `${d.prayer}: Local ${d.localTime} vs API ${d.apiTime} (${
+            d.diffMinutes >= 0 ? '+' : ''
+          }${d.diffMinutes}m)`
+      )
+      .join('\n');
+    Alert.alert(
+      `AlAdhan Comparison (${res.meta?.methodName || calcMethod})`,
+      `Date: ${res.dateFormatted || 'Today'}\n\n${summary}`
+    );
   };
 
   const handlePrivacyPolicy = () => {
@@ -119,6 +169,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenAzanPrefs={onOpenAzanPrefs}
             onToggleJuristic={handleToggleJuristic}
             onCycleCalculationMethod={handleCycleCalcMethod}
+            onVerifyAlAdhan={handleVerifyAlAdhan}
           />
 
           <AppearanceSettingsGroup

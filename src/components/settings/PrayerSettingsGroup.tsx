@@ -15,6 +15,7 @@ export interface PrayerSettingsGroupProps {
   onOpenAzanPrefs: () => void;
   onToggleJuristic: () => void;
   onCycleCalculationMethod?: () => void;
+  onVerifyAlAdhan?: () => void;
 }
 
 export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
@@ -26,6 +27,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   onOpenAzanPrefs,
   onToggleJuristic,
   onCycleCalculationMethod,
+  onVerifyAlAdhan,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -108,6 +110,27 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
           </View>
           {ChevronRight}
         </Pressable>
+
+        {onVerifyAlAdhan && (
+          <>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Pressable onPress={onVerifyAlAdhan} style={styles.row}>
+              <View style={styles.textCol}>
+                <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
+                  Verify Times (AlAdhan API)
+                </AppText>
+                <AppText variant="caption" color={theme.colors.textMuted}>
+                  Optional independent ephemeris check
+                </AppText>
+              </View>
+              <View style={[styles.pillBadge, { backgroundColor: theme.colors.surfaceElevated }]}>
+                <AppText variant="caption" color={theme.colors.accent} style={styles.pillText}>
+                  Compare
+                </AppText>
+              </View>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );
