@@ -46,44 +46,39 @@ export const formatRemainingTime = (targetDate: Date, now: Date = new Date()): s
 export const getDefaultMethodForCountry = (country?: string): CalculationMethodName => {
   if (!country) return 'Karachi';
   const c = country.toLowerCase().trim();
-  if (c.includes('saudi') || c.includes('makkah') || c.includes('madinah')) return 'UmmAlQura';
-  if (c.includes('emirates') || c.includes('uae') || c.includes('dubai') || c.includes('abu dhabi')) return 'Dubai';
-  if (c.includes('egypt') || c.includes('sudan') || c.includes('jordan') || c.includes('lebanon') || c.includes('syria')) return 'Egyptian';
-  if (c.includes('united states') || c.includes('usa') || c.includes('canada')) return 'NorthAmerica';
+  if (/saudi|makkah|madinah/.test(c)) return 'UmmAlQura';
+  if (/emirates|uae|dubai|abu dhabi/.test(c)) return 'Dubai';
+  if (/egypt|sudan|jordan|lebanon|syria/.test(c)) return 'Egyptian';
+  if (/united states|usa|canada/.test(c)) return 'NorthAmerica';
   if (c.includes('kuwait')) return 'Kuwait';
   if (c.includes('qatar')) return 'Qatar';
-  if (c.includes('singapore') || c.includes('malaysia') || c.includes('indonesia')) return 'Singapore';
-  if (c.includes('turkey') || c.includes('türkiye')) return 'Turkey';
-  if (c.includes('pakistan') || c.includes('india') || c.includes('bangladesh') || c.includes('afghanistan')) return 'Karachi';
+  if (/singapore|malaysia|indonesia/.test(c)) return 'Singapore';
+  if (/turkey|türkiye/.test(c)) return 'Turkey';
   return 'Karachi';
 };
 
 export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
   if (!country) return 'Hanafi';
   const c = country.toLowerCase().trim();
-  if (c.includes('pakistan') || c.includes('india') || c.includes('bangladesh') || c.includes('turkey') || c.includes('türkiye') || c.includes('afghanistan')) {
-    return 'Hanafi';
-  }
-  return 'Standard';
+  return /pakistan|india|bangladesh|turkey|türkiye|afghanistan/.test(c) ? 'Hanafi' : 'Standard';
 };
 
 const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
-  switch (method) {
-    case 'UmmAlQura': return CalculationMethod.UmmAlQura();
-    case 'Dubai': return CalculationMethod.Dubai();
-    case 'MuslimWorldLeague': return CalculationMethod.MuslimWorldLeague();
-    case 'Egyptian': return CalculationMethod.Egyptian();
-    case 'NorthAmerica': return CalculationMethod.NorthAmerica();
-    case 'MoonsightingCommittee': return CalculationMethod.MoonsightingCommittee();
-    case 'Kuwait': return CalculationMethod.Kuwait();
-    case 'Qatar': return CalculationMethod.Qatar();
-    case 'Singapore': return CalculationMethod.Singapore();
-    case 'Tehran': return CalculationMethod.Tehran();
-    case 'Turkey': return CalculationMethod.Turkey();
-    case 'Karachi':
-    default:
-      return CalculationMethod.Karachi();
-  }
+  const map: Record<string, () => any> = {
+    UmmAlQura: CalculationMethod.UmmAlQura,
+    Dubai: CalculationMethod.Dubai,
+    MuslimWorldLeague: CalculationMethod.MuslimWorldLeague,
+    Egyptian: CalculationMethod.Egyptian,
+    NorthAmerica: CalculationMethod.NorthAmerica,
+    MoonsightingCommittee: CalculationMethod.MoonsightingCommittee,
+    Kuwait: CalculationMethod.Kuwait,
+    Qatar: CalculationMethod.Qatar,
+    Singapore: CalculationMethod.Singapore,
+    Tehran: CalculationMethod.Tehran,
+    Turkey: CalculationMethod.Turkey,
+    Karachi: CalculationMethod.Karachi,
+  };
+  return (map[method] || CalculationMethod.Karachi)();
 };
 
 const createRobustPrayerTimes = (
@@ -115,12 +110,37 @@ const createRobustPrayerTimes = (
 };
 
 export const getPrayerTimes = (
-  latitude: number,
-  longitude: number,
+  latitude?: number | null,
+  longitude?: number | null,
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
   juristic: JuristicMethod = 'Hanafi'
 ): FormattedPrayerTimes => {
+  if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
+    const dummyDate = new Date();
+    return {
+      fajr: '--:--',
+      sunrise: '--:--',
+      dhuhr: '--:--',
+      asr: '--:--',
+      maghrib: '--:--',
+      isha: '--:--',
+      currentPrayerName: 'SELECT LOCATION',
+      currentTimeFormatted: '--:--',
+      nextPrayerName: 'Fajr',
+      nextPrayerTimeFormatted: '--:--',
+      nextPrayerDate: new Date(Date.now() + 86400000),
+      raw: {
+        fajr: dummyDate,
+        sunrise: dummyDate,
+        dhuhr: dummyDate,
+        asr: dummyDate,
+        maghrib: dummyDate,
+        isha: dummyDate,
+      },
+    };
+  }
+
   const coordinates = new Coordinates(latitude, longitude);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
@@ -143,16 +163,8 @@ export const getPrayerTimes = (
   let nextTime = ptToday.fajr;
 
   if (now < ptToday.fajr.getTime()) {
-    currentName = 'ISHA';
-    currentTime = ptYesterday.isha;
-    nextName = 'Fajr';
-    nextTime = ptToday.fajr;
-  } else if (now < ptToday.sunrise.getTime()) {
-    currentName = 'FAJR';
-    currentTime = ptToday.fajr;
-    nextName = 'Dhuhr';
-    nextTime = ptToday.dhuhr;
-  } else if (now < ptToday.dhuhr.getTime()) {
+    // Keep initial defaults (Isha -> Fajr)
+  } else if (now < ptToday.sunrise.getTime() || now < ptToday.dhuhr.getTime()) {
     currentName = 'FAJR';
     currentTime = ptToday.fajr;
     nextName = 'Dhuhr';
@@ -203,13 +215,13 @@ export const getPrayerTimes = (
 };
 
 export const getRawPrayerTimes = (
-  latitude: number,
-  longitude: number,
+  latitude?: number | null,
+  longitude?: number | null,
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
   juristic: JuristicMethod = 'Hanafi'
 ): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
-  const coordinates = new Coordinates(latitude, longitude);
+  const coordinates = new Coordinates(latitude ?? 0, longitude ?? 0);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
   params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);

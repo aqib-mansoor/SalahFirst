@@ -102,12 +102,15 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     return () => sub.remove();
   }, []);
 
-  const lat = userLocation?.latitude ?? 24.8607;
-  const lng = userLocation?.longitude ?? 67.0011;
-
   const prayerData: FormattedPrayerTimes = useMemo(() => {
-    return getPrayerTimes(lat, lng, new Date(), calcMethod, juristic);
-  }, [lat, lng, calcMethod, juristic, refreshTrigger]);
+    return getPrayerTimes(
+      userLocation?.latitude,
+      userLocation?.longitude,
+      new Date(),
+      calcMethod,
+      juristic
+    );
+  }, [userLocation?.latitude, userLocation?.longitude, calcMethod, juristic, refreshTrigger]);
 
   // Live countdown timer ticking every 1 second with midnight date rollover
   useEffect(() => {

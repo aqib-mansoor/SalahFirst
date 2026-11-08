@@ -6,14 +6,21 @@ import {
   getCardinalDirection,
 } from '@/utils/qiblaCalculations';
 
-export const useQiblaCompass = (lat: number = 24.8607, lng: number = 67.0011) => {
+export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
   const [heading, setHeading] = useState<number>(0);
   const [hasSensor, setHasSensor] = useState<boolean>(true);
   const [needsCalibration, setNeedsCalibration] = useState<boolean>(false);
   const smoothHeadingRef = useRef<number>(0);
 
-  const qiblaBearing = useMemo(() => calculateQiblaBearing(lat, lng), [lat, lng]);
-  const distanceKm = useMemo(() => calculateDistanceToKaaba(lat, lng), [lat, lng]);
+  const hasCoords = lat != null && lng != null && !isNaN(lat) && !isNaN(lng);
+  const qiblaBearing = useMemo(
+    () => (hasCoords ? calculateQiblaBearing(lat, lng) : 0),
+    [lat, lng, hasCoords]
+  );
+  const distanceKm = useMemo(
+    () => (hasCoords ? calculateDistanceToKaaba(lat, lng) : 0),
+    [lat, lng, hasCoords]
+  );
   const cardinal = useMemo(() => getCardinalDirection(qiblaBearing), [qiblaBearing]);
 
   useEffect(() => {
