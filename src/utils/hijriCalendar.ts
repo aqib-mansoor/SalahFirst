@@ -174,3 +174,4 @@ export const getIslamicMonthFormatted = (
 
   return `${monthName} ${hijri.year} ${suffix}`;
 };
+
