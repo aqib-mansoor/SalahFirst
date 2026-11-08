@@ -31,7 +31,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   ];
 
   const renderIcon = (tabId: HomeTab, isActive: boolean) => {
-    const strokeColor = isActive ? theme.colors.primary : theme.colors.textSecondary;
+    const strokeColor = isActive ? theme.colors.accent : theme.colors.textSecondary;
 
     switch (tabId) {
       case 'home':
@@ -107,7 +107,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             </View>
             <AppText
               variant="caption"
-              color={isActive ? theme.colors.primary : theme.colors.textSecondary}
+              color={isActive ? theme.colors.accent : theme.colors.textSecondary}
               style={[styles.tabLabel, { fontWeight: isActive ? '700' : '500' }]}
             >
               {tab.label}

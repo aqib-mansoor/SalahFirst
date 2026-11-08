@@ -23,7 +23,7 @@ export const HeroFocusButton: React.FC<HeroFocusButtonProps> = ({ onPress }) => 
       style={({ pressed }) => [
         styles.focusButton,
         {
-          backgroundColor: pressed ? '#C5A359' : theme.colors.accent,
+          backgroundColor: pressed ? theme.colors.buttonGoldPressed : theme.colors.buttonGold,
           transform: [{ scale: pressed ? 0.98 : 1 }],
         },
       ]}

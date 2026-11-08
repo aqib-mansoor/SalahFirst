@@ -39,7 +39,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         styles.card,
         {
           backgroundColor: cardBg,
-          borderColor: isNext ? theme.colors.primary : theme.colors.border,
+          borderColor: isNext ? theme.colors.accent : theme.colors.border,
           borderWidth: isNext ? 1.5 : 1,
         },
       ]}

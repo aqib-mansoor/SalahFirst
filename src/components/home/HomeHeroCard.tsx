@@ -71,8 +71,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
       <IslamicWatermark
         size={260}
-        opacity={0.05}
-        color="rgba(255, 255, 255, 0.05)"
+        opacity={0.08}
+        color={theme.colors.watermark}
         style={styles.watermarkTopRight}
       />
 
@@ -145,10 +145,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'rgba(168, 198, 176, 0.25)',
-    shadowColor: '#202923',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
+    shadowColor: '#072418',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 3,
   },
