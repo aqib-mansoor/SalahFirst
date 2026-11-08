@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Animated, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
-import { AppContainer, AppText } from '@/components/common';
+import { AppContainer, AppText, CurvedHeaderContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { PrayerTimesHeader } from './PrayerTimesHeader';
 import { PrayerTimesLocationCard } from './PrayerTimesLocationCard';
@@ -73,18 +73,43 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
     });
   };
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(68);
+
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-          {/* Header */}
+        {/* Dynamic Curved Elevated Header on Scroll */}
+        <CurvedHeaderContainer
+          scrollY={scrollY}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            if (h > 0 && Math.abs(h - headerHeight) > 1) {
+              setHeaderHeight(h);
+            }
+          }}
+        >
           <PrayerTimesHeader
             countryName={location?.country}
             onOpenAzanPrefs={() => setShowAzanPrefs(true)}
           />
+        </CurvedHeaderContainer>
+
+        <Animated.ScrollView
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          contentContainerStyle={[
+            styles.scroll,
+            { paddingTop: headerHeight + SPACING.xs },
+          ]}
+        >
 
           {/* Location Selector Card */}
           <PrayerTimesLocationCard
