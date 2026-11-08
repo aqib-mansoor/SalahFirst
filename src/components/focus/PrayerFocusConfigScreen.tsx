@@ -83,121 +83,138 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
 
   return (
-    <AppContainer edges={['top', 'left', 'right']} style={{ backgroundColor: theme.colors.background }}>
-      {/* Header Bar */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={onBack}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Back to Home"
-          style={[styles.backBtn, { borderColor: theme.colors.border }]}
-        >
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </Pressable>
+    <AppContainer
+      edges={['top', 'left', 'right']}
+      style={{ backgroundColor: theme.colors.background }}
+      contentContainerStyle={styles.screenContainer}
+    >
+      <View style={styles.screenContainer}>
+        {/* Header Bar */}
+        <View style={styles.header}>
+          <Pressable
+            onPress={onBack}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Back to Home"
+            style={[styles.backBtn, { borderColor: theme.colors.border }]}
+          >
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path d="M15 18l-6-6 6-6" stroke={theme.colors.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
 
-        <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
-            {t('prayerFocusMode')}
-          </AppText>
-        </View>
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* Title Section */}
-        <View style={styles.titleSection}>
-          <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-            {t('timeToReconnect')}
-          </AppText>
-          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-            {t('focusSub')}
-          </AppText>
-        </View>
-
-        {/* 1. Prayer Selector */}
-        <FocusPrayerSelector
-          selectedPrayer={selectedPrayer}
-          targetAzanTime={targetAzan}
-          onSelectPrayer={setSelectedPrayer}
-        />
-
-        {/* 2. Congregation Delay Offset Card */}
-        <FocusCongregationDelayCard
-          prayerName={selectedPrayer}
-          selectedDelayMinutes={currentDelay}
-          rawAzanDate={targetRawDate}
-          onSelectDelay={handleUpdateDelay}
-        />
-
-        {/* 3. Duration Card */}
-        <FocusDurationCard selectedDuration={duration} onSelectDuration={setDuration} />
-
-        {/* 4. Distraction Shield Card */}
-        <FocusDistractionCard
-          blockSocial={blockSocial}
-          blockShortVideos={blockShortVideos}
-          blockGames={blockGames}
-          blockNews={blockNews}
-          onToggleSocial={() => setBlockSocial((p) => !p)}
-          onToggleShortVideos={() => setBlockShortVideos((p) => !p)}
-          onToggleGames={() => setBlockGames((p) => !p)}
-          onToggleNews={() => setBlockNews((p) => !p)}
-        />
-
-        {/* 5. Automation Settings */}
-        <FocusSettingsCard
-          autoStartOnAzan={autoStart}
-          playAzanBefore={playAzan}
-          onToggleAutoStart={() => setAutoStart((p) => !p)}
-          onTogglePlayAzan={() => setPlayAzan((p) => !p)}
-        />
-      </ScrollView>
-
-      {/* Docked Floating Footer with Phone Navbar Safe Area */}
-      <View
-        style={[
-          styles.dockedFooter,
-          {
-            backgroundColor: theme.colors.surface,
-            borderTopColor: theme.colors.border,
-            paddingBottom: Math.max(insets.bottom, 14),
-          },
-        ]}
-      >
-        {selectedPrayer === 'All' ? (
-          <View style={styles.actionColumn}>
-            <AppButton
-              label={isSaved ? '✓ Universal Settings Saved' : 'Save Focus Preferences'}
-              onPress={handleSaveUniversal}
-              size="lg"
-              style={[styles.beginButton, { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary }]}
-            />
-            <Pressable
-              onPress={() => onBeginFocus(duration, effectivePrayer)}
-              hitSlop={8}
-              style={styles.secondaryLink}
-            >
-              <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
-                Begin Focus Now ({effectivePrayer}) ›
-              </AppText>
-            </Pressable>
+          <View style={[styles.headerBadge, { backgroundColor: theme.colors.mintTint }]}>
+            <AppText variant="caption" color={theme.colors.primary} style={styles.headerBadgeText}>
+              {t('prayerFocusMode')}
+            </AppText>
           </View>
-        ) : (
-          <AppButton
-            label={`Begin ${selectedPrayer} Focus (${duration} min)`}
-            onPress={() => onBeginFocus(duration, selectedPrayer)}
-            size="lg"
-            style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
+        </View>
+
+        <ScrollView
+          style={styles.scrollWrapper}
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          bounces={true}
+        >
+          {/* Title Section */}
+          <View style={styles.titleSection}>
+            <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
+              {t('timeToReconnect')}
+            </AppText>
+            <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
+              {t('focusSub')}
+            </AppText>
+          </View>
+
+          {/* 1. Prayer Selector */}
+          <FocusPrayerSelector
+            selectedPrayer={selectedPrayer}
+            targetAzanTime={targetAzan}
+            onSelectPrayer={setSelectedPrayer}
           />
-        )}
+
+          {/* 2. Congregation Delay Offset Card */}
+          <FocusCongregationDelayCard
+            prayerName={selectedPrayer}
+            selectedDelayMinutes={currentDelay}
+            rawAzanDate={targetRawDate}
+            onSelectDelay={handleUpdateDelay}
+          />
+
+          {/* 3. Duration Card */}
+          <FocusDurationCard selectedDuration={duration} onSelectDuration={setDuration} />
+
+          {/* 4. Distraction Shield Card */}
+          <FocusDistractionCard
+            blockSocial={blockSocial}
+            blockShortVideos={blockShortVideos}
+            blockGames={blockGames}
+            blockNews={blockNews}
+            onToggleSocial={() => setBlockSocial((p) => !p)}
+            onToggleShortVideos={() => setBlockShortVideos((p) => !p)}
+            onToggleGames={() => setBlockGames((p) => !p)}
+            onToggleNews={() => setBlockNews((p) => !p)}
+          />
+
+          {/* 5. Automation Settings */}
+          <FocusSettingsCard
+            autoStartOnAzan={autoStart}
+            playAzanBefore={playAzan}
+            onToggleAutoStart={() => setAutoStart((p) => !p)}
+            onTogglePlayAzan={() => setPlayAzan((p) => !p)}
+          />
+        </ScrollView>
+
+        {/* Docked Floating Footer with Phone Navbar Safe Area */}
+        <View
+          style={[
+            styles.dockedFooter,
+            {
+              backgroundColor: theme.colors.surface,
+              borderTopColor: theme.colors.border,
+              paddingBottom: Math.max(insets.bottom, 16),
+            },
+          ]}
+        >
+          {selectedPrayer === 'All' ? (
+            <View style={styles.actionColumn}>
+              <AppButton
+                label={isSaved ? '✓ Universal Settings Saved' : 'Save Focus Preferences'}
+                onPress={handleSaveUniversal}
+                size="lg"
+                style={[styles.beginButton, { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary }]}
+              />
+              <Pressable
+                onPress={() => onBeginFocus(duration, effectivePrayer)}
+                hitSlop={8}
+                style={styles.secondaryLink}
+              >
+                <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
+                  Begin Focus Now ({effectivePrayer}) ›
+                </AppText>
+              </Pressable>
+            </View>
+          ) : (
+            <AppButton
+              label={`Begin ${selectedPrayer} Focus (${duration} min)`}
+              onPress={() => onBeginFocus(duration, selectedPrayer)}
+              size="lg"
+              style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
+            />
+          )}
+        </View>
       </View>
     </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+  },
+  scrollWrapper: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -218,49 +235,14 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
   },
-  headerBadgeText: {
-    fontWeight: '800',
-    fontSize: 11,
-    letterSpacing: 0.6,
-  },
-  scroll: {
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.lg,
-    gap: SPACING.md,
-  },
-  dockedFooter: {
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm + 2,
-    borderTopWidth: 1,
-  },
-  titleSection: {
-    gap: 3,
-    marginBottom: SPACING.xs,
-  },
-  title: {
-    fontWeight: '800',
-    fontSize: 22,
-    letterSpacing: -0.3,
-  },
-  subtitle: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  actionColumn: {
-    gap: SPACING.sm,
-    alignItems: 'center',
-  },
-  beginButton: {
-    width: '100%',
-    borderRadius: RADIUS.lg,
-    minHeight: 52,
-  },
-  secondaryLink: {
-    paddingVertical: 6,
-    paddingHorizontal: SPACING.md,
-  },
-  secondaryText: {
-    fontWeight: '700',
-    fontSize: 13,
-  },
+  headerBadgeText: { fontWeight: '800', fontSize: 11, letterSpacing: 0.6 },
+  scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
+  dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1 },
+  titleSection: { gap: 3, marginBottom: SPACING.xs },
+  title: { fontWeight: '800', fontSize: 22, letterSpacing: -0.3 },
+  subtitle: { fontSize: 13, lineHeight: 18 },
+  actionColumn: { gap: SPACING.sm, alignItems: 'center' },
+  beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 52 },
+  secondaryLink: { paddingVertical: 6, paddingHorizontal: SPACING.md },
+  secondaryText: { fontWeight: '700', fontSize: 13 },
 });
