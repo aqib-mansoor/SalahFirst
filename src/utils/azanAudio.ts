@@ -1,18 +1,16 @@
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync, AudioPlayer, AudioStatus } from 'expo-audio';
 
-const DEFAULT_AZAN_URL =
-  'https://cdn.aladhan.com/audio/adhans/makkah.mp3';
+const DEFAULT_AZAN_URL = 'https://cdn.aladhan.com/audio/adhans/makkah.mp3';
 
-let currentSound: Audio.Sound | null = null;
-let currentPlaybackListener: ((status: AVPlaybackStatus) => void) | null = null;
+let currentPlayer: AudioPlayer | null = null;
+let currentSubscription: { remove: () => void } | null = null;
 
 export const configureAudioMode = async (): Promise<void> => {
   try {
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: false,
+      interruptionMode: 'duckOthers',
     });
   } catch {}
 };
@@ -26,27 +24,24 @@ export const playAzanAudio = async (
     await configureAudioMode();
 
     const uri = customUri || DEFAULT_AZAN_URL;
-    const { sound } = await Audio.Sound.createAsync(
-      { uri },
-      { shouldPlay: true, volume: 1.0 },
-      (status) => {
-        if (!status.isLoaded) {
-          if (status.error) {
-            onStatusUpdate?.(false, true);
-          }
-          return;
-        }
+    const player = createAudioPlayer({ uri });
 
-        if (status.didJustFinish) {
-          onStatusUpdate?.(false, true);
-          stopAzanAudio();
-        } else {
-          onStatusUpdate?.(status.isPlaying, false);
-        }
+    currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
+      if (status.error) {
+        onStatusUpdate?.(false, true);
+        return;
       }
-    );
 
-    currentSound = sound;
+      if (status.didJustFinish) {
+        onStatusUpdate?.(false, true);
+        stopAzanAudio();
+      } else {
+        onStatusUpdate?.(status.playing, false);
+      }
+    });
+
+    player.play();
+    currentPlayer = player;
     return true;
   } catch {
     onStatusUpdate?.(false, true);
@@ -56,20 +51,26 @@ export const playAzanAudio = async (
 
 export const stopAzanAudio = async (): Promise<void> => {
   try {
-    if (currentSound) {
-      await currentSound.stopAsync();
-      await currentSound.unloadAsync();
-      currentSound = null;
+    if (currentSubscription) {
+      currentSubscription.remove();
+      currentSubscription = null;
+    }
+    if (currentPlayer) {
+      currentPlayer.pause();
+      currentPlayer.seekTo(0);
+      currentPlayer.remove();
+      currentPlayer = null;
     }
   } catch {
-    currentSound = null;
+    currentPlayer = null;
+    currentSubscription = null;
   }
 };
 
 export const pauseAzanAudio = async (): Promise<boolean> => {
   try {
-    if (currentSound) {
-      await currentSound.pauseAsync();
+    if (currentPlayer) {
+      currentPlayer.pause();
       return true;
     }
     return false;
@@ -80,8 +81,8 @@ export const pauseAzanAudio = async (): Promise<boolean> => {
 
 export const resumeAzanAudio = async (): Promise<boolean> => {
   try {
-    if (currentSound) {
-      await currentSound.playAsync();
+    if (currentPlayer) {
+      currentPlayer.play();
       return true;
     }
     return false;
@@ -92,11 +93,9 @@ export const resumeAzanAudio = async (): Promise<boolean> => {
 
 export const isAzanPlaying = async (): Promise<boolean> => {
   try {
-    if (!currentSound) return false;
-    const status = await currentSound.getStatusAsync();
-    return status.isLoaded && status.isPlaying;
+    if (!currentPlayer) return false;
+    return currentPlayer.playing;
   } catch {
     return false;
   }
 };
-
