@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, View, Pressable, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { Modal, StyleSheet, View, Pressable, ScrollView } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -8,6 +8,8 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { searchWorldwideCity } from '@/utils/geocoding';
 import { LocationCityRow } from './LocationCityRow';
+import { LocationGpsPinnedCard } from './LocationGpsPinnedCard';
+import { LocationSearchBar } from './LocationSearchBar';
 
 export interface LocationBottomSheetProps {
   visible: boolean;
@@ -71,6 +73,11 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <Pressable style={styles.backdrop} onPress={handleClose} />
 
         <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
+          {/* Top Grab Handle */}
+          <View style={styles.handleWrap}>
+            <View style={[styles.dragHandle, { backgroundColor: theme.colors.border }]} />
+          </View>
+
           {/* Header Row */}
           <View style={styles.headerRow}>
             <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
@@ -81,110 +88,44 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel="Close location selection"
-              style={styles.closeBtn}
+              style={[styles.closeBtn, { backgroundColor: theme.colors.surfaceElevated }]}
             >
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M18 6L6 18M6 6l12 12" stroke={theme.colors.textMuted} strokeWidth="2" strokeLinecap="round" />
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M18 6L6 18M6 6l12 12" stroke={theme.colors.text} strokeWidth="2.2" strokeLinecap="round" />
               </Svg>
             </Pressable>
           </View>
 
-          {/* Search Input */}
-          <TextInput
-            value={search}
-            onChangeText={(txt) => {
+          {/* Pinned Top GPS Card */}
+          {onUseGps && (
+            <LocationGpsPinnedCard
+              isGps={isGps}
+              onPress={() => {
+                onUseGps();
+                handleClose();
+              }}
+            />
+          )}
+
+          {/* Search Input Bar & Online Lookup */}
+          <LocationSearchBar
+            search={search}
+            isSearching={isSearching}
+            onlineError={onlineError}
+            attribution={attribution}
+            onSearchChange={(txt) => {
               setSearch(txt);
               setOnlineError(null);
             }}
-            onSubmitEditing={handleOnlineSearch}
-            placeholder={t('searchCityOrCountry')}
-            placeholderTextColor={theme.colors.textMuted}
-            style={[
-              styles.searchInput,
-              {
-                backgroundColor: theme.colors.surfaceElevated,
-                color: theme.colors.text,
-                borderColor: theme.colors.border,
-              },
-            ]}
+            onClear={() => setSearch('')}
+            onSubmit={handleOnlineSearch}
+            onOnlineSearch={handleOnlineSearch}
           />
 
-          {onlineError && (
-            <AppText variant="caption" color={theme.colors.error} style={{ marginHorizontal: SPACING.xs }}>
-              {onlineError}
-            </AppText>
-          )}
-
-          {trimmed.length >= 2 && !isSearching && (
-            <Pressable
-              onPress={handleOnlineSearch}
-              style={[styles.onlineSearchBtn, { backgroundColor: theme.colors.mintTint }]}
-            >
-              <AppText variant="caption" color={theme.colors.primary} style={{ fontWeight: '700' }}>
-                Search worldwide for "{search.trim()}"
-              </AppText>
-            </Pressable>
-          )}
-
-          {attribution && (
-            <AppText variant="caption" color={theme.colors.textMuted} style={{ fontSize: 10, textAlign: 'center' }}>
-              {attribution}
-            </AppText>
-          )}
-
-          {isSearching && (
-            <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginVertical: SPACING.xs }} />
-          )}
-
-          {/* Cities List */}
+          {/* Scrollable Cities List */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-            {/* GPS Option */}
-            {onUseGps && !trimmed && (
-              <Pressable
-                onPress={() => {
-                  onUseGps();
-                  handleClose();
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Use Live Device GPS"
-                accessibilityState={{ selected: isGps }}
-                style={({ pressed }) => [
-                  styles.gpsCard,
-                  {
-                    backgroundColor: isGps ? theme.colors.bannerGreen : theme.colors.surfaceElevated,
-                    transform: [{ scale: pressed ? 0.98 : 1 }],
-                  },
-                ]}
-              >
-                <View style={styles.gpsInfo}>
-                  <AppText
-                    variant="titleSmall"
-                    color={isGps ? theme.colors.bannerGreenText : theme.colors.text}
-                    style={styles.gpsName}
-                  >
-                    {t('useLiveGps')}
-                  </AppText>
-                  <AppText
-                    variant="caption"
-                    color={isGps ? theme.colors.accentLight : theme.colors.textMuted}
-                    style={styles.gpsText}
-                  >
-                    {t('automaticGps')}
-                  </AppText>
-                </View>
-
-                {isGps && (
-                  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                    <Path d="M5 13l4 4L19 7" stroke={theme.colors.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
-                )}
-              </Pressable>
-            )}
-
             {displayCities.map((city) => {
-              const isSelected =
-                !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
-
+              const isSelected = !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
               return (
                 <LocationCityRow
                   key={city.id}
@@ -205,43 +146,50 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  backdrop: { flex: 1 },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    flex: 1,
+  },
   sheet: {
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.sm,
     paddingBottom: SPACING.xl,
-    maxHeight: '75%',
+    maxHeight: '80%',
     gap: SPACING.sm,
   },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontWeight: '800' },
-  closeBtn: { padding: SPACING.xs },
-  searchInput: {
-    borderWidth: 1,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    fontSize: 14,
-    marginBottom: SPACING.xs,
-  },
-  onlineSearchBtn: {
-    padding: SPACING.sm,
-    borderRadius: RADIUS.md,
+  handleWrap: {
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    paddingVertical: SPACING.xs,
   },
-  list: { gap: SPACING.sm, paddingBottom: SPACING.md },
-  gpsCard: {
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: RADIUS.full,
+  },
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
+    paddingBottom: SPACING.xs,
   },
-  gpsInfo: { gap: 2, flex: 1 },
-  gpsName: { fontWeight: '700' },
-  gpsText: { fontWeight: '500' },
+  title: {
+    fontWeight: '800',
+  },
+  closeBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  list: {
+    gap: SPACING.xs + 2,
+    paddingBottom: SPACING.lg,
+  },
 });
