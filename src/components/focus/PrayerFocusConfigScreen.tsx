@@ -105,10 +105,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         </View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scroll, { paddingBottom: SPACING.md }]}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Title Section */}
         <View style={styles.titleSection}>
           <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
@@ -158,14 +155,14 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         />
       </ScrollView>
 
-      {/* Docked Bottom Action Bar with Safe Area Insets */}
+      {/* Docked Floating Footer with Phone Navbar Safe Area */}
       <View
         style={[
-          styles.bottomBar,
+          styles.dockedFooter,
           {
-            backgroundColor: theme.colors.background,
+            backgroundColor: theme.colors.surface,
             borderTopColor: theme.colors.border,
-            paddingBottom: Math.max(insets.bottom, 16),
+            paddingBottom: Math.max(insets.bottom, 14),
           },
         ]}
       >
@@ -221,18 +218,49 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
   },
-  headerBadgeText: { fontWeight: '800', fontSize: 11, letterSpacing: 0.6 },
-  scroll: { paddingHorizontal: SPACING.lg, gap: SPACING.md },
-  titleSection: { gap: 3, marginBottom: SPACING.xs },
-  title: { fontWeight: '800', fontSize: 22, letterSpacing: -0.3 },
-  subtitle: { fontSize: 13, lineHeight: 18 },
-  bottomBar: {
+  headerBadgeText: {
+    fontWeight: '800',
+    fontSize: 11,
+    letterSpacing: 0.6,
+  },
+  scroll: {
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.lg,
+    gap: SPACING.md,
+  },
+  dockedFooter: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm + 2,
     borderTopWidth: 1,
   },
-  actionColumn: { gap: SPACING.xs + 2, alignItems: 'center' },
-  beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 50 },
-  secondaryLink: { paddingVertical: 4, paddingHorizontal: SPACING.md },
-  secondaryText: { fontWeight: '700', fontSize: 13 },
+  titleSection: {
+    gap: 3,
+    marginBottom: SPACING.xs,
+  },
+  title: {
+    fontWeight: '800',
+    fontSize: 22,
+    letterSpacing: -0.3,
+  },
+  subtitle: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  actionColumn: {
+    gap: SPACING.sm,
+    alignItems: 'center',
+  },
+  beginButton: {
+    width: '100%',
+    borderRadius: RADIUS.lg,
+    minHeight: 52,
+  },
+  secondaryLink: {
+    paddingVertical: 6,
+    paddingHorizontal: SPACING.md,
+  },
+  secondaryText: {
+    fontWeight: '700',
+    fontSize: 13,
+  },
 });
