@@ -1,4 +1,5 @@
 import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
+import { resolveTimezone } from '@/utils/timezone';
 
 export interface PresetCity {
   id: string;
@@ -8,6 +9,7 @@ export interface PresetCity {
   longitude: number;
   qiblaDegrees: number;
   methodName: string;
+  timezone: string;
   region?: string;
 }
 
@@ -17,7 +19,8 @@ const createCity = (
   country: string,
   latitude: number,
   longitude: number,
-  methodName: string
+  methodName: string,
+  timezone?: string
 ): PresetCity => ({
   id,
   name,
@@ -26,6 +29,7 @@ const createCity = (
   longitude,
   qiblaDegrees: calculateQiblaBearing(latitude, longitude),
   methodName,
+  timezone: timezone || resolveTimezone(latitude, longitude, country),
 });
 
 export const PRESET_CITIES: PresetCity[] = [
