@@ -5,6 +5,7 @@ import {
   Share,
   Alert,
   Platform,
+  Animated,
   useWindowDimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -13,6 +14,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
+import { SPACING } from '@/constants/theme';
 import { HadithItem } from '@/data/hadiths';
 import { WallpaperHeader } from './WallpaperHeader';
 import { WallpaperCarousel } from './WallpaperCarousel';
@@ -36,20 +38,40 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const captureViewRef = useRef<ViewShotRef>(null);
 
+  // Proportional phone mockup sizes
+  const cardWidth = Math.round(width * 0.72);
+  const cardHeight = Math.round(height * 0.63);
+  const itemFullWidth = cardWidth + SPACING.sm * 2;
+  const scrollX = useRef(new Animated.Value(0)).current;
+
   const activeTheme = WALLPAPER_THEMES[activeThemeIndex];
 
+  // Dynamic real-time ambient background interpolation
+  const bgInterpolation = scrollX.interpolate({
+    inputRange: WALLPAPER_THEMES.map((_, i) => i * itemFullWidth),
+    outputRange: WALLPAPER_THEMES.map((t) => t.ambientBackground),
+    extrapolate: 'clamp',
+  });
+
+  // Track active index as the user swipes
   useEffect(() => {
+    const listenerId = scrollX.addListener(({ value }) => {
+      const nextIdx = Math.min(
+        Math.max(Math.round(value / itemFullWidth), 0),
+        WALLPAPER_THEMES.length - 1
+      );
+      setActiveThemeIndex((prev) => (prev !== nextIdx ? nextIdx : prev));
+    });
     return () => {
+      scrollX.removeListener(listenerId);
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
-  }, []);
+  }, [itemFullWidth]);
 
   const showToast = (msg: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToastMessage(msg);
-    toastTimeoutRef.current = setTimeout(() => {
-      setToastMessage(null);
-    }, 3500);
+    toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 3500);
   };
 
   const captureActiveWallpaper = async (): Promise<string | null> => {
@@ -64,7 +86,6 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const handleSaveImage = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
-
     try {
       const uri = await captureActiveWallpaper();
       if (!uri) {
@@ -72,7 +93,6 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         setIsProcessing(false);
         return;
       }
-
       const { status } = await MediaLibrary.requestPermissionsAsync(true);
       if (status === 'granted') {
         await MediaLibrary.saveToLibraryAsync(uri);
@@ -80,15 +100,9 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
       } else {
         const isSharingAvailable = await Sharing.isAvailableAsync();
         if (isSharingAvailable) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'image/png',
-            dialogTitle: 'Save Hadith Wallpaper',
-          });
+          await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Save Hadith Wallpaper' });
         } else {
-          Alert.alert(
-            'Permission Required',
-            'Please allow photo library access in device settings to save wallpapers directly to your gallery.'
-          );
+          Alert.alert('Permission Required', 'Please allow photo library access in device settings.');
         }
       }
     } catch {
@@ -101,7 +115,6 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const handleSetWallpaper = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
-
     try {
       const uri = await captureActiveWallpaper();
       if (!uri) {
@@ -109,14 +122,12 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         setIsProcessing(false);
         return;
       }
-
       let contentUri = uri;
       const { status } = await MediaLibrary.requestPermissionsAsync(true);
       if (status === 'granted') {
         const asset = await MediaLibrary.createAssetAsync(uri);
         contentUri = asset.uri;
       }
-
       if (Platform.OS === 'android') {
         try {
           await IntentLauncher.startActivityAsync('android.intent.action.ATTACH_DATA', {
@@ -130,9 +141,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
           // Intent fallback
         }
       }
-
-      const isSharingAvailable = await Sharing.isAvailableAsync();
-      if (isSharingAvailable) {
+      if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
           dialogTitle: `Set ${activeTheme.name} Wallpaper`,
@@ -152,10 +161,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
     try {
       const uri = await captureActiveWallpaper();
       if (uri && (await Sharing.isAvailableAsync())) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'image/png',
-          dialogTitle: 'Share Hadith Wallpaper',
-        });
+        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Share Hadith Wallpaper' });
       } else {
         await Share.share({
           title: 'Share Authentic Hadith',
@@ -170,13 +176,8 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: activeTheme.ambientBackground },
-      ]}
-    >
-      <StatusBar style="light" />
+    <Animated.View style={[styles.container, { backgroundColor: bgInterpolation }]}>
+      <StatusBar style={activeTheme.isDark ? 'light' : 'dark'} />
 
       {/* Top Header with Theme Name & 1/4 Counter */}
       <WallpaperHeader
@@ -189,18 +190,19 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
       {/* Floating Action Feedback Toast */}
       {toastMessage && (
         <View style={styles.toastOverlay}>
-          <HadithToast
-            message={toastMessage}
-            onDismiss={() => setToastMessage(null)}
-          />
+          <HadithToast message={toastMessage} onDismiss={() => setToastMessage(null)} />
         </View>
       )}
 
-      {/* 3D Phone Mockup Animated Carousel */}
+      {/* 3D Phone Mockup Animated Carousel with Continuous Cross-Fade */}
       <WallpaperCarousel
         hadith={hadith}
         activeIndex={activeThemeIndex}
         onIndexChange={setActiveThemeIndex}
+        scrollX={scrollX}
+        cardWidth={cardWidth}
+        cardHeight={cardHeight}
+        itemFullWidth={itemFullWidth}
       />
 
       {/* Hidden Render Target for Full-Resolution Capture */}
@@ -217,21 +219,20 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         />
       </ViewShot>
 
-      {/* Streamlined 3-Action Dock: Save, Set Wallpaper, Share */}
+      {/* Streamlined 3-Action Dock: Save, Set Wallpaper (Luminous Gold), Share */}
       <WallpaperActionDock
         onSaveImage={handleSaveImage}
         onSetWallpaper={handleSetWallpaper}
         onShareStatus={handleShareStatus}
         isProcessing={isProcessing}
       />
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#041710',
   },
   toastOverlay: {
     position: 'absolute',
