@@ -6,4 +6,5 @@ export * from './HomeDailyHadith';
 export * from './HomeBottomNav';
 export * from './PrayerConfirmModal';
 export * from './HomePrayerCardItem';
+export * from './HomeTasbihWidget';
 export * from './HomeScreen';

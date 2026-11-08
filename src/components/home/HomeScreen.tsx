@@ -8,6 +8,7 @@ import { AppContainer } from '@/components/common';
 import { HomeHeader } from './HomeHeader';
 import { HomeHeroCard } from './HomeHeroCard';
 import { HomeSalahTracker } from './HomeSalahTracker';
+import { HomeTasbihWidget } from './HomeTasbihWidget';
 import { HomeDailyHadith } from './HomeDailyHadith';
 import { HomeBottomNav, HomeTab } from './HomeBottomNav';
 
@@ -93,6 +94,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             completedCount={completedCount}
             onTogglePrayer={togglePrayer}
           />
+
+          {/* Interactive Post-Salah Tasbih Widget */}
+          <HomeTasbihWidget />
 
           {/* Mature Daily Hadith Section with Arabic, Urdu & English */}
           <HomeDailyHadith
