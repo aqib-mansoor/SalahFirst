@@ -21,8 +21,6 @@ export const WallpaperSlide: React.FC<WallpaperSlideProps> = ({
   height,
   isPhonePreview = false,
 }) => {
-  const framePadding = isPhonePreview ? 14 : 28;
-
   return (
     <View
       style={[
@@ -34,84 +32,78 @@ export const WallpaperSlide: React.FC<WallpaperSlideProps> = ({
         },
       ]}
     >
-      {/* Background Sacred Geometric Watermark */}
+      {/* Sacred Geometric Watermark (Subtle Illuminated Background) */}
       <View style={[styles.watermarkContainer, isPhonePreview && styles.watermarkPreview]} pointerEvents="none">
-        <Svg width={isPhonePreview ? 200 : 320} height={isPhonePreview ? 200 : 320} viewBox="0 0 260 260">
+        <Svg width={isPhonePreview ? 220 : 360} height={isPhonePreview ? 220 : 360} viewBox="0 0 260 260">
           <G transform="translate(130, 130)">
-            <Circle r={100} stroke={theme.watermarkColor} strokeWidth="1.5" fill="none" />
-            <Circle r={55} stroke={theme.watermarkColor} strokeWidth="1" fill="none" />
-            <Circle r={10} fill={theme.watermarkColor} />
-            <Rect x="-70" y="-70" width="140" height="140" stroke={theme.watermarkColor} strokeWidth="1.8" fill="none" />
-            <Rect x="-70" y="-70" width="140" height="140" stroke={theme.watermarkColor} strokeWidth="1.8" fill="none" transform="rotate(45)" />
+            <Circle r={105} stroke={theme.watermarkColor} strokeWidth="1.2" fill="none" />
+            <Circle r={60} stroke={theme.watermarkColor} strokeWidth="1" fill="none" />
+            <Circle r={8} fill={theme.watermarkColor} />
+            <Rect x="-72" y="-72" width="144" height="144" stroke={theme.watermarkColor} strokeWidth="1.5" fill="none" />
+            <Rect x="-72" y="-72" width="144" height="144" stroke={theme.watermarkColor} strokeWidth="1.5" fill="none" transform="rotate(45)" />
           </G>
         </Svg>
       </View>
 
-      {/* Sacred Manuscript Perimeter Frame (No floating box) */}
-      <View
-        style={[
-          styles.manuscriptFrame,
-          {
-            margin: framePadding,
-            borderColor: theme.cardBorder,
-            borderRadius: isPhonePreview ? 18 : 28,
-          },
-        ]}
-      >
-        {/* Top Sacred Star Ornament */}
-        <View style={styles.topOrnament}>
-          <Svg width={isPhonePreview ? 22 : 32} height={isPhonePreview ? 22 : 32} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
-              stroke={theme.sourceColor}
-              strokeWidth="1.5"
-              fill="none"
-            />
-            <Circle cx="12" cy="12" r="2" fill={theme.sourceColor} />
-          </Svg>
-        </View>
+      {/* Borderless Sacred Lockscreen Canvas */}
+      <View style={[styles.canvas, isPhonePreview ? styles.canvasPreview : styles.canvasFull]}>
+        {/* Top Clock Space (Lockscreen Breathing Zone) */}
+        <View style={isPhonePreview ? styles.clockSpacePreview : styles.clockSpaceFull} />
 
-        {/* Central Fluid Typography Body */}
-        <View style={styles.typographyBody}>
+        {/* Central Sacred Calligraphy & Wisdom Body */}
+        <View style={styles.contentBody}>
+          {/* Top Delicate Sacred Starlet */}
+          <View style={styles.starletFlourish}>
+            <Svg width={isPhonePreview ? 20 : 28} height={isPhonePreview ? 20 : 28} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
+                stroke={theme.sourceColor}
+                strokeWidth="1.5"
+                fill="none"
+              />
+              <Circle cx="12" cy="12" r="2.2" fill={theme.sourceColor} />
+            </Svg>
+          </View>
+
           {/* Majestic Arabic Calligraphy */}
           <AppText
             variant="arabicMotto"
             color={theme.arabicColor}
-            style={[styles.arabicText, isPhonePreview && styles.arabicTextPreview]}
+            style={[styles.arabicText, isPhonePreview ? styles.arabicPreview : styles.arabicFull]}
           >
             {hadith.arabic}
           </AppText>
 
-          {/* Elegant Divider Flourish */}
+          {/* Elegant Sacred Flourish Divider */}
           <View style={styles.dividerRow}>
-            <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
-            <View style={[styles.diamondPoint, { backgroundColor: theme.sourceColor }]} />
-            <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
+            <View style={[styles.dividerHairline, { backgroundColor: theme.sourceColor }]} />
+            <View style={[styles.centerDiamond, { backgroundColor: theme.sourceColor }]} />
+            <View style={[styles.dividerHairline, { backgroundColor: theme.sourceColor }]} />
           </View>
 
-          {/* Clean English Wisdom Translation */}
+          {/* Clean Modern English Wisdom Translation */}
           <AppText
             variant="bodyMedium"
             color={theme.englishColor}
-            style={[styles.englishText, isPhonePreview && styles.englishTextPreview]}
+            style={[styles.englishText, isPhonePreview ? styles.englishPreview : styles.englishFull]}
           >
             "{hadith.english}"
           </AppText>
 
-          {/* Source Citation */}
+          {/* Authenticated Source Citation */}
           <AppText
             variant="titleSmall"
             color={theme.sourceColor}
-            style={[styles.sourceText, isPhonePreview && styles.sourceTextPreview]}
+            style={[styles.sourceText, isPhonePreview ? styles.sourcePreview : styles.sourceFull]}
           >
             {hadith.source.toUpperCase()} {hadith.reference && `• ${hadith.reference}`}
           </AppText>
         </View>
 
-        {/* Subtle Brand Watermark at Bottom */}
-        <View style={styles.brandWatermark}>
-          <AppText variant="caption" color={theme.sourceColor} style={styles.brandText}>
-            SalahFirst
+        {/* Bottom Lockscreen Signature */}
+        <View style={styles.bottomSignature}>
+          <AppText variant="caption" color={theme.sourceColor} style={styles.brandTitle}>
+            SALAHFIRST
           </AppText>
         </View>
       </View>
@@ -126,93 +118,108 @@ const styles = StyleSheet.create({
   },
   watermarkContainer: {
     position: 'absolute',
-    top: '25%',
+    top: '24%',
     alignSelf: 'center',
     opacity: 0.9,
   },
   watermarkPreview: {
     top: '20%',
   },
-  manuscriptFrame: {
+  canvas: {
     flex: 1,
-    borderWidth: 1.2,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xl,
     justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'relative',
   },
-  topOrnament: {
-    paddingTop: SPACING.xs,
-    opacity: 0.9,
+  canvasPreview: {
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
   },
-  typographyBody: {
+  canvasFull: {
+    paddingHorizontal: SPACING.xl,
+    paddingBottom: SPACING.xl * 1.5,
+  },
+  clockSpacePreview: {
+    height: '18%',
+  },
+  clockSpaceFull: {
+    height: '24%',
+  },
+  contentBody: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: SPACING.md,
-    paddingVertical: SPACING.md,
+    gap: SPACING.sm + 2,
+  },
+  starletFlourish: {
+    opacity: 0.9,
+    marginBottom: 2,
   },
   arabicText: {
-    fontSize: 28,
-    lineHeight: 48,
     textAlign: 'center',
     fontWeight: '700',
-    paddingHorizontal: SPACING.sm,
   },
-  arabicTextPreview: {
+  arabicPreview: {
     fontSize: 18,
     lineHeight: 32,
     paddingHorizontal: 2,
   },
+  arabicFull: {
+    fontSize: 32,
+    lineHeight: 54,
+    paddingHorizontal: SPACING.md,
+  },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '60%',
+    width: '50%',
     gap: 8,
-    marginVertical: SPACING.xs,
+    marginVertical: 4,
   },
-  dividerLine: {
+  dividerHairline: {
     flex: 1,
     height: 1,
-    opacity: 0.6,
+    opacity: 0.45,
   },
-  diamondPoint: {
+  centerDiamond: {
     width: 5,
     height: 5,
     transform: [{ rotate: '45deg' }],
   },
   englishText: {
-    fontSize: 14,
-    lineHeight: 22,
     textAlign: 'center',
     fontWeight: '500',
     opacity: 0.95,
-    paddingHorizontal: SPACING.xs,
   },
-  englishTextPreview: {
+  englishPreview: {
     fontSize: 11,
     lineHeight: 16,
-    paddingHorizontal: 0,
+    paddingHorizontal: 4,
+  },
+  englishFull: {
+    fontSize: 16,
+    lineHeight: 25,
+    paddingHorizontal: SPACING.lg,
   },
   sourceText: {
-    fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 1.4,
+    letterSpacing: 1.5,
     textAlign: 'center',
     marginTop: 4,
   },
-  sourceTextPreview: {
+  sourcePreview: {
     fontSize: 9,
-    letterSpacing: 1,
-    marginTop: 2,
+    letterSpacing: 1.1,
   },
-  brandWatermark: {
+  sourceFull: {
+    fontSize: 12,
+    letterSpacing: 1.8,
+  },
+  bottomSignature: {
     paddingBottom: SPACING.xs,
     opacity: 0.4,
   },
-  brandText: {
-    letterSpacing: 3,
+  brandTitle: {
+    letterSpacing: 3.5,
     fontWeight: '800',
     fontSize: 9,
     textTransform: 'uppercase',

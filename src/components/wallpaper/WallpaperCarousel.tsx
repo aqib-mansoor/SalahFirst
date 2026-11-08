@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -10,30 +10,31 @@ import {
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
 import { HadithItem } from '@/data/hadiths';
 import { WallpaperSlide } from './WallpaperSlide';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export interface WallpaperCarouselProps {
   hadith: HadithItem;
   activeIndex: number;
   onIndexChange: (index: number) => void;
+  scrollX: Animated.Value;
+  cardWidth: number;
+  cardHeight: number;
+  itemFullWidth: number;
 }
 
 export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
   hadith,
   activeIndex,
   onIndexChange,
+  scrollX,
+  cardWidth,
+  cardHeight,
+  itemFullWidth,
 }) => {
   const theme = useTheme();
-  const { width, height } = useWindowDimensions();
-  const scrollX = useRef(new Animated.Value(0)).current;
-
-  // Proportional Phone Mockup Dimensions
-  const cardWidth = Math.round(width * 0.72);
-  const cardHeight = Math.round(height * 0.63);
-  const itemSpacing = SPACING.sm;
-  const itemFullWidth = cardWidth + itemSpacing * 2;
-  const sideSpacer = (width - itemFullWidth) / 2;
+  const { width } = useWindowDimensions();
+  const sideSpacer = Math.max((width - itemFullWidth) / 2, 0);
 
   const handleMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
@@ -42,6 +43,8 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
       onIndexChange(index);
     }
   };
+
+  const isLightScreen = !WALLPAPER_THEMES[activeIndex]?.isDark;
 
   return (
     <View style={styles.container}>
@@ -53,13 +56,14 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
         snapToInterval={itemFullWidth}
         decelerationRate="fast"
         bounces={false}
+        scrollEventThrottle={16}
         contentContainerStyle={{
-          paddingHorizontal: Math.max(sideSpacer, 0),
+          paddingHorizontal: sideSpacer,
           alignItems: 'center',
         }}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: false }
         )}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         renderItem={({ item, index }) => {
@@ -77,7 +81,7 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
 
           const opacity = scrollX.interpolate({
             inputRange,
-            outputRange: [0.55, 1, 0.55],
+            outputRange: [0.6, 1, 0.6],
             extrapolate: 'clamp',
           });
 
@@ -99,13 +103,16 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
                   {
                     width: cardWidth,
                     height: cardHeight,
+                    borderColor: item.isDark
+                      ? 'rgba(255, 255, 255, 0.28)'
+                      : 'rgba(0, 0, 0, 0.12)',
                   },
                 ]}
               >
                 {/* Top Phone Notch / Dynamic Island */}
                 <View style={styles.dynamicIsland} />
 
-                {/* Wallpaper Render Target */}
+                {/* Seamless Borderless Lockscreen Target */}
                 <WallpaperSlide
                   theme={item}
                   hadith={hadith}
@@ -123,15 +130,17 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
       <View style={styles.paginationRow}>
         {WALLPAPER_THEMES.map((t, i) => {
           const isActive = i === activeIndex;
+          const inactiveDotColor = isLightScreen
+            ? 'rgba(0, 0, 0, 0.2)'
+            : 'rgba(255, 255, 255, 0.3)';
+
           return (
             <View
               key={t.id}
               style={[
                 styles.dot,
                 {
-                  backgroundColor: isActive
-                    ? theme.colors.accent
-                    : 'rgba(255, 255, 255, 0.3)',
+                  backgroundColor: isActive ? theme.colors.accent : inactiveDotColor,
                   width: isActive ? 22 : 6,
                 },
               ]}
@@ -153,9 +162,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   phoneFrame: {
-    borderRadius: 30,
+    borderRadius: 32,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.28)',
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
