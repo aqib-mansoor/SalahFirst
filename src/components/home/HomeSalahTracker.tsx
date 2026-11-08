@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
+import { PrayerConfirmModal } from './PrayerConfirmModal';
 
 export interface HomeSalahTrackerProps {
   prayers: PrayerStatus[];
@@ -20,7 +21,26 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [confirmPrayer, setConfirmPrayer] = useState<string | null>(null);
+
   const progressPercent = Math.min(100, Math.max(0, (completedCount / 5) * 100));
+
+  const handlePrayerPress = (item: PrayerStatus) => {
+    if (item.completed) {
+      // Toggle off directly if already marked
+      onTogglePrayer(item.name);
+    } else {
+      // Prompt honesty confirmation modal before marking complete
+      setConfirmPrayer(item.name);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (confirmPrayer) {
+      onTogglePrayer(confirmPrayer);
+      setConfirmPrayer(null);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -29,17 +49,17 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
         <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
           {t('todaysSalah')}
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.primary} style={styles.countText}>
+        <AppText variant="bodySmall" color={PALETTE.emeraldDark} style={styles.countText}>
           {t('prayersCompletedCount', { count: completedCount, total: 5 })}
         </AppText>
       </View>
 
       {/* Progress Bar Track */}
-      <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
+      <View style={[styles.progressTrack, { backgroundColor: '#E5E7EB' }]}>
         <View
           style={[
             styles.progressFill,
-            { backgroundColor: theme.colors.primary, width: `${progressPercent}%` },
+            { backgroundColor: PALETTE.emeraldDark, width: `${progressPercent}%` },
           ]}
         />
       </View>
@@ -52,25 +72,24 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
           return (
             <Pressable
               key={item.name}
-              onPress={() => onTogglePrayer(item.name)}
+              onPress={() => handlePrayerPress(item)}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: item.completed }}
               accessibilityLabel={`${item.name} at ${item.time}`}
-              accessibilityHint={`Tap to mark ${item.name} as ${item.completed ? 'uncompleted' : 'completed'}`}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.prayerCard,
                 {
                   backgroundColor: theme.colors.surface,
-                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  borderWidth: isSelected ? 1.5 : 1,
+                  borderColor: isSelected ? PALETTE.emeraldDark : '#E2E8F0',
+                  borderWidth: isSelected ? 1.8 : 1,
                   transform: [{ scale: pressed ? 0.96 : 1 }],
                 },
               ]}
             >
               <AppText
                 variant="bodySmall"
-                color={isSelected ? theme.colors.primary : theme.colors.text}
+                color={isSelected ? PALETTE.emeraldDark : theme.colors.text}
                 style={styles.prayerName}
               >
                 {t(item.name.toLowerCase() as any) || item.name}
@@ -83,31 +102,37 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
               {/* Status Circle Indicator */}
               <View style={styles.circleContainer}>
                 {item.completed ? (
-                  <View style={[styles.completedCircle, { backgroundColor: theme.colors.primary }]}>
+                  <View style={[styles.completedCircle, { backgroundColor: PALETTE.emeraldDark }]}>
                     <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13L9 17L19 7" stroke={theme.colors.surface} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      <Path d="M5 13L9 17L19 7" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                     </Svg>
                   </View>
                 ) : isSelected ? (
-                  <View style={[styles.currentCircle, { borderColor: theme.colors.primary }]}>
-                    <View style={[styles.innerGoldDot, { backgroundColor: theme.colors.accent }]} />
+                  <View style={[styles.currentCircle, { borderColor: PALETTE.emeraldDark }]}>
+                    <View style={[styles.innerGoldDot, { backgroundColor: PALETTE.gold }]} />
                   </View>
                 ) : (
-                  <View style={[styles.emptyCircle, { borderColor: theme.colors.border }]} />
+                  <View style={[styles.emptyCircle, { borderColor: '#CBD5E1' }]} />
                 )}
               </View>
             </Pressable>
           );
         })}
       </View>
+
+      {/* Islamic Honesty Prayer Confirmation Modal */}
+      <PrayerConfirmModal
+        visible={confirmPrayer !== null}
+        prayerName={confirmPrayer || ''}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmPrayer(null)}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: SPACING.lg,
-    marginVertical: SPACING.sm,
     gap: SPACING.sm,
   },
   headerRow: {
@@ -117,16 +142,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '800',
+    letterSpacing: -0.2,
   },
   countText: {
-    fontWeight: '600',
+    fontWeight: '700',
   },
   progressTrack: {
-    height: 6,
+    height: 4,
     borderRadius: RADIUS.full,
     overflow: 'hidden',
-    width: '100%',
-    marginBottom: SPACING.xs,
+    marginVertical: 2,
   },
   progressFill: {
     height: '100%',
@@ -135,42 +160,49 @@ const styles = StyleSheet.create({
   cardsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 6,
+    gap: SPACING.xs + 2,
+    marginTop: SPACING.xs,
   },
   prayerCard: {
     flex: 1,
-    paddingVertical: SPACING.md - 2,
-    paddingHorizontal: 4,
+    minHeight: 88,
     borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: 2,
     alignItems: 'center',
-    gap: 4,
-    minHeight: 80,
     justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   prayerName: {
     fontWeight: '700',
+    fontSize: 13,
   },
   prayerTime: {
+    fontSize: 11,
     fontWeight: '500',
   },
   circleContainer: {
-    marginTop: 4,
-    width: 22,
-    height: 22,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   completedCircle: {
     width: 22,
     height: 22,
-    borderRadius: RADIUS.full,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
   },
   currentCircle: {
     width: 22,
     height: 22,
-    borderRadius: RADIUS.full,
+    borderRadius: 11,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -178,12 +210,12 @@ const styles = StyleSheet.create({
   innerGoldDot: {
     width: 8,
     height: 8,
-    borderRadius: RADIUS.full,
+    borderRadius: 4,
   },
   emptyCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: RADIUS.full,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 1.5,
   },
 });

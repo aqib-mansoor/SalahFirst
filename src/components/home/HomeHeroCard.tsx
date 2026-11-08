@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -36,54 +36,67 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
-      <IslamicWatermark size={240} opacity={0.16} style={styles.watermark} />
+      {/* Dual Islamic Geometry Canvas Watermarks */}
+      <IslamicWatermark
+        size={250}
+        opacity={0.24}
+        color={PALETTE.emeraldWatermark}
+        style={styles.watermarkTopRight}
+      />
+      <IslamicWatermark
+        size={220}
+        opacity={0.16}
+        color={PALETTE.goldLight}
+        style={styles.watermarkBottomLeft}
+      />
 
-      {/* Top Row: Current Prayer + Completed Status */}
+      {/* Top Row: Current Prayer Pill + Completed Status */}
       <View style={styles.topRow}>
         <View style={styles.currentTag}>
-          <View style={[styles.goldDot, { backgroundColor: theme.colors.accentLight }]} />
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
+          <View style={styles.goldDot} />
+          <AppText variant="caption" style={styles.currentText}>
             {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
           </AppText>
         </View>
 
-        <AppText
-          variant="bodySmall"
-          color={isCurrentCompleted ? theme.colors.accentLight : 'rgba(255,255,255,0.75)'}
-          style={styles.completedTag}
-        >
-          {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
-        </AppText>
+        <View style={[styles.statusPill, isCurrentCompleted && styles.statusPillCompleted]}>
+          <AppText
+            variant="caption"
+            style={[styles.completedTag, isCurrentCompleted && styles.completedTagGreen]}
+          >
+            {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
+          </AppText>
+        </View>
       </View>
 
       {/* Center Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
-            {t('nextPrayer')} • <AppText variant="titleSmall" color={theme.colors.bannerGreenText}>{localizedNextPrayer}</AppText>
+          <AppText variant="bodySmall" style={styles.nextPrayerLabel}>
+            {t('nextPrayer')} • <AppText style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
 
-          <AppText variant="brandTitle" color={theme.colors.bannerGreenText} style={styles.countdownNumber}>
+          <AppText style={styles.countdownNumber}>
             {countdownText}
           </AppText>
         </View>
 
         <View style={styles.rightAzan}>
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.azanLabel}>
+          <AppText variant="caption" style={styles.azanLabel}>
             {t('azanTime')}
           </AppText>
-          <AppText variant="titleLarge" color={theme.colors.accentLight} style={styles.azanTime}>
+          <AppText style={styles.azanTime}>
             {nextPrayerTimeFormatted}
           </AppText>
         </View>
       </View>
 
-      {/* Focus Mode Button */}
+      {/* Focus Mode Button in Splash Screen Gold */}
       <Pressable
         onPress={onStartPrayerFocus}
         accessibilityRole="button"
         accessibilityLabel={`${t('startPrayerFocus')}, 15 min`}
-        accessibilityHint="Opens dedicated quiet focus mode to dedicate time to prayer"
+        accessibilityHint="Opens quiet focus mode for prayer"
         style={({ pressed }) => [
           styles.focusButton,
           {
@@ -98,7 +111,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         <AppText variant="titleSmall" color={theme.colors.buttonGoldText} style={styles.focusButtonText}>
           {t('startPrayerFocus')}
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.buttonGoldText} style={styles.durationText}>
+        <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.focusDurationText}>
           15 min
         </AppText>
       </Pressable>
@@ -108,82 +121,132 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: RADIUS.xxl,
+    minHeight: 224,
+    borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     overflow: 'hidden',
     position: 'relative',
-    marginHorizontal: SPACING.lg,
-    marginVertical: SPACING.sm,
-    gap: SPACING.md,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: 'rgba(204, 161, 95, 0.32)',
+    shadowColor: PALETTE.emeraldDark,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.28,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  watermark: {
-    top: -20,
-    right: -40,
+  watermarkTopRight: {
+    top: -30,
+    right: -45,
+  },
+  watermarkBottomLeft: {
+    bottom: -45,
+    left: -40,
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
   },
   currentTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: SPACING.xs + 2,
+    paddingHorizontal: SPACING.sm + 4,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(204, 161, 95, 0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(204, 161, 95, 0.45)',
   },
   goldDot: {
-    width: 7,
-    height: 7,
-    borderRadius: RADIUS.full,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FDE68A',
   },
   currentText: {
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontWeight: '700',
+    fontSize: 11,
+    color: '#FDE68A',
+  },
+  statusPill: {
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  statusPillCompleted: {
+    backgroundColor: 'rgba(204, 161, 95, 0.22)',
   },
   completedTag: {
     fontWeight: '600',
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.85)',
+  },
+  completedTagGreen: {
+    color: '#FDE68A',
+    fontWeight: '700',
   },
   centerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginVertical: SPACING.xs,
+    justifyContent: 'space-between',
+    marginVertical: SPACING.sm,
   },
   leftCountdown: {
-    gap: 2,
+    gap: 4,
   },
   nextPrayerLabel: {
-    fontWeight: '500',
+    fontSize: 13,
+    color: PALETTE.goldLight,
+  },
+  nextPrayerBold: {
+    fontWeight: '800',
+    color: '#FFFFFF',
+    fontSize: 14,
   },
   countdownNumber: {
-    fontSize: 34,
+    fontSize: 36,
     fontWeight: '800',
-    letterSpacing: -1,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
   rightAzan: {
     alignItems: 'flex-end',
     gap: 2,
   },
   azanLabel: {
+    fontSize: 11.5,
+    color: PALETTE.goldLight,
     fontWeight: '600',
   },
   azanTime: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
+    color: '#FFFFFF',
   },
   focusButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.md - 2,
+    paddingVertical: SPACING.md,
     borderRadius: RADIUS.lg,
     gap: SPACING.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   focusButtonText: {
     fontWeight: '700',
+    fontSize: 15,
   },
-  durationText: {
-    fontWeight: '600',
+  focusDurationText: {
     opacity: 0.85,
+    fontSize: 12.5,
+    fontWeight: '600',
   },
 });
-
