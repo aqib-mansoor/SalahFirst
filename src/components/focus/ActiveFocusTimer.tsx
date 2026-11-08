@@ -18,18 +18,23 @@ export const ActiveFocusTimer: React.FC<ActiveFocusTimerProps> = ({
 
   return (
     <View style={styles.outerRing}>
-      <View style={styles.contentColumn}>
-        <AppText variant="caption" color={PALETTE.goldLight} style={styles.remainingTag}>
-          REMAINING
-        </AppText>
+      <View style={styles.innerRing}>
+        <View style={styles.contentColumn}>
+          <AppText variant="caption" style={styles.remainingTag}>
+            TIME REMAINING
+          </AppText>
 
-        <AppText variant="brandTitle" color={PALETTE.white} style={styles.timerNumber}>
-          {timerDisplay}
-        </AppText>
+          <AppText variant="brandTitle" color={PALETTE.white} style={styles.timerNumber}>
+            {timerDisplay}
+          </AppText>
 
-        <AppText variant="caption" color={PALETTE.goldLight} style={styles.dndTag}>
-          DND Active
-        </AppText>
+          <View style={styles.shieldBadge}>
+            <View style={styles.liveIndicator} />
+            <AppText variant="caption" style={styles.shieldText}>
+              Distraction Shield
+            </AppText>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -37,40 +42,63 @@ export const ActiveFocusTimer: React.FC<ActiveFocusTimerProps> = ({
 
 const styles = StyleSheet.create({
   outerRing: {
-    width: 250,
-    height: 250,
+    width: 260,
+    height: 260,
     borderRadius: RADIUS.full,
     borderWidth: 1.5,
-    borderColor: PALETTE.gold,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
+    marginVertical: 18,
+  },
+  innerRing: {
+    width: 236,
+    height: 236,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contentColumn: {
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
   },
   remainingTag: {
     letterSpacing: 2,
-    fontWeight: '700',
-    opacity: 0.9,
+    fontWeight: '600',
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   timerNumber: {
-    fontSize: 52,
-    lineHeight: 60,
+    fontSize: 54,
+    lineHeight: 62,
     fontWeight: '800',
     letterSpacing: -1,
   },
-  dndTag: {
-    letterSpacing: 1.2,
+  shieldBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    marginTop: 2,
+  },
+  liveIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#34D399',
+  },
+  shieldText: {
+    letterSpacing: 0.8,
     fontWeight: '600',
-    opacity: 0.9,
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
 });
-
