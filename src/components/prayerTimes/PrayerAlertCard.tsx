@@ -61,8 +61,16 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
         </View>
       </View>
 
-      {/* 3-Mode Segmented Controls */}
-      <View style={styles.modesRow}>
+      {/* 3-Mode Unified Segmented Track */}
+      <View
+        style={[
+          styles.track,
+          {
+            backgroundColor: theme.colors.surfaceElevated,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
         {ALERT_MODES.map((mode) => {
           const active = isModeActive(mode.id);
           const iconColor = active ? theme.colors.primary : theme.colors.textMuted;
@@ -75,17 +83,15 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               accessibilityLabel={`${name} ${t(mode.labelKey as any)}`}
-              style={({ pressed }) => [
-                styles.modePill,
-                {
-                  backgroundColor: active
-                    ? theme.colors.secondaryTint
-                    : pressed
-                    ? theme.colors.surfaceElevated
-                    : theme.colors.surfaceElevated,
-                  borderColor: active ? theme.colors.primary : theme.colors.border,
-                  borderWidth: active ? 1.5 : 1,
-                },
+              style={[
+                styles.segment,
+                active && [
+                  styles.activeSegment,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.primary,
+                  },
+                ],
               ]}
             >
               <NotificationModeIcon mode={mode.id} color={iconColor} size={15} />
@@ -93,7 +99,8 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
                 variant="caption"
                 color={active ? theme.colors.primary : theme.colors.textMuted}
                 align="center"
-                style={{ fontWeight: active ? '700' : '500', fontSize: 11 }}
+                numberOfLines={1}
+                style={{ fontWeight: active ? '700' : '600', fontSize: 12 }}
               >
                 {t(mode.labelKey as any)}
               </AppText>
@@ -130,17 +137,28 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
   },
-  modesRow: {
+  track: {
     flexDirection: 'row',
-    gap: 6,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    padding: 3,
+    gap: 4,
   },
-  modePill: {
+  segment: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     paddingVertical: SPACING.xs + 3,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.md,
+  },
+  activeSegment: {
+    borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 });

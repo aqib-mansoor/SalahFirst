@@ -4,6 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { ReminderOffset } from '@/types';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrePrayerReminderCardProps {
   currentOffset: ReminderOffset;
@@ -12,9 +13,9 @@ export interface PrePrayerReminderCardProps {
 
 const REMINDER_OPTIONS: { id: ReminderOffset; label: string }[] = [
   { id: 'off', label: 'Off' },
-  { id: '10m', label: '10m\nbefore' },
-  { id: '15m', label: '15m\nbefore' },
-  { id: '30m', label: '30m\nbefore' },
+  { id: '10m', label: '10 min' },
+  { id: '15m', label: '15 min' },
+  { id: '30m', label: '30 min' },
 ];
 
 export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
@@ -22,6 +23,12 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
   onSelectOffset,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const getDisplayOffset = () => {
+    if (currentOffset === 'off') return t('off');
+    return `${currentOffset.replace('m', '')} min`;
+  };
 
   return (
     <View
@@ -30,11 +37,27 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-        Pre-Prayer Gentle Reminder
-      </AppText>
+      <View style={styles.header}>
+        <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
+          {t('prePrayerReminder')}
+        </AppText>
+        <View style={[styles.activeTag, { backgroundColor: theme.colors.secondaryTint }]}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.tagText}>
+            {getDisplayOffset()}
+          </AppText>
+        </View>
+      </View>
 
-      <View style={styles.reminderRow}>
+      {/* Single-line Unified Segmented Control Track */}
+      <View
+        style={[
+          styles.track,
+          {
+            backgroundColor: theme.colors.surfaceElevated,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
         {REMINDER_OPTIONS.map((opt) => {
           const active = currentOffset === opt.id;
           return (
@@ -44,25 +67,24 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
               hitSlop={4}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
-              accessibilityLabel={`Pre-prayer reminder ${opt.label.replace('\n', ' ')}`}
-              style={({ pressed }) => [
-                styles.reminderPill,
-                {
-                  backgroundColor: active
-                    ? theme.colors.secondaryTint
-                    : pressed
-                    ? theme.colors.surfaceElevated
-                    : theme.colors.surfaceElevated,
-                  borderColor: active ? theme.colors.primary : theme.colors.border,
-                  borderWidth: active ? 1.5 : 1,
-                },
+              accessibilityLabel={`Reminder ${opt.label}`}
+              style={[
+                styles.segment,
+                active && [
+                  styles.activeSegment,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.primary,
+                  },
+                ],
               ]}
             >
               <AppText
                 variant="caption"
                 color={active ? theme.colors.primary : theme.colors.textMuted}
                 align="center"
-                style={{ fontWeight: active ? '700' : '500', fontSize: 11 }}
+                numberOfLines={1}
+                style={{ fontWeight: active ? '700' : '600', fontSize: 12 }}
               >
                 {opt.label}
               </AppText>
@@ -81,20 +103,44 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: SPACING.sm,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   boldText: {
     fontWeight: '700',
+    fontSize: 13,
   },
-  reminderRow: {
+  activeTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  track: {
     flexDirection: 'row',
-    gap: 6,
-    marginTop: 2,
-  },
-  reminderPill: {
-    flex: 1,
-    paddingVertical: SPACING.sm,
     borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    padding: 3,
+    gap: 4,
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
+  },
+  activeSegment: {
+    borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 });
