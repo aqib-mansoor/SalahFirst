@@ -135,6 +135,13 @@
   "distance": "فاصلہ",
   "magneticInterference": "مقناطیسی اثر معلوم ہوا۔ فون کو 8 کے ہندسے کے انداز میں گھمائیں۔",
   "sensorUnavailable": "اس ڈیوائس میں کمپاس سینسر دستیاب نہیں ہے۔",
+  "makkahSanctuary": "مکہ مکرمہ",
+  "makkahSubtitle": "حرم مکی اور بیت اللہ شریف",
+  "makkahLocalTime": "مکہ کا وقت",
+  "kaabaCoordinates": "مقام کعبہ کے نقاط",
+  "qiblaVerificationTitle": "تصدیق قبلہ اور شمسی رہنمائی",
+  "indoorInterferenceTip": "کمرے کے برقی آلات اور مقناطیسی کور سے سینسر متاثر ہو سکتا ہے۔",
+  "sunVerificationTip": "یقینی درستگی کے لیے مقامی مسجد کے محراب یا سورج کے رخ سے رہنمائی لیں۔",
 
   "settingsTitle": "ترتیبات",
   "preferences": "ترجیحات",

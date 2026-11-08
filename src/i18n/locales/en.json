@@ -135,6 +135,13 @@
   "distance": "Distance",
   "magneticInterference": "Magnetic interference detected. Wave phone in a figure-8 motion.",
   "sensorUnavailable": "Magnetometer sensor unavailable on this device.",
+  "makkahSanctuary": "Makkah al-Mukarramah",
+  "makkahSubtitle": "The Holy Sanctuary & Sacred Kaaba",
+  "makkahLocalTime": "Makkah Time",
+  "kaabaCoordinates": "Kaaba Coordinates",
+  "qiblaVerificationTitle": "Qibla Verification & Sun Alignment",
+  "indoorInterferenceTip": "Indoor electronics and magnetic phone cases can deflect sensors.",
+  "sunVerificationTip": "For verified accuracy, cross-reference with local mosque mihrabs or solar direction.",
 
   "settingsTitle": "Settings",
   "preferences": "Preferences",

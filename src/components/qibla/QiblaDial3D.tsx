@@ -2,14 +2,13 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Rect, G, Line } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
-import { SPACING } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { AppText } from '@/components/common';
 import { TurnDirection } from '@/hooks/useQiblaCompass';
 import { KaabaEmblem3D } from './KaabaEmblem3D';
 import { QiblaGuidancePill } from './QiblaGuidancePill';
 
 export interface QiblaDial3DProps {
-  heading: number;
   relativePointerAngle: number;
   isAligned: boolean;
   turnDirection: TurnDirection;
@@ -20,7 +19,6 @@ const DIAL_SIZE = 280;
 const RADIUS_VAL = DIAL_SIZE / 2;
 
 export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
-  heading,
   relativePointerAngle,
   isAligned,
   turnDirection,
@@ -30,7 +28,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Outer Compass Dial Card */}
+      {/* Outer Compass Dial Card (Fixed North-Anchored) */}
       <View
         style={[
           styles.dialCard,
@@ -41,13 +39,18 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           },
         ]}
       >
-        {/* Rotating Dial Ring containing Cardinal Points and Rub el Hizb Star */}
+        {/* 12 o'clock Target Alignment Notch */}
         <View
           style={[
-            styles.dialRotator,
-            { transform: [{ rotate: `${-heading}deg` }] },
+            styles.targetNotch,
+            {
+              backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary,
+            },
           ]}
-        >
+        />
+
+        {/* Stationary Dial Ring containing Cardinal Points and Rub el Hizb Star */}
+        <View style={styles.dialRotator}>
           <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
             <Circle
               cx={RADIUS_VAL}
@@ -143,7 +146,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           </AppText>
         </View>
 
-        {/* Needle pointing towards Qibla direction with Kaaba Emblem */}
+        {/* Dynamic Needle pointing towards Qibla direction with Kaaba Emblem */}
         <View
           style={[
             styles.needleLayer,
@@ -182,7 +185,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
         </View>
       </View>
 
-      {/* Guidance Pill Sub-component */}
+      {/* Seamless Guidance Pill Directly Beneath Dial */}
       <QiblaGuidancePill
         isAligned={isAligned}
         turnDirection={turnDirection}
@@ -210,6 +213,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 4,
+  },
+  targetNotch: {
+    position: 'absolute',
+    top: -2,
+    width: 6,
+    height: 12,
+    borderRadius: RADIUS.full,
+    zIndex: 20,
   },
   dialRotator: {
     ...StyleSheet.absoluteFill,

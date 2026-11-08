@@ -135,6 +135,13 @@
   "distance": "المسافة",
   "magneticInterference": "تم رصد تداخل مغناطيسي. حرك الهاتف على شكل رقم 8 لمعايرة البوصلة.",
   "sensorUnavailable": "مستشعر البوصلة غير متوفر في هذا الجهاز.",
+  "makkahSanctuary": "مكة المكرمة",
+  "makkahSubtitle": "الحرم المكي الشريف والكعبة المشرفة",
+  "makkahLocalTime": "توقيت مكة",
+  "kaabaCoordinates": "إحداثيات الكعبة",
+  "qiblaVerificationTitle": "التحقق من القبلة والسمت الشمسي",
+  "indoorInterferenceTip": "قد تؤثر الأجهزة الإلكترونية والأغطية المغناطيسية على دقة المستشعر في الأماكن المغلقة.",
+  "sunVerificationTip": "للتأكد التام، يفضل الاستئناس بمحاريب المساجد أو موضع الشمس.",
 
   "settingsTitle": "الإعدادات",
   "preferences": "التفضيلات",

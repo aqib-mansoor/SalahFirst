@@ -12,6 +12,8 @@ import { useTranslation } from '@/context/LocalizationContext';
 import { QiblaHeader } from './QiblaHeader';
 import { QiblaDial3D } from './QiblaDial3D';
 import { QiblaTelemetryCard } from './QiblaTelemetryCard';
+import { MakkahSanctuaryCard } from './MakkahSanctuaryCard';
+import { QiblaVerificationCard } from './QiblaVerificationCard';
 import { QiblaCalibrationTip } from './QiblaCalibrationTip';
 
 export interface QiblaScreenProps {
@@ -72,9 +74,8 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Central Compass Dial with Integrated Directional Guidance Pill */}
+          {/* Central Compass Dial with Fixed Ring & Dynamic Rotating Qibla Needle */}
           <QiblaDial3D
-            heading={heading}
             relativePointerAngle={relativePointerAngle}
             isAligned={isAligned}
             turnDirection={turnDirection}
@@ -88,6 +89,15 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
             distanceKm={distanceKm}
             cardinal={cardinal}
           />
+
+          {/* Makkah Sanctuary Live Telemetry Card */}
+          <MakkahSanctuaryCard
+            distanceKm={distanceKm}
+            qiblaBearing={qiblaBearing}
+          />
+
+          {/* Qibla Verification & Sun Alignment Card */}
+          <QiblaVerificationCard />
 
           {/* Calibration Alert (Renders ONLY if interference is actively detected) */}
           <QiblaCalibrationTip
