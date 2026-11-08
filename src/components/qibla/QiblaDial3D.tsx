@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Rect, G, Line } from 'react-native-svg';
+import Svg, { Circle, Rect, G, Line, Polygon } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { AppText } from '@/components/common';
@@ -26,6 +26,9 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
 }) => {
   const theme = useTheme();
 
+  const needleColor = isAligned ? theme.colors.accent : theme.colors.primary;
+  const needleTailColor = theme.colors.textMuted;
+
   return (
     <View style={styles.container}>
       {/* Outer Compass Dial Card (Fixed North-Anchored) */}
@@ -39,16 +42,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           },
         ]}
       >
-        {/* 12 o'clock Target Alignment Notch */}
-        <View
-          style={[
-            styles.targetNotch,
-            {
-              backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary,
-            },
-          ]}
-        />
-
         {/* Stationary Dial Ring containing Cardinal Points and Rub el Hizb Star */}
         <View style={styles.dialRotator}>
           <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
@@ -106,9 +99,9 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
               <G key={deg} transform={`rotate(${deg} ${RADIUS_VAL} ${RADIUS_VAL})`}>
                 <Line
                   x1={RADIUS_VAL}
-                  y1={12}
+                  y1={deg === 0 ? 32 : 12}
                   x2={RADIUS_VAL}
-                  y2={deg % 90 === 0 ? 20 : 16}
+                  y2={deg === 0 ? 36 : deg % 90 === 0 ? 20 : 16}
                   stroke={deg === 0 ? theme.colors.accent : theme.colors.textMuted}
                   strokeWidth={deg % 90 === 0 ? '2' : '1'}
                 />
@@ -146,39 +139,52 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           </AppText>
         </View>
 
-        {/* Dynamic Needle pointing towards Qibla direction with Kaaba Emblem */}
+        {/* 12 O'CLOCK TARGET: Kaaba Emblem sits stationary on the compass rim */}
+        <View style={styles.topTargetAnchor}>
+          <KaabaEmblem3D isAligned={isAligned} />
+        </View>
+
+        {/* ROTATING NEEDLE: Dual-Tone Islamic Arrow pointing toward Kaaba target */}
         <View
           style={[
             styles.needleLayer,
             { transform: [{ rotate: `${relativePointerAngle}deg` }] },
           ]}
         >
-          <View
-            style={[
-              styles.needleShaft,
-              {
-                backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary,
-                borderColor: isAligned ? theme.colors.accent : theme.colors.primary,
-              },
-            ]}
-          />
+          <Svg width={24} height={180} viewBox="0 0 24 180" style={styles.needleSvg}>
+            {/* North-facing arrowhead pointing toward Kaaba */}
+            <Polygon
+              points="12,4 20,44 14,38 14,90 10,90 10,38 4,44"
+              fill={needleColor}
+            />
+            {/* Counterweight tail */}
+            <Polygon
+              points="12,176 18,142 14,146 14,90 10,90 10,146 6,142"
+              fill={needleTailColor}
+            />
+            {/* Center diamond pivot marker */}
+            <Polygon
+              points="12,78 18,90 12,102 6,90"
+              fill={theme.colors.surface}
+              stroke={needleColor}
+              strokeWidth="2"
+            />
+          </Svg>
 
-          <KaabaEmblem3D isAligned={isAligned} />
-
-          {/* Center Pivot Point */}
+          {/* Tactile Center Pivot Point */}
           <View
             style={[
               styles.centerPivotOuter,
               {
                 backgroundColor: theme.colors.surface,
-                borderColor: isAligned ? theme.colors.accent : theme.colors.primary,
+                borderColor: needleColor,
               },
             ]}
           >
             <View
               style={[
                 styles.centerPivotInner,
-                { backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary },
+                { backgroundColor: needleColor },
               ]}
             />
           </View>
@@ -214,16 +220,15 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 4,
   },
-  targetNotch: {
-    position: 'absolute',
-    top: -2,
-    width: 6,
-    height: 12,
-    borderRadius: RADIUS.full,
-    zIndex: 20,
-  },
   dialRotator: {
     ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topTargetAnchor: {
+    position: 'absolute',
+    top: 6,
+    zIndex: 25,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -232,7 +237,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 12,
   },
-  cardinalN: { top: 24 },
+  cardinalN: { top: 38 },
   cardinalS: { bottom: 24 },
   cardinalE: { right: 24 },
   cardinalW: { left: 24 },
@@ -241,26 +246,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  needleShaft: {
+  needleSvg: {
     position: 'absolute',
-    top: 40,
-    width: 4,
-    height: RADIUS_VAL - 40,
-    borderRadius: 2,
-    borderWidth: 0.5,
   },
   centerPivotOuter: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 3,
+    width: 22,
+    height: 22,
+    borderRadius: RADIUS.full,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
+    zIndex: 30,
   },
   centerPivotInner: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: RADIUS.full,
   },
 });

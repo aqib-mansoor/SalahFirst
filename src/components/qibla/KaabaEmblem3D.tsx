@@ -70,8 +70,6 @@ export const KaabaEmblem3D: React.FC<KaabaEmblem3DProps> = ({ isAligned }) => {
 
 const styles = StyleSheet.create({
   kaabaContainer: {
-    position: 'absolute',
-    top: 14,
     width: 40,
     height: 40,
     alignItems: 'center',
