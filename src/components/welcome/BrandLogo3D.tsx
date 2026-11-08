@@ -6,9 +6,9 @@ export interface BrandLogo3DProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const APP_LOGO = require('../../../assets/splash-icon.png');
+const APP_LOGO = require('../../../assets/icons/app-logo-tight.png');
 
-export const BrandLogo3D: React.FC<BrandLogo3DProps> = ({ size = 130, style }) => {
+export const BrandLogo3D: React.FC<BrandLogo3DProps> = ({ size = 120, style }) => {
   return (
     <View style={[styles.container, { width: size, height: size }, style]}>
       <Image
@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowRadius: 16,
+    elevation: 8,
   },
 });

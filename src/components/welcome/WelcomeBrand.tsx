@@ -45,7 +45,7 @@ export const WelcomeBrand: React.FC = () => {
         },
       ]}
     >
-      <BrandLogo3D size={132} style={styles.logo} />
+      <BrandLogo3D size={120} style={styles.logo} />
 
       <Text style={styles.titleContainer}>
         <Text style={[styles.titleWord, { color: WELCOME_THEME.titleWhite }]}>
@@ -74,12 +74,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
   },
   titleContainer: {
     ...TYPOGRAPHY.brandTitle,
     textAlign: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
   titleWord: {
     fontWeight: '800',
