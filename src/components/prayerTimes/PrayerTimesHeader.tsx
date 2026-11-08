@@ -15,8 +15,8 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
   onOpenAzanPrefs,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
-  const hijriDate = getIslamicDateFormatted();
+  const { t, language } = useTranslation();
+  const hijriDate = getIslamicDateFormatted(new Date(), language);
   const gregorianDate = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
     day: 'numeric',

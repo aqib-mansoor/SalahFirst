@@ -23,8 +23,8 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
   onSelectCity,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
-  const hijriDate = getIslamicDateFormatted();
+  const { t, language } = useTranslation();
+  const hijriDate = getIslamicDateFormatted(new Date(), language);
 
   return (
     <View style={styles.container}>

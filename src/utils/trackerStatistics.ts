@@ -29,17 +29,7 @@ export const formatDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const getIslamicMonthFormatted = (date: Date): string => {
-  try {
-    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
-      month: 'long',
-      year: 'numeric',
-    });
-    return `${formatter.format(date)} AH`;
-  } catch {
-    return 'Dhu al-Qi’dah 1447 AH';
-  }
-};
+export { getIslamicMonthFormatted } from './hijriCalendar';
 
 /**
  * Calculates current active streak of consecutive days with all 5 daily prayers completed.

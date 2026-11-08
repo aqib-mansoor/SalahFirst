@@ -230,15 +230,4 @@ export const getRawPrayerTimes = (
   };
 };
 
-export const getIslamicDateFormatted = (date: Date = new Date()): string => {
-  try {
-    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-    return formatter.format(date);
-  } catch {
-    return '26 Dhu al-Qi’dah 1447';
-  }
-};
+export { getIslamicDateFormatted } from './hijriCalendar';
