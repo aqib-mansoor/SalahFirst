@@ -51,7 +51,7 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
           accessibilityLabel="Open full streaks and statistics"
           style={({ pressed }) => [pressed && { opacity: 0.7 }]}
         >
-          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.linkText}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.linkText}>
             {t('fullStatistics')} ›
           </AppText>
         </Pressable>
@@ -126,10 +126,11 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    padding: SPACING.md + 2,
-    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
-    gap: SPACING.md,
+    gap: SPACING.sm,
   },
   headerRow: {
     flexDirection: 'row',
@@ -137,23 +138,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontWeight: '800',
+    fontWeight: '700',
+    fontSize: 13,
   },
   linkText: {
     fontWeight: '700',
+    fontSize: 11,
   },
   daysRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 6,
+    gap: 5,
   },
   dayPill: {
     flex: 1,
-    paddingVertical: SPACING.xs + 2,
+    paddingVertical: 6,
     alignItems: 'center',
-    borderRadius: RADIUS.md,
-    gap: 2,
-    position: 'relative',
+    borderRadius: RADIUS.sm + 2,
+    gap: 1.5,
   },
   dayLetter: {
     fontWeight: '700',
@@ -161,15 +163,15 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontWeight: '600',
-    fontSize: 10,
+    fontSize: 9.5,
   },
   scoreFullText: {
     fontWeight: '800',
   },
   fullGoldDot: {
-    width: 3.5,
-    height: 3.5,
-    borderRadius: 2,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
     marginTop: 1,
   },
 });

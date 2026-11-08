@@ -11,7 +11,6 @@ import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
 import { TrackerPrayerRow } from './TrackerPrayerRow';
 import { TrackerWeekOverview } from './TrackerWeekOverview';
-import { TasbihCounter3D } from './TasbihCounter3D';
 import { StreaksHeroCard } from './StreaksHeroCard';
 import { StreaksMetricsRow } from './StreaksMetricsRow';
 import { StreaksWeeklyChart } from './StreaksWeeklyChart';
@@ -97,7 +96,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
   const handleToggleCalendarPrayer = useCallback(
     (prayerIdx: number) => {
-      // Loophole prevention: Disallow logging future prayers
       if (!selectedCell || selectedCell.isFuture) return;
       const prayerName = PRAYER_NAMES[prayerIdx];
       if (prayerName) {
@@ -127,11 +125,11 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           {activeSubTab === 'tracker' && (
             <>
               <View style={styles.headerTitles}>
-                <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-                  Your Salah Journey
+                <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
+                  Daily Salah Tracker
                 </AppText>
                 <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-                  Mark each prayer manually after offering Salah
+                  Log each prayer after offering Salah
                 </AppText>
               </View>
 
@@ -151,8 +149,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 weekData={dayOverview}
                 onOpenStatistics={() => setActiveSubTab('streaks')}
               />
-
-              <TasbihCounter3D />
             </>
           )}
 
@@ -217,11 +213,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '800',
+    fontSize: 18,
+    lineHeight: 24,
   },
   subtitle: {
     fontWeight: '500',
+    fontSize: 12,
+    lineHeight: 16,
   },
   prayersList: {
-    gap: SPACING.sm,
+    gap: SPACING.xs + 2,
   },
 });

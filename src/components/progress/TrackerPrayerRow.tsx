@@ -37,7 +37,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         pressed && { opacity: 0.85 },
       ]}
     >
-      {/* Left Checkmark Button with Gold Accent Ring */}
+      {/* Slim Checkmark Button */}
       <View
         style={[
           styles.checkCircle,
@@ -53,23 +53,23 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         ]}
       >
         {prayer.completed ? (
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
             <Path
               d="M20 6L9 17L4 12"
               stroke={theme.colors.textInverse}
-              strokeWidth="2.8"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </Svg>
         ) : (
-          <Circle cx="12" cy="12" r="10" stroke={theme.colors.border} strokeWidth="1.5" />
+          <Circle cx="12" cy="12" r="8" stroke={theme.colors.border} strokeWidth="1.2" />
         )}
       </View>
 
       {/* Middle Prayer Info */}
       <View style={styles.infoCol}>
-        <AppText variant="titleMedium" color={theme.colors.text} style={styles.prayerName}>
+        <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
           {t(prayer.name.toLowerCase() as any) || prayer.name}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.scheduledTime}>
@@ -77,7 +77,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         </AppText>
       </View>
 
-      {/* Right Status Badge */}
+      {/* Compact Right Status Badge */}
       <View
         style={[
           styles.badge,
@@ -106,47 +106,52 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
     paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
+    minHeight: 50,
   },
   cardCompleted: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     elevation: 1,
   },
   checkCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   infoCol: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
   prayerName: {
-    fontWeight: '800',
+    fontWeight: '700',
+    fontSize: 14,
+    lineHeight: 18,
   },
   scheduledTime: {
     fontWeight: '500',
+    fontSize: 11,
+    lineHeight: 14,
   },
   badge: {
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: 5,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3.5,
     borderRadius: RADIUS.full,
     borderWidth: 1,
   },
   badgeText: {
     fontWeight: '700',
-    fontSize: 11,
+    fontSize: 10,
   },
 });
