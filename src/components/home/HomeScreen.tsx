@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
-import { AppContainer, CurvedHeaderContainer } from '@/components/common';
+import { AppContainer } from '@/components/common';
 import { HomeHeader } from './HomeHeader';
 import { HomeHeroCard } from './HomeHeroCard';
 import { HomeSalahTracker } from './HomeSalahTracker';
@@ -52,8 +52,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     ? prayersList.find((p) => p.name === currentObligatoryName)
     : null;
   const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const [headerHeight, setHeaderHeight] = useState(74);
 
   return (
     <AppContainer
@@ -61,38 +59,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        {/* Dynamic Curved Elevated Header on Scroll */}
-        <CurvedHeaderContainer
-          scrollY={scrollY}
-          onLayout={(e) => {
-            const h = e.nativeEvent.layout.height;
-            if (h > 0 && Math.abs(h - headerHeight) > 1) {
-              setHeaderHeight(h);
-            }
-          }}
-        >
-          <HomeHeader
-            cityName={location?.city || (permissionDenied ? 'Select City' : 'Detecting...')}
-            countryName={location?.country}
-            streakCount={streakCount}
-            onOpenSettings={onOpenSettings}
-            onOpenStreaks={onOpenStreaks}
-            onSelectCity={() => handleTabChange('prayers')}
-          />
-        </CurvedHeaderContainer>
+        {/* Stable Flow Header */}
+        <HomeHeader
+          cityName={location?.city || (permissionDenied ? 'Select City' : 'Detecting...')}
+          countryName={location?.country}
+          streakCount={streakCount}
+          onOpenSettings={onOpenSettings}
+          onOpenStreaks={onOpenStreaks}
+          onSelectCity={() => handleTabChange('prayers')}
+        />
 
         {/* Scrollable Dashboard Body */}
-        <Animated.ScrollView
+        <ScrollView
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingTop: headerHeight + SPACING.xs },
-          ]}
+          contentContainerStyle={styles.scrollContent}
         >
           {/* Hero Banner with Canvas & Countdown */}
           <HomeHeroCard
@@ -123,7 +103,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             onReadFull={() => handleTabChange('hadith')}
             onOpenWallpaper={onOpenWallpaper}
           />
-        </Animated.ScrollView>
+        </ScrollView>
 
         {/* Docked Bottom Navigation Bar */}
         <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />

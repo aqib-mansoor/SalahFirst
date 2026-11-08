@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useHadithCollection } from '@/hooks/useHadithCollection';
-import { AppContainer, CurvedHeaderContainer } from '@/components/common';
+import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { HadithHeader } from './HadithHeader';
 import { HadithToast } from './HadithToast';
@@ -42,41 +42,20 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
     );
   }
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const [headerHeight, setHeaderHeight] = useState(60);
-
   return (
     <AppContainer edges={['top']}>
       <View style={styles.screenWrapper}>
         <HadithToast message={toastMessage} onDismiss={dismissToast} />
 
-        {/* Dynamic Curved Elevated Header on Scroll */}
-        <CurvedHeaderContainer
-          scrollY={scrollY}
-          onLayout={(e) => {
-            const h = e.nativeEvent.layout.height;
-            if (h > 0 && Math.abs(h - headerHeight) > 1) {
-              setHeaderHeight(h);
-            }
-          }}
-        >
-          <HadithHeader
-            showUrdu={showUrdu}
-            onToggleUrdu={toggleUrdu}
-          />
-        </CurvedHeaderContainer>
+        {/* Stable Flow Header */}
+        <HadithHeader
+          showUrdu={showUrdu}
+          onToggleUrdu={toggleUrdu}
+        />
 
-        <Animated.ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingTop: headerHeight + SPACING.xs },
-          ]}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
           bounces={false}
         >
           <HadithCard
@@ -99,7 +78,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
           />
 
           <QuranReflectionCard3D />
-        </Animated.ScrollView>
+        </ScrollView>
 
         <HomeBottomNav
           activeTab="hadith"

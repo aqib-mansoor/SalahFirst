@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, Animated, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useThemeState } from '@/hooks/useTheme';
 import { useTranslation } from '@/context/LocalizationContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
 import { useHijriDate } from '@/hooks/useHijriDate';
-import { AppContainer, CurvedHeaderContainer } from '@/components/common';
+import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
@@ -149,39 +149,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     );
   };
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const [headerHeight, setHeaderHeight] = useState(56);
-
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        {/* Dynamic Curved Elevated Header on Scroll */}
-        <CurvedHeaderContainer
-          scrollY={scrollY}
-          onLayout={(e) => {
-            const h = e.nativeEvent.layout.height;
-            if (h > 0 && Math.abs(h - headerHeight) > 1) {
-              setHeaderHeight(h);
-            }
-          }}
-        >
-          <SettingsHeader onBack={onBack} />
-        </CurvedHeaderContainer>
+        {/* Stable Flow Header */}
+        <SettingsHeader onBack={onBack} />
 
-        <Animated.ScrollView
+        <ScrollView
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          contentContainerStyle={[
-            styles.scroll,
-            { paddingTop: headerHeight + SPACING.xs },
-          ]}
+          contentContainerStyle={styles.scroll}
         >
           <PrayerSettingsGroup
             cityName={location?.city || 'Detecting Location...'}
@@ -219,7 +198,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
           />
-        </Animated.ScrollView>
+        </ScrollView>
 
         <HomeBottomNav activeTab="home" onTabChange={onNavigateTab} />
 
