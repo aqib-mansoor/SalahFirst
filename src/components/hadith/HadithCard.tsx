@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -8,6 +7,7 @@ import { HadithItem } from '@/data/hadiths';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 import { HadithTranslationSelector } from './HadithTranslationSelector';
 import { HadithCardFooterActions } from './HadithCardFooterActions';
+import { HadithRubElHizbWatermark } from './HadithRubElHizbWatermark';
 
 export interface HadithCardProps {
   hadith: HadithItem;
@@ -45,33 +45,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
       ]}
     >
       {/* Background Sacred Gold Rub el Hizb Watermark */}
-      <View style={styles.watermarkLayer}>
-        <Svg width={110} height={110} viewBox="0 0 110 110">
-          <G transform="translate(55, 55)">
-            <Rect
-              x="-36"
-              y="-36"
-              width="72"
-              height="72"
-              stroke={theme.colors.accent}
-              strokeWidth="1.3"
-              fill="none"
-              opacity={0.4}
-            />
-            <Rect
-              x="-36"
-              y="-36"
-              width="72"
-              height="72"
-              stroke={theme.colors.accent}
-              strokeWidth="1.3"
-              fill="none"
-              transform="rotate(45)"
-              opacity={0.4}
-            />
-          </G>
-        </Svg>
-      </View>
+      <HadithRubElHizbWatermark />
 
       {/* Top Header Row: Gold Category Badge & Index Counter */}
       <View style={styles.topRow}>
@@ -191,11 +165,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     gap: SPACING.md,
-  },
-  watermarkLayer: {
-    position: 'absolute',
-    top: -15,
-    left: -15,
   },
   topRow: {
     flexDirection: 'row',
