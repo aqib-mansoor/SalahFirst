@@ -32,22 +32,19 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [onlineCities, setOnlineCities] = useState<PresetCity[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [onlineError, setOnlineError] = useState<string | null>(null);
+  const [attribution, setAttribution] = useState<string | null>(null);
 
   const trimmed = search.trim().toLowerCase();
   const filteredPresets = trimmed
-    ? PRESET_CITIES.filter(
-        (c) =>
-          c.name.toLowerCase().includes(trimmed) ||
-          c.country.toLowerCase().includes(trimmed)
-      )
+    ? PRESET_CITIES.filter((c) => c.name.toLowerCase().includes(trimmed) || c.country.toLowerCase().includes(trimmed))
     : PRESET_CITIES;
-
   const displayCities = [...filteredPresets, ...onlineCities];
 
   const handleOnlineSearch = async () => {
     if (trimmed.length < 2) return;
     setIsSearching(true);
     setOnlineError(null);
+    setAttribution(null);
     const result = await searchWorldwideCity(search);
     setIsSearching(false);
     if (result.isOffline) {
@@ -56,6 +53,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       setOnlineError(t('couldNotResolveCity', { city: search.trim() }));
     } else {
       setOnlineCities(result.cities);
+      if (result.attribution) setAttribution(result.attribution);
     }
   };
 
@@ -63,6 +61,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     setSearch('');
     setOnlineCities([]);
     setOnlineError(null);
+    setAttribution(null);
     onClose();
   };
 
@@ -116,7 +115,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             </AppText>
           )}
 
-          {trimmed.length >= 2 && filteredPresets.length === 0 && !isSearching && (
+          {trimmed.length >= 2 && !isSearching && (
             <Pressable
               onPress={handleOnlineSearch}
               style={[styles.onlineSearchBtn, { backgroundColor: theme.colors.mintTint }]}
@@ -125,6 +124,12 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                 Search worldwide for "{search.trim()}"
               </AppText>
             </Pressable>
+          )}
+
+          {attribution && (
+            <AppText variant="caption" color={theme.colors.textMuted} style={{ fontSize: 10, textAlign: 'center' }}>
+              {attribution}
+            </AppText>
           )}
 
           {isSearching && (

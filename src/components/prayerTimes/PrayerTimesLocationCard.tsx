@@ -6,10 +6,13 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
+import { JuristicMethod } from '@/types';
+
 export interface PrayerTimesLocationCardProps {
   cityName: string;
   country: string;
   methodName?: string;
+  juristicMethod?: JuristicMethod;
   onOpenLocationSheet: () => void;
 }
 
@@ -17,6 +20,7 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
   cityName,
   country,
   methodName = 'University of Islamic Sciences, Karachi',
+  juristicMethod = 'Hanafi',
   onOpenLocationSheet,
 }) => {
   const theme = useTheme();
@@ -60,7 +64,7 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
         </View>
 
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.juristicText}>
-          {t('hanafiAsr')}
+          {juristicMethod === 'Hanafi' ? t('hanafiAsr') : t('standardAsr')}
         </AppText>
       </View>
     </View>

@@ -41,7 +41,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
 
   const { location, updateLocation, needsCitySelection, requestGpsLocation } = useDeviceLocation();
-  const { prayerData, prayersList } = usePrayerTracker(location);
+  const { prayerData, prayersList, juristic, calcMethod } = usePrayerTracker(location);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
 
   useEffect(() => {
@@ -87,6 +87,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
           <PrayerTimesLocationCard
             cityName={location?.city || 'Detecting Location...'}
             country={location?.country || ''}
+            juristicMethod={juristic}
             onOpenLocationSheet={() => setSheetVisible(true)}
           />
 
