@@ -18,11 +18,12 @@ export const useNotificationScheduler = (
     await scheduleAllPrayerAlerts({
       latitude: location?.latitude,
       longitude: location?.longitude,
+      timezone: location?.timezone,
       alerts,
       calculationMethod,
       juristicMethod,
     });
-  }, [location?.latitude, location?.longitude, alerts, calculationMethod, juristicMethod, language]);
+  }, [location?.latitude, location?.longitude, location?.timezone, alerts, calculationMethod, juristicMethod, language]);
 
   // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {

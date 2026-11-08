@@ -1,5 +1,6 @@
-import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule } from 'adhan';
+import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule, PolarCircleResolution } from 'adhan';
 import { CalculationMethodName, JuristicMethod, SalahName } from '@/types';
+import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
 
 export interface FormattedPrayerTimes {
   fajr: string;
@@ -23,14 +24,8 @@ export interface FormattedPrayerTimes {
   };
 }
 
-const padZero = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
-
-export const formatTime = (date: Date): string => {
-  if (!date || isNaN(date.getTime())) return '--:--';
-  const hours = padZero(date.getHours());
-  const minutes = padZero(date.getMinutes());
-  return `${hours}:${minutes}`;
-};
+export const formatTime = (date: Date, timezone?: string): string =>
+  formatTimeInTimezone(date, timezone);
 
 export const formatRemainingTime = (targetDate: Date, now: Date = new Date()): string => {
   const diffMs = targetDate.getTime() - now.getTime();
@@ -86,23 +81,20 @@ const createRobustPrayerTimes = (
   date: Date,
   params: ReturnType<typeof getMethodParams>
 ): PrayerTimes => {
+  params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
+  params.highLatitudeRule = HighLatitudeRule.recommended(coords);
   try {
     const pt = new PrayerTimes(coords, date, params);
     if (
-      !pt.fajr ||
-      isNaN(pt.fajr.getTime()) ||
-      !pt.sunrise ||
-      isNaN(pt.sunrise.getTime()) ||
-      !pt.dhuhr ||
-      isNaN(pt.dhuhr.getTime()) ||
-      !pt.maghrib ||
-      isNaN(pt.maghrib.getTime())
+      !pt.fajr || isNaN(pt.fajr.getTime()) ||
+      !pt.sunrise || isNaN(pt.sunrise.getTime()) ||
+      !pt.dhuhr || isNaN(pt.dhuhr.getTime()) ||
+      !pt.maghrib || isNaN(pt.maghrib.getTime())
     ) {
       throw new Error('Astronomical polar anomaly');
     }
     return pt;
   } catch {
-    // Polar day/night fallback (Aqrab al-Bilad: nearest regular latitude 60°, preserving longitude)
     const fallbackLat = coords.latitude > 0 ? 60.0 : -60.0;
     const fallbackCoords = new Coordinates(fallbackLat, coords.longitude);
     return new PrayerTimes(fallbackCoords, date, params);
@@ -114,7 +106,8 @@ export const getPrayerTimes = (
   longitude?: number | null,
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
-  juristic: JuristicMethod = 'Hanafi'
+  juristic: JuristicMethod = 'Hanafi',
+  timezone?: string
 ): FormattedPrayerTimes => {
   if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
     const dummyDate = new Date();
@@ -144,15 +137,15 @@ export const getPrayerTimes = (
   const coordinates = new Coordinates(latitude, longitude);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
-  params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
 
-  const ptToday = createRobustPrayerTimes(coordinates, date, params);
+  const targetDate = createCalendarDateForCalculation(date, timezone);
+  const ptToday = createRobustPrayerTimes(coordinates, targetDate, params);
 
-  const tomorrow = new Date(date);
+  const tomorrow = new Date(targetDate);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const ptTomorrow = createRobustPrayerTimes(coordinates, tomorrow, params);
 
-  const yesterday = new Date(date);
+  const yesterday = new Date(targetDate);
   yesterday.setDate(yesterday.getDate() - 1);
   const ptYesterday = createRobustPrayerTimes(coordinates, yesterday, params);
 
@@ -163,7 +156,7 @@ export const getPrayerTimes = (
   let nextTime = ptToday.fajr;
 
   if (now < ptToday.fajr.getTime()) {
-    // Keep initial defaults (Isha -> Fajr)
+    // Keep initial defaults
   } else if (now < ptToday.sunrise.getTime() || now < ptToday.dhuhr.getTime()) {
     currentName = 'FAJR';
     currentTime = ptToday.fajr;
@@ -192,16 +185,16 @@ export const getPrayerTimes = (
   }
 
   return {
-    fajr: formatTime(ptToday.fajr),
-    sunrise: formatTime(ptToday.sunrise),
-    dhuhr: formatTime(ptToday.dhuhr),
-    asr: formatTime(ptToday.asr),
-    maghrib: formatTime(ptToday.maghrib),
-    isha: formatTime(ptToday.isha),
+    fajr: formatTimeInTimezone(ptToday.fajr, timezone),
+    sunrise: formatTimeInTimezone(ptToday.sunrise, timezone),
+    dhuhr: formatTimeInTimezone(ptToday.dhuhr, timezone),
+    asr: formatTimeInTimezone(ptToday.asr, timezone),
+    maghrib: formatTimeInTimezone(ptToday.maghrib, timezone),
+    isha: formatTimeInTimezone(ptToday.isha, timezone),
     currentPrayerName: currentName,
-    currentTimeFormatted: formatTime(currentTime),
+    currentTimeFormatted: formatTimeInTimezone(currentTime, timezone),
     nextPrayerName: nextName,
-    nextPrayerTimeFormatted: formatTime(nextTime),
+    nextPrayerTimeFormatted: formatTimeInTimezone(nextTime, timezone),
     nextPrayerDate: nextTime,
     raw: {
       fajr: ptToday.fajr,
@@ -219,13 +212,14 @@ export const getRawPrayerTimes = (
   longitude?: number | null,
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
-  juristic: JuristicMethod = 'Hanafi'
+  juristic: JuristicMethod = 'Hanafi',
+  timezone?: string
 ): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
   const coordinates = new Coordinates(latitude ?? 0, longitude ?? 0);
   const params = getMethodParams(method);
   params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
-  params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
-  const pt = createRobustPrayerTimes(coordinates, date, params);
+  const targetDate = createCalendarDateForCalculation(date, timezone);
+  const pt = createRobustPrayerTimes(coordinates, targetDate, params);
   return {
     fajr: pt.fajr,
     sunrise: pt.sunrise,

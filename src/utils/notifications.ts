@@ -5,6 +5,7 @@ import { storage } from './storage';
 import { APP_CONFIG } from '@/constants/config';
 import { formatDateKey } from './trackerStatistics';
 import { isWithinQuietHours } from './notificationQuietHours';
+import { getLocalDateComponents } from './timezone';
 import {
   PRAYER_CHANNEL_ID,
   REMINDER_CHANNEL_ID,
@@ -48,6 +49,7 @@ const getOffsetMinutes = (offset: ReminderOffset): number => {
 export interface SchedulePrayerParams {
   latitude?: number;
   longitude?: number;
+  timezone?: string;
   alerts?: PrayerAlertConfig;
   calculationMethod?: CalculationMethodName;
   juristicMethod?: JuristicMethod;
