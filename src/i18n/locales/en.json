@@ -336,5 +336,6 @@
   "changeCity": "Change City",
   "gpsAutoDetect": "GPS Detect",
   "gpsActive": "GPS Active",
-  "presetCity": "Preset City"
+  "presetCity": "Preset City",
+  "searchWorldwideFor": "Search worldwide for \"{city}\""
 }

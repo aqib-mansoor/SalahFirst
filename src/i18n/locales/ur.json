@@ -336,5 +336,6 @@
   "changeCity": "شہر تبدیل کریں",
   "gpsAutoDetect": "خودکار جی پی ایس",
   "gpsActive": "جی پی ایس فعال",
-  "presetCity": "منتخب شہر"
+  "presetCity": "منتخب شہر",
+  "searchWorldwideFor": "دنیا بھر میں تلاش کریں \"{city}\""
 }

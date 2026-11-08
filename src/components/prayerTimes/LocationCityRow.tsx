@@ -18,43 +18,47 @@ export const LocationCityRow: React.FC<LocationCityRowProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
-  const cardBg = isSelected ? theme.colors.bannerGreen : theme.colors.surfaceElevated;
-  const textColor = isSelected ? theme.colors.bannerGreenText : theme.colors.text;
-  const subtextColor = isSelected ? theme.colors.accentLight : theme.colors.textMuted;
 
   return (
     <Pressable
       onPress={() => onSelect(city)}
       accessibilityRole="button"
-      accessibilityLabel={`${city.name}, ${city.country}, Qibla angle ${city.qiblaDegrees} degrees`}
+      accessibilityLabel={`${city.name}, ${city.country}`}
       accessibilityState={{ selected: isSelected }}
       style={({ pressed }) => [
         styles.cityCard,
         {
-          backgroundColor: cardBg,
-          transform: [{ scale: pressed ? 0.98 : 1 }],
+          backgroundColor: isSelected
+            ? theme.colors.secondaryTint
+            : pressed
+            ? theme.colors.surfaceElevated
+            : theme.colors.surface,
+          borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+          borderWidth: isSelected ? 1.5 : 1,
         },
       ]}
     >
       <View style={styles.cityInfo}>
-        <AppText variant="titleSmall" color={textColor} style={styles.cityName}>
+        <AppText variant="titleSmall" color={theme.colors.text} style={styles.cityName}>
           {city.name}, {city.country}
         </AppText>
-        <AppText variant="caption" color={subtextColor} style={styles.qiblaText}>
+        <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1} style={styles.qiblaText}>
           Qibla: {city.qiblaDegrees}° • {city.methodName}
         </AppText>
       </View>
 
       {isSelected && (
-        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-          <Path
-            d="M5 13l4 4L19 7"
-            stroke={theme.colors.accent}
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Svg>
+        <View style={[styles.checkCircle, { backgroundColor: theme.colors.primary }]}>
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M5 13l4 4L19 7"
+              stroke={theme.colors.textOnPrimary}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        </View>
       )}
     </Pressable>
   );
@@ -65,8 +69,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
+    borderRadius: RADIUS.xl,
+    gap: SPACING.sm,
   },
   cityInfo: {
     gap: 2,
@@ -74,9 +80,16 @@ const styles = StyleSheet.create({
   },
   cityName: {
     fontWeight: '700',
+    fontSize: 13,
   },
   qiblaText: {
-    fontWeight: '500',
+    fontSize: 11,
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-

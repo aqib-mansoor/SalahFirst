@@ -337,5 +337,6 @@
   "changeCity": "تغيير المدينة",
   "gpsAutoDetect": "تحديد GPS",
   "gpsActive": "GPS نشط",
-  "presetCity": "مدينة محددة"
+  "presetCity": "مدينة محددة",
+  "searchWorldwideFor": "البحث حول العالم عن \"{city}\""
 }
