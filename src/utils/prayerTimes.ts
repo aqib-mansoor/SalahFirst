@@ -235,4 +235,4 @@ export const getRawPrayerTimes = (
   };
 };
 
-export { getIslamicDateFormatted, createRobustPrayerTimes } from './hijriCalendar';
+export { getIslamicDateFormatted } from './hijriCalendar';

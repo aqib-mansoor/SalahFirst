@@ -87,3 +87,4 @@ export const useHijriDate = (country?: string | null, referenceDate: Date = new 
     resetToDefault,
   };
 };
+

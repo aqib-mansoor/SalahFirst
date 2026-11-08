@@ -1,4 +1,5 @@
 export * from './HomeHeader';
+export * from './HeroFocusButton';
 export * from './HomeHeroCard';
 export * from './HomeSalahTracker';
 export * from './HomeDailyHadith';

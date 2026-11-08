@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { useTranslation } from '@/context/LocalizationContext';
+import { PrayerPeriodCategory } from '@/types';
+import { HeroFocusButton } from './HeroFocusButton';
 
 export interface HomeHeroCardProps {
   currentPrayerName: string;
@@ -15,6 +16,9 @@ export interface HomeHeroCardProps {
   countdownText: string;
   isCurrentCompleted?: boolean;
   onStartPrayerFocus?: () => void;
+  periodCategory?: PrayerPeriodCategory;
+  periodSubtitleKey?: string;
+  periodId?: string;
 }
 
 export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
@@ -25,18 +29,46 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   countdownText,
   isCurrentCompleted = false,
   onStartPrayerFocus,
+  periodCategory = 'obligatory',
+  periodSubtitleKey,
+  periodId,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   const localizedCurrentPrayer =
-    (t(currentPrayerName.toLowerCase() as any) as string) || currentPrayerName;
+    (t(currentPrayerName as any) as string) ||
+    (t(currentPrayerName.toLowerCase() as any) as string) ||
+    currentPrayerName;
   const localizedNextPrayer =
     (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
+  const periodSubtitle = periodSubtitleKey ? (t(periodSubtitleKey as any) as string) : undefined;
+
+  let statusText = isCurrentCompleted ? `${t('completed')} ✓` : t('pending');
+  let statusPillStyle = isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill;
+  let statusTextColor = isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)';
+  let dotColor = theme.colors.accent;
+
+  if (periodCategory === 'prohibited') {
+    statusText = t('prohibited');
+    statusPillStyle = styles.statusPillProhibited;
+    statusTextColor = '#FF8A80';
+    dotColor = '#FF8A80';
+  } else if (periodCategory === 'nafl') {
+    statusText = periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl');
+    statusPillStyle = styles.statusPillNafl;
+    statusTextColor = theme.colors.accent;
+    dotColor = theme.colors.accent;
+  } else if (periodCategory === 'informational') {
+    statusText = t('detectingLocation');
+    statusPillStyle = styles.statusPill;
+    statusTextColor = 'rgba(255, 255, 255, 0.85)';
+    dotColor = theme.colors.secondary;
+  }
+
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
-      {/* 8-pointed star watermark at 5% opacity inside #145A46 emerald container */}
       <IslamicWatermark
         size={260}
         opacity={0.05}
@@ -44,24 +76,36 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         style={styles.watermarkTopRight}
       />
 
-      {/* Top Row: Current Prayer Pill + Completed Status */}
-      <View style={styles.topRow}>
-        <View style={[styles.currentTag, { borderColor: 'rgba(168, 198, 176, 0.3)' }]}>
-          <View style={[styles.goldDot, { backgroundColor: theme.colors.accent }]} />
-          <AppText variant="caption" color={theme.colors.secondary} style={styles.currentText}>
-            {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
-          </AppText>
+      {/* Top Section: Pill + Status + Period Subtitle */}
+      <View style={styles.topSection}>
+        <View style={styles.topRow}>
+          <View style={[styles.currentTag, { borderColor: 'rgba(168, 198, 176, 0.3)' }]}>
+            <View style={[styles.goldDot, { backgroundColor: dotColor }]} />
+            <AppText variant="caption" color={theme.colors.secondary} style={styles.currentText}>
+              {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
+            </AppText>
+          </View>
+
+          <View style={[styles.statusPill, statusPillStyle]}>
+            <AppText variant="caption" color={statusTextColor} style={styles.completedTag}>
+              {statusText}
+            </AppText>
+          </View>
         </View>
 
-        <View style={[styles.statusPill, isCurrentCompleted && styles.statusPillCompleted]}>
-          <AppText
-            variant="caption"
-            color={isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)'}
-            style={styles.completedTag}
-          >
-            {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
-          </AppText>
-        </View>
+        {periodSubtitle ? (
+          <View style={styles.subtitleRow}>
+            <AppText
+              variant="caption"
+              color="rgba(255, 255, 255, 0.88)"
+              style={styles.subtitleText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {periodSubtitle}
+            </AppText>
+          </View>
+        ) : null}
       </View>
 
       {/* Center Countdown & Azan Time */}
@@ -86,30 +130,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         </View>
       </View>
 
-      {/* "Start Prayer Focus" CTA Button in Soft Gold with #202923 Dark Charcoal text */}
-      <Pressable
-        onPress={onStartPrayerFocus}
-        accessibilityRole="button"
-        accessibilityLabel={`${t('startPrayerFocus')}, 15 min`}
-        accessibilityHint="Opens quiet focus mode for prayer"
-        style={({ pressed }) => [
-          styles.focusButton,
-          {
-            backgroundColor: pressed ? '#C5A359' : theme.colors.accent,
-            transform: [{ scale: pressed ? 0.98 : 1 }],
-          },
-        ]}
-      >
-        <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.colors.textOnAccent}>
-          <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </Svg>
-        <AppText variant="titleSmall" color={theme.colors.textOnAccent} style={styles.focusButtonText}>
-          {t('startPrayerFocus')}
-        </AppText>
-        <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.focusDurationText}>
-          15 min
-        </AppText>
-      </Pressable>
+      {/* "Start Prayer Focus" CTA Button */}
+      <HeroFocusButton onPress={onStartPrayerFocus} />
     </View>
   );
 };
@@ -134,11 +156,21 @@ const styles = StyleSheet.create({
     top: -40,
     right: -40,
   },
+  topSection: {
+    gap: SPACING.xs,
+  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: SPACING.sm,
+  },
+  subtitleRow: {
+    paddingHorizontal: 2,
+  },
+  subtitleText: {
+    fontSize: 11.5,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
   currentTag: {
     flexDirection: 'row',
@@ -166,6 +198,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   statusPillCompleted: {
+    backgroundColor: 'rgba(214, 181, 109, 0.22)',
+  },
+  statusPillProhibited: {
+    backgroundColor: 'rgba(239, 83, 80, 0.22)',
+  },
+  statusPillNafl: {
     backgroundColor: 'rgba(214, 181, 109, 0.22)',
   },
   completedTag: {
@@ -207,27 +245,5 @@ const styles = StyleSheet.create({
   azanTime: {
     fontSize: 24,
     fontWeight: '800',
-  },
-  focusButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.lg,
-    gap: SPACING.sm,
-    shadowColor: '#202923',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  focusButtonText: {
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  focusDurationText: {
-    opacity: 0.9,
-    fontSize: 12.5,
-    fontWeight: '600',
   },
 });

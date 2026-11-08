@@ -5,6 +5,7 @@ import { useThemeState } from '@/hooks/useTheme';
 import { useTranslation } from '@/context/LocalizationContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
+import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
@@ -53,6 +54,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
   const { prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
 
   const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
@@ -162,6 +164,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             country={location?.country || ''}
             juristicMethod={juristic}
             calculationMethodName={CALC_LABELS[calcMethod] || calcMethod}
+            hijriAdjustment={hijriAdjustment}
+            onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
             onOpenLocation={() => setSheetVisible(true)}
             onOpenAzanPrefs={onOpenAzanPrefs}
             onToggleJuristic={handleToggleJuristic}

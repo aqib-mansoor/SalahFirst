@@ -46,9 +46,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     togglePrayer,
   } = usePrayerTracker(location);
 
-  const currentPrayerItem = prayersList.find(
-    (p) => p.name.toUpperCase() === prayerData.currentPrayerName
-  );
+  const currentObligatoryName = prayerData.currentPeriod?.obligatorySalahName;
+  const currentPrayerItem = currentObligatoryName
+    ? prayersList.find((p) => p.name === currentObligatoryName)
+    : null;
   const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
 
   return (
@@ -74,12 +75,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         >
           {/* Hero Banner with Canvas & Countdown */}
           <HomeHeroCard
-            currentPrayerName={prayerData.currentPrayerName}
-            currentTimeFormatted={prayerData.currentTimeFormatted}
+            currentPrayerName={prayerData.currentPeriod?.nameKey || prayerData.currentPrayerName}
+            currentTimeFormatted={prayerData.currentPeriod?.startTimeFormatted || prayerData.currentTimeFormatted}
             nextPrayerName={prayerData.nextPrayerName}
             nextPrayerTimeFormatted={prayerData.nextPrayerTimeFormatted}
             countdownText={countdownText}
             isCurrentCompleted={isCurrentCompleted}
+            periodCategory={prayerData.currentPeriod?.category}
+            periodSubtitleKey={prayerData.currentPeriod?.descriptionKey}
+            periodId={prayerData.currentPeriod?.id}
             onStartPrayerFocus={onStartPrayerFocus}
           />
 

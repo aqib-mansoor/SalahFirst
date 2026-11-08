@@ -81,7 +81,10 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
           {/* Header */}
-          <PrayerTimesHeader onOpenAzanPrefs={() => setShowAzanPrefs(true)} />
+          <PrayerTimesHeader
+            countryName={location?.country}
+            onOpenAzanPrefs={() => setShowAzanPrefs(true)}
+          />
 
           {/* Location Selector Card */}
           <PrayerTimesLocationCard
