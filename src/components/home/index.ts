@@ -8,4 +8,5 @@ export * from './PrayerConfirmModal';
 export * from './HomePrayerCardItem';
 export * from './HomeTasbihWidget';
 export * from './OrbitingMisbahaHalo';
+export * from './TasbihResetModal';
 export * from './HomeScreen';

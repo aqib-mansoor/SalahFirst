@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -11,7 +11,7 @@ export interface HomeDailyHadithProps {
   onOpenWallpaper?: () => void;
 }
 
-export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, onOpenWallpaper }) => {
+export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {
   const theme = useTheme();
   const [language, setLanguage] = useState<'en' | 'ur'>('en');
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
@@ -44,8 +44,29 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: 'rgba(243, 196, 64, 0.40)' }]}>
         <View style={[styles.leftGoldAccent, { backgroundColor: theme.colors.accent }]} />
 
+        {/* Background Subtle Arabesque Watermark & Corner Ornaments */}
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Svg width="100%" height="100%" viewBox="0 0 340 220" preserveAspectRatio="none">
+            <G stroke={theme.colors.accent} strokeWidth="0.8" opacity={0.12} fill="none">
+              {/* Top-Left Arabesque Corner */}
+              <Path d="M 14 14 L 38 14 M 14 14 L 14 38 M 18 18 L 30 18 M 18 18 L 18 30" />
+              <Path d="M 24 24 L 30 30 M 30 24 L 24 30" />
+
+              {/* Top-Right Arabesque Corner */}
+              <Path d="M 326 14 L 302 14 M 326 14 L 326 38 M 322 18 L 310 18 M 322 18 L 322 30" />
+              <Path d="M 316 24 L 310 30 M 310 24 L 316 30" />
+
+              {/* Center 8-Pointed Star Rosette Watermark */}
+              <G transform="translate(170, 68)">
+                <Rect x="-24" y="-24" width="48" height="48" strokeWidth="0.7" strokeDasharray="3 3" />
+                <Rect x="-24" y="-24" width="48" height="48" strokeWidth="0.7" strokeDasharray="3 3" transform="rotate(45)" />
+              </G>
+            </G>
+          </Svg>
+        </View>
+
         <View style={styles.cardContent}>
-          {/* Top Row: Badge + Language Toggle */}
+          {/* Top Row: Category Badge & Authenticity Pill */}
           <View style={styles.topRow}>
             <View style={[styles.badgePill, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
               <AppText variant="caption" color={theme.colors.textPrimary} style={styles.badgeText}>
@@ -53,77 +74,85 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
               </AppText>
             </View>
 
-            {/* English / Urdu Segmented Toggle */}
-            <View style={[styles.langToggleBox, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
-              <Pressable
-                onPress={() => setLanguage('en')}
-                style={[
-                  styles.langBtn,
-                  language === 'en' && { backgroundColor: theme.colors.accent },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Switch to English translation"
-              >
-                <AppText
-                  variant="caption"
-                  color={language === 'en' ? theme.colors.textOnAccent : theme.colors.textSecondary}
-                  style={styles.langBtnText}
-                >
-                  English
-                </AppText>
-              </Pressable>
-
-              <Pressable
-                onPress={() => setLanguage('ur')}
-                style={[
-                  styles.langBtn,
-                  language === 'ur' && { backgroundColor: theme.colors.accent },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Switch to Urdu translation"
-              >
-                <AppText
-                  variant="caption"
-                  color={language === 'ur' ? theme.colors.textOnAccent : theme.colors.textSecondary}
-                  style={styles.langBtnText}
-                >
-                  اردو
-                </AppText>
-              </Pressable>
+            <View style={[styles.verifiedPill, { backgroundColor: theme.colors.secondaryTint, borderColor: 'rgba(14, 116, 73, 0.25)' }]}>
+              <AppText variant="caption" color={theme.colors.primary} style={styles.verifiedText}>
+                Authentic • Sahih
+              </AppText>
             </View>
           </View>
 
-          {/* Ornamental Quote & Arabic Calligraphy */}
+          {/* Centered Sacred Arabic Calligraphy with Brackets ﴿ ﴾ */}
           <View style={styles.arabicBlock}>
-            <Svg width={20} height={16} viewBox="0 0 24 24" fill={theme.colors.accent} opacity={0.65} style={styles.quoteIcon}>
-              <Path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-            </Svg>
-
             <AppText
               variant="arabicMotto"
               color={theme.colors.textPrimary}
-              align="right"
+              align="center"
               style={styles.arabicText}
             >
-              {arabicText}
+              ﴿ {arabicText} ﴾
             </AppText>
           </View>
 
-          {/* Active Translation */}
-          {language === 'en' ? (
-            <AppText color={theme.colors.textPrimary} style={styles.englishText}>
-              "{englishText}"
-            </AppText>
-          ) : (
-            <AppText color={theme.colors.textPrimary} align="right" style={styles.urduText}>
-              {urduText}
-            </AppText>
-          )}
+          {/* Inner Tinted Translation Panel */}
+          <View style={[styles.translationPanel, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
+            <View style={styles.panelHeader}>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.panelLabel}>
+                Meaning & Reflection
+              </AppText>
 
-          {/* Fine Divider */}
-          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+              {/* English / Urdu Segmented Toggle */}
+              <View style={[styles.langToggleBox, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                <Pressable
+                  onPress={() => setLanguage('en')}
+                  style={[
+                    styles.langBtn,
+                    language === 'en' && { backgroundColor: theme.colors.accent },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Switch to English"
+                >
+                  <AppText
+                    variant="caption"
+                    color={language === 'en' ? theme.colors.textOnAccent : theme.colors.textSecondary}
+                    style={styles.langBtnText}
+                  >
+                    English
+                  </AppText>
+                </Pressable>
 
-          {/* Footer: Authentic Source Citation */}
+                <Pressable
+                  onPress={() => setLanguage('ur')}
+                  style={[
+                    styles.langBtn,
+                    language === 'ur' && { backgroundColor: theme.colors.accent },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Switch to Urdu"
+                >
+                  <AppText
+                    variant="caption"
+                    color={language === 'ur' ? theme.colors.textOnAccent : theme.colors.textSecondary}
+                    style={styles.langBtnText}
+                  >
+                    اردو
+                  </AppText>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Translation Content */}
+            {language === 'en' ? (
+              <AppText color={theme.colors.textPrimary} style={styles.englishText}>
+                "{englishText}"
+              </AppText>
+            ) : (
+              <AppText color={theme.colors.textPrimary} align="right" style={styles.urduText}>
+                {urduText}
+              </AppText>
+            )}
+          </View>
+
+          {/* Footer: Source Reference Citation */}
           <View style={styles.footerRow}>
             <View style={styles.sourceWrapper}>
               <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
@@ -151,12 +180,25 @@ const styles = StyleSheet.create({
     shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2,
   },
   leftGoldAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3.5 },
-  cardContent: { padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.sm },
+  cardContent: { padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.sm + 2 },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   badgePill: {
     paddingHorizontal: SPACING.sm + 2, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 1,
   },
   badgeText: { fontWeight: '800', letterSpacing: 0.8, fontSize: 10 },
+  verifiedPill: {
+    paddingHorizontal: SPACING.sm + 2, paddingVertical: 2.5, borderRadius: RADIUS.full, borderWidth: 1,
+  },
+  verifiedText: { fontSize: 10.5, fontWeight: '700' },
+  arabicBlock: { paddingVertical: SPACING.xs, paddingHorizontal: 4 },
+  arabicText: { fontSize: 21, lineHeight: 36, fontWeight: '700' },
+  translationPanel: {
+    borderRadius: RADIUS.lg, borderWidth: 1, padding: SPACING.md, gap: SPACING.xs + 2,
+  },
+  panelHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2,
+  },
+  panelLabel: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
   langToggleBox: {
     flexDirection: 'row', borderRadius: RADIUS.full, borderWidth: 1, padding: 2, gap: 2,
   },
@@ -164,13 +206,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 2, paddingVertical: 2.5, borderRadius: RADIUS.full,
   },
   langBtnText: { fontSize: 11, fontWeight: '700' },
-  arabicBlock: { position: 'relative', paddingTop: 2 },
-  quoteIcon: { position: 'absolute', left: 0, top: 0 },
-  arabicText: { fontSize: 20, lineHeight: 34, fontWeight: '700', paddingLeft: 24 },
   urduText: { fontSize: 14.5, lineHeight: 25, fontWeight: '500' },
-  englishText: { fontSize: 13.5, lineHeight: 21, fontStyle: 'italic' },
-  divider: { height: 1, marginVertical: 2 },
-  footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: SPACING.sm },
-  sourceWrapper: { flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 },
+  englishText: { fontSize: 13.5, lineHeight: 22, fontStyle: 'italic' },
+  footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sourceWrapper: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
   sourceText: { fontSize: 11.5, fontWeight: '600', flex: 1 },
 });

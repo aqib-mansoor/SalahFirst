@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Pressable, Alert } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -7,6 +7,7 @@ import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
+import { TasbihResetModal } from './TasbihResetModal';
 
 const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
 
@@ -21,6 +22,7 @@ export const HomeTasbihWidget: React.FC = () => {
   const [phaseIndex, setPhaseIndex] = useState<number>(0);
   const [count, setCount] = useState<number>(0);
   const [totalCycles, setTotalCycles] = useState<number>(0);
+  const [showResetModal, setShowResetModal] = useState<boolean>(false);
 
   useEffect(() => {
     const loadState = async () => {
@@ -65,20 +67,16 @@ export const HomeTasbihWidget: React.FC = () => {
     }
   };
 
-  const handleReset = () => {
+  const handleResetPress = () => {
     if (count === 0 && phaseIndex === 0) return;
-    Alert.alert('Reset Tasbih', 'Reset your current Dhikr counter to zero?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Reset',
-        style: 'destructive',
-        onPress: async () => {
-          setCount(0);
-          setPhaseIndex(0);
-          await persistState(0, 0, totalCycles);
-        },
-      },
-    ]);
+    setShowResetModal(true);
+  };
+
+  const handleConfirmReset = async () => {
+    setCount(0);
+    setPhaseIndex(0);
+    await persistState(0, 0, totalCycles);
+    setShowResetModal(false);
   };
 
   return (
@@ -98,7 +96,7 @@ export const HomeTasbihWidget: React.FC = () => {
           )}
         </View>
 
-        <Pressable onPress={handleReset} hitSlop={8} accessibilityRole="button" accessibilityLabel="Reset Tasbih" style={styles.resetButton}>
+        <Pressable onPress={handleResetPress} hitSlop={8} accessibilityRole="button" accessibilityLabel="Reset Tasbih" style={styles.resetButton}>
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
             <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             <Path d="M3 3v5h5" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -152,6 +150,16 @@ export const HomeTasbihWidget: React.FC = () => {
           />
         </View>
       </View>
+
+      {/* Attractive Islamic Tasbih Reset Confirmation Modal */}
+      <TasbihResetModal
+        visible={showResetModal}
+        count={count}
+        target={currentPhase.target}
+        dhikrName={currentPhase.transliteration}
+        onConfirm={handleConfirmReset}
+        onCancel={() => setShowResetModal(false)}
+      />
     </View>
   );
 };
