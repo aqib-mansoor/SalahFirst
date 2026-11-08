@@ -6,6 +6,7 @@
 export * from './hadiths';
 export * from './cities';
 export * from './wallpaperData';
+export * from './inspiration';
 
 export interface QuranAyah {
   id: string;

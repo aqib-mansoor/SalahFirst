@@ -246,6 +246,12 @@
   "quietHoursTitle": "Quiet Hours",
   "quietHoursDesc": "Silence gentle reminders between 22:00 and 05:00",
 
+  "dailyInspirationGroupTitle": "Daily Islamic Inspiration",
+  "dailyInspirationToggleTitle": "Daily Inspiration",
+  "dailyInspirationToggleDesc": "One meaningful reminder daily (between 9:00 AM – 8:00 PM) to uplift your faith without frequent alerts.",
+  "dailyInspirationQuietHoursTitle": "Quiet Hours Protection",
+  "dailyInspirationQuietHoursDesc": "Never sends reminders during quiet hours (10:00 PM – 5:00 AM).",
+
   "wallpaper": "Wallpaper",
   "hadithWallpaperGallery": "Hadith Wallpaper Gallery",
   "wallpaperGallerySubtitle": "4 Islamic themes • High-resolution export",

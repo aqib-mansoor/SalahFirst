@@ -101,13 +101,16 @@ function AppContent() {
     initApp();
   }, []);
 
-  // Listen for user tapping a scheduled prayer alert notification
+  // Listen for user tapping a scheduled prayer alert or inspiration notification
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       if (data && data.prayerName) {
         setFocusPrayerName(String(data.prayerName));
         setCurrentStep('focus-config');
+      } else if (data && data.type === 'daily-inspiration') {
+        setCurrentStep('main');
+        setActiveTab('hadith');
       }
     });
 

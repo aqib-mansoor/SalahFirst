@@ -246,6 +246,12 @@
   "quietHoursTitle": "پرسکون اوقات",
   "quietHoursDesc": "رات 10 بجے سے صبح 5 بجے تک اضافی یاد دہانیاں خاموش رکھیں",
 
+  "dailyInspirationGroupTitle": "روزانہ اسلامی ترغیب",
+  "dailyInspirationToggleTitle": "روزانہ کا پیغام",
+  "dailyInspirationToggleDesc": "دن میں صرف ایک پرسکون اسلامی پیغام (صبح 9 تا رات 8 بجے) تاکہ نماز، قرآن اور نیکی کا شوق برقرار رہے۔",
+  "dailyInspirationQuietHoursTitle": "پرسکون اوقات کا احترام",
+  "dailyInspirationQuietHoursDesc": "رات 10 بجے سے صبح 5 بجے کے درمیان کوئی پیغام ارسال نہیں کیا جاتا۔",
+
   "wallpaper": "وال پیپر",
   "hadithWallpaperGallery": "حدیث وال پیپر گیلری",
   "wallpaperGallerySubtitle": "4 اسلامی تھیمز • اعلیٰ کوالٹی برآمد",

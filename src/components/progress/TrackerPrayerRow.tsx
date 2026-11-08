@@ -9,23 +9,21 @@ import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TrackerPrayerRowProps {
   prayer: PrayerStatus;
-  onToggle: () => void;
+  onPressStatus?: () => void;
 }
 
 export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
   prayer,
-  onToggle,
+  onPressStatus,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   return (
     <Pressable
-      onPress={onToggle}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: prayer.completed }}
-      accessibilityLabel={`${prayer.name} scheduled for ${prayer.time}`}
-      accessibilityHint={`Tap to mark ${prayer.name} as ${prayer.completed ? 'uncompleted' : 'completed'}`}
+      onPress={onPressStatus}
+      accessibilityRole="text"
+      accessibilityLabel={`${prayer.name} scheduled for ${prayer.time}. Status: ${prayer.completed ? 'Completed' : 'Pending'}. Daily prayers are logged from Home.`}
       hitSlop={6}
       style={({ pressed }) => [
         styles.card,
@@ -37,7 +35,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         pressed && { opacity: 0.85 },
       ]}
     >
-      {/* Slim Natural Checkmark Button */}
+      {/* Read-Only Status Indicator Circle */}
       <View
         style={[
           styles.checkCircle,
@@ -63,7 +61,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
             />
           </Svg>
         ) : (
-          <Circle cx="12" cy="12" r="8" stroke={theme.colors.border} strokeWidth="1.2" />
+          <Circle cx="12" cy="12" r="7.5" stroke={theme.colors.border} strokeWidth="1.2" />
         )}
       </View>
 
@@ -77,7 +75,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         </AppText>
       </View>
 
-      {/* Compact Right Status Badge */}
+      {/* Read-Only Status Badge */}
       <View
         style={[
           styles.badge,

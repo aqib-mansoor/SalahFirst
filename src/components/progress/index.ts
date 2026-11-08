@@ -4,8 +4,6 @@ export * from './TrackerPrayerRow';
 export * from './TrackerSunnahCard';
 export * from './TrackerWeekOverview';
 export * from './TrackerWisdomBanner';
-export * from './MisbahaBeadsSvg';
-export * from './TasbihCounter3D';
 export * from './StreaksHeroCard';
 export * from './StreaksMetricsRow';
 export * from './StreaksWeeklyChart';

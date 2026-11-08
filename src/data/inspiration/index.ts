@@ -1,12 +1,14 @@
 import { InspirationItem, InspirationCategory } from './types';
-import { CATEGORY_REMINDERS_PART1 } from './categoryRemindersPart1';
+import { REMINDERS_CORE } from './remindersCore';
+import { REMINDERS_REMEMBRANCE } from './remindersRemembrance';
 import { CATEGORY_REMINDERS_PART2 } from './categoryRemindersPart2';
 import { SCRIPTURE_REMINDERS } from './scriptureReminders';
 
 export * from './types';
 
 export const ALL_INSPIRATION_ITEMS: InspirationItem[] = [
-  ...CATEGORY_REMINDERS_PART1,
+  ...REMINDERS_CORE,
+  ...REMINDERS_REMEMBRANCE,
   ...CATEGORY_REMINDERS_PART2,
   ...SCRIPTURE_REMINDERS,
 ];

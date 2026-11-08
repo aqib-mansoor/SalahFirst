@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { AppContainer, AppText } from '@/components/common';
+import { HadithToast } from '@/components/hadith/HadithToast';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
@@ -29,8 +30,6 @@ import {
 } from '@/utils/trackerStatistics';
 import { generateCalendarMonth } from '@/utils/calendarUtils';
 
-const PRAYER_NAMES = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-
 export interface ProgressScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
   initialSubTab?: ProgressSubTab;
@@ -43,6 +42,8 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
+  const [guidanceToast, setGuidanceToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
@@ -55,9 +56,15 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     completedCount,
     streakCount,
     historyMap,
-    togglePrayer,
-    toggleHistoricalPrayer,
   } = usePrayerTracker(location);
+
+  const handleShowHomeGuidance = useCallback(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setGuidanceToast('Daily prayers are logged from the Home screen.');
+    toastTimerRef.current = setTimeout(() => {
+      setGuidanceToast(null);
+    }, 3500);
+  }, []);
 
   // Derived statistics
   const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
@@ -98,17 +105,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     return `${selectedDay} ${monthStr} ${selectedYear}`;
   }, [selectedYear, selectedMonth, selectedDay]);
 
-  const handleToggleCalendarPrayer = useCallback(
-    (prayerIdx: number) => {
-      if (!selectedCell || selectedCell.isFuture) return;
-      const prayerName = PRAYER_NAMES[prayerIdx];
-      if (prayerName) {
-        toggleHistoricalPrayer(selectedCell.dateKey, prayerName);
-      }
-    },
-    [selectedCell, toggleHistoricalPrayer]
-  );
-
   return (
     <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
@@ -129,7 +125,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                   Daily Salah Tracker
                 </AppText>
                 <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-                  Log each prayer after offering Salah
+                  Status overview • Check-in on Home screen
                 </AppText>
               </View>
 
@@ -140,7 +136,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                   <TrackerPrayerRow
                     key={prayer.name}
                     prayer={prayer}
-                    onToggle={() => togglePrayer(prayer.name)}
+                    onPressStatus={handleShowHomeGuidance}
                   />
                 ))}
               </View>
@@ -179,7 +175,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 hasRecord={selectedCell?.hasRecord || false}
                 isFuture={selectedCell?.isFuture || false}
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
-                onTogglePrayer={handleToggleCalendarPrayer}
+                onPressStatus={handleShowHomeGuidance}
               />
               <CalendarMonthSummaryCard
                 monthName={monthData.monthName}
@@ -189,6 +185,12 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
             </>
           )}
         </ScrollView>
+
+        {guidanceToast && (
+          <View style={[styles.toastFloating, { bottom: Math.max(insets.bottom, 16) + 65 }]}>
+            <HadithToast message={guidanceToast} onDismiss={() => setGuidanceToast(null)} />
+          </View>
+        )}
 
         <HomeBottomNav activeTab="progress" onTabChange={onNavigateTab} />
       </View>
@@ -221,5 +223,11 @@ const styles = StyleSheet.create({
   },
   prayersList: {
     gap: SPACING.xs + 2,
+  },
+  toastFloating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 99,
   },
 });

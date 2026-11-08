@@ -5,6 +5,10 @@ import {
   scheduleAllPrayerAlerts,
   requestNotificationPermission,
 } from '@/utils/notifications';
+import {
+  scheduleDailyInspirationNotification,
+  updatePendingInspirationLanguage,
+} from '@/utils/inspirationScheduler';
 import { addTrackerListener } from './usePrayerTracker';
 
 export const useNotificationScheduler = (
@@ -23,12 +27,23 @@ export const useNotificationScheduler = (
       calculationMethod,
       juristicMethod,
     });
+    await scheduleDailyInspirationNotification({
+      timezone: location?.timezone,
+      language,
+    });
   }, [location?.latitude, location?.longitude, location?.timezone, alerts, calculationMethod, juristicMethod, language]);
 
   // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {
     syncAlarms();
   }, [syncAlarms]);
+
+  // When language changes, update any pending inspiration notification content
+  useEffect(() => {
+    if (language) {
+      updatePendingInspirationLanguage(language);
+    }
+  }, [language]);
 
   // Re-synchronize alarms when prayer tracker completions or preferences change
   useEffect(() => {

@@ -11,11 +11,17 @@ import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomShee
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
+import { InspirationSettingsGroup } from './InspirationSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
 import { CalculationMethodName, JuristicMethod } from '@/types';
 import { useAppDispatch } from '@/store/hooks';
 import { setCalculationMethod, setJuristicMethod } from '@/store/slices/prayerSlice';
+import {
+  getInspirationConfig,
+  saveInspirationConfig,
+  scheduleDailyInspirationNotification,
+} from '@/utils/inspirationScheduler';
 
 export interface SettingsScreenProps {
   onBack: () => void;
@@ -51,7 +57,24 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
   const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
+  }, []);
+
+  const handleToggleInspiration = async (val: boolean) => {
+    setInspirationEnabled(val);
+    const cfg = await getInspirationConfig();
+    await saveInspirationConfig({ ...cfg, enabled: val });
+    if (val) {
+      await scheduleDailyInspirationNotification({
+        timezone: location?.timezone,
+        language,
+      });
+    }
+  };
 
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({
@@ -133,6 +156,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onSelectThemeMode={setThemeMode}
             languageLabel={languageLabel}
             onToggleLanguage={handleToggleLanguage}
+          />
+
+          <InspirationSettingsGroup
+            enabled={inspirationEnabled}
+            onToggleEnabled={handleToggleInspiration}
           />
 
           <GeneralSettingsGroup

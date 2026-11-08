@@ -11,7 +11,7 @@ export interface CalendarDayInspectorProps {
   hasRecord?: boolean;
   isFuture?: boolean;
   prayersCompleted: boolean[];
-  onTogglePrayer: (prayerIndex: number) => void;
+  onPressStatus?: () => void;
 }
 
 export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
@@ -19,7 +19,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   hasRecord = false,
   isFuture = false,
   prayersCompleted,
-  onTogglePrayer,
+  onPressStatus,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -55,16 +55,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
           </AppText>
         </View>
 
-        <AppText
-          variant="caption"
-          color={isFuture ? theme.colors.textMuted : theme.colors.primary}
-          style={styles.tipText}
-        >
-          {isFuture ? 'Locked' : t('tapPrayerToLog')}
-        </AppText>
+        <Pressable onPress={onPressStatus} hitSlop={8}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
+            Logged from Home ›
+          </AppText>
+        </Pressable>
       </View>
 
-      {/* 5 Prayer Chips */}
+      {/* 5 Read-Only Prayer Chips */}
       <View style={styles.chipsRow}>
         {prayerNames.map((name, idx) => {
           const isDone = !isFuture && !!prayersCompleted[idx];
@@ -72,12 +70,9 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
           return (
             <Pressable
               key={name}
-              onPress={() => !isFuture && onTogglePrayer(idx)}
-              disabled={isFuture}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: isDone }}
-              accessibilityLabel={`${name} prayer`}
-              accessibilityHint={isFuture ? 'Future date locked' : `Tap to toggle completion of ${name} for ${dateLabel}`}
+              onPress={onPressStatus}
+              accessibilityRole="text"
+              accessibilityLabel={`${name} prayer on ${dateLabel}: ${isDone ? 'Completed' : 'Not completed'}. Logged from Home screen.`}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.prayerChip,
@@ -91,7 +86,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                       borderColor: theme.colors.border,
                     },
                 isFuture && styles.chipDisabled,
-                pressed && !isFuture && { opacity: 0.7 },
+                pressed && { opacity: 0.7 },
               ]}
             >
               <AppText

@@ -247,6 +247,12 @@
   "quietHoursTitle": "ساعات الهدوء",
   "quietHoursDesc": "كتم التنبيهات غير الضرورية بين 22:00 و 05:00",
 
+  "dailyInspirationGroupTitle": "إلهام إسلامي يومي",
+  "dailyInspirationToggleTitle": "تذكير يومي",
+  "dailyInspirationToggleDesc": "تذكير هادئ واحد يومياً (بين 9:00 ص و 8:00 م) لتشجيع الصلاة والذكر والعمل الصالح دون إزعاج.",
+  "dailyInspirationQuietHoursTitle": "ساعات الهدوء",
+  "dailyInspirationQuietHoursDesc": "لا يتم إرسال أي تنبيهات في ساعات الراحة (من 10:00 م حتى 5:00 ص).",
+
   "wallpaper": "خلفية",
   "hadithWallpaperGallery": "معرض خلفيات الحديث",
   "wallpaperGallerySubtitle": "4 سمات إسلامية • تصدير عالي الدقة",
