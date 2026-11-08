@@ -26,14 +26,14 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      {/* Row 1: Auto-start */}
+      {/* Row 1: Auto-start at prayer / congregation time */}
       <View style={styles.row}>
         <View style={styles.textColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-            Auto-start at prayer time
+            Auto-prompt at prayer time
           </AppText>
-          <AppText variant="caption" color={theme.colors.textMuted}>
-            Prompt to begin Focus when Azan is called
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
+            Notify to start Focus when local prayer time arrives
           </AppText>
         </View>
 
@@ -51,10 +51,10 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
       <View style={styles.row}>
         <View style={styles.textColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-            Play Azan before Focus session
+            Play gentle Azan reminder
           </AppText>
-          <AppText variant="caption" color={theme.colors.textMuted}>
-            Recite soft Azan before starting countdown
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
+            Recite soft audio call before starting the countdown
           </AppText>
         </View>
 
@@ -89,6 +89,11 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontWeight: '700',
+    fontSize: 13.5,
+  },
+  rowSubtitle: {
+    fontSize: 11.5,
+    lineHeight: 15,
   },
   divider: {
     height: 1,
@@ -96,4 +101,3 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
 });
-

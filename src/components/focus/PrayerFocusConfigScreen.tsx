@@ -1,33 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppText, AppButton } from '@/components/common';
+import { FocusPrayerSelector, FocusPrayerSelection } from './FocusPrayerSelector';
+import { FocusCongregationDelayCard } from './FocusCongregationDelayCard';
 import { FocusDurationCard } from './FocusDurationCard';
 import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
 import { useTranslation } from '@/context/LocalizationContext';
-
-const PRAYER_OPTIONS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+import {
+  PrayerFocusOffsets,
+  DEFAULT_FOCUS_OFFSETS,
+  loadFocusOffsets,
+  saveFocusOffsets,
+} from '@/utils/prayerFocusOffsets';
 
 export interface PrayerFocusConfigScreenProps {
   initialPrayer?: string;
   prayerTimesMap?: Record<string, string>;
+  rawPrayerDates?: Record<string, Date>;
   onBack: () => void;
   onBeginFocus: (duration: FocusDuration, prayerName: string) => void;
 }
 
 export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = ({
-  initialPrayer = 'Asr',
+  initialPrayer = 'Fajr',
   prayerTimesMap,
+  rawPrayerDates,
   onBack,
   onBeginFocus,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [selectedPrayer, setSelectedPrayer] = useState<string>(initialPrayer);
+
+  const [selectedPrayer, setSelectedPrayer] = useState<FocusPrayerSelection>(
+    (initialPrayer as FocusPrayerSelection) || 'Fajr'
+  );
+  const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const [duration, setDuration] = useState<FocusDuration>(15);
   const [blockSocial, setBlockSocial] = useState(true);
   const [blockShortVideos, setBlockShortVideos] = useState(true);
@@ -35,21 +47,42 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const [blockNews, setBlockNews] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
   const [playAzan, setPlayAzan] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
 
-  const CrescentMoonIcon = (
-    <Svg width={18} height={18} viewBox="0 0 24 24" fill={PALETTE.gold}>
-      <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </Svg>
-  );
+  useEffect(() => {
+    loadFocusOffsets().then(setOffsets);
+  }, []);
 
-  const targetTime = prayerTimesMap ? prayerTimesMap[selectedPrayer.toLowerCase()] : undefined;
+  const currentPrayerKey =
+    selectedPrayer === 'All' ? 'dhuhr' : (selectedPrayer.toLowerCase() as keyof PrayerFocusOffsets);
+  const currentDelay = offsets[currentPrayerKey] ?? 20;
+  const targetAzan = prayerTimesMap && selectedPrayer !== 'All' ? prayerTimesMap[currentPrayerKey] : undefined;
+  const targetRawDate = rawPrayerDates && selectedPrayer !== 'All' ? rawPrayerDates[currentPrayerKey] : undefined;
+
+  const handleUpdateDelay = async (mins: number) => {
+    let updated: PrayerFocusOffsets;
+    if (selectedPrayer === 'All') {
+      updated = { fajr: mins, dhuhr: mins, asr: mins, maghrib: mins, isha: mins };
+    } else {
+      updated = { ...offsets, [currentPrayerKey]: mins };
+    }
+    setOffsets(updated);
+    await saveFocusOffsets(updated);
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
+
+  const handleSaveUniversal = async () => {
+    await saveFocusOffsets(offsets);
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
 
   return (
-    <AppContainer
-      edges={['top', 'left', 'right', 'bottom']}
-      style={{ backgroundColor: theme.colors.background }}
-    >
-      {/* Header */}
+    <AppContainer edges={['top', 'left', 'right', 'bottom']} style={{ backgroundColor: theme.colors.background }}>
+      {/* Header Bar */}
       <View style={styles.header}>
         <Pressable
           onPress={onBack}
@@ -71,67 +104,35 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* Title & Tagline */}
+        {/* Title Section */}
         <View style={styles.titleSection}>
           <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
             {t('timeToReconnect')}
           </AppText>
-          <AppText variant="bodyLarge" color={theme.colors.textMuted} style={styles.subtitle}>
+          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
             {t('focusSub')}
           </AppText>
         </View>
 
-        {/* Target Prayer Selection Card */}
-        <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          <View style={styles.prayerHeaderRow}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.cardTitle}>
-              {t('selectPrayerForFocus')}
-            </AppText>
-            {targetTime && (
-              <AppText variant="caption" color={theme.colors.accent} style={styles.timeTag}>
-                Azan: {targetTime}
-              </AppText>
-            )}
-          </View>
-
-          <View style={styles.prayerPillsRow}>
-            {PRAYER_OPTIONS.map((name) => {
-              const isSelected = selectedPrayer.toLowerCase() === name.toLowerCase();
-              return (
-                <Pressable
-                  key={name}
-                  onPress={() => setSelectedPrayer(name)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${name} prayer`}
-                  accessibilityState={{ selected: isSelected }}
-                  style={[
-                    styles.prayerPill,
-                    {
-                      backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceElevated,
-                      borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                    },
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    color={isSelected ? theme.colors.textInverse : theme.colors.text}
-                    style={styles.prayerPillText}
-                  >
-                    {t(name.toLowerCase() as any) || name}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* 1. Duration Card */}
-        <FocusDurationCard
-          selectedDuration={duration}
-          onSelectDuration={setDuration}
+        {/* 1. Prayer Selector */}
+        <FocusPrayerSelector
+          selectedPrayer={selectedPrayer}
+          targetAzanTime={targetAzan}
+          onSelectPrayer={setSelectedPrayer}
         />
 
-        {/* 2. Distractions Card */}
+        {/* 2. Congregation Delay Offset Card */}
+        <FocusCongregationDelayCard
+          prayerName={selectedPrayer}
+          selectedDelayMinutes={currentDelay}
+          rawAzanDate={targetRawDate}
+          onSelectDelay={handleUpdateDelay}
+        />
+
+        {/* 3. Duration Card */}
+        <FocusDurationCard selectedDuration={duration} onSelectDuration={setDuration} />
+
+        {/* 4. Distraction Shield Card */}
         <FocusDistractionCard
           blockSocial={blockSocial}
           blockShortVideos={blockShortVideos}
@@ -143,7 +144,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           onToggleNews={() => setBlockNews((p) => !p)}
         />
 
-        {/* 3. Settings Card */}
+        {/* 5. Automation Settings */}
         <FocusSettingsCard
           autoStartOnAzan={autoStart}
           playAzanBefore={playAzan}
@@ -151,14 +152,33 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           onTogglePlayAzan={() => setPlayAzan((p) => !p)}
         />
 
-        {/* Begin Focus Button */}
-        <AppButton
-          label={`Begin ${selectedPrayer} Focus (${duration} min)`}
-          leftIcon={CrescentMoonIcon}
-          onPress={() => onBeginFocus(duration, selectedPrayer)}
-          size="lg"
-          style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
-        />
+        {/* Bottom Action Area */}
+        {selectedPrayer === 'All' ? (
+          <View style={styles.actionColumn}>
+            <AppButton
+              label={isSaved ? '✓ Universal Settings Saved' : 'Save Focus Preferences'}
+              onPress={handleSaveUniversal}
+              size="lg"
+              style={[styles.beginButton, { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary }]}
+            />
+            <Pressable
+              onPress={() => onBeginFocus(duration, effectivePrayer)}
+              hitSlop={8}
+              style={styles.secondaryLink}
+            >
+              <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
+                Begin Focus Now ({effectivePrayer}) ›
+              </AppText>
+            </Pressable>
+          </View>
+        ) : (
+          <AppButton
+            label={`Begin ${selectedPrayer} Focus (${duration} min)`}
+            onPress={() => onBeginFocus(duration, selectedPrayer)}
+            size="lg"
+            style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
+          />
+        )}
       </ScrollView>
     </AppContainer>
   );
@@ -169,12 +189,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
     gap: SPACING.md,
   },
   backBtn: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.md,
     borderWidth: 1,
     alignItems: 'center',
@@ -187,7 +207,8 @@ const styles = StyleSheet.create({
   },
   headerBadgeText: {
     fontWeight: '800',
-    letterSpacing: 0.8,
+    fontSize: 11,
+    letterSpacing: 0.6,
   },
   scroll: {
     paddingHorizontal: SPACING.lg,
@@ -195,53 +216,33 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   titleSection: {
-    gap: SPACING.xs,
-    marginVertical: SPACING.xs,
+    gap: 3,
+    marginBottom: SPACING.xs,
   },
   title: {
     fontWeight: '800',
-    letterSpacing: -0.5,
+    fontSize: 22,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 18,
   },
-  card: {
-    padding: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
+  actionColumn: {
     gap: SPACING.sm,
-  },
-  prayerHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  cardTitle: {
-    fontWeight: '700',
-  },
-  timeTag: {
-    fontWeight: '700',
-  },
-  prayerPillsRow: {
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'space-between',
-  },
-  prayerPill: {
-    flex: 1,
-    paddingVertical: SPACING.xs + 3,
-    alignItems: 'center',
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-  },
-  prayerPillText: {
-    fontWeight: '700',
-    fontSize: 11,
   },
   beginButton: {
     width: '100%',
     borderRadius: RADIUS.lg,
-    minHeight: 56,
-    marginTop: SPACING.xs,
+    minHeight: 52,
+  },
+  secondaryLink: {
+    paddingVertical: 6,
+    paddingHorizontal: SPACING.md,
+  },
+  secondaryText: {
+    fontWeight: '700',
+    fontSize: 13,
   },
 });

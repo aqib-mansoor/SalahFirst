@@ -25,9 +25,14 @@ export const FocusDurationCard: React.FC<FocusDurationCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-        Focus Session Duration
-      </AppText>
+      <View style={styles.titleColumn}>
+        <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
+          Focus Session Duration
+        </AppText>
+        <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
+          Shield notifications and distractions during Salah
+        </AppText>
+      </View>
 
       <View style={styles.durationsRow}>
         {DURATIONS.map((dur) => {
@@ -36,17 +41,21 @@ export const FocusDurationCard: React.FC<FocusDurationCardProps> = ({
             <Pressable
               key={dur}
               onPress={() => onSelectDuration(dur)}
+              accessibilityRole="button"
+              accessibilityLabel={`${dur} minutes focus duration`}
+              accessibilityState={{ selected: isSelected }}
               style={({ pressed }) => [
                 styles.pill,
                 {
-                  backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceElevated,
-                  transform: [{ scale: pressed ? 0.96 : 1 }],
+                  backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceSubtle,
+                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+                  opacity: pressed ? 0.8 : 1,
                 },
               ]}
             >
               <AppText
-                variant="titleSmall"
-                color={isSelected ? theme.colors.surface : theme.colors.text}
+                variant="bodyMedium"
+                color={isSelected ? theme.colors.textOnPrimary : theme.colors.text}
                 style={styles.pillText}
               >
                 {dur}m
@@ -64,10 +73,17 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    gap: SPACING.md,
+    gap: SPACING.sm + 2,
+  },
+  titleColumn: {
+    gap: 2,
   },
   title: {
     fontWeight: '700',
+    fontSize: 14,
+  },
+  subtitle: {
+    fontSize: 12,
   },
   durationsRow: {
     flexDirection: 'row',
@@ -75,14 +91,15 @@ const styles = StyleSheet.create({
   },
   pill: {
     flex: 1,
-    paddingVertical: SPACING.md - 2,
+    paddingVertical: SPACING.sm + 2,
     borderRadius: RADIUS.lg,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
+    minHeight: 44,
   },
   pillText: {
     fontWeight: '700',
+    fontSize: 13,
   },
 });
-

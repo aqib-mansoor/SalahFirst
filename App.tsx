@@ -219,6 +219,7 @@ function AppContent() {
             maghrib: prayerData.maghrib,
             isha: prayerData.isha,
           }}
+          rawPrayerDates={prayerData.raw}
           onBack={() => setCurrentStep('main')}
           onBeginFocus={handleBeginFocus}
         />
