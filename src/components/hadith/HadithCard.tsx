@@ -7,13 +7,18 @@ import { AppText } from '@/components/common';
 import { HadithItem } from '@/data/hadiths';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 import { HadithTranslationSelector } from './HadithTranslationSelector';
+import { HadithCardFooterActions } from './HadithCardFooterActions';
 
 export interface HadithCardProps {
   hadith: HadithItem;
   currentIndex: number;
   totalHadiths: number;
   translationMode?: HadithTranslationMode;
+  isSaved?: boolean;
   onSelectTranslationMode?: (mode: HadithTranslationMode) => void;
+  onWallpaperPress?: () => void;
+  onSavePress?: () => void;
+  onSharePress?: () => void;
 }
 
 export const HadithCard: React.FC<HadithCardProps> = ({
@@ -21,7 +26,11 @@ export const HadithCard: React.FC<HadithCardProps> = ({
   currentIndex,
   totalHadiths,
   translationMode = 'both',
+  isSaved = false,
   onSelectTranslationMode,
+  onWallpaperPress,
+  onSavePress,
+  onSharePress,
 }) => {
   const theme = useTheme();
 
@@ -128,23 +137,33 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         </View>
       )}
 
-      {/* Source Citation Footer */}
+      {/* Source Citation & Actions Footer */}
       <View style={styles.footerRow}>
-        <AppText
-          variant="bodySmall"
-          color={theme.colors.primary}
-          style={styles.sourceText}
-        >
-          {hadith.source}
-        </AppText>
+        <View style={styles.citationCol}>
+          <AppText
+            variant="bodySmall"
+            color={theme.colors.primary}
+            style={styles.sourceText}
+          >
+            {hadith.source}
+          </AppText>
 
-        <AppText
-          variant="caption"
-          color={theme.colors.textMuted}
-          style={styles.referenceText}
-        >
-          {hadith.reference}
-        </AppText>
+          <AppText
+            variant="caption"
+            color={theme.colors.textMuted}
+            style={styles.referenceText}
+          >
+            {hadith.reference}
+          </AppText>
+        </View>
+
+        {/* 36x36 Circular Action Icons */}
+        <HadithCardFooterActions
+          isSaved={isSaved}
+          onWallpaperPress={onWallpaperPress}
+          onSavePress={onSavePress}
+          onSharePress={onSharePress}
+        />
       </View>
     </View>
   );
@@ -219,6 +238,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: SPACING.xs,
+    gap: SPACING.sm,
+  },
+  citationCol: {
+    flex: 1,
+    gap: 2,
   },
   sourceText: {
     fontWeight: '800',

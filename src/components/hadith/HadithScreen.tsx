@@ -8,7 +8,6 @@ import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { HadithHeader } from './HadithHeader';
 import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
-import { HadithActionButtons } from './HadithActionButtons';
 import { HadithPagination } from './HadithPagination';
 import { HadithBookmarksCard } from './HadithBookmarksCard';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
@@ -69,11 +68,8 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
             currentIndex={currentIndex}
             totalHadiths={totalHadiths}
             translationMode={translationMode}
-            onSelectTranslationMode={setTranslationMode}
-          />
-
-          <HadithActionButtons
             isSaved={isSaved}
+            onSelectTranslationMode={setTranslationMode}
             onWallpaperPress={() => setShowWallpaper(true)}
             onSavePress={toggleSave}
             onSharePress={shareHadith}

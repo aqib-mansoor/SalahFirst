@@ -3,41 +3,37 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
-import { useTranslation } from '@/context/LocalizationContext';
 
-export interface HadithActionButtonsProps {
-  isSaved: boolean;
-  onWallpaperPress: () => void;
-  onSavePress: () => void;
-  onSharePress: () => void;
+export interface HadithCardFooterActionsProps {
+  isSaved?: boolean;
+  onWallpaperPress?: () => void;
+  onSavePress?: () => void;
+  onSharePress?: () => void;
 }
 
-export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
-  isSaved,
+export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = ({
+  isSaved = false,
   onWallpaperPress,
   onSavePress,
   onSharePress,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
+    <View style={styles.actionsRow}>
       {/* 1. Wallpaper Action */}
       <Pressable
         onPress={onWallpaperPress}
+        hitSlop={6}
         accessibilityRole="button"
         accessibilityLabel="Create Hadith Wallpaper"
-        accessibilityHint="Opens customizable HD wallpaper generator with this Hadith"
-        hitSlop={4}
         style={({ pressed }) => [
-          styles.actionPill,
+          styles.circleBtn,
           {
-            backgroundColor: theme.colors.surface,
+            backgroundColor: theme.colors.surfaceElevated,
             borderColor: theme.colors.border,
           },
-          pressed && { opacity: 0.8 },
+          pressed && { opacity: 0.75 },
         ]}
       >
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -45,25 +41,21 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
           <Path d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5Z" fill={theme.colors.primary} />
           <Path d="M21 15L16 10L5 21" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
-        <AppText variant="bodySmall" color={theme.colors.text} style={styles.actionLabel}>
-          {t('wallpaper')}
-        </AppText>
       </Pressable>
 
-      {/* 2. Save / Saved Action */}
+      {/* 2. Bookmark Action */}
       <Pressable
         onPress={onSavePress}
+        hitSlop={6}
         accessibilityRole="button"
-        accessibilityLabel={isSaved ? "Saved to bookmarks" : "Save to bookmarks"}
-        accessibilityHint="Toggles offline bookmark for this Hadith"
-        hitSlop={4}
+        accessibilityLabel={isSaved ? "Saved in bookmarks" : "Save to bookmarks"}
         style={({ pressed }) => [
-          styles.actionPill,
+          styles.circleBtn,
           {
-            backgroundColor: isSaved ? theme.colors.secondaryTint : theme.colors.surface,
+            backgroundColor: isSaved ? theme.colors.secondaryTint : theme.colors.surfaceElevated,
             borderColor: isSaved ? theme.colors.primary : theme.colors.border,
           },
-          pressed && { opacity: 0.8 },
+          pressed && { opacity: 0.75 },
         ]}
       >
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -76,29 +68,21 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
             strokeLinejoin="round"
           />
         </Svg>
-        <AppText
-          variant="bodySmall"
-          color={isSaved ? theme.colors.primary : theme.colors.text}
-          style={[styles.actionLabel, isSaved && styles.actionLabelActive]}
-        >
-          {isSaved ? t('saved') : t('save')}
-        </AppText>
       </Pressable>
 
       {/* 3. Share Action */}
       <Pressable
         onPress={onSharePress}
+        hitSlop={6}
         accessibilityRole="button"
         accessibilityLabel="Share Hadith"
-        accessibilityHint="Shares authentic Hadith text and translation"
-        hitSlop={4}
         style={({ pressed }) => [
-          styles.actionPill,
+          styles.circleBtn,
           {
-            backgroundColor: theme.colors.surface,
+            backgroundColor: theme.colors.surfaceElevated,
             borderColor: theme.colors.border,
           },
-          pressed && { opacity: 0.8 },
+          pressed && { opacity: 0.75 },
         ]}
       >
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -124,37 +108,23 @@ export const HadithActionButtons: React.FC<HadithActionButtonsProps> = ({
             strokeLinejoin="round"
           />
         </Svg>
-        <AppText variant="bodySmall" color={theme.colors.text} style={styles.actionLabel}>
-          {t('share')}
-        </AppText>
       </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.lg,
-    gap: SPACING.sm,
-    justifyContent: 'space-between',
-  },
-  actionPill: {
-    flex: 1,
+  actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.sm + 2,
-    paddingHorizontal: SPACING.xs,
-    borderRadius: RADIUS.lg,
+    gap: SPACING.xs + 2,
+  },
+  circleBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
-    gap: 6,
-  },
-  actionLabel: {
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  actionLabelActive: {
-    fontWeight: '700',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
