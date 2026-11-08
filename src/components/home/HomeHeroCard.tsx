@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
-import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { useTranslation } from '@/context/LocalizationContext';
 import type { PrayerPeriodCategory } from '@/types';
 import { HeroFocusButton } from './HeroFocusButton';
+import { HeroCompletionBanner } from './HeroCompletionBanner';
+import { HeroGeometricWatermark } from './HeroGeometricWatermark';
 
 export interface HomeHeroCardProps {
   currentPrayerName: string;
@@ -15,12 +15,13 @@ export interface HomeHeroCardProps {
   nextPrayerName: string;
   nextPrayerTimeFormatted: string;
   countdownText: string;
+  currentObligatoryName?: string;
   isCurrentCompleted?: boolean;
   allCompleted?: boolean;
   showFocusButton?: boolean;
+  focusPendingNotice?: string | null;
   onStartPrayerFocus?: () => void;
   periodCategory?: PrayerPeriodCategory;
-  periodSubtitleKey?: string;
   periodId?: string;
 }
 
@@ -30,12 +31,13 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   nextPrayerName,
   nextPrayerTimeFormatted,
   countdownText,
+  currentObligatoryName,
   isCurrentCompleted = false,
   allCompleted = false,
-  showFocusButton = true,
+  showFocusButton = false,
+  focusPendingNotice,
   onStartPrayerFocus,
   periodCategory = 'obligatory',
-  periodSubtitleKey,
   periodId,
 }) => {
   const theme = useTheme();
@@ -48,54 +50,64 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const localizedNextPrayer =
     (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
-  const isObligatory = periodCategory === 'obligatory';
-  const statusConfig = {
-    prohibited: { text: t('prohibited'), style: styles.statusPillProhibited, color: '#FF8A80', dot: '#FF8A80' },
-    nafl: { text: periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl'), style: styles.statusPillNafl, color: theme.colors.accent, dot: theme.colors.accent },
-    informational: { text: t('detectingLocation'), style: styles.statusPill, color: 'rgba(255, 255, 255, 0.85)', dot: theme.colors.secondary },
-    obligatory: {
-      text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
-      style: isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill,
-      color: isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)',
-      dot: theme.colors.accent,
-    },
-  }[periodCategory] || {
+  const defaultObligatory = {
     text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
-    style: isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill,
     color: isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)',
     dot: theme.colors.accent,
   };
 
+  const statusConfig = {
+    prohibited: { text: t('prohibited'), color: '#FF8A80', dot: '#FF8A80' },
+    nafl: {
+      text: periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl'),
+      color: theme.colors.accent,
+      dot: theme.colors.accent,
+    },
+    informational: { text: t('detectingLocation'), color: 'rgba(255, 255, 255, 0.85)', dot: theme.colors.secondary },
+    obligatory: defaultObligatory,
+  }[periodCategory] || defaultObligatory;
+
+  const localizedObligatory = currentObligatoryName
+    ? (t(currentObligatoryName.toLowerCase() as any) as string) || currentObligatoryName
+    : localizedCurrentPrayer;
+
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
-      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.16} />
-      <IslamicWatermark size={240} opacity={0.07} color={theme.colors.accent} style={styles.watermarkTopRight} />
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.14} />
+      <HeroGeometricWatermark color={theme.colors.accent} opacity={0.10} />
 
-      {/* Top Section: Pill + Status */}
-      <View style={styles.topSection}>
-        <View style={styles.topRow}>
-          <View style={[styles.currentTag, { borderColor: 'rgba(243, 196, 64, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.18)' }]}>
-            <View style={[styles.goldDot, { backgroundColor: statusConfig.dot }]} />
-            <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
-              {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
-            </AppText>
-          </View>
+      {/* Top Row: Current Prayer Pill & Period Type Pill */}
+      <View style={styles.topRow}>
+        <View
+          style={[
+            styles.currentTag,
+            { borderColor: 'rgba(247, 207, 87, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.20)' },
+          ]}
+        >
+          <View style={[styles.goldDot, { backgroundColor: statusConfig.dot }]} />
+          <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
+            {t('currentPrayer').toUpperCase()}: {localizedCurrentPrayer} ({currentTimeFormatted})
+          </AppText>
+        </View>
 
-          <View style={[styles.statusPill, statusConfig.style]}>
-            <AppText variant="caption" color={statusConfig.color} style={styles.completedTag}>
-              {statusConfig.text}
-            </AppText>
-          </View>
+        <View
+          style={[
+            styles.statusPill,
+            { backgroundColor: 'rgba(0, 0, 0, 0.20)', borderColor: 'rgba(247, 207, 87, 0.25)' },
+          ]}
+        >
+          <AppText variant="caption" color={statusConfig.color} style={styles.statusText}>
+            {statusConfig.text}
+          </AppText>
         </View>
       </View>
 
-      {/* Center Countdown & Azan Time */}
+      {/* Center Row: Next Prayer Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
           <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
-
           <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
             {countdownText}
           </AppText>
@@ -111,20 +123,28 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         </View>
       </View>
 
-      {/* Bottom Section: Celebration Banner or Prayer Focus CTA */}
+      {/* Bottom Row: Dynamic Completion Banner, Focus CTA, or Offset Notice */}
       {allCompleted ? (
-        <View style={styles.allCompletedBanner}>
-          <View style={[styles.allCompletedIcon, { backgroundColor: theme.colors.accent }]}>
-            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M20 6L9 17L4 12" stroke={theme.colors.buttonGoldText || '#0A261B'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </View>
-          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.allCompletedText}>
-            {t('allPrayersCompleted')}
+        <HeroCompletionBanner
+          message={(t('allPrayersCompleted') as string) || 'All 5 prayers completed! Alhamdulillah'}
+        />
+      ) : isCurrentCompleted && currentObligatoryName ? (
+        <HeroCompletionBanner
+          message={`${localizedObligatory} completed! Alhamdulillah`}
+        />
+      ) : showFocusButton ? (
+        <HeroFocusButton
+          prayerName={localizedObligatory}
+          durationMinutes={15}
+          onPress={onStartPrayerFocus}
+        />
+      ) : focusPendingNotice ? (
+        <View style={styles.offsetNoticePill}>
+          <View style={[styles.miniDot, { backgroundColor: theme.colors.accent }]} />
+          <AppText variant="caption" color={theme.colors.accentLight} style={styles.offsetNoticeText}>
+            {focusPendingNotice}
           </AppText>
         </View>
-      ) : showFocusButton ? (
-        <HeroFocusButton onPress={onStartPrayerFocus} />
       ) : null}
     </View>
   );
@@ -132,31 +152,25 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 224,
+    minHeight: 200,
     borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
+    padding: SPACING.md + 4,
     overflow: 'hidden',
     position: 'relative',
     justifyContent: 'space-between',
     borderWidth: 1.2,
-    borderColor: 'rgba(243, 196, 64, 0.40)',
+    borderColor: 'rgba(247, 207, 87, 0.35)',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.22,
     shadowRadius: 14,
     elevation: 4,
-  },
-  watermarkTopRight: {
-    top: -40,
-    right: -40,
-  },
-  topSection: {
-    gap: SPACING.xs,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    zIndex: 1,
   },
   currentTag: {
     flexDirection: 'row',
@@ -165,80 +179,55 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
   },
-  goldDot: {
-    width: 6, height: 6, borderRadius: 3,
-  },
-  currentText: {
-    fontWeight: '700', fontSize: 11,
-  },
-  statusPill: {
-    paddingHorizontal: SPACING.sm + 2, paddingVertical: 3,
-    borderRadius: RADIUS.full, backgroundColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  statusPillCompleted: { backgroundColor: 'rgba(243, 196, 64, 0.22)' },
-  statusPillProhibited: { backgroundColor: 'rgba(239, 83, 80, 0.22)' },
-  statusPillNafl: { backgroundColor: 'rgba(243, 196, 64, 0.22)' },
-  completedTag: { fontWeight: '700', fontSize: 11 },
-  centerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginVertical: SPACING.sm,
-  },
-  leftCountdown: {
-    gap: 3,
-  },
-  nextPrayerLabel: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  nextPrayerBold: {
-    fontWeight: '700',
-    fontSize: 13.5,
-  },
+  goldDot: { width: 6, height: 6, borderRadius: 3 },
+  currentText: { fontWeight: '700', fontSize: 11, letterSpacing: 0.3 },
+  statusPill: { paddingHorizontal: SPACING.sm + 4, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 0.8 },
+  statusText: { fontWeight: '700', fontSize: 11 },
+  centerRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginVertical: SPACING.xs, zIndex: 1 },
+  leftCountdown: { gap: 2 },
+  nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
+  nextPrayerBold: { fontWeight: '700', fontSize: 13 },
   countdownNumber: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '700',
-    lineHeight: 44,
-    letterSpacing: 0.8,
+    lineHeight: 40,
+    letterSpacing: 0.6,
     fontVariant: ['tabular-nums'],
   },
   rightAzan: {
     alignItems: 'flex-end',
-    gap: 2,
+    gap: 1,
   },
   azanLabel: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '600',
   },
   azanTime: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
   },
-  allCompletedBanner: {
+  offsetNoticePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(243, 196, 64, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(243, 196, 64, 0.35)',
-    borderRadius: RADIUS.lg,
-    paddingVertical: SPACING.sm + 2,
-    paddingHorizontal: SPACING.md,
-    gap: SPACING.sm,
-  },
-  allCompletedIcon: {
-    width: 24,
-    height: 24,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.18)',
     borderRadius: RADIUS.full,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 3,
+    paddingHorizontal: SPACING.sm + 2,
+    gap: 6,
+    borderWidth: 0.8,
+    borderColor: 'rgba(247, 207, 87, 0.20)',
   },
-  allCompletedText: {
-    fontWeight: '700',
-    fontSize: 12,
-    flex: 1,
+  miniDot: {
+    width: 4.5,
+    height: 4.5,
+    borderRadius: 2.5,
+  },
+  offsetNoticeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });

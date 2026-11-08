@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { AppContainer } from '@/components/common';
+import {
+  PrayerFocusOffsets,
+  DEFAULT_FOCUS_OFFSETS,
+  loadFocusOffsets,
+  calculateFocusReadiness,
+} from '@/utils/prayerFocusOffsets';
 import { HomeHeader } from './HomeHeader';
 import { HomeHeroCard } from './HomeHeroCard';
 import { HomeSalahTracker } from './HomeSalahTracker';
@@ -29,7 +35,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
+  const [focusOffsets, setFocusOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const { location, permissionDenied } = useDeviceLocation();
+
+  useEffect(() => {
+    loadFocusOffsets().then(setFocusOffsets);
+  }, []);
 
   const handleTabChange = (tab: HomeTab) => {
     setActiveTab(tab);
@@ -53,11 +64,34 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     : null;
   const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
   const allCompleted = completedCount === 5;
+
+  const rawPrayerDate = currentObligatoryName
+    ? prayerData.raw?.[currentObligatoryName.toLowerCase() as keyof typeof prayerData.raw]
+    : undefined;
+
+  const readiness = useMemo(() => {
+    if (!currentObligatoryName) {
+      return { isFocusReady: false, formattedFocusTime: '', minutesRemaining: 0 };
+    }
+    return calculateFocusReadiness(currentObligatoryName, rawPrayerDate, focusOffsets);
+  }, [currentObligatoryName, rawPrayerDate, focusOffsets]);
+
   const showFocusButton =
     !allCompleted &&
     !!currentObligatoryName &&
     !isCurrentCompleted &&
+    readiness.isFocusReady &&
     prayerData.currentPeriod?.category !== 'prohibited';
+
+  const focusPendingNotice =
+    !allCompleted &&
+    !!currentObligatoryName &&
+    !isCurrentCompleted &&
+    !readiness.isFocusReady &&
+    readiness.minutesRemaining > 0 &&
+    readiness.minutesRemaining <= 60
+      ? `Focus ready at ${readiness.formattedFocusTime} (${readiness.minutesRemaining}m)`
+      : null;
 
   return (
     <AppContainer
@@ -87,9 +121,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             nextPrayerName={prayerData.nextPrayerName}
             nextPrayerTimeFormatted={prayerData.nextPrayerTimeFormatted}
             countdownText={countdownText}
+            currentObligatoryName={currentObligatoryName}
             isCurrentCompleted={isCurrentCompleted}
             allCompleted={allCompleted}
             showFocusButton={showFocusButton}
+            focusPendingNotice={focusPendingNotice}
             periodCategory={prayerData.currentPeriod?.category}
             periodSubtitleKey={prayerData.currentPeriod?.descriptionKey}
             periodId={prayerData.currentPeriod?.id}

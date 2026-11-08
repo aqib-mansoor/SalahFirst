@@ -1,5 +1,7 @@
 export * from './HomeHeader';
 export * from './HeroFocusButton';
+export * from './HeroCompletionBanner';
+export * from './HeroGeometricWatermark';
 export * from './HomeHeroCard';
 export * from './HomeSalahTracker';
 export * from './HomeDailyHadith';

@@ -8,34 +8,44 @@ import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HeroFocusButtonProps {
   onPress?: () => void;
+  prayerName?: string;
+  durationMinutes?: number;
 }
 
-export const HeroFocusButton: React.FC<HeroFocusButtonProps> = ({ onPress }) => {
+export const HeroFocusButton: React.FC<HeroFocusButtonProps> = ({
+  onPress,
+  prayerName,
+  durationMinutes = 15,
+}) => {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const label = prayerName
+    ? `${t('startPrayerFocus')} • ${prayerName}`
+    : (t('startPrayerFocus') as string);
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${t('startPrayerFocus')}, 15 min`}
-      accessibilityHint="Opens quiet focus mode for prayer"
+      accessibilityLabel={`${label}, ${durationMinutes} min`}
+      accessibilityHint="Opens full-screen quiet focus mode for prayer"
       style={({ pressed }) => [
         styles.focusButton,
         {
           backgroundColor: pressed ? theme.colors.buttonGoldPressed : theme.colors.buttonGold,
-          transform: [{ scale: pressed ? 0.98 : 1 }],
+          transform: [{ scale: pressed ? 0.985 : 1 }],
         },
       ]}
     >
-      <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.colors.textOnAccent}>
+      <Svg width={17} height={17} viewBox="0 0 24 24" fill={theme.colors.textOnAccent}>
         <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       </Svg>
       <AppText variant="titleSmall" color={theme.colors.textOnAccent} style={styles.focusButtonText}>
-        {t('startPrayerFocus')}
+        {label}
       </AppText>
       <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.focusDurationText}>
-        15 min
+        {durationMinutes} min
       </AppText>
     </Pressable>
   );
@@ -46,23 +56,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.sm + 4,
+    borderRadius: RADIUS.full,
     gap: SPACING.sm,
     shadowColor: '#202923',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   focusButtonText: {
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: 13.5,
   },
   focusDurationText: {
     opacity: 0.9,
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '600',
   },
 });
-
