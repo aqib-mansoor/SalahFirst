@@ -13,7 +13,7 @@ export interface WallpaperPhoneOverlayProps {
   height: number;
 }
 
-export const WallpaperPhoneOverlay = memo<WallpaperPhoneOverlayProps>(({
+const WallpaperPhoneOverlayComponent: React.FC<WallpaperPhoneOverlayProps> = ({
   mode,
   isDarkTheme,
 }) => {
@@ -43,27 +43,29 @@ export const WallpaperPhoneOverlay = memo<WallpaperPhoneOverlayProps>(({
             </AppText>
           </View>
 
-          {/* Bottom Lockscreen Shortcuts */}
-          <View style={styles.bottomShortcutsRow}>
-            {/* Flashlight Shortcut */}
-            <View style={[styles.shortcutCircle, { backgroundColor: bubbleBg }]}>
-              <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                <Path d="M18 6L16 11V20H8V11L6 6V3H18V6Z" stroke={iconStroke} strokeWidth="2" strokeLinejoin="round" />
-                <Path d="M12 11V14" stroke={iconStroke} strokeWidth="2" strokeLinecap="round" />
-              </Svg>
+          {/* Bottom Lockscreen Shortcuts & Home Bar */}
+          <View style={styles.bottomZone}>
+            <View style={styles.bottomShortcutsRow}>
+              {/* Flashlight Shortcut */}
+              <View style={[styles.shortcutCircle, { backgroundColor: bubbleBg }]}>
+                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                  <Path d="M18 6L16 11V20H8V11L6 6V3H18V6Z" stroke={iconStroke} strokeWidth="2" strokeLinejoin="round" />
+                  <Path d="M12 11V14" stroke={iconStroke} strokeWidth="2" strokeLinecap="round" />
+                </Svg>
+              </View>
+
+              {/* Camera Shortcut */}
+              <View style={[styles.shortcutCircle, { backgroundColor: bubbleBg }]}>
+                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                  <Path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke={iconStroke} strokeWidth="1.8" />
+                  <Circle cx="12" cy="13" r="4" stroke={iconStroke} strokeWidth="1.8" />
+                </Svg>
+              </View>
             </View>
 
-            {/* Camera Shortcut */}
-            <View style={[styles.shortcutCircle, { backgroundColor: bubbleBg }]}>
-              <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                <Path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke={iconStroke} strokeWidth="1.8" />
-                <Circle cx="12" cy="13" r="4" stroke={iconStroke} strokeWidth="1.8" />
-              </Svg>
-            </View>
+            {/* Home Bar */}
+            <View style={[styles.homeIndicator, { backgroundColor: textColor }]} />
           </View>
-
-          {/* Home Bar */}
-          <View style={[styles.homeIndicator, { backgroundColor: textColor }]} />
         </View>
       )}
 
@@ -94,7 +96,9 @@ export const WallpaperPhoneOverlay = memo<WallpaperPhoneOverlayProps>(({
       )}
     </View>
   );
-});
+};
+
+export const WallpaperPhoneOverlay = memo(WallpaperPhoneOverlayComponent);
 
 const styles = StyleSheet.create({
   lockscreenContainer: {
@@ -123,6 +127,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.2,
     marginTop: -2,
+  },
+  bottomZone: {
+    width: '100%',
+    paddingBottom: 4,
   },
   bottomShortcutsRow: {
     flexDirection: 'row',

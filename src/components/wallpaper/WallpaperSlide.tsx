@@ -14,7 +14,7 @@ export interface WallpaperSlideProps {
   isPhonePreview?: boolean;
 }
 
-export const WallpaperSlide = memo<WallpaperSlideProps>(({
+const WallpaperSlideComponent: React.FC<WallpaperSlideProps> = ({
   theme,
   hadith,
   width,
@@ -130,7 +130,9 @@ export const WallpaperSlide = memo<WallpaperSlideProps>(({
       </View>
     </View>
   );
-});
+};
+
+export const WallpaperSlide = memo(WallpaperSlideComponent);
 
 const styles = StyleSheet.create({
   slideContainer: {

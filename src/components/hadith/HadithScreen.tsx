@@ -11,7 +11,7 @@ import { HadithCard } from './HadithCard';
 import { HadithPagination } from './HadithPagination';
 import { HadithBookmarksCard } from './HadithBookmarksCard';
 import { HadithBookmarksSheet } from './HadithBookmarksSheet';
-import { HadithWallpaperScreen } from '@/components/wallpaper';
+import { HadithWallpaperScreen } from '@/components/wallpaper/HadithWallpaperScreen';
 
 export interface HadithScreenProps {
   onNavigateTab: (tab: HomeTab) => void;

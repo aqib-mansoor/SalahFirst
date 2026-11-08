@@ -17,17 +17,16 @@ export interface WallpaperCarouselItemProps {
   previewMode: WallpaperPreviewMode;
 }
 
-export const WallpaperCarouselItem = memo<WallpaperCarouselItemProps>(
-  ({
-    item,
-    index,
-    hadith,
-    cardWidth,
-    cardHeight,
-    itemFullWidth,
-    scrollX,
-    previewMode,
-  }) => {
+const WallpaperCarouselItemComponent: React.FC<WallpaperCarouselItemProps> = ({
+  item,
+  index,
+  hadith,
+  cardWidth,
+  cardHeight,
+  itemFullWidth,
+  scrollX,
+  previewMode,
+}) => {
     const inputRange = [
       (index - 1) * itemFullWidth,
       index * itemFullWidth,
@@ -91,8 +90,9 @@ export const WallpaperCarouselItem = memo<WallpaperCarouselItemProps>(
         </View>
       </Animated.View>
     );
-  }
-);
+  };
+
+export const WallpaperCarouselItem = memo(WallpaperCarouselItemComponent);
 
 const styles = StyleSheet.create({
   slideItemWrapper: {

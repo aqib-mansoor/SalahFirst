@@ -91,15 +91,14 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
         horizontal
         showsHorizontalScrollIndicator={false}
         snapToInterval={itemFullWidth}
-        snapToAlignment="center"
-        disableIntervalMomentum={true}
+        snapToAlignment="start"
         decelerationRate="fast"
         bounces={false}
         scrollEventThrottle={16}
-        initialNumToRender={3}
-        maxToRenderPerBatch={3}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
         windowSize={5}
-        removeClippedSubviews={Platform.OS === 'android'}
+        removeClippedSubviews={false}
         contentContainerStyle={{
           paddingHorizontal: sideSpacer,
           alignItems: 'center',
