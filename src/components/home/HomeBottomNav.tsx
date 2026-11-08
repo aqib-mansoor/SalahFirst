@@ -74,8 +74,9 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 style={({ pressed }) => [
                   styles.activePill,
                   {
-                    backgroundColor: theme.colors.primary,
-                    shadowColor: theme.colors.primary,
+                    backgroundColor: theme.colors.accentLight,
+                    borderColor: theme.colors.accent,
+                    shadowColor: theme.colors.accent,
                   },
                   pressed && { opacity: 0.85 },
                 ]}
@@ -88,11 +89,11 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   tabId={tab.id}
                   isActive={true}
                   size={19}
-                  customColor={theme.colors.textOnPrimary}
+                  customColor={theme.colors.textPrimary}
                 />
                 <AppText
                   variant="caption"
-                  color={theme.colors.textOnPrimary}
+                  color={theme.colors.textPrimary}
                   style={styles.activeLabel}
                   numberOfLines={1}
                 >
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: RADIUS.full,
+    borderRadius: RADIUS.xl,
     borderWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 6,
@@ -161,12 +162,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
     paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: RADIUS.full,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+    paddingVertical: 9,
+    borderRadius: RADIUS.md + 2,
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   activeLabel: {
     fontWeight: '800',
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 11,
-    borderRadius: RADIUS.full,
+    borderRadius: RADIUS.md,
     minHeight: 44,
   },
 });
