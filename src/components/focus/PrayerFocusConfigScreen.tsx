@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,6 +35,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   onBeginFocus,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   const [selectedPrayer, setSelectedPrayer] = useState<FocusPrayerSelection>(
@@ -81,7 +83,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
 
   return (
-    <AppContainer edges={['top', 'left', 'right', 'bottom']} style={{ backgroundColor: theme.colors.background }}>
+    <AppContainer edges={['top', 'left', 'right']} style={{ backgroundColor: theme.colors.background }}>
       {/* Header Bar */}
       <View style={styles.header}>
         <Pressable
@@ -103,7 +105,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 110 + Math.max(insets.bottom, 16) }]}
+      >
         {/* Title Section */}
         <View style={styles.titleSection}>
           <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
@@ -151,8 +156,19 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           onToggleAutoStart={() => setAutoStart((p) => !p)}
           onTogglePlayAzan={() => setPlayAzan((p) => !p)}
         />
+      </ScrollView>
 
-        {/* Bottom Action Area */}
+      {/* Docked Bottom Bar (Safe from System Navigation Bar) */}
+      <View
+        style={[
+          styles.dockedFooter,
+          {
+            backgroundColor: theme.colors.surface,
+            borderTopColor: theme.colors.border,
+            paddingBottom: Math.max(insets.bottom, 14),
+          },
+        ]}
+      >
         {selectedPrayer === 'All' ? (
           <View style={styles.actionColumn}>
             <AppButton
@@ -166,7 +182,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
               hitSlop={8}
               style={styles.secondaryLink}
             >
-              <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
+              <AppText variant="caption" color={theme.colors.primary} style={styles.secondaryText}>
                 Begin Focus Now ({effectivePrayer}) ›
               </AppText>
             </Pressable>
@@ -179,7 +195,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
           />
         )}
-      </ScrollView>
+      </View>
     </AppContainer>
   );
 };
@@ -200,49 +216,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-  },
-  headerBadgeText: {
-    fontWeight: '800',
-    fontSize: 11,
-    letterSpacing: 0.6,
-  },
-  scroll: {
+  headerBadge: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.full },
+  headerBadgeText: { fontWeight: '800', fontSize: 11, letterSpacing: 0.6 },
+  scroll: { paddingHorizontal: SPACING.lg, gap: SPACING.md },
+  titleSection: { gap: 3, marginBottom: SPACING.xs },
+  title: { fontWeight: '800', fontSize: 22, letterSpacing: -0.3 },
+  subtitle: { fontSize: 13, lineHeight: 18 },
+  dockedFooter: {
     paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.xxl,
-    gap: SPACING.md,
+    paddingTop: SPACING.sm + 2,
+    borderTopWidth: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 8,
   },
-  titleSection: {
-    gap: 3,
-    marginBottom: SPACING.xs,
-  },
-  title: {
-    fontWeight: '800',
-    fontSize: 22,
-    letterSpacing: -0.3,
-  },
-  subtitle: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  actionColumn: {
-    gap: SPACING.sm,
-    alignItems: 'center',
-  },
-  beginButton: {
-    width: '100%',
-    borderRadius: RADIUS.lg,
-    minHeight: 52,
-  },
-  secondaryLink: {
-    paddingVertical: 6,
-    paddingHorizontal: SPACING.md,
-  },
-  secondaryText: {
-    fontWeight: '700',
-    fontSize: 13,
-  },
+  actionColumn: { gap: 6, alignItems: 'center' },
+  beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 50 },
+  secondaryLink: { paddingVertical: 4, paddingHorizontal: SPACING.md },
+  secondaryText: { fontWeight: '700', fontSize: 12 },
 });
