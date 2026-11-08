@@ -119,9 +119,14 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
-          <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
-            {countdownText}
-          </AppText>
+          <View style={styles.countdownRow}>
+            <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
+              {countdownText}
+            </AppText>
+            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.leftSimpleText}>
+              left
+            </AppText>
+          </View>
         </View>
 
         <View style={styles.rightAzan}>
@@ -212,6 +217,7 @@ const styles = StyleSheet.create({
   leftCountdown: { gap: 2 },
   nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
   nextPrayerBold: { fontWeight: '700', fontSize: 13 },
+  countdownRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
   countdownNumber: {
     fontSize: 34,
     fontWeight: '700',
@@ -219,6 +225,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     fontVariant: ['tabular-nums'],
   },
+  leftSimpleText: { fontSize: 13, fontWeight: '600', opacity: 0.85 },
   rightAzan: { alignItems: 'flex-end', gap: 1 },
   azanLabel: { fontSize: 11, fontWeight: '600' },
   azanTime: { fontSize: 22, fontWeight: '800' },
