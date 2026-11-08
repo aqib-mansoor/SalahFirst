@@ -11,13 +11,15 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface GeneralSettingsGroupProps {
   language: string;
   onToggleLanguage: () => void;
-  onOpenPrivacyPolicy?: () => void;
+  onOpenPrivacyPolicy: () => void;
+  onOpenTerms: () => void;
 }
 
 export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   language,
   onToggleLanguage,
   onOpenPrivacyPolicy,
+  onOpenTerms,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -119,15 +121,42 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 4: Privacy Policy */}
-        <Pressable onPress={onOpenPrivacyPolicy} style={styles.row}>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.privacyText}>
-            {t('privacyPolicyTitle')}
-          </AppText>
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="10" stroke={theme.colors.textSubtle} strokeWidth="2" />
-            <Path d="M12 16v-4M12 8h.01" stroke={theme.colors.textSubtle} strokeWidth="2" strokeLinecap="round" />
-          </Svg>
+        {/* Row 4: Native Privacy Policy Screen */}
+        <Pressable
+          onPress={onOpenPrivacyPolicy}
+          accessibilityRole="button"
+          accessibilityLabel={t('privacyPolicyMenuTitle')}
+          style={styles.row}
+        >
+          <View style={styles.textCol}>
+            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
+              {t('privacyPolicyMenuTitle')}
+            </AppText>
+            <AppText variant="caption" color={theme.colors.textMuted}>
+              {t('privacyPolicyMenuDesc')}
+            </AppText>
+          </View>
+          {ChevronRight}
+        </Pressable>
+
+        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+
+        {/* Row 5: Native Terms & Conditions Screen */}
+        <Pressable
+          onPress={onOpenTerms}
+          accessibilityRole="button"
+          accessibilityLabel={t('termsMenuTitle')}
+          style={styles.row}
+        >
+          <View style={styles.textCol}>
+            <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
+              {t('termsMenuTitle')}
+            </AppText>
+            <AppText variant="caption" color={theme.colors.textMuted}>
+              {t('termsMenuDesc')}
+            </AppText>
+          </View>
+          {ChevronRight}
         </Pressable>
       </View>
     </View>
