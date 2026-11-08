@@ -1,3 +1,4 @@
+export * from './SetupHeader';
 export * from './SetupAyahCarousel';
 export * from './SetupHeroText';
 export * from './LocationActionButtons';

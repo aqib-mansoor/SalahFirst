@@ -5,6 +5,7 @@ import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { AppContainer, AppButton } from '@/components/common';
+import { SetupHeader } from './SetupHeader';
 import { SetupAyahCarousel } from './SetupAyahCarousel';
 import { SetupHeroText } from './SetupHeroText';
 import { SetupLocationCard } from './SetupLocationCard';
@@ -58,6 +59,10 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.screenWrapper}>
+        {/* Pinned Top Brand Header */}
+        <SetupHeader />
+
+        {/* Scrollable Content */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
