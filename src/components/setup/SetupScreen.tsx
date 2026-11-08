@@ -45,7 +45,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
       <Path
         d="M9 18L15 12L9 6"
-        stroke={theme.colors.textInverse}
+        stroke={theme.colors.buttonGoldText}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -79,11 +79,11 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         {/* Offline Privacy Callout */}
         <SetupPrivacyBanner />
 
-        {/* Primary Action Button */}
+        {/* Primary Action Button (Matches Splash Screen Gold Button) */}
         <AppButton
           label={t('getStarted')}
           onPress={onComplete || (() => {})}
-          variant="primary"
+          variant="gold"
           size="lg"
           rightIcon={ChevronRight}
           style={styles.getStartedButton}
@@ -105,12 +105,14 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.xxl,
   },
   container: {
-    padding: SPACING.lg,
-    gap: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
+    gap: SPACING.md,
   },
   getStartedButton: {
     width: '100%',
-    borderRadius: RADIUS.lg,
+    borderRadius: 18,
     minHeight: 56,
     marginTop: SPACING.xs,
   },

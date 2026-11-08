@@ -34,8 +34,8 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
     }
     if (location) {
       return location.isGps
-        ? { text: t('gpsLocked'), bg: theme.colors.mintTint, color: theme.colors.primary }
-        : { text: t('manualCity'), bg: theme.colors.mintTint, color: theme.colors.primary };
+        ? { text: t('gpsLocked'), bg: '#E6F4ED', color: theme.colors.primary }
+        : { text: t('manualCity'), bg: '#E6F4ED', color: theme.colors.primary };
     }
     if (permissionDenied) {
       return { text: t('permissionNeeded'), bg: '#FEE2E2', color: '#DC2626' };
@@ -145,6 +145,11 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     borderWidth: 1,
     gap: SPACING.md,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   topRow: {
     flexDirection: 'row',

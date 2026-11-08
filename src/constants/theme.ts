@@ -27,16 +27,15 @@ export const PALETTE = {
   privacyBg: '#EDF4F0',
   privacyText: '#365345',
 
-  // Light / Setup warm ivory background & surfaces
-  ivoryBg: '#F9F7F2',
+  // Light / Setup clean white background & surfaces
   white: '#FFFFFF',
-  cardBorder: '#EAE6DF',
-  trackBg: '#E5E1D8',
+  cardBorder: '#E6EAE8',
+  trackBg: '#E5E7EB',
   streakOrange: '#E07A1E',
-  inputBg: '#F1EDE6',
-  textDark: '#111827',
-  textSlate: '#5A6760',
-  textDim: '#8B9790',
+  inputBg: '#F8FAF9',
+  textDark: '#0F172A',
+  textSlate: '#475569',
+  textDim: '#64748B',
 
   // Obsidian Islamic Dark tones
   obsidianBg: '#0C1310',
@@ -139,7 +138,7 @@ export const darkTheme: Theme = {
 export const lightTheme: Theme = {
   isDark: false,
   colors: {
-    background: PALETTE.ivoryBg,
+    background: PALETTE.white,
     surface: PALETTE.white,
     surfaceElevated: PALETTE.inputBg,
     border: PALETTE.cardBorder,
@@ -156,13 +155,13 @@ export const lightTheme: Theme = {
     watermark: PALETTE.emeraldWatermark,
     buttonGold: PALETTE.gold,
     buttonGoldPressed: PALETTE.goldDark,
-    buttonGoldText: PALETTE.obsidianBg,
+    buttonGoldText: PALETTE.emeraldDeep,
     bannerGreen: PALETTE.emeraldDark,
     bannerGreenText: PALETTE.white,
     mintTint: PALETTE.mintTint,
     mintTintPressed: PALETTE.mintTintPressed,
     privacyBg: PALETTE.privacyBg,
-    privacyText: PALETTE.privacyText,
+    privacyText: PALETTE.emeraldDark,
     error: '#DC2626',
     notificationRed: '#DC2626',
   },

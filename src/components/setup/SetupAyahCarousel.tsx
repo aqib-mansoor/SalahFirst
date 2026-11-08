@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Pressable, Animated } from 'react-native';
 import { SETUP_QURAN_AYAT, QuranAyah } from '@/data';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -12,7 +12,6 @@ export const SetupAyahCarousel: React.FC = () => {
   const total = SETUP_QURAN_AYAT.length;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Animation values for smooth cross-fade transition
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -44,7 +43,7 @@ export const SetupAyahCarousel: React.FC = () => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % total;
         transitionTo(next);
-        return prev; // Let transitionTo update the active index
+        return prev;
       });
     }, 5500);
 
@@ -57,7 +56,19 @@ export const SetupAyahCarousel: React.FC = () => {
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
-      <IslamicWatermark size={220} opacity={0.16} style={styles.watermark} />
+      {/* Islamic Geometry Canvas Watermarks */}
+      <IslamicWatermark
+        size={240}
+        opacity={0.22}
+        color={PALETTE.emeraldWatermark}
+        style={styles.watermarkTopRight}
+      />
+      <IslamicWatermark
+        size={220}
+        opacity={0.16}
+        color={PALETTE.goldLight}
+        style={styles.watermarkBottomLeft}
+      />
 
       {/* Header Row */}
       <View style={styles.headerRow}>
@@ -79,28 +90,19 @@ export const SetupAyahCarousel: React.FC = () => {
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
         ]}
       >
-        <AppText
-          variant="ayahArabic"
-          style={styles.arabicText}
-        >
+        <AppText variant="ayahArabic" style={styles.arabicText}>
           {currentAyah.arabic}
         </AppText>
 
-        <AppText
-          style={styles.urduText}
-        >
+        <AppText style={styles.urduText}>
           {currentAyah.urdu}
         </AppText>
 
-        <AppText
-          style={styles.englishText}
-        >
+        <AppText style={styles.englishText}>
           "{currentAyah.english}"
         </AppText>
 
-        <AppText
-          style={styles.referenceText}
-        >
+        <AppText style={styles.referenceText}>
           — {currentAyah.reference}
         </AppText>
       </Animated.View>
@@ -116,7 +118,7 @@ export const SetupAyahCarousel: React.FC = () => {
               style={[
                 styles.dot,
                 {
-                  backgroundColor: isActive ? '#FBBF24' : 'rgba(255, 255, 255, 0.35)',
+                  backgroundColor: isActive ? PALETTE.gold : 'rgba(255, 255, 255, 0.35)',
                   width: isActive ? 22 : 6,
                 },
               ]}
@@ -137,11 +139,20 @@ const styles = StyleSheet.create({
     minHeight: 200,
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(204, 161, 95, 0.28)',
+    shadowColor: PALETTE.emeraldDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 6,
   },
-  watermark: {
-    top: -20,
-    right: -50,
+  watermarkTopRight: {
+    top: -30,
+    right: -40,
+  },
+  watermarkBottomLeft: {
+    bottom: -40,
+    left: -40,
   },
   headerRow: {
     flexDirection: 'row',
@@ -153,23 +164,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    backgroundColor: 'rgba(204, 161, 95, 0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(204, 161, 95, 0.45)',
   },
   badgeText: {
     fontWeight: '800',
     letterSpacing: 1,
     fontSize: 10,
-    color: '#FEF08A',
+    color: '#FDE68A',
   },
   stepText: {
     fontWeight: '600',
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.75)',
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   contentSection: {
-    gap: SPACING.xs + 3,
+    gap: SPACING.xs + 2,
     marginVertical: SPACING.xs,
   },
   arabicText: {
@@ -187,18 +198,17 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   englishText: {
-    color: '#FFFFFF',
+    color: 'rgba(255, 255, 255, 0.92)',
     fontSize: 13,
     lineHeight: 20,
     fontStyle: 'italic',
-    opacity: 0.95,
   },
   referenceText: {
     color: '#FDE68A',
     fontSize: 11.5,
     fontWeight: '600',
     textAlign: 'right',
-    opacity: 0.9,
+    opacity: 0.95,
     marginTop: 2,
   },
   dotsRow: {
