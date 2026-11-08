@@ -65,7 +65,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         return;
       }
 
-      const { status } = await MediaLibrary.requestPermissionsAsync();
+      const { status } = await MediaLibrary.requestPermissionsAsync(true);
       if (status === 'granted') {
         await MediaLibrary.saveToLibraryAsync(uri);
         showToast(`HD Wallpaper (${activeTheme.name}) saved to gallery!`);
