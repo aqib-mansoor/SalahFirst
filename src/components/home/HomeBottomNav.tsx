@@ -1,11 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { IslamicNavIcon } from './IslamicNavIcons';
+
+// Enable layout animation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
 
@@ -30,12 +35,18 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
     { id: 'progress', label: t('navProgress') },
   ];
 
+  const handleTabPress = (tabId: HomeTab) => {
+    if (tabId === activeTab) return;
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    onTabChange(tabId);
+  };
+
   return (
     <View
       style={[
         styles.floatingWrapper,
         {
-          paddingBottom: Math.max(insets.bottom, 12),
+          paddingBottom: Math.max(insets.bottom + 10, 24),
         },
       ]}
       pointerEvents="box-none"
@@ -59,7 +70,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             return (
               <Pressable
                 key={tab.id}
-                onPress={() => onTabChange(tab.id)}
+                onPress={() => handleTabPress(tab.id)}
                 style={({ pressed }) => [
                   styles.activePill,
                   {
@@ -94,10 +105,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           return (
             <Pressable
               key={tab.id}
-              onPress={() => onTabChange(tab.id)}
+              onPress={() => handleTabPress(tab.id)}
               style={({ pressed }) => [
                 styles.inactiveTab,
-                pressed && { opacity: 0.6 },
+                pressed && { opacity: 0.55 },
               ]}
               accessibilityRole="tab"
               accessibilityState={{ selected: false }}
