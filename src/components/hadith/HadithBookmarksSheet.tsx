@@ -14,14 +14,15 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem, VERIFIED_HADITHS } from '@/data/hadiths';
-import { HadithBookmarkRow } from './HadithBookmarkRow';
 import { HadithBookmarksSheetHeader } from './HadithBookmarksSheetHeader';
+import { HadithSavedCardItem } from './HadithSavedCardItem';
 
 export interface HadithBookmarksSheetProps {
   visible: boolean;
   savedHadiths: HadithItem[];
   currentIndex: number;
   onSelectHadith: (index: number) => void;
+  onRemoveBookmark: (hadithId: string) => void;
   onClose: () => void;
 }
 
@@ -30,24 +31,45 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
   savedHadiths,
   currentIndex,
   onSelectHadith,
+  onRemoveBookmark,
   onClose,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSource, setSelectedSource] = useState<string>('all');
+
+  // Extract unique sources for filter chips (e.g. Bukhari, Muslim)
+  const sources = useMemo(() => {
+    const list: string[] = [];
+    savedHadiths.forEach((h) => {
+      const name = h.source.replace('Sahih ', '').trim();
+      if (!list.includes(name)) list.push(name);
+    });
+    return list;
+  }, [savedHadiths]);
 
   const filteredHadiths = useMemo(() => {
-    if (!searchQuery.trim()) return savedHadiths;
-    const query = searchQuery.toLowerCase().trim();
-    return savedHadiths.filter(
-      (h) =>
-        h.english.toLowerCase().includes(query) ||
-        h.badge.toLowerCase().includes(query) ||
-        h.source.toLowerCase().includes(query) ||
-        h.arabic.includes(query)
-    );
-  }, [savedHadiths, searchQuery]);
+    let result = savedHadiths;
+
+    if (selectedSource !== 'all') {
+      result = result.filter((h) => h.source.includes(selectedSource));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (h) =>
+          h.english.toLowerCase().includes(q) ||
+          h.badge.toLowerCase().includes(q) ||
+          h.source.toLowerCase().includes(q) ||
+          h.arabic.includes(q)
+      );
+    }
+
+    return result;
+  }, [savedHadiths, selectedSource, searchQuery]);
 
   const handleSelect = (hadithId: string) => {
     const idx = VERIFIED_HADITHS.findIndex((h) => h.id === hadithId);
@@ -83,8 +105,70 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
             onClose={onClose}
           />
 
-          {/* Search Input when 5+ saved items */}
-          {savedHadiths.length >= 5 && (
+          {/* Quick Collection Filter Chips */}
+          {sources.length > 1 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterTrack}
+            >
+              <Pressable
+                onPress={() => setSelectedSource('all')}
+                style={[
+                  styles.filterChip,
+                  {
+                    backgroundColor: selectedSource === 'all'
+                      ? theme.colors.primary
+                      : theme.colors.surfaceElevated,
+                    borderColor: selectedSource === 'all'
+                      ? theme.colors.primary
+                      : theme.colors.border,
+                  },
+                ]}
+              >
+                <AppText
+                  variant="caption"
+                  color={selectedSource === 'all' ? theme.colors.textInverse : theme.colors.text}
+                  style={styles.filterChipText}
+                >
+                  {t('filterAll') || 'All'} ({savedHadiths.length})
+                </AppText>
+              </Pressable>
+
+              {sources.map((src) => {
+                const count = savedHadiths.filter((h) => h.source.includes(src)).length;
+                const active = selectedSource === src;
+                return (
+                  <Pressable
+                    key={src}
+                    onPress={() => setSelectedSource(active ? 'all' : src)}
+                    style={[
+                      styles.filterChip,
+                      {
+                        backgroundColor: active
+                          ? theme.colors.primary
+                          : theme.colors.surfaceElevated,
+                        borderColor: active
+                          ? theme.colors.primary
+                          : theme.colors.border,
+                      },
+                    ]}
+                  >
+                    <AppText
+                      variant="caption"
+                      color={active ? theme.colors.textInverse : theme.colors.text}
+                      style={styles.filterChipText}
+                    >
+                      {src} ({count})
+                    </AppText>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          )}
+
+          {/* Search Input when 4+ saved items */}
+          {savedHadiths.length >= 4 && (
             <View
               style={[
                 styles.searchBox,
@@ -109,10 +193,22 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.searchInput, { color: theme.colors.text }]}
               />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery('')} hitSlop={6}>
+                  <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M18 6L6 18M6 6L18 18"
+                      stroke={theme.colors.textMuted}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </Svg>
+                </Pressable>
+              )}
             </View>
           )}
 
-          {/* Scrollable list of all saved items */}
+          {/* Scrollable list of Rich Mini-Cards */}
           <ScrollView
             style={styles.scrollList}
             contentContainerStyle={styles.scrollContent}
@@ -123,12 +219,13 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
               const isSelected = itemIdx === currentIndex;
 
               return (
-                <HadithBookmarkRow
+                <HadithSavedCardItem
                   key={item.id}
                   item={item}
                   itemIndex={itemIdx}
                   isSelected={isSelected}
                   onSelect={() => handleSelect(item.id)}
+                  onRemove={() => onRemoveBookmark(item.id)}
                 />
               );
             })}
@@ -157,13 +254,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
   sheetContainer: {
-    maxHeight: '80%',
+    maxHeight: '85%',
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
     borderWidth: 1,
     borderBottomWidth: 0,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
+  },
+  filterTrack: {
+    flexDirection: 'row',
+    gap: SPACING.xs + 2,
+    paddingBottom: SPACING.sm,
+  },
+  filterChip: {
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  filterChipText: {
+    fontWeight: '700',
+    fontSize: 11,
   },
   searchBox: {
     flexDirection: 'row',
@@ -181,10 +293,10 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   scrollList: {
-    maxHeight: 400,
+    maxHeight: 440,
   },
   scrollContent: {
-    gap: SPACING.xs + 2,
+    gap: SPACING.sm,
     paddingVertical: SPACING.xs,
   },
   emptyState: {

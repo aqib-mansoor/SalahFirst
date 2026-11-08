@@ -47,6 +47,8 @@
   "viewAllBookmarks": "عرض الكل ({{count}})",
   "searchBookmarks": "البحث في المفضلة...",
   "noMatchingBookmarks": "لم يتم العثور على أحاديث مطابقة.",
+  "filterAll": "الكل",
+  "tapToRead": "قراءة الحديث كاملاً",
   "detectingLocation": "جاري تحديد الموقع...",
   "selectCity": "اختر المدينة",
   "assalamuAlaikum": "السلام عليكم",

@@ -61,18 +61,22 @@ export const useHadithCollection = () => {
     [savedIds]
   );
 
-  const toggleSave = useCallback(async () => {
+  const toggleSaveById = useCallback(async (targetId?: string) => {
+    const idToToggle = targetId || currentHadith.id;
+    const currentlySaved = savedIds.includes(idToToggle);
     let updated: string[];
-    if (isSaved) {
-      updated = savedIds.filter((id) => id !== currentHadith.id);
+    if (currentlySaved) {
+      updated = savedIds.filter((id) => id !== idToToggle);
       triggerToast((i18n.t('removedFromBookmarks') as string) || 'Removed from Bookmarks');
     } else {
-      updated = [...savedIds, currentHadith.id];
+      updated = [...savedIds, idToToggle];
       triggerToast((i18n.t('savedToBookmarks') as string) || 'Saved to Bookmarks');
     }
     setSavedIds(updated);
     await storage.set(STORAGE_KEYS.savedIds, updated);
-  }, [isSaved, savedIds, currentHadith.id, triggerToast]);
+  }, [savedIds, currentHadith.id, triggerToast]);
+
+  const toggleSave = useCallback(() => toggleSaveById(), [toggleSaveById]);
 
   const shareHadith = useCallback(async () => {
     try {
@@ -122,6 +126,7 @@ export const useHadithCollection = () => {
     isSaved,
     toastMessage,
     toggleSave,
+    toggleSaveById,
     shareHadith,
     dismissToast,
     nextHadith,
