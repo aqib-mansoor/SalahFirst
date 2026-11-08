@@ -94,7 +94,7 @@ export const scheduleAllPrayerAlerts = async (
   params: SchedulePrayerParams
 ): Promise<number> => {
   try {
-    const { latitude, longitude, alerts, calculationMethod = 'Karachi', juristicMethod = 'Hanafi' } = params;
+    const { latitude, longitude, timezone, alerts, calculationMethod = 'Karachi', juristicMethod = 'Hanafi' } = params;
     if (latitude === undefined || longitude === undefined) return 0;
 
     const { granted } = await checkNotificationPermissions();
@@ -118,8 +118,8 @@ export const scheduleAllPrayerAlerts = async (
     for (let dayOffset = 0; dayOffset < 3; dayOffset++) {
       const targetDate = new Date();
       targetDate.setDate(now.getDate() + dayOffset);
-      const dateKey = formatDateKey(targetDate);
-      const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod);
+      const dateKey = getLocalDateComponents(targetDate, timezone).dateKey;
+      const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod, timezone);
 
       for (const prayer of PRAYERS_LIST) {
         const mode = alerts ? alerts[prayer.key] : 'AZAN';

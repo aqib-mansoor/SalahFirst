@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
 import { getDefaultMethodForCountry } from '@/utils/prayerTimes';
+import { resolveTimezone } from '@/utils/timezone';
 
 export interface GeocodeSearchResult {
   cities: PresetCity[];
@@ -124,6 +125,7 @@ export const searchWorldwideCity = async (
           country: rev.country,
           latitude,
           longitude,
+          timezone: rev.timezone || resolveTimezone(latitude, longitude, rev.country),
           qiblaDegrees: calculateQiblaBearing(latitude, longitude),
           methodName: getDefaultMethodForCountry(rev.country),
         });
@@ -165,6 +167,7 @@ export const searchWorldwideCity = async (
               country: countryName,
               latitude,
               longitude,
+              timezone: resolveTimezone(latitude, longitude, countryName),
               qiblaDegrees: calculateQiblaBearing(latitude, longitude),
               methodName: getDefaultMethodForCountry(countryName),
             });
