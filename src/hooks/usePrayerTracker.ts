@@ -8,11 +8,12 @@ import {
   FormattedPrayerTimes,
 } from '@/utils/prayerTimes';
 import { storage } from '@/utils/storage';
-import { APP_CONFIG } from '@/constants/config';
 import { UserLocation, CalculationMethodName, JuristicMethod, PrayerAlertConfig } from '@/types';
-import { formatDateKey, calculateCurrentStreak } from '@/utils/trackerStatistics';
+import { calculateCurrentStreak } from '@/utils/trackerStatistics';
 import { cancelMissedPrayerNotification, triggerStreakNotification } from '@/utils/notifications';
 import { getLocalDateComponents } from '@/utils/timezone';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setPrayerCompleted as setPrayerCompletedAction } from '@/store/slices/prayerSlice';
 
 export interface PrayerStatus {
   name: string;
@@ -38,7 +39,6 @@ export const getTodayDateKey = (timezone?: string): string =>
 export const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number =>
   calculateCurrentStreak(history);
 
-// Global preference listener to sync state changes across all tracker instances
 const trackerPrefListeners = new Set<() => void>();
 export const notifyTrackerPreferencesChanged = () => {
   trackerPrefListeners.forEach((fn) => fn());
@@ -52,52 +52,30 @@ export const addTrackerListener = (fn: () => void) => {
 };
 
 export const usePrayerTracker = (userLocation?: UserLocation | null) => {
-  const [calcMethod, setCalcMethod] = useState<CalculationMethodName>('Karachi');
-  const [juristic, setJuristic] = useState<JuristicMethod>('Hanafi');
-  const [historyMap, setHistoryMap] = useState<Record<string, Record<string, boolean>>>({});
-  const [completedMap, setCompletedMap] = useState<Record<string, boolean>>(EMPTY_COMPLETED);
+  const dispatch = useAppDispatch();
+  const {
+    calcMethod: reduxMethod,
+    juristic: reduxJuristic,
+    historyMap,
+    streakCount,
+  } = useAppSelector((state) => state.prayer);
+
+  const calcMethod = reduxMethod || getDefaultMethodForCountry(userLocation?.country);
+  const juristic = reduxJuristic || getDefaultMadhabForCountry(userLocation?.country);
+
+  const todayKey = getTodayDateKey(userLocation?.timezone);
+  const completedMap = historyMap[todayKey] || EMPTY_COMPLETED;
   const [countdownText, setCountdownText] = useState<string>('--:--:--');
-  const [streakCount, setStreakCount] = useState<number>(0);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
-  // Load preferences and stored prayer history
   useEffect(() => {
-    const loadState = async () => {
-      const storedMethod = await storage.get<CalculationMethodName | null>(
-        APP_CONFIG.storageKeys.calculationMethod,
-        null
-      );
-      const storedJuristic = await storage.get<JuristicMethod | null>(
-        APP_CONFIG.storageKeys.juristicMethod,
-        null
-      );
-      const storedHistory = await storage.get<Record<string, Record<string, boolean>>>(
-        APP_CONFIG.storageKeys.prayerTracker,
-        {}
-      );
-
-      const effectiveMethod = storedMethod || getDefaultMethodForCountry(userLocation?.country);
-      const effectiveJuristic = storedJuristic || getDefaultMadhabForCountry(userLocation?.country);
-
-      setCalcMethod(effectiveMethod);
-      setJuristic(effectiveJuristic);
-      setHistoryMap(storedHistory);
-
-      const todayKey = getTodayDateKey(userLocation?.timezone);
-      setCompletedMap(storedHistory[todayKey] || EMPTY_COMPLETED);
-      setStreakCount(calculateStreakFromHistory(storedHistory));
-    };
-
-    loadState();
-
     const handlePrefChange = () => setRefreshTrigger((prev) => prev + 1);
     trackerPrefListeners.add(handlePrefChange);
     return () => {
       trackerPrefListeners.delete(handlePrefChange);
     };
-  }, [userLocation?.country, userLocation?.timezone, refreshTrigger]);
+  }, []);
 
-  // AppState listener: re-sync state immediately when returning from background
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') setRefreshTrigger((prev) => prev + 1);
@@ -116,7 +94,6 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     );
   }, [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, refreshTrigger]);
 
-  // Live countdown timer ticking every 1 second with midnight date rollover
   useEffect(() => {
     let lastDateKey = getTodayDateKey(userLocation?.timezone);
     const updateCountdown = () => {
@@ -137,7 +114,6 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
-
       const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
       setCountdownText(`- ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
     };
@@ -166,10 +142,9 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
 
   const setPrayerCompleted = useCallback(
     async (prayerName: string, completed: boolean = true) => {
-      const todayKey = getTodayDateKey(userLocation?.timezone);
+      const currentTodayKey = getTodayDateKey(userLocation?.timezone);
       if (completedMap[prayerName] === completed) return;
 
-      // Strict rule: user cannot mark future prayer as done before its time starts
       if (completed) {
         const lower = prayerName.toLowerCase() as keyof typeof prayerData.raw;
         const rawDate = prayerData.raw?.[lower];
@@ -178,17 +153,12 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
         }
       }
 
+      dispatch(setPrayerCompletedAction({ dateKey: currentTodayKey, prayerName, completed }));
       const updatedToday = { ...completedMap, [prayerName]: completed };
-      const updatedHistory = { ...historyMap, [todayKey]: updatedToday };
-
-      setCompletedMap(updatedToday);
-      setHistoryMap(updatedHistory);
-      setStreakCount(calculateStreakFromHistory(updatedHistory));
-      await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
-      await handlePostCompletionAlerts(prayerName, completed, updatedToday, todayKey);
+      await handlePostCompletionAlerts(prayerName, completed, updatedToday, currentTodayKey);
       notifyTrackerPreferencesChanged();
     },
-    [completedMap, historyMap, userLocation?.timezone, prayerData.raw]
+    [completedMap, userLocation?.timezone, prayerData.raw, dispatch]
   );
 
   const togglePrayer = useCallback(
@@ -200,25 +170,12 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
     async (dateKey: string, prayerName: string) => {
       const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
       const nextStatus = !dayRecord[prayerName];
-      const updatedDay = {
-        ...dayRecord,
-        [prayerName]: nextStatus,
-      };
-      const updatedHistory = {
-        ...historyMap,
-        [dateKey]: updatedDay,
-      };
-
-      if (dateKey === getTodayDateKey(userLocation?.timezone)) {
-        setCompletedMap(updatedDay);
-      }
-      setHistoryMap(updatedHistory);
-      setStreakCount(calculateStreakFromHistory(updatedHistory));
-      await storage.set(APP_CONFIG.storageKeys.prayerTracker, updatedHistory);
+      dispatch(setPrayerCompletedAction({ dateKey, prayerName, completed: nextStatus }));
+      const updatedDay = { ...dayRecord, [prayerName]: nextStatus };
       await handlePostCompletionAlerts(prayerName, nextStatus, updatedDay, dateKey);
       notifyTrackerPreferencesChanged();
     },
-    [historyMap, userLocation?.timezone]
+    [historyMap, dispatch, userLocation?.timezone]
   );
 
   const completedCount = Object.values(completedMap).filter(Boolean).length;

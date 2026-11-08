@@ -1,73 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { StyleSheet, View, Pressable, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { storage } from '@/utils/storage';
 import { MisbahaBeadsSvg } from './MisbahaBeadsSvg';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { incrementTasbih, resetAllTasbih } from '@/store/slices/tasbihSlice';
 
 export { DhikrPhase };
-const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
-
-interface TasbihPersistedState {
-  count: number;
-  phaseIndex: number;
-  totalCycles: number;
-}
 
 export const TasbihCounter3D: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const [phaseIndex, setPhaseIndex] = useState<number>(0);
-  const [count, setCount] = useState<number>(0);
-  const [totalCycles, setTotalCycles] = useState<number>(0);
+  const dispatch = useAppDispatch();
+  const { count, phaseIndex, totalCycles } = useAppSelector((state) => state.tasbih);
 
-  useEffect(() => {
-    const loadState = async () => {
-      const saved = await storage.get<TasbihPersistedState | null>(TASBIH_STORAGE_KEY, null);
-      if (saved) {
-        setCount(saved.count ?? 0);
-        setPhaseIndex(saved.phaseIndex ?? 0);
-        setTotalCycles(saved.totalCycles ?? 0);
-      }
-    };
-    loadState();
-  }, []);
-
-  const persistState = useCallback(
-    async (newCount: number, newPhase: number, newCycles: number) => {
-      await storage.set(TASBIH_STORAGE_KEY, {
-        count: newCount,
-        phaseIndex: newPhase,
-        totalCycles: newCycles,
-      });
-    },
-    []
-  );
-
-  const currentPhase = DHIKR_PHASES[phaseIndex];
+  const currentPhase = DHIKR_PHASES[phaseIndex] || DHIKR_PHASES[0];
 
   const handleIncrement = () => {
-    if (count + 1 >= currentPhase.target) {
-      if (phaseIndex + 1 < DHIKR_PHASES.length) {
-        const nextPhase = phaseIndex + 1;
-        setPhaseIndex(nextPhase);
-        setCount(0);
-        persistState(0, nextPhase, totalCycles);
-      } else {
-        const nextCycles = totalCycles + 1;
-        setPhaseIndex(0);
-        setCount(0);
-        setTotalCycles(nextCycles);
-        persistState(0, 0, nextCycles);
-      }
-    } else {
-      const nextCount = count + 1;
-      setCount(nextCount);
-      persistState(nextCount, phaseIndex, totalCycles);
-    }
+    dispatch(incrementTasbih());
   };
 
   const handleReset = () => {
@@ -81,10 +34,8 @@ export const TasbihCounter3D: React.FC = () => {
         {
           text: t('reset'),
           style: 'destructive',
-          onPress: async () => {
-            setCount(0);
-            setPhaseIndex(0);
-            await persistState(0, 0, totalCycles);
+          onPress: () => {
+            dispatch(resetAllTasbih());
           },
         },
       ]

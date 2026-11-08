@@ -20,6 +20,8 @@ import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { CalculationMethodName, JuristicMethod } from '@/types';
 import { fetchAlAdhanTimings, comparePrayerTimings } from '@/utils/aladhanApi';
+import { useAppDispatch } from '@/store/hooks';
+import { setCalculationMethod, setJuristicMethod } from '@/store/slices/prayerSlice';
 
 export interface SettingsScreenProps {
   onBack: () => void;
@@ -79,13 +81,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     });
   };
 
-  const handleToggleJuristic = async () => {
+  const dispatch = useAppDispatch();
+
+  const handleToggleJuristic = () => {
     const nextJuristic: JuristicMethod = juristic === 'Hanafi' ? 'Standard' : 'Hanafi';
-    await storage.set(APP_CONFIG.storageKeys.juristicMethod, nextJuristic);
+    dispatch(setJuristicMethod(nextJuristic));
     notifyTrackerPreferencesChanged();
   };
 
-  const handleCycleCalcMethod = async () => {
+  const handleCycleCalcMethod = () => {
     const methods: CalculationMethodName[] = [
       'Karachi',
       'UmmAlQura',
@@ -102,7 +106,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     ];
     const currentIndex = methods.indexOf(calcMethod);
     const nextMethod = methods[(currentIndex + 1) % methods.length];
-    await storage.set(APP_CONFIG.storageKeys.calculationMethod, nextMethod);
+    dispatch(setCalculationMethod(nextMethod));
     notifyTrackerPreferencesChanged();
   };
 

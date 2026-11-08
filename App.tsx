@@ -3,6 +3,8 @@ import { BackHandler } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
+import { Provider } from 'react-redux';
+import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { HomeScreen } from '@/components/home';
@@ -65,6 +67,8 @@ function AppContent() {
   // Check setup status and restore any active focus session on startup
   useEffect(() => {
     const initApp = async () => {
+      await hydrateAllStore(store.dispatch);
+
       const hasCompleted = await storage.get<boolean>(
         APP_CONFIG.storageKeys.hasCompletedSetup,
         false
@@ -259,10 +263,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <LocalizationProvider>
-        <AppContent />
-      </LocalizationProvider>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <LocalizationProvider>
+          <AppContent />
+        </LocalizationProvider>
+      </ThemeProvider>
+    </Provider>
   );
 }

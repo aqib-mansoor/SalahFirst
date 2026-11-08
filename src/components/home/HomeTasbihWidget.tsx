@@ -1,70 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
-import { storage } from '@/utils/storage';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 import { TasbihResetModal } from './TasbihResetModal';
-
-const TASBIH_STORAGE_KEY = '@salahfirst_tasbih_state';
-
-interface TasbihPersistedState {
-  count: number;
-  phaseIndex: number;
-  totalCycles: number;
-}
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { incrementTasbih, resetAllTasbih } from '@/store/slices/tasbihSlice';
 
 export const HomeTasbihWidget: React.FC = () => {
   const theme = useTheme();
-  const [phaseIndex, setPhaseIndex] = useState<number>(0);
-  const [count, setCount] = useState<number>(0);
-  const [totalCycles, setTotalCycles] = useState<number>(0);
+  const dispatch = useAppDispatch();
+  const { count, phaseIndex, totalCycles } = useAppSelector((state) => state.tasbih);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
-
-  useEffect(() => {
-    const loadState = async () => {
-      const saved = await storage.get<TasbihPersistedState | null>(TASBIH_STORAGE_KEY, null);
-      if (saved) {
-        setCount(saved.count ?? 0);
-        setPhaseIndex(saved.phaseIndex ?? 0);
-        setTotalCycles(saved.totalCycles ?? 0);
-      }
-    };
-    loadState();
-  }, []);
-
-  const persistState = useCallback(
-    async (newCount: number, newPhase: number, newCycles: number) => {
-      await storage.set(TASBIH_STORAGE_KEY, { count: newCount, phaseIndex: newPhase, totalCycles: newCycles });
-    },
-    []
-  );
 
   const currentPhase: DhikrPhase = DHIKR_PHASES[phaseIndex] || DHIKR_PHASES[0];
   const progressPercent = Math.min(100, Math.max(0, (count / currentPhase.target) * 100));
 
   const handleIncrement = () => {
-    if (count + 1 >= currentPhase.target) {
-      if (phaseIndex + 1 < DHIKR_PHASES.length) {
-        const nextPhase = phaseIndex + 1;
-        setPhaseIndex(nextPhase);
-        setCount(0);
-        persistState(0, nextPhase, totalCycles);
-      } else {
-        const nextCycles = totalCycles + 1;
-        setPhaseIndex(0);
-        setCount(0);
-        setTotalCycles(nextCycles);
-        persistState(0, 0, nextCycles);
-      }
-    } else {
-      const nextCount = count + 1;
-      setCount(nextCount);
-      persistState(nextCount, phaseIndex, totalCycles);
-    }
+    dispatch(incrementTasbih());
   };
 
   const handleResetPress = () => {
@@ -72,10 +28,8 @@ export const HomeTasbihWidget: React.FC = () => {
     setShowResetModal(true);
   };
 
-  const handleConfirmReset = async () => {
-    setCount(0);
-    setPhaseIndex(0);
-    await persistState(0, 0, totalCycles);
+  const handleConfirmReset = () => {
+    dispatch(resetAllTasbih());
     setShowResetModal(false);
   };
 
