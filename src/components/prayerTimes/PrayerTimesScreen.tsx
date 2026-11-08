@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
@@ -145,7 +144,9 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             country={location?.country || ''}
             methodName={CALCULATION_METHOD_LABELS[calcMethod]}
             juristicMethod={juristic}
+            isGps={location?.isGps}
             onOpenLocationSheet={() => setSheetVisible(true)}
+            onUseGps={requestGpsLocation}
           />
 
           <SunMilestonesCard
@@ -186,24 +187,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             duhaRange={naflSchedule.duhaRange}
             zawalRange={naflSchedule.zawalRange}
           />
-
-          <Pressable
-            onPress={() => setShowAzanPrefs(true)}
-            style={({ pressed }) => [
-              styles.configCard,
-              {
-                backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surface,
-                borderColor: theme.colors.border,
-              },
-            ]}
-          >
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.configText}>
-              {t('configureAzanAudio')}
-            </AppText>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 18l6-6-6-6" stroke={theme.colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </Pressable>
         </ScrollView>
 
         <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
@@ -231,20 +214,5 @@ const styles = StyleSheet.create({
   prayerList: {
     marginVertical: SPACING.xs,
   },
-  configCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    marginHorizontal: SPACING.lg,
-    marginTop: SPACING.sm,
-  },
-  configText: {
-    flex: 1,
-    fontWeight: '700',
-    fontSize: 13,
-  },
 });
+

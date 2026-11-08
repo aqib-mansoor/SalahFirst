@@ -332,5 +332,9 @@
   "returnToToday": "آج",
   "tomorrow": "کل",
   "backToToday": "واپس آج پر جائیں",
-  "nextPrayerTomorrow": "اگلی نماز (کل)"
+  "nextPrayerTomorrow": "اگلی نماز (کل)",
+  "changeCity": "شہر تبدیل کریں",
+  "gpsAutoDetect": "خودکار جی پی ایس",
+  "gpsActive": "جی پی ایس فعال",
+  "presetCity": "منتخب شہر"
 }

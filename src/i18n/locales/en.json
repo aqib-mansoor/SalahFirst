@@ -332,5 +332,9 @@
   "returnToToday": "Today",
   "tomorrow": "Tomorrow",
   "backToToday": "Back to Today",
-  "nextPrayerTomorrow": "Next Prayer (Tomorrow)"
+  "nextPrayerTomorrow": "Next Prayer (Tomorrow)",
+  "changeCity": "Change City",
+  "gpsAutoDetect": "GPS Detect",
+  "gpsActive": "GPS Active",
+  "presetCity": "Preset City"
 }

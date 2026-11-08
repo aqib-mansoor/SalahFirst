@@ -333,5 +333,9 @@
   "returnToToday": "اليوم",
   "tomorrow": "غداً",
   "backToToday": "العودة إلى اليوم",
-  "nextPrayerTomorrow": "الصلاة القادمة (غداً)"
+  "nextPrayerTomorrow": "الصلاة القادمة (غداً)",
+  "changeCity": "تغيير المدينة",
+  "gpsAutoDetect": "تحديد GPS",
+  "gpsActive": "GPS نشط",
+  "presetCity": "مدينة محددة"
 }
