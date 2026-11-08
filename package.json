@@ -38,11 +38,7 @@
   },
   "expo": {
     "doctor": {
-      "reactNativeDirectoryCheck": {
-        "exclude": [
-          "expo-av"
-        ]
-      }
+      "reactNativeDirectoryCheck": {}
     }
   },
   "private": true
