@@ -127,7 +127,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             showFocusButton={showFocusButton}
             focusPendingNotice={focusPendingNotice}
             periodCategory={prayerData.currentPeriod?.category}
-            periodSubtitleKey={prayerData.currentPeriod?.descriptionKey}
             periodId={prayerData.currentPeriod?.id}
             onStartPrayerFocus={onStartPrayerFocus}
           />
