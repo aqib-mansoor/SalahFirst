@@ -1,11 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-import { playAzanAudio, stopAzanAudio, pauseAzanAudio, resumeAzanAudio } from '@/utils/azanAudio';
+import {
+  playAzanAudio,
+  stopAzanAudio,
+  pauseAzanAudio,
+  resumeAzanAudio,
+  AZAN_PRESET_URLS,
+  AzanReciterKey,
+} from '@/utils/azanAudio';
 
 export const useAzanAudio = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentReciter, setCurrentReciter] = useState<AzanReciterKey>('makkah');
 
   useEffect(() => {
     return () => {
@@ -13,16 +21,19 @@ export const useAzanAudio = () => {
     };
   }, []);
 
-  const play = useCallback(async (customUri?: string) => {
+  const play = useCallback(async (reciterKey?: AzanReciterKey) => {
+    const key = reciterKey || currentReciter;
     setError(null);
     setIsLoading(true);
+
+    const uri = AZAN_PRESET_URLS[key];
     const success = await playAzanAudio((playing, finished) => {
       setIsPlaying(playing && !finished);
       if (finished) {
         setIsLoading(false);
         setIsPaused(false);
       }
-    }, customUri);
+    }, uri);
 
     setIsLoading(false);
     setIsPlaying(success);
@@ -31,7 +42,7 @@ export const useAzanAudio = () => {
       setError('Audio stream unavailable. Check internet connection.');
     }
     return success;
-  }, []);
+  }, [currentReciter]);
 
   const pause = useCallback(async () => {
     const success = await pauseAzanAudio();
@@ -57,21 +68,31 @@ export const useAzanAudio = () => {
     setError(null);
   }, []);
 
-  const toggle = useCallback(async (customUri?: string) => {
+  const toggle = useCallback(async (reciterKey?: AzanReciterKey) => {
     if (isPlaying) {
       await stop();
     } else if (isPaused) {
       await resume();
     } else {
-      await play(customUri);
+      await play(reciterKey);
     }
   }, [isPlaying, isPaused, play, resume, stop]);
+
+  const selectReciter = useCallback(async (key: AzanReciterKey) => {
+    setCurrentReciter(key);
+    if (isPlaying) {
+      await stop();
+      await play(key);
+    }
+  }, [isPlaying, play, stop]);
 
   return {
     isPlaying,
     isPaused,
     isLoading,
     error,
+    currentReciter,
+    selectReciter,
     play,
     pause,
     resume,
@@ -79,4 +100,3 @@ export const useAzanAudio = () => {
     toggle,
   };
 };
-

@@ -4,6 +4,8 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { NotificationMode } from '@/types';
+import { NotificationModeIcon } from './NotificationModeIcons';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerAlertCardProps {
   name: string;
@@ -12,10 +14,10 @@ export interface PrayerAlertCardProps {
   onSelectMode: (mode: NotificationMode) => void;
 }
 
-const ALERT_MODES: { id: NotificationMode; label: string }[] = [
-  { id: 'TONE', label: 'Tone' },
-  { id: 'VIBRATE', label: 'Vibrate' },
-  { id: 'SILENT', label: 'Silent' },
+const ALERT_MODES: { id: NotificationMode; labelKey: string }[] = [
+  { id: 'TONE', labelKey: 'notificationModeAzan' },
+  { id: 'VIBRATE', labelKey: 'notificationModeVibrate' },
+  { id: 'SILENT', labelKey: 'notificationModeSilent' },
 ];
 
 export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
@@ -25,6 +27,7 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   onSelectMode,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const isModeActive = (modeId: NotificationMode) => {
     if (modeId === 'TONE') {
@@ -34,9 +37,9 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   };
 
   const getDisplayModeName = () => {
-    if (currentMode === 'VIBRATE') return 'Vibrate';
-    if (currentMode === 'SILENT') return 'Silent';
-    return 'Tone';
+    if (currentMode === 'VIBRATE') return t('notificationModeVibrate');
+    if (currentMode === 'SILENT') return t('notificationModeSilent');
+    return t('notificationModeAzan');
   };
 
   return (
@@ -46,39 +49,53 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
+      {/* Header Row */}
       <View style={styles.header}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-          {name} ({time})
+          {t(name.toLowerCase() as any) || name} ({time})
         </AppText>
-        <AppText variant="caption" color={theme.colors.primary} style={styles.boldText}>
-          {getDisplayModeName()}
-        </AppText>
+        <View style={[styles.activeTag, { backgroundColor: theme.colors.secondaryTint }]}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.tagText}>
+            {getDisplayModeName()}
+          </AppText>
+        </View>
       </View>
 
+      {/* 3-Mode Segmented Controls */}
       <View style={styles.modesRow}>
         {ALERT_MODES.map((mode) => {
           const active = isModeActive(mode.id);
+          const iconColor = active ? theme.colors.primary : theme.colors.textMuted;
+
           return (
             <Pressable
               key={mode.id}
               onPress={() => onSelectMode(mode.id)}
+              hitSlop={4}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
-              accessibilityLabel={`${name} alert mode ${mode.label}`}
-              style={[
+              accessibilityLabel={`${name} ${t(mode.labelKey as any)}`}
+              style={({ pressed }) => [
                 styles.modePill,
                 {
-                  backgroundColor: active ? theme.colors.primary : theme.colors.surfaceElevated,
+                  backgroundColor: active
+                    ? theme.colors.secondaryTint
+                    : pressed
+                    ? theme.colors.surfaceElevated
+                    : theme.colors.surfaceElevated,
+                  borderColor: active ? theme.colors.primary : theme.colors.border,
+                  borderWidth: active ? 1.5 : 1,
                 },
               ]}
             >
+              <NotificationModeIcon mode={mode.id} color={iconColor} size={15} />
               <AppText
                 variant="caption"
-                color={active ? theme.colors.surface : theme.colors.text}
+                color={active ? theme.colors.primary : theme.colors.textMuted}
                 align="center"
-                style={styles.modePillText}
+                style={{ fontWeight: active ? '700' : '500', fontSize: 11 }}
               >
-                {mode.label}
+                {t(mode.labelKey as any)}
               </AppText>
             </Pressable>
           );
@@ -102,24 +119,28 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: '700',
+    fontSize: 13,
+  },
+  activeTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: '700',
   },
   modesRow: {
     flexDirection: 'row',
     gap: 6,
-    marginTop: 2,
   },
   modePill: {
     flex: 1,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 40,
-  },
-  modePillText: {
-    fontWeight: '600',
-    fontSize: 11,
-    lineHeight: 14,
+    gap: 6,
+    paddingVertical: SPACING.xs + 3,
+    borderRadius: RADIUS.lg,
   },
 });
-

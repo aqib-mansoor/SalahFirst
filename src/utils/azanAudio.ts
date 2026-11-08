@@ -1,6 +1,14 @@
 import { createAudioPlayer, setAudioModeAsync, AudioPlayer, AudioStatus } from 'expo-audio';
 
-const DEFAULT_AZAN_URL = 'https://cdn.aladhan.com/audio/adhans/makkah.mp3';
+export const AZAN_PRESET_URLS = {
+  makkah: 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
+  madinah: 'https://cdn.aladhan.com/audio/adhans/a2.mp3',
+  alAqsa: 'https://cdn.aladhan.com/audio/adhans/a3.mp3',
+} as const;
+
+export type AzanReciterKey = keyof typeof AZAN_PRESET_URLS;
+
+const DEFAULT_AZAN_URL = AZAN_PRESET_URLS.makkah;
 
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
@@ -24,10 +32,10 @@ export const playAzanAudio = async (
     await configureAudioMode();
 
     const uri = customUri || DEFAULT_AZAN_URL;
-    const player = createAudioPlayer({ uri });
+    const player = createAudioPlayer(uri);
 
     currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
-      if (status.error) {
+      if ((status as any).error) {
         onStatusUpdate?.(false, true);
         return;
       }

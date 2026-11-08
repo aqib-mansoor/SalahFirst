@@ -337,5 +337,11 @@
   "gpsAutoDetect": "GPS Detect",
   "gpsActive": "GPS Active",
   "presetCity": "Preset City",
-  "searchWorldwideFor": "Search worldwide for \"{city}\""
+  "searchWorldwideFor": "Search worldwide for \"{city}\"",
+  "reciterMakkah": "Makkah",
+  "reciterMadinah": "Madinah",
+  "reciterAlAqsa": "Al-Aqsa",
+  "connectingToStream": "Connecting to audio stream...",
+  "playingAzan": "Playing {reciter} Azan",
+  "audioStreamError": "Audio stream unavailable. Check internet connection."
 }

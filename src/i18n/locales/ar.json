@@ -338,5 +338,11 @@
   "gpsAutoDetect": "تحديد GPS",
   "gpsActive": "GPS نشط",
   "presetCity": "مدينة محددة",
-  "searchWorldwideFor": "البحث حول العالم عن \"{city}\""
+  "searchWorldwideFor": "البحث حول العالم عن \"{city}\"",
+  "reciterMakkah": "مكة المكرمة",
+  "reciterMadinah": "المدينة المنورة",
+  "reciterAlAqsa": "المسجد الأقصى",
+  "connectingToStream": "جارٍ الاتصال بالبث الصوتي...",
+  "playingAzan": "تشغيل أذان {reciter}",
+  "audioStreamError": "البث الصوتي غير متاح. يرجى التحقق من الاتصال بالإنترنت."
 }

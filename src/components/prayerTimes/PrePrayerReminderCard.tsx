@@ -41,21 +41,28 @@ export const PrePrayerReminderCard: React.FC<PrePrayerReminderCardProps> = ({
             <Pressable
               key={opt.id}
               onPress={() => onSelectOffset(opt.id)}
+              hitSlop={4}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               accessibilityLabel={`Pre-prayer reminder ${opt.label.replace('\n', ' ')}`}
-              style={[
+              style={({ pressed }) => [
                 styles.reminderPill,
                 {
-                  backgroundColor: active ? theme.colors.primary : theme.colors.surfaceElevated,
+                  backgroundColor: active
+                    ? theme.colors.secondaryTint
+                    : pressed
+                    ? theme.colors.surfaceElevated
+                    : theme.colors.surfaceElevated,
+                  borderColor: active ? theme.colors.primary : theme.colors.border,
+                  borderWidth: active ? 1.5 : 1,
                 },
               ]}
             >
               <AppText
                 variant="caption"
-                color={active ? theme.colors.surface : theme.colors.text}
+                color={active ? theme.colors.primary : theme.colors.textMuted}
                 align="center"
-                style={{ fontWeight: active ? '700' : '500' }}
+                style={{ fontWeight: active ? '700' : '500', fontSize: 11 }}
               >
                 {opt.label}
               </AppText>
@@ -85,10 +92,9 @@ const styles = StyleSheet.create({
   reminderPill: {
     flex: 1,
     paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 40,
+    minHeight: 44,
   },
 });
-
