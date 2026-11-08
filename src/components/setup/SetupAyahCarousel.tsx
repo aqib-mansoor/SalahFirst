@@ -70,19 +70,6 @@ export const SetupAyahCarousel: React.FC = () => {
         style={styles.watermarkBottomLeft}
       />
 
-      {/* Header Row */}
-      <View style={styles.headerRow}>
-        <View style={styles.badgePill}>
-          <AppText variant="caption" style={styles.badgeText}>
-            SALAHFIRST SETUP
-          </AppText>
-        </View>
-
-        <AppText variant="caption" style={styles.stepText}>
-          Step 1 of 1
-        </AppText>
-      </View>
-
       {/* Animated Ayah Content */}
       <Animated.View
         style={[
@@ -133,10 +120,11 @@ export const SetupAyahCarousel: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.lg,
     overflow: 'hidden',
     position: 'relative',
-    minHeight: 200,
+    minHeight: 180,
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: 'rgba(204, 161, 95, 0.28)',
@@ -154,33 +142,8 @@ const styles = StyleSheet.create({
     bottom: -40,
     left: -40,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  badgePill: {
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(204, 161, 95, 0.18)',
-    borderWidth: 1,
-    borderColor: 'rgba(204, 161, 95, 0.45)',
-  },
-  badgeText: {
-    fontWeight: '800',
-    letterSpacing: 1,
-    fontSize: 10,
-    color: '#FDE68A',
-  },
-  stepText: {
-    fontWeight: '600',
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.85)',
-  },
   contentSection: {
-    gap: SPACING.xs + 2,
+    gap: SPACING.xs + 3,
     marginVertical: SPACING.xs,
   },
   arabicText: {

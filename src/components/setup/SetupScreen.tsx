@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { AppContainer, AppButton } from '@/components/common';
 import { SetupAyahCarousel } from './SetupAyahCarousel';
 import { SetupHeroText } from './SetupHeroText';
 import { SetupLocationCard } from './SetupLocationCard';
-import { SetupPrivacyBanner } from './SetupPrivacyBanner';
 import { SetupCityModal } from './SetupCityModal';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -55,39 +54,42 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
 
   return (
     <AppContainer
-      scrollable
+      scrollable={false}
       style={{ backgroundColor: theme.colors.background }}
-      contentContainerStyle={styles.scrollContent}
     >
-      <View style={styles.container}>
-        {/* Quran Ayah Carousel */}
-        <SetupAyahCarousel />
+      <View style={styles.screenWrapper}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Quran Ayah Carousel */}
+          <SetupAyahCarousel />
 
-        {/* Hero Title & Paragraph */}
-        <SetupHeroText />
+          {/* Hero Title & Paragraph */}
+          <SetupHeroText />
 
-        {/* Location Setup Card */}
-        <SetupLocationCard
-          location={location}
-          isLoading={isLoading}
-          permissionDenied={permissionDenied}
-          onRequestGps={requestGpsLocation}
-          onOpenSettings={openSettings}
-          onSelectCityManually={() => setCityModalVisible(true)}
-        />
+          {/* Location Setup Card */}
+          <SetupLocationCard
+            location={location}
+            isLoading={isLoading}
+            permissionDenied={permissionDenied}
+            onRequestGps={requestGpsLocation}
+            onOpenSettings={openSettings}
+            onSelectCityManually={() => setCityModalVisible(true)}
+          />
+        </ScrollView>
 
-        {/* Offline Privacy Callout */}
-        <SetupPrivacyBanner />
-
-        {/* Primary Action Button (Matches Splash Screen Gold Button) */}
-        <AppButton
-          label={t('getStarted')}
-          onPress={onComplete || (() => {})}
-          variant="gold"
-          size="lg"
-          rightIcon={ChevronRight}
-          style={styles.getStartedButton}
-        />
+        {/* Pinned Bottom Footer (Positioned identically to splash screen) */}
+        <View style={styles.footer}>
+          <AppButton
+            label={t('getStarted')}
+            onPress={onComplete || (() => {})}
+            variant="gold"
+            size="lg"
+            rightIcon={ChevronRight}
+            style={styles.getStartedButton}
+          />
+        </View>
 
         {/* Manual City Selector Modal */}
         <SetupCityModal
@@ -101,19 +103,25 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: SPACING.xxl,
+  screenWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
-  container: {
+  scrollContent: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
     paddingBottom: SPACING.lg,
     gap: SPACING.md,
   },
+  footer: {
+    width: '100%',
+    paddingHorizontal: SPACING.xxl,
+    paddingBottom: SPACING.md,
+    paddingTop: SPACING.xs,
+  },
   getStartedButton: {
     width: '100%',
     borderRadius: 18,
     minHeight: 56,
-    marginTop: SPACING.xs,
   },
 });
