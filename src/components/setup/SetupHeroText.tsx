@@ -24,15 +24,16 @@ export const SetupHeroText: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: SPACING.md,
-    gap: SPACING.sm,
+    marginVertical: SPACING.xs + 2,
+    gap: SPACING.xs,
   },
   title: {
     fontWeight: '800',
     letterSpacing: -0.4,
+    lineHeight: 32,
   },
   subtitle: {
-    lineHeight: 22,
+    lineHeight: 21,
     letterSpacing: 0.1,
   },
 });

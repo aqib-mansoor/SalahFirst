@@ -11,7 +11,15 @@ export const SetupPrivacyBanner: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.privacyBg }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.colors.privacyBg,
+          borderColor: theme.isDark ? theme.colors.border : '#DCE8E1',
+        },
+      ]}
+    >
       <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
         <Rect x="4" y="11" width="16" height="11" rx="2" stroke={theme.colors.primary} strokeWidth="2" />
         <Path d="M7 11V7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7V11" stroke={theme.colors.primary} strokeWidth="2" />
@@ -28,10 +36,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
+    paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.lg,
+    borderWidth: 1,
     gap: SPACING.md,
-    marginVertical: SPACING.md,
+    marginVertical: SPACING.xs,
   },
   text: {
     flex: 1,

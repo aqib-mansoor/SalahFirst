@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface LocationActionButtonsProps {
   isLoading: boolean;
@@ -21,6 +22,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
   onSelectCityManually,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   if (permissionDenied) {
     return (
@@ -36,7 +38,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
           ]}
         >
           <AppText variant="titleSmall" color={theme.colors.buttonGoldText} style={styles.buttonText}>
-            Enable Location in Settings
+            {t('enableLocationSettings')}
           </AppText>
         </Pressable>
 
@@ -54,7 +56,7 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
             ]}
           >
             <AppText variant="titleSmall" color={theme.colors.primary} style={styles.buttonText}>
-              Select City Manually
+              {t('selectCityManually')}
             </AppText>
           </Pressable>
         )}
@@ -78,25 +80,26 @@ export const LocationActionButtons: React.FC<LocationActionButtonsProps> = ({
         {isLoading ? (
           <ActivityIndicator size="small" color={theme.colors.primary} />
         ) : (
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Circle cx="12" cy="12" r="7" stroke={theme.colors.primary} strokeWidth="2" />
             <Path
-              d="M12 2L19 21L12 17L5 21L12 2Z"
+              d="M12 2V5M12 19V22M2 12H5M19 12H22"
               stroke={theme.colors.primary}
-              strokeWidth="2.2"
+              strokeWidth="2"
               strokeLinecap="round"
-              strokeLinejoin="round"
             />
+            <Circle cx="12" cy="12" r="2.5" fill={theme.colors.primary} />
           </Svg>
         )}
         <AppText variant="titleSmall" color={theme.colors.primary} style={styles.buttonText}>
-          {isLoading ? 'Detecting Precise GPS...' : 'Refresh GPS Location'}
+          {isLoading ? t('detectingPreciseGps') : t('refreshGpsLocation')}
         </AppText>
       </Pressable>
 
       {onSelectCityManually && (
         <Pressable onPress={onSelectCityManually} hitSlop={10} style={styles.manualLinkPressable}>
           <AppText variant="bodySmall" color={theme.colors.primary} style={styles.manualLinkText}>
-            Or select your city manually ›
+            {t('orSelectCityManually')}
           </AppText>
         </Pressable>
       )}
