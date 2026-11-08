@@ -33,89 +33,74 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   return (
     <View
       style={[
-        styles.floatingWrapper,
+        styles.navBar,
         {
+          backgroundColor: theme.isDark ? 'rgba(18, 26, 20, 0.95)' : 'rgba(255, 255, 255, 0.97)',
+          borderTopColor: theme.colors.border,
           paddingBottom: Math.max(insets.bottom, SPACING.xs),
         },
       ]}
-      pointerEvents="box-none"
+      accessibilityRole="tablist"
     >
-      {/* Floating Island Navigation Dock */}
-      <View
-        style={[
-          styles.islandDock,
-          {
-            backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
-          },
-        ]}
-        accessibilityRole="tablist"
-      >
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
 
-          return (
-            <Pressable
-              key={tab.id}
-              onPress={() => onTabChange(tab.id)}
-              style={({ pressed }) => [
-                styles.tabButton,
-                isActive && [
-                  styles.activeTabButton,
-                  {
-                    backgroundColor: theme.colors.accentTint,
-                    borderColor: theme.colors.accent,
-                  },
-                ],
-                pressed && { opacity: 0.75 },
+        return (
+          <Pressable
+            key={tab.id}
+            onPress={() => onTabChange(tab.id)}
+            style={({ pressed }) => [
+              styles.tabButton,
+              isActive && [
+                styles.activeTabButton,
+                {
+                  backgroundColor: theme.colors.accentTint,
+                  borderColor: theme.colors.accent,
+                },
+              ],
+              pressed && { opacity: 0.75 },
+            ]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
+            accessibilityLabel={tab.label}
+            hitSlop={6}
+          >
+            <IslamicNavIcon tabId={tab.id} isActive={isActive} size={21} />
+
+            <AppText
+              variant="caption"
+              color={isActive ? theme.colors.textPrimary : theme.colors.textSecondary}
+              style={[
+                styles.tabLabel,
+                {
+                  fontWeight: isActive ? '800' : '600',
+                  color: isActive ? theme.colors.textPrimary : theme.colors.textSecondary,
+                },
               ]}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={tab.label}
-              hitSlop={6}
+              numberOfLines={1}
             >
-              <IslamicNavIcon tabId={tab.id} isActive={isActive} size={21} />
-
-              <AppText
-                variant="caption"
-                color={isActive ? theme.colors.textPrimary : theme.colors.textSecondary}
-                style={[
-                  styles.tabLabel,
-                  {
-                    fontWeight: isActive ? '800' : '600',
-                    color: isActive ? theme.colors.textPrimary : theme.colors.textSecondary,
-                  },
-                ]}
-                numberOfLines={1}
-              >
-                {tab.label}
-              </AppText>
-            </Pressable>
-          );
-        })}
-      </View>
+              {tab.label}
+            </AppText>
+          </Pressable>
+        );
+      })}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  floatingWrapper: {
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.xs,
-  },
-  islandDock: {
+  navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    borderRadius: RADIUS.xxl,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    paddingTop: SPACING.xs + 2,
     paddingHorizontal: SPACING.xs,
-    paddingVertical: SPACING.xs + 2,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 3,
   },
   tabButton: {
     flex: 1,
@@ -124,17 +109,17 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingVertical: 5,
     paddingHorizontal: 4,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: 'transparent',
-    minHeight: 48,
+    minHeight: 46,
   },
   activeTabButton: {
     borderWidth: 1,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
     elevation: 1,
   },
   tabLabel: {

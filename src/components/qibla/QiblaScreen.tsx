@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: SPACING.sm,
-    paddingBottom: SPACING.xl,
+    paddingBottom: 88,
     gap: SPACING.md,
     alignItems: 'center',
   },

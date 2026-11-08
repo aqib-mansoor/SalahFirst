@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: SPACING.xs,
-    paddingBottom: SPACING.xl,
+    paddingBottom: 88,
     gap: SPACING.lg,
   },
 });

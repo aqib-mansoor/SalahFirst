@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scroll: {
-    paddingBottom: 24,
+    paddingBottom: 88,
   },
   prayerList: {
     marginVertical: SPACING.xs,
