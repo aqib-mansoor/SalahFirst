@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { Vibration } from 'react-native';
 import { Magnetometer } from 'expo-sensors';
 import {
   calculateQiblaBearing,
@@ -6,11 +7,14 @@ import {
   getCardinalDirection,
 } from '@/utils/qiblaCalculations';
 
+export type TurnDirection = 'left' | 'right' | 'aligned';
+
 export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
   const [heading, setHeading] = useState<number>(0);
   const [hasSensor, setHasSensor] = useState<boolean>(true);
   const [needsCalibration, setNeedsCalibration] = useState<boolean>(false);
   const smoothHeadingRef = useRef<number>(0);
+  const wasAlignedRef = useRef<boolean>(false);
 
   const hasCoords = lat != null && lng != null && !isNaN(lat) && !isNaN(lng);
   const qiblaBearing = useMemo(
@@ -74,8 +78,27 @@ export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
   }, []);
 
   const relativePointerAngle = (qiblaBearing - heading + 360) % 360;
-  const isAligned =
-    relativePointerAngle <= 4 || relativePointerAngle >= 356;
+  const isAligned = relativePointerAngle <= 4 || relativePointerAngle >= 356;
+
+  // Tactile haptic pulse on exact alignment
+  useEffect(() => {
+    if (isAligned && !wasAlignedRef.current) {
+      try {
+        Vibration.vibrate(40);
+      } catch {}
+    }
+    wasAlignedRef.current = isAligned;
+  }, [isAligned]);
+
+  const turnDirection: TurnDirection = isAligned
+    ? 'aligned'
+    : relativePointerAngle > 180
+    ? 'left'
+    : 'right';
+
+  const turnDegrees = isAligned
+    ? 0
+    : Math.round(relativePointerAngle > 180 ? 360 - relativePointerAngle : relativePointerAngle);
 
   return {
     heading,
@@ -84,6 +107,8 @@ export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
     cardinal,
     relativePointerAngle,
     isAligned,
+    turnDirection,
+    turnDegrees,
     hasSensor,
     needsCalibration,
   };

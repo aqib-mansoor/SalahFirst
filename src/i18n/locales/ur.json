@@ -124,6 +124,12 @@
 
   "facingKaaba": "آپ کا رخ خانہ کعبہ کی طرف ہے",
   "rotatePhone": "فون کو تیر کے رخ کے مطابق گھمائیں",
+  "turnLeftDegrees": "قبلہ رخ کے لیے بائیں جانب {{degrees}}° گھمائیں",
+  "turnRightDegrees": "قبلہ رخ کے لیے دائیں جانب {{degrees}}° گھمائیں",
+  "changeLocation": "تبدیل کریں",
+  "recalibrateCompass": "ترتیب درکار ہے",
+  "compassCalibrated": "قطب نما کی درستگی بہترین ہے",
+  "figure8Tip": "درست سمت کے لیے فون کو 8 کے ہندسے کی شکل میں گھمائیں اور دھاتی اشیاء سے دور رکھیں۔",
   "liveHeading": "موجودہ رخ",
   "qiblaAngle": "زاویہ قبلہ",
   "distance": "فاصلہ",

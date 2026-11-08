@@ -1,66 +1,117 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { RADIUS, SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { TurnDirection } from '@/hooks/useQiblaCompass';
 
 export interface QiblaTelemetryCardProps {
   heading: number;
   qiblaBearing: number;
-  relativePointerAngle: number;
   distanceKm: number;
   cardinal: string;
   isAligned: boolean;
+  turnDirection: TurnDirection;
+  turnDegrees: number;
 }
 
 export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
   heading,
   qiblaBearing,
-  relativePointerAngle,
   distanceKm,
   cardinal,
   isAligned,
+  turnDirection,
+  turnDegrees,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const diffDegrees = Math.round(
-    relativePointerAngle > 180 ? 360 - relativePointerAngle : relativePointerAngle
-  );
+  const guidanceText = isAligned
+    ? t('facingKaaba')
+    : turnDirection === 'left'
+    ? (t('turnLeftDegrees', { degrees: turnDegrees }) || `Turn left ${turnDegrees}° towards Qibla`)
+    : (t('turnRightDegrees', { degrees: turnDegrees }) || `Turn right ${turnDegrees}° towards Qibla`);
 
   return (
     <View style={styles.container}>
-      {/* Alignment Guidance Pill */}
+      {/* Dynamic Directional Guidance Banner */}
       <View
         style={[
-          styles.guidancePill,
+          styles.guidanceBanner,
           {
             backgroundColor: isAligned
-              ? theme.colors.mintTint
+              ? theme.colors.secondaryTint
               : theme.colors.surface,
             borderColor: isAligned
-              ? theme.colors.accent
+              ? theme.colors.primary
               : theme.colors.border,
           },
         ]}
       >
-        <AppText
-          variant="bodySmall"
-          color={isAligned ? theme.colors.primary : theme.colors.textMuted}
-          style={styles.guidanceText}
+        <View
+          style={[
+            styles.guidanceIconWrapper,
+            {
+              backgroundColor: isAligned
+                ? theme.colors.primary
+                : theme.colors.surfaceElevated,
+            },
+          ]}
         >
-          {isAligned
-            ? t('facingKaaba')
-            : `${t('rotatePhone')} (${diffDegrees}°)`}
+          {isAligned ? (
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M20 6L9 17L4 12"
+                stroke={theme.colors.textOnPrimary}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          ) : turnDirection === 'left' ? (
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                stroke={theme.colors.primary}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          ) : (
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                stroke={theme.colors.primary}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          )}
+        </View>
+
+        <AppText
+          variant="bodyMedium"
+          color={isAligned ? theme.colors.primary : theme.colors.text}
+          style={styles.guidanceText}
+          numberOfLines={1}
+        >
+          {guidanceText}
         </AppText>
       </View>
 
-      {/* Telemetry Metrics Row */}
+      {/* 3-Metric Unified Telemetry Track */}
       <View
         style={[
           styles.metricsRow,
-          { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
         ]}
       >
         <View style={styles.metricItem}>
@@ -100,47 +151,55 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
     paddingHorizontal: SPACING.lg,
     gap: SPACING.sm,
-    alignItems: 'center',
   },
-  guidancePill: {
-    paddingHorizontal: SPACING.md + 4,
-    paddingVertical: SPACING.xs + 2,
+  guidanceBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1.5,
+    gap: SPACING.sm,
+  },
+  guidanceIconWrapper: {
+    width: 32,
+    height: 32,
     borderRadius: RADIUS.full,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   guidanceText: {
+    flex: 1,
     fontWeight: '700',
-    textAlign: 'center',
+    fontSize: 13,
   },
   metricsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    width: '100%',
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     borderWidth: 1,
   },
   metricItem: {
+    flex: 1,
     alignItems: 'center',
     gap: 2,
-    flex: 1,
   },
   metricLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
   metricValue: {
     fontWeight: '800',
+    fontSize: 14,
   },
   metricDivider: {
     width: 1,
-    height: 24,
+    height: 28,
   },
 });
-

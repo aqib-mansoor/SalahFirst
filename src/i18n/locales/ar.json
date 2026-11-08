@@ -124,6 +124,12 @@
 
   "facingKaaba": "أنت متوجه إلى الكعبة المشرفة بمكة المكرمة",
   "rotatePhone": "أدر هاتفك حتى يحاذي المؤشر اتجاه القبلة",
+  "turnLeftDegrees": "استدر يساراً بمقدار {{degrees}}° باتجاه القبلة",
+  "turnRightDegrees": "استدر يميناً بمقدار {{degrees}}° باتجاه القبلة",
+  "changeLocation": "تغيير",
+  "recalibrateCompass": "المعايرة مطلوبة",
+  "compassCalibrated": "دقة البوصلة ممتازة",
+  "figure8Tip": "حرك هاتفك في مسار الرقم 8 بلطف بعيداً عن المعادن للمحافظة على دقة البوصلة.",
   "liveHeading": "الاتجاه المباشر",
   "qiblaAngle": "زاوية القبلة",
   "distance": "المسافة",

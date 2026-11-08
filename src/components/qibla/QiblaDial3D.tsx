@@ -23,13 +23,14 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
 
   return (
     <View style={styles.container}>
+      {/* Outer Alignment Glow Ring when facing Kaaba */}
       <View
         style={[
           styles.dialCard,
           {
             backgroundColor: theme.colors.surface,
             borderColor: isAligned ? theme.colors.accent : theme.colors.border,
-            shadowColor: isAligned ? theme.colors.primary : theme.colors.text,
+            shadowColor: isAligned ? theme.colors.accent : theme.colors.border,
           },
         ]}
       >
@@ -74,8 +75,8 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
                 y="-42"
                 width="84"
                 height="84"
-                stroke={isAligned ? theme.colors.accentMuted : theme.colors.mintTintPressed}
-                strokeWidth="1.5"
+                stroke={isAligned ? theme.colors.accent : theme.colors.border}
+                strokeWidth="1.2"
                 fill="none"
               />
               <Rect
@@ -83,8 +84,8 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
                 y="-42"
                 width="84"
                 height="84"
-                stroke={isAligned ? theme.colors.accentMuted : theme.colors.mintTintPressed}
-                strokeWidth="1.5"
+                stroke={isAligned ? theme.colors.accent : theme.colors.border}
+                strokeWidth="1.2"
                 fill="none"
                 transform="rotate(45)"
               />
@@ -135,7 +136,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           </AppText>
         </View>
 
-        {/* Needle pointing towards Qibla direction with 3D Kaaba Emblem */}
+        {/* Needle pointing towards Qibla direction with Kaaba Emblem */}
         <View
           style={[
             styles.needleLayer,
@@ -146,8 +147,8 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             style={[
               styles.needleShaft,
               {
-                backgroundColor: theme.colors.accent,
-                borderColor: theme.colors.accent,
+                backgroundColor: isAligned ? theme.colors.accent : theme.colors.primary,
+                borderColor: isAligned ? theme.colors.accent : theme.colors.primary,
               },
             ]}
           />
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 12,
+    marginVertical: 8,
   },
   dialCard: {
     width: DIAL_SIZE,
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 4,
   },

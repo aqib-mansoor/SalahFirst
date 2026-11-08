@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,6 +11,7 @@ export interface QiblaHeaderProps {
   country: string;
   qiblaBearing: number;
   cardinal: string;
+  onChangeLocation?: () => void;
 }
 
 export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
@@ -18,6 +19,7 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
   country,
   qiblaBearing,
   cardinal,
+  onChangeLocation,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -28,8 +30,14 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
           {t('navQibla')}
         </AppText>
-        <View style={styles.cityRow}>
-          <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+        <Pressable
+          onPress={onChangeLocation}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`${cityName}, ${country} - ${t('changeLocation') || 'Change Location'}`}
+          style={styles.cityRow}
+        >
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
               stroke={theme.colors.primary}
@@ -37,13 +45,31 @@ export const QiblaHeader: React.FC<QiblaHeaderProps> = ({
             />
             <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.primary} strokeWidth="2" />
           </Svg>
-          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.cityName}>
-            {cityName}, {country}
+          <AppText
+            variant="bodySmall"
+            color={theme.colors.textMuted}
+            style={styles.cityName}
+            numberOfLines={1}
+          >
+            {cityName}{country ? `, ${country}` : ''}
           </AppText>
-        </View>
+          {onChangeLocation && (
+            <AppText variant="caption" color={theme.colors.primary} style={styles.changeAction}>
+              {t('changeLocation') || 'Change'}
+            </AppText>
+          )}
+        </Pressable>
       </View>
 
-      <View style={[styles.bearingBadge, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+      <View
+        style={[
+          styles.bearingBadge,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.bearingLabel}>
           {t('qiblaAngle')}
         </AppText>
@@ -61,12 +87,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
+    paddingTop: SPACING.sm,
     paddingBottom: SPACING.xs,
   },
   titleColumn: {
     flex: 1,
-    gap: 2,
+    gap: 3,
   },
   title: {
     fontWeight: '800',
@@ -74,10 +100,16 @@ const styles = StyleSheet.create({
   cityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   cityName: {
     fontWeight: '600',
+    maxWidth: 160,
+  },
+  changeAction: {
+    fontWeight: '700',
+    fontSize: 11,
+    textDecorationLine: 'underline',
   },
   bearingBadge: {
     paddingHorizontal: SPACING.md,
@@ -95,4 +127,3 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 });
-

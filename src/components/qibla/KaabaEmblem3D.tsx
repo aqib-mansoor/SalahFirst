@@ -10,33 +10,37 @@ export interface KaabaEmblem3DProps {
 export const KaabaEmblem3D: React.FC<KaabaEmblem3DProps> = ({ isAligned }) => {
   const theme = useTheme();
 
+  const cubeBg = theme.isDark ? theme.colors.surfaceElevated : theme.colors.text;
+  const cubeBorder = isAligned ? theme.colors.accent : theme.colors.border;
+  const auraFill = isAligned ? theme.colors.secondaryTint : theme.colors.surfaceElevated;
+
   return (
     <View style={styles.kaabaContainer}>
-      <Svg width={38} height={38} viewBox="0 0 38 38">
+      <Svg width={40} height={40} viewBox="0 0 40 40">
         {/* Isometric Cube Shadow / Aura */}
         <Circle
-          cx="19"
+          cx="20"
           cy="20"
-          r="14"
-          fill={isAligned ? 'rgba(204,161,95,0.3)' : 'rgba(0,0,0,0.1)'}
+          r="16"
+          fill={auraFill}
         />
 
         {/* Main Cube Body */}
         <Rect
-          x="5"
-          y="5"
+          x="6"
+          y="6"
           width="28"
           height="28"
           rx="6"
-          fill="#18181B"
-          stroke={isAligned ? theme.colors.accent : '#27272A'}
+          fill={cubeBg}
+          stroke={cubeBorder}
           strokeWidth="1.5"
         />
 
         {/* Gold Embroidered Kiswah Ribbon (Hizam) */}
         <Rect
-          x="5"
-          y="13"
+          x="6"
+          y="14"
           width="28"
           height="4.5"
           fill={theme.colors.accent}
@@ -44,8 +48,8 @@ export const KaabaEmblem3D: React.FC<KaabaEmblem3DProps> = ({ isAligned }) => {
 
         {/* Kaaba Golden Door (Bab al-Kaaba) */}
         <Rect
-          x="20"
-          y="20"
+          x="22"
+          y="21"
           width="6.5"
           height="10"
           rx="1"
@@ -54,8 +58,8 @@ export const KaabaEmblem3D: React.FC<KaabaEmblem3DProps> = ({ isAligned }) => {
 
         {/* Isometric Top Bevel Highlight */}
         <Path
-          d="M 6 10 L 19 6 L 32 10"
-          stroke="rgba(255,255,255,0.2)"
+          d="M 7 11 L 20 7 L 33 11"
+          stroke={theme.colors.border}
           strokeWidth="1.2"
           fill="none"
         />
@@ -68,10 +72,9 @@ const styles = StyleSheet.create({
   kaabaContainer: {
     position: 'absolute',
     top: 14,
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
-

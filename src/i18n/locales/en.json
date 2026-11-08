@@ -124,6 +124,12 @@
 
   "facingKaaba": "Facing the Holy Kaaba in Makkah",
   "rotatePhone": "Rotate phone until pointer aligns",
+  "turnLeftDegrees": "Turn left {{degrees}}° towards Qibla",
+  "turnRightDegrees": "Turn right {{degrees}}° towards Qibla",
+  "changeLocation": "Change",
+  "recalibrateCompass": "Calibration Needed",
+  "compassCalibrated": "Compass accuracy is good",
+  "figure8Tip": "Move phone in a gentle figure-8 motion away from metallic objects to keep compass accurate.",
   "liveHeading": "Live Heading",
   "qiblaAngle": "Qibla Angle",
   "distance": "Distance",
