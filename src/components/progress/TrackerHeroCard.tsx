@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Rect, G } from 'react-native-svg';
+import Svg, { Circle, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
@@ -17,13 +17,20 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
   const percentage = Math.round((completedCount / total) * 100);
   const remaining = total - completedCount;
 
+  // Real SVG Circular Progress Ring metrics
+  const ringSize = 70;
+  const strokeWidth = 5.5;
+  const radius = (ringSize - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (circumference * percentage) / 100;
+
   return (
     <View
       style={[
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(243, 196, 64, 0.35)',
+          borderColor: 'rgba(243, 196, 64, 0.4)',
         },
       ]}
     >
@@ -31,7 +38,7 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
 
       {/* Left Content Column */}
       <View style={styles.textColumn}>
-        <AppText variant="caption" color="rgba(255,255,255,0.7)" style={styles.subtitle}>
+        <AppText variant="caption" color="rgba(255,255,255,0.72)" style={styles.subtitle}>
           {t('todaysProgress')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.textInverse} style={styles.headline}>
@@ -44,11 +51,40 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
         </AppText>
       </View>
 
-      {/* Right Circular Progress Ring */}
-      <View style={[styles.progressRingOuter, { borderColor: theme.colors.accent }]}>
-        <AppText variant="titleMedium" color={theme.colors.textInverse} style={styles.percentageText}>
-          {percentage}%
-        </AppText>
+      {/* Right Real SVG Circular Progress Ring */}
+      <View style={styles.ringWrapper}>
+        <Svg width={ringSize} height={ringSize} viewBox={`0 0 ${ringSize} ${ringSize}`}>
+          <G rotation="-90" origin={`${ringSize / 2}, ${ringSize / 2}`}>
+            {/* Background Track */}
+            <Circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={radius}
+              stroke="rgba(255, 255, 255, 0.16)"
+              strokeWidth={strokeWidth}
+              fill="transparent"
+            />
+            {/* Illuminated Gold Progress Arc */}
+            <Circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={radius}
+              stroke={theme.colors.accent}
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${circumference} ${circumference}`}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              fill="transparent"
+            />
+          </G>
+        </Svg>
+
+        {/* Center Percentage Display */}
+        <View style={styles.ringCenterText}>
+          <AppText variant="titleSmall" color={theme.colors.textInverse} style={styles.percentageText}>
+            {percentage}%
+          </AppText>
+        </View>
       </View>
     </View>
   );
@@ -59,7 +95,7 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     padding: SPACING.lg,
     borderRadius: RADIUS.xxl,
-    borderWidth: 1,
+    borderWidth: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -67,14 +103,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.16,
     shadowRadius: 10,
     elevation: 3,
-  },
-  watermarkLayer: {
-    position: 'absolute',
-    right: -10,
-    top: -10,
   },
   textColumn: {
     flex: 1,
@@ -93,18 +124,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 2,
   },
-  progressRingOuter: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 4,
+  ringWrapper: {
+    width: 70,
+    height: 70,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    position: 'relative',
     zIndex: 2,
+  },
+  ringCenterText: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   percentageText: {
     fontWeight: '800',
-    fontSize: 16,
+    fontSize: 15,
   },
 });

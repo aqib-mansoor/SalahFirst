@@ -27,7 +27,13 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
     <View style={styles.container}>
       <View
         accessibilityRole="tablist"
-        style={[styles.tabBarSurface, { backgroundColor: theme.colors.surfaceElevated }]}
+        style={[
+          styles.tabBarSurface,
+          {
+            backgroundColor: theme.colors.surfaceElevated,
+            borderColor: theme.colors.border,
+          },
+        ]}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -38,21 +44,38 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={`${tab.label} view`}
-              style={[
+              style={({ pressed }) => [
                 styles.tabItem,
                 isActive && {
                   backgroundColor: theme.colors.primary,
-                  borderColor: theme.colors.primary,
+                  borderColor: theme.colors.accent,
+                  borderWidth: 1,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 4,
+                  elevation: 2,
                 },
+                pressed && { opacity: 0.85 },
               ]}
             >
-              <AppText
-                variant="bodySmall"
-                color={isActive ? theme.colors.textInverse : theme.colors.textMuted}
-                style={[styles.tabLabel, isActive && styles.activeTabLabel]}
-              >
-                {tab.label}
-              </AppText>
+              <View style={styles.tabContentRow}>
+                <AppText
+                  variant="bodySmall"
+                  color={isActive ? theme.colors.textInverse : theme.colors.textMuted}
+                  style={[styles.tabLabel, isActive && styles.activeTabLabel]}
+                >
+                  {tab.label}
+                </AppText>
+                {isActive && (
+                  <View
+                    style={[
+                      styles.activeGoldDot,
+                      { backgroundColor: theme.colors.accent },
+                    ]}
+                  />
+                )}
+              </View>
             </Pressable>
           );
         })}
@@ -69,17 +92,25 @@ const styles = StyleSheet.create({
   },
   tabBarSurface: {
     flexDirection: 'row',
-    borderRadius: RADIUS.lg,
-    padding: 3,
+    borderRadius: RADIUS.full,
+    padding: 4,
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderWidth: 1,
   },
   tabItem: {
     flex: 1,
     paddingVertical: SPACING.xs + 3,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  tabContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   tabLabel: {
     fontWeight: '600',
@@ -88,5 +119,9 @@ const styles = StyleSheet.create({
   activeTabLabel: {
     fontWeight: '800',
   },
+  activeGoldDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
 });
-

@@ -5,6 +5,7 @@ export interface CalendarDayCell {
   dateKey: string;
   isToday: boolean;
   isSelected: boolean;
+  isFuture: boolean;
   hasRecord: boolean;
   completedPrayers: boolean[]; // [Fajr, Dhuhr, Asr, Maghrib, Isha]
   completedCount: number;
@@ -58,6 +59,7 @@ export const generateCalendarMonth = (
       dateKey,
       isToday: dateKey === todayKey,
       isSelected: d === selectedDay,
+      isFuture: dateKey > todayKey,
       hasRecord,
       completedPrayers,
       completedCount,

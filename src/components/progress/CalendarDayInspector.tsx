@@ -9,6 +9,7 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface CalendarDayInspectorProps {
   dateLabel: string;
   hasRecord?: boolean;
+  isFuture?: boolean;
   prayersCompleted: boolean[];
   onTogglePrayer: (prayerIndex: number) => void;
 }
@@ -16,6 +17,7 @@ export interface CalendarDayInspectorProps {
 export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   dateLabel,
   hasRecord = false,
+  isFuture = false,
   prayersCompleted,
   onTogglePrayer,
 }) => {
@@ -42,45 +44,54 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
           </AppText>
           <AppText
             variant="caption"
-            color={hasRecord ? theme.colors.primary : theme.colors.textMuted}
+            color={isFuture ? theme.colors.textMuted : hasRecord ? theme.colors.primary : theme.colors.textMuted}
             style={styles.statusSubtitle}
           >
-            {hasRecord
+            {isFuture
+              ? 'Future date'
+              : hasRecord
               ? `${completedCount} ${t('of')} 5 ${t('completedSuffix')}`
               : t('noRecordYet')}
           </AppText>
         </View>
-        <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
-          {t('tapPrayerToLog')}
+
+        <AppText
+          variant="caption"
+          color={isFuture ? theme.colors.textMuted : theme.colors.primary}
+          style={styles.tipText}
+        >
+          {isFuture ? 'Locked' : t('tapPrayerToLog')}
         </AppText>
       </View>
 
       {/* 5 Prayer Chips */}
       <View style={styles.chipsRow}>
         {prayerNames.map((name, idx) => {
-          const isDone = !!prayersCompleted[idx];
+          const isDone = !isFuture && !!prayersCompleted[idx];
 
           return (
             <Pressable
               key={name}
-              onPress={() => onTogglePrayer(idx)}
+              onPress={() => !isFuture && onTogglePrayer(idx)}
+              disabled={isFuture}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: isDone }}
               accessibilityLabel={`${name} prayer`}
-              accessibilityHint={`Tap to toggle completion of ${name} for ${dateLabel}`}
+              accessibilityHint={isFuture ? 'Future date locked' : `Tap to toggle completion of ${name} for ${dateLabel}`}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.prayerChip,
                 isDone
                   ? {
                       backgroundColor: theme.colors.mintTint,
-                      borderColor: theme.colors.primary,
+                      borderColor: theme.colors.accent,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
                       borderColor: theme.colors.border,
                     },
-                pressed && { opacity: 0.7 },
+                isFuture && styles.chipDisabled,
+                pressed && !isFuture && { opacity: 0.7 },
               ]}
             >
               <AppText
@@ -121,7 +132,7 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     padding: SPACING.md,
     borderRadius: RADIUS.xxl,
-    borderWidth: 1,
+    borderWidth: 1.2,
     gap: SPACING.md,
   },
   headerRow: {
@@ -140,7 +151,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tipText: {
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 11,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -152,9 +164,12 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 2,
     paddingHorizontal: 2,
     borderRadius: RADIUS.lg,
-    borderWidth: 1,
+    borderWidth: 1.2,
     alignItems: 'center',
     gap: 4,
+  },
+  chipDisabled: {
+    opacity: 0.45,
   },
   chipName: {
     fontWeight: '700',

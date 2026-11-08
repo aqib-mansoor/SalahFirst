@@ -56,6 +56,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         {cells.map((cell) => {
           const isSelected = cell.isSelected;
           const isToday = cell.isToday;
+          const isFull = cell.completedCount === 5;
+          const isFuture = !!cell.isFuture;
 
           return (
             <Pressable
@@ -64,7 +66,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               accessibilityRole="button"
               accessibilityLabel={`Day ${cell.dayNumber}, ${
                 cell.hasRecord
-                  ? `${cell.completedPrayers.filter(Boolean).length} ${t('of')} 5 ${t('completedSuffix')}`
+                  ? `${cell.completedCount} ${t('of')} 5 ${t('completedSuffix')}`
+                  : isFuture
+                  ? 'Future date'
                   : t('unrecorded')
               }`}
               accessibilityState={{ selected: isSelected }}
@@ -72,23 +76,43 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               style={[
                 styles.dayCell,
                 isSelected
-                  ? { backgroundColor: theme.colors.primary }
-                  : { backgroundColor: theme.colors.surfaceElevated },
-                isToday && !isSelected && {
-                  borderColor: theme.colors.accent,
-                  borderWidth: 1.5,
-                },
+                  ? {
+                      backgroundColor: theme.colors.primary,
+                      borderColor: theme.colors.accent,
+                      borderWidth: 1.5,
+                    }
+                  : {
+                      backgroundColor: theme.colors.surfaceElevated,
+                      borderColor: isToday
+                        ? theme.colors.accent
+                        : isFull
+                        ? 'rgba(243, 196, 64, 0.35)'
+                        : 'transparent',
+                      borderWidth: isToday || isFull ? 1.2 : 0,
+                    },
+                isFuture && styles.futureCell,
               ]}
             >
               <AppText
                 variant="bodySmall"
-                color={isSelected ? theme.colors.textInverse : theme.colors.text}
-                style={[styles.dayNumber, (isSelected || isToday) && styles.todayNumber]}
+                color={
+                  isSelected
+                    ? theme.colors.textInverse
+                    : isToday
+                    ? theme.colors.accent
+                    : isFuture
+                    ? theme.colors.textMuted
+                    : theme.colors.text
+                }
+                style={[
+                  styles.dayNumber,
+                  (isSelected || isToday) && styles.todayNumber,
+                ]}
               >
                 {cell.dayNumber}
               </AppText>
 
-              {/* 5 Indicator Dots beneath */}
+              {/* 5 Constellation Dots beneath */}
               <View style={styles.dotsRow}>
                 {cell.hasRecord ? (
                   cell.completedPrayers.map((done, dotIdx) => (
@@ -97,8 +121,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                       style={[
                         styles.dot,
                         done
-                          ? { backgroundColor: isSelected ? theme.colors.accent : theme.colors.primary }
-                          : { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.border },
+                          ? {
+                              backgroundColor: isSelected
+                                ? theme.colors.accent
+                                : isFull
+                                ? theme.colors.accent
+                                : theme.colors.primary,
+                            }
+                          : {
+                              backgroundColor: isSelected
+                                ? 'rgba(255,255,255,0.2)'
+                                : theme.colors.border,
+                            },
                       ]}
                     />
                   ))
@@ -106,7 +140,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   <View
                     style={[
                       styles.unrecordedDot,
-                      { backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : theme.colors.border },
+                      {
+                        backgroundColor: isSelected
+                          ? 'rgba(255,255,255,0.2)'
+                          : isFuture
+                          ? 'transparent'
+                          : theme.colors.border,
+                      },
                     ]}
                   />
                 )}
@@ -124,50 +164,52 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     padding: SPACING.md,
     borderRadius: RADIUS.xxl,
-    borderWidth: 1,
+    borderWidth: 1.2,
     gap: SPACING.sm,
   },
   weekdaysRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: SPACING.xs,
+    paddingBottom: 2,
   },
   weekdayText: {
     fontWeight: '700',
+    fontSize: 11,
     width: 38,
     textAlign: 'center',
   },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    justifyContent: 'flex-start',
   },
   emptyCell: {
-    width: '12.8%',
-    aspectRatio: 0.95,
+    width: '14.28%',
+    height: 48,
   },
   dayCell: {
-    width: '12.8%',
-    aspectRatio: 0.95,
-    borderRadius: RADIUS.lg,
+    width: '14.28%',
+    height: 48,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
     paddingVertical: 4,
+    gap: 3,
+  },
+  futureCell: {
+    opacity: 0.45,
   },
   dayNumber: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '600',
+    fontSize: 12,
   },
   todayNumber: {
-    fontWeight: '900',
+    fontWeight: '800',
   },
   dotsRow: {
     flexDirection: 'row',
     gap: 2,
     alignItems: 'center',
-    minHeight: 4,
+    height: 6,
   },
   dot: {
     width: 3.5,
@@ -175,8 +217,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   unrecordedDot: {
-    width: 10,
-    height: 2,
-    borderRadius: 1,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
   },
 });

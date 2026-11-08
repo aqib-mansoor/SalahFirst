@@ -18,7 +18,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const note = longestStreakNote || t('beginYourStreak');
+  const note = longestStreakNote || t('beginYourStreak') || 'Keep it going';
 
   return (
     <View style={styles.container}>
@@ -28,7 +28,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           styles.metricCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
+            borderColor: 'rgba(243, 196, 64, 0.25)',
           },
         ]}
       >
@@ -36,7 +36,10 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           {t('longestStreak')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
-          {longestStreak} {t('daysSuffix')}
+          {longestStreak}{' '}
+          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.unitSuffix}>
+            {t('daysSuffix')}
+          </AppText>
         </AppText>
         <AppText variant="caption" color={theme.colors.primary} style={styles.noteText}>
           {note}
@@ -49,7 +52,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           styles.metricCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
+            borderColor: 'rgba(243, 196, 64, 0.25)',
           },
         ]}
       >
@@ -57,10 +60,13 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           {t('totalPrayersLogged')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
-          {totalPrayers}
+          {totalPrayers}{' '}
+          <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.unitSuffix}>
+            prayers
+          </AppText>
         </AppText>
         <AppText variant="caption" color={theme.colors.accent} style={styles.noteText}>
-          {t('inclPartialDays')}
+          {t('inclPartialDays') || 'All-time prayers'}
         </AppText>
       </View>
     </View>
@@ -78,16 +84,24 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.xl,
-    borderWidth: 1,
+    borderWidth: 1.2,
     gap: 4,
   },
   label: {
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 11,
+    letterSpacing: 0.3,
   },
   valueText: {
     fontWeight: '800',
+    fontSize: 20,
+  },
+  unitSuffix: {
+    fontWeight: '600',
+    fontSize: 12,
   },
   noteText: {
     fontWeight: '700',
+    fontSize: 11,
   },
 });

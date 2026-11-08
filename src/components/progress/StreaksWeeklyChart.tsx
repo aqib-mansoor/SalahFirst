@@ -38,11 +38,14 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
       {/* Header */}
       <View style={styles.headerRow}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Weekly Completion (Full vs Partial)
+          Weekly Completion (7 Days)
         </AppText>
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeframe}>
-          Last 7 Days
-        </AppText>
+        <View style={styles.legendRow}>
+          <View style={[styles.legendDot, { backgroundColor: theme.colors.accent }]} />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeframe}>
+            5/5 Peak
+          </AppText>
+        </View>
       </View>
 
       {/* Vertical Bars Container */}
@@ -51,11 +54,31 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
           const isFull = bar.completed === bar.total && bar.completed > 0;
           const barHeight =
             bar.completed > 0
-              ? Math.max(12, (bar.completed / bar.total) * maxBarHeight)
-              : 4;
+              ? Math.max(14, (bar.completed / bar.total) * maxBarHeight)
+              : 6;
 
           return (
             <View key={idx} style={styles.barColumn}>
+              {/* Score Pill / Star above bar */}
+              <View style={styles.topScoreZone}>
+                {isFull ? (
+                  <View style={[styles.goldStarPill, { backgroundColor: theme.colors.accentTint }]}>
+                    <AppText variant="caption" color={theme.colors.accent} style={styles.goldStarText}>
+                      ★
+                    </AppText>
+                  </View>
+                ) : (
+                  <AppText
+                    variant="caption"
+                    color={bar.completed > 0 ? theme.colors.textMuted : 'transparent'}
+                    style={styles.scoreText}
+                  >
+                    {bar.completed}
+                  </AppText>
+                )}
+              </View>
+
+              {/* Bar Track & Fill */}
               <View style={styles.barTrack}>
                 <View
                   style={[
@@ -63,16 +86,24 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
                     {
                       height: barHeight,
                       backgroundColor: isFull
-                        ? theme.colors.primary
+                        ? theme.colors.accent
                         : bar.completed > 0
-                        ? theme.colors.accentMuted
-                        : theme.colors.border,
-                      opacity: bar.hasRecord ? 1 : 0.4,
+                        ? theme.colors.primary
+                        : theme.colors.surfaceElevated,
+                      borderColor: isFull
+                        ? 'rgba(243, 196, 64, 0.4)'
+                        : 'transparent',
+                      borderWidth: isFull ? 1 : 0,
                     },
                   ]}
                 />
               </View>
-              <AppText variant="caption" color={theme.colors.textMuted} style={styles.dayLabel}>
+
+              <AppText
+                variant="caption"
+                color={isFull ? theme.colors.text : theme.colors.textMuted}
+                style={[styles.dayLabel, isFull && styles.dayLabelActive]}
+              >
                 {bar.dayName}
               </AppText>
             </View>
@@ -88,8 +119,8 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     padding: SPACING.md + 2,
     borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    gap: SPACING.lg,
+    borderWidth: 1.2,
+    gap: SPACING.md,
   },
   headerRow: {
     flexDirection: 'row',
@@ -99,20 +130,52 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '800',
   },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  legendDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
   timeframe: {
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 10,
   },
   barsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 110,
+    height: 125,
     paddingHorizontal: SPACING.xs,
   },
   barColumn: {
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     flex: 1,
+  },
+  topScoreZone: {
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goldStarPill: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goldStarText: {
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: '800',
+  },
+  scoreText: {
+    fontSize: 9,
+    fontWeight: '600',
   },
   barTrack: {
     height: 90,
@@ -121,11 +184,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   barFill: {
-    width: 26,
+    width: 24,
     borderRadius: RADIUS.md,
   },
   dayLabel: {
     fontWeight: '600',
     fontSize: 11,
+  },
+  dayLabelActive: {
+    fontWeight: '800',
   },
 });

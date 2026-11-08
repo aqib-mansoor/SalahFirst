@@ -31,18 +31,25 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
         styles.card,
         {
           backgroundColor: theme.colors.surface,
-          borderColor: prayer.completed ? theme.colors.primary : theme.colors.border,
+          borderColor: prayer.completed ? theme.colors.borderGold : theme.colors.border,
         },
+        prayer.completed && styles.cardCompleted,
         pressed && { opacity: 0.85 },
       ]}
     >
-      {/* Left Checkmark Button */}
+      {/* Left Checkmark Button with Gold Accent Ring */}
       <View
         style={[
           styles.checkCircle,
           prayer.completed
-            ? { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }
-            : { backgroundColor: 'transparent', borderColor: theme.colors.border },
+            ? {
+                backgroundColor: theme.colors.primary,
+                borderColor: theme.colors.accent,
+              }
+            : {
+                backgroundColor: 'transparent',
+                borderColor: theme.colors.border,
+              },
         ]}
       >
         {prayer.completed ? (
@@ -50,7 +57,7 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
             <Path
               d="M20 6L9 17L4 12"
               stroke={theme.colors.textInverse}
-              strokeWidth="3"
+              strokeWidth="2.8"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -78,6 +85,9 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
             backgroundColor: prayer.completed
               ? theme.colors.mintTint
               : theme.colors.surfaceElevated,
+            borderColor: prayer.completed
+              ? 'rgba(243, 196, 64, 0.3)'
+              : 'transparent',
           },
         ]}
       >
@@ -99,10 +109,17 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.xl,
-    borderWidth: 1.5,
+    borderWidth: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
+  },
+  cardCompleted: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
   },
   checkCircle: {
     width: 28,
@@ -126,10 +143,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: 5,
     borderRadius: RADIUS.full,
+    borderWidth: 1,
   },
   badgeText: {
     fontWeight: '700',
     fontSize: 11,
   },
 });
-
