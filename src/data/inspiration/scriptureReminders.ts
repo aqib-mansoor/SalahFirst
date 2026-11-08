@@ -168,7 +168,7 @@ export const SCRIPTURE_REMINDERS: InspirationItem[] = [
     id: 'insp_hadith_05',
     category: 'hadith_reminders',
     sourceType: 'hadith',
-    reference: 'Sunan Abi Dawud 4941',
+    reference: 'Sunan Abu Dawud 4941',
     title: {
       en: 'Kindness Adorns (Abu Dawud 4941)',
       ur: 'نرمی کی خوبصورتی (ابو داؤد: 4941)',

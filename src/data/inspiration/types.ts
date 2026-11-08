@@ -41,3 +41,4 @@ export interface InspirationConfig {
   quietHoursStart: string; // e.g. "22:00"
   quietHoursEnd: string; // e.g. "05:00"
 }
+

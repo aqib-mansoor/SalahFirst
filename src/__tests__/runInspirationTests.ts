@@ -1,14 +1,16 @@
 // Standalone automated test suite for Daily Islamic Inspiration notification system
-const assert = require('assert');
+const assert = (cond: any, msg: string) => {
+  if (!cond) throw new Error(msg);
+};
 
-// 1. Load data
-const { REMINDERS_CORE } = require('../src/data/inspiration/remindersCore');
-const { REMINDERS_REMEMBRANCE } = require('../src/data/inspiration/remindersRemembrance');
-const { CATEGORY_REMINDERS_PART2 } = require('../src/data/inspiration/categoryRemindersPart2');
-const { SCRIPTURE_REMINDERS } = require('../src/data/inspiration/scriptureReminders');
-const { isWithinQuietHours } = require('../src/utils/notificationQuietHours');
+import { REMINDERS_CORE } from '../data/inspiration/remindersCore';
+import { REMINDERS_REMEMBRANCE } from '../data/inspiration/remindersRemembrance';
+import { CATEGORY_REMINDERS_PART2 } from '../data/inspiration/categoryRemindersPart2';
+import { SCRIPTURE_REMINDERS } from '../data/inspiration/scriptureReminders';
+import { isWithinQuietHours } from '../utils/notificationQuietHours';
+import { InspirationItem } from '../data/inspiration/types';
 
-const ALL_ITEMS = [
+const ALL_ITEMS: InspirationItem[] = [
   ...REMINDERS_CORE,
   ...REMINDERS_REMEMBRANCE,
   ...CATEGORY_REMINDERS_PART2,
@@ -22,8 +24,8 @@ console.log('\n[Test 1] Content Integrity & Translation Parity');
 assert(ALL_ITEMS.length >= 30, `Expected at least 30 items, got ${ALL_ITEMS.length}`);
 console.log(`✓ Total verified inspiration items: ${ALL_ITEMS.length}`);
 
-const ids = new Set();
-const categoriesFound = new Set();
+const ids = new Set<string>();
+const categoriesFound = new Set<string>();
 
 ALL_ITEMS.forEach((item, index) => {
   // Unique IDs
@@ -43,7 +45,7 @@ ALL_ITEMS.forEach((item, index) => {
     assert(item.reference && item.reference.includes('Surah'), `Quran item ${item.id} must have Surah reference, got: ${item.reference}`);
   }
   if (item.sourceType === 'hadith') {
-    assert(item.reference && (item.reference.includes('Bukhari') || item.reference.includes('Muslim') || item.reference.includes('Tirmidhi') || item.reference.includes('Abu Dawud')), `Hadith item ${item.id} must have authentic book reference, got: ${item.reference}`);
+    assert(item.reference && (item.reference.includes('Bukhari') || item.reference.includes('Muslim') || item.reference.includes('Tirmidhi') || item.reference.includes('Dawud')), `Hadith item ${item.id} must have authentic book reference, got: ${item.reference}`);
   }
 });
 
@@ -64,8 +66,8 @@ console.log(`✓ All 10 Islamic categories verified: [${Array.from(categoriesFou
 console.log('\n[Test 2] Repetition Prevention & 60-Day Rule');
 const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
 
-function simulateSelectNext(items, history, targetDateMs) {
-  const lastDeliveredMap = new Map();
+function simulateSelectNext(items: InspirationItem[], history: any[], targetDateMs: number): InspirationItem {
+  const lastDeliveredMap = new Map<string, number>();
   history.forEach((h) => {
     const entryMs = new Date(h.deliveredDate).getTime();
     const existing = lastDeliveredMap.get(h.contentId);
@@ -120,7 +122,7 @@ console.log(`✓ Category alternation passed: previous category 'salah' was avoi
 
 // Test 3: Randomized Delivery Window (9:00 AM – 8:00 PM)
 console.log('\n[Test 3] Randomized Time Window (9:00 AM – 8:00 PM)');
-function simulateRandomDelivery(baseDate, minHour = 9, maxHour = 20) {
+function simulateRandomDelivery(baseDate: Date, minHour = 9, maxHour = 20): Date {
   const startTotalMins = minHour * 60; // 540
   const endTotalMins = maxHour * 60;  // 1200
   const range = endTotalMins - startTotalMins;

@@ -93,3 +93,4 @@ export const selectNextInspiration = async (
 
   return sortedByOldest[0] || ALL_INSPIRATION_ITEMS[0];
 };
+
