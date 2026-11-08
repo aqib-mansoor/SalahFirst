@@ -82,14 +82,16 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     ? (t(targetObligatory.toLowerCase() as any) as string) || targetObligatory
     : undefined;
 
-  const progressPercent = Math.round(Math.max(4, Math.min(100, progressRatio * 100)));
+  const showStatusPill =
+    periodCategory !== 'nafl' &&
+    periodId !== 'tahajjud_last_third';
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
       <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.14} />
       <HeroGeometricWatermark color={theme.colors.accent} opacity={0.10} />
 
-      {/* Top Row: Current Prayer Pill & Period Type Pill */}
+      {/* Top Row: Current Prayer Pill & Optional Status Pill */}
       <View style={styles.topRow}>
         <View
           style={[
@@ -103,16 +105,18 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           </AppText>
         </View>
 
-        <View
-          style={[
-            styles.statusPill,
-            { backgroundColor: 'rgba(0, 0, 0, 0.20)', borderColor: 'rgba(247, 207, 87, 0.25)' },
-          ]}
-        >
-          <AppText variant="caption" color={statusConfig.color} style={styles.statusText}>
-            {statusConfig.text}
-          </AppText>
-        </View>
+        {showStatusPill && (
+          <View
+            style={[
+              styles.statusPill,
+              { backgroundColor: 'rgba(0, 0, 0, 0.20)', borderColor: 'rgba(247, 207, 87, 0.25)' },
+            ]}
+          >
+            <AppText variant="caption" color={statusConfig.color} style={styles.statusText}>
+              {statusConfig.text}
+            </AppText>
+          </View>
+        )}
       </View>
 
       {/* Center Row: Next Prayer Countdown & Azan Time */}
@@ -138,18 +142,6 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <AppText color={theme.colors.textOnPrimary} style={styles.azanTime}>
             {nextPrayerTimeFormatted}
           </AppText>
-        </View>
-      </View>
-
-      {/* Subtle Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={[styles.progressTrack, { backgroundColor: 'rgba(255, 255, 255, 0.12)' }]}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${progressPercent}%`, backgroundColor: theme.colors.accent },
-            ]}
-          />
         </View>
       </View>
 
@@ -232,17 +224,4 @@ const styles = StyleSheet.create({
   rightAzan: { alignItems: 'flex-end', gap: 1 },
   azanLabel: { fontSize: 11, fontWeight: '600' },
   azanTime: { fontSize: 22, fontWeight: '800' },
-  progressContainer: {
-    paddingVertical: 2,
-    zIndex: 1,
-  },
-  progressTrack: {
-    height: 4,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
 });
