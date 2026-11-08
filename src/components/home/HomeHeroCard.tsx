@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { useTranslation } from '@/context/LocalizationContext';
-import { PrayerPeriodCategory } from '@/types';
+import type { PrayerPeriodCategory } from '@/types';
 import { HeroFocusButton } from './HeroFocusButton';
 
 export interface HomeHeroCardProps {

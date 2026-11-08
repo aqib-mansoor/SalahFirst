@@ -1,5 +1,5 @@
 import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule, PolarCircleResolution } from 'adhan';
-import { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
+import type { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
 import { getCurrentPrayerPeriod, createFallbackPeriod } from './currentPrayerPeriod';
 

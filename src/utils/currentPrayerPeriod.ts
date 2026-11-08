@@ -1,5 +1,5 @@
 import { Coordinates, Madhab } from 'adhan';
-import {
+import type {
   CalculationMethodName,
   JuristicMethod,
   CurrentPrayerPeriod,
@@ -8,7 +8,7 @@ import {
   PrayerPeriodCategory,
 } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
-import { getMethodParams, createRobustPrayerTimes } from './prayerTimes';
+import { getMethodParams, createRobustPrayerTimes } from './prayerCalculationBase';
 
 export interface RawPrayerTimesSet {
   fajr: Date;
