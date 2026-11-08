@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem, VERIFIED_HADITHS } from '@/data/hadiths';
+import { HadithBookmarkRow } from './HadithBookmarkRow';
 
 export interface HadithBookmarksCardProps {
   savedHadiths: HadithItem[];
@@ -72,55 +73,24 @@ export const HadithBookmarksCard: React.FC<HadithBookmarksCardProps> = ({
           </View>
         </View>
 
-        {/* Content: List of Bookmarks OR Empty State */}
+        {/* Content: Vertical Preview Rows OR Clean Empty State */}
         {savedHadiths.length > 0 ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.bookmarkScroll}
-          >
+          <View style={styles.rowsList}>
             {savedHadiths.map((item) => {
               const itemIdx = VERIFIED_HADITHS.findIndex((h) => h.id === item.id);
               const isSelected = itemIdx === currentIndex;
 
               return (
-                <Pressable
+                <HadithBookmarkRow
                   key={item.id}
-                  onPress={() => handleSelectBookmark(item.id)}
-                  hitSlop={4}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Hadith ${itemIdx + 1}: ${item.badge}`}
-                  style={[
-                    styles.bookmarkChip,
-                    {
-                      backgroundColor: isSelected
-                        ? theme.colors.secondaryTint
-                        : theme.colors.surfaceElevated,
-                      borderColor: isSelected
-                        ? theme.colors.primary
-                        : theme.colors.border,
-                    },
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    color={isSelected ? theme.colors.primary : theme.colors.text}
-                    style={styles.chipNumber}
-                  >
-                    #{itemIdx + 1}
-                  </AppText>
-                  <AppText
-                    variant="caption"
-                    color={isSelected ? theme.colors.primary : theme.colors.textMuted}
-                    style={styles.chipBadge}
-                    numberOfLines={1}
-                  >
-                    {item.badge}
-                  </AppText>
-                </Pressable>
+                  item={item}
+                  itemIndex={itemIdx}
+                  isSelected={isSelected}
+                  onSelect={() => handleSelectBookmark(item.id)}
+                />
               );
             })}
-          </ScrollView>
+          </View>
         ) : (
           <View style={styles.emptyContainer}>
             <AppText variant="caption" color={theme.colors.textMuted} style={styles.emptyText}>
@@ -139,9 +109,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
   },
   card: {
-    padding: SPACING.md,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
+    padding: SPACING.md,
     gap: SPACING.sm + 2,
   },
   header: {
@@ -152,57 +122,38 @@ const styles = StyleSheet.create({
   headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs + 4,
+    gap: SPACING.xs + 2,
   },
   iconBox: {
     width: 28,
     height: 28,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   boldTitle: {
     fontWeight: '700',
-    fontSize: 13,
   },
   countBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 3,
     borderRadius: RADIUS.full,
     borderWidth: 1,
   },
   countText: {
-    fontSize: 10,
     fontWeight: '700',
+    fontSize: 11,
   },
-  bookmarkScroll: {
+  rowsList: {
     gap: SPACING.xs + 2,
-    paddingVertical: 2,
-  },
-  bookmarkChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-  },
-  chipNumber: {
-    fontWeight: '800',
-    fontSize: 11,
-  },
-  chipBadge: {
-    fontWeight: '600',
-    fontSize: 11,
-    maxWidth: 130,
   },
   emptyContainer: {
-    paddingVertical: SPACING.xs,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
-    fontSize: 11,
-    lineHeight: 16,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });
-
