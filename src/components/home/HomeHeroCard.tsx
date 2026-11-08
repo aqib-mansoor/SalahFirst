@@ -152,14 +152,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  subtitleRow: {
-    paddingHorizontal: 2,
-  },
-  subtitleText: {
-    fontSize: 11.5,
-    fontWeight: '500',
-    letterSpacing: 0.2,
-  },
   currentTag: {
     flexDirection: 'row',
     alignItems: 'center',
