@@ -35,7 +35,7 @@ export const WallpaperPhoneOverlay: React.FC<WallpaperPhoneOverlayProps> = ({
               <Path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke={textColor} strokeWidth="2" />
             </Svg>
 
-            <AppText variant="displayLarge" color={textColor} style={styles.clockDigits}>
+            <AppText variant="timerDisplay" color={textColor} style={styles.clockDigits}>
               09:41
             </AppText>
             <AppText variant="caption" color={subTextColor} style={styles.dateLabel}>

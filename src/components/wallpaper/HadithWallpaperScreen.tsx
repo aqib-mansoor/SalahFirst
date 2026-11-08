@@ -21,6 +21,7 @@ import { WallpaperCarousel } from './WallpaperCarousel';
 import { WallpaperSlide } from './WallpaperSlide';
 import { WallpaperActionDock } from './WallpaperActionDock';
 import { HadithToast } from '@/components/hadith/HadithToast';
+import { WallpaperPreviewMode } from './WallpaperPhoneOverlay';
 
 export interface HadithWallpaperScreenProps {
   hadith: HadithItem;
@@ -33,6 +34,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
 }) => {
   const { width, height } = useWindowDimensions();
   const [activeThemeIndex, setActiveThemeIndex] = useState<number>(0);
+  const [previewMode, setPreviewMode] = useState<WallpaperPreviewMode>('clean');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -72,6 +74,14 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToastMessage(msg);
     toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleTogglePreviewMode = () => {
+    setPreviewMode((current) => {
+      if (current === 'clean') return 'lockscreen';
+      if (current === 'lockscreen') return 'homescreen';
+      return 'clean';
+    });
   };
 
   const captureActiveWallpaper = async (): Promise<string | null> => {
@@ -179,22 +189,24 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
     <Animated.View style={[styles.container, { backgroundColor: bgInterpolation }]}>
       <StatusBar style={activeTheme.isDark ? 'light' : 'dark'} />
 
-      {/* Top Header with Theme Name & 1/4 Counter */}
+      {/* Header with Theme Name, Index, & Interactive Phone Preview Toggle */}
       <WallpaperHeader
         themeName={activeTheme.name}
         currentIndex={activeThemeIndex}
         totalThemes={WALLPAPER_THEMES.length}
+        previewMode={previewMode}
+        onTogglePreviewMode={handleTogglePreviewMode}
         onClose={onClose}
       />
 
-      {/* Floating Action Feedback Toast */}
+      {/* Action Toast Feedback */}
       {toastMessage && (
         <View style={styles.toastOverlay}>
           <HadithToast message={toastMessage} onDismiss={() => setToastMessage(null)} />
         </View>
       )}
 
-      {/* 3D Phone Mockup Animated Carousel with Continuous Cross-Fade */}
+      {/* 3D Phone Mockup Animated Carousel */}
       <WallpaperCarousel
         hadith={hadith}
         activeIndex={activeThemeIndex}
@@ -203,9 +215,10 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         cardWidth={cardWidth}
         cardHeight={cardHeight}
         itemFullWidth={itemFullWidth}
+        previewMode={previewMode}
       />
 
-      {/* Hidden Render Target for Full-Resolution Capture */}
+      {/* Hidden Full-Resolution Capture View (Captures Pure Wallpaper Without Mockup UI) */}
       <ViewShot
         ref={captureViewRef}
         options={{ format: 'png', quality: 1.0 }}
@@ -219,7 +232,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         />
       </ViewShot>
 
-      {/* Streamlined 3-Action Dock: Save, Set Wallpaper (Luminous Gold), Share */}
+      {/* 3-Action Dock: Save, Set Wallpaper (Luminous Gold), Share */}
       <WallpaperActionDock
         onSaveImage={handleSaveImage}
         onSetWallpaper={handleSetWallpaper}
