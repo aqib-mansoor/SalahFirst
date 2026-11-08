@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -7,6 +7,7 @@ import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
 import { PrayerConfirmModal } from './PrayerConfirmModal';
+import { HomePrayerCardItem } from './HomePrayerCardItem';
 
 export interface HomeSalahTrackerProps {
   prayers: PrayerStatus[];
@@ -22,15 +23,32 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const [confirmPrayer, setConfirmPrayer] = useState<string | null>(null);
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
   const progressPercent = Math.min(100, Math.max(0, (completedCount / 5) * 100));
+
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const timer = setTimeout(() => setNoticeMessage(null), 3500);
+    return () => clearTimeout(timer);
+  }, [noticeMessage]);
 
   const handlePrayerPress = (item: PrayerStatus) => {
     if (item.completed) {
       onTogglePrayer(item.name);
-    } else {
-      setConfirmPrayer(item.name);
+      return;
     }
+
+    // Strict future prayer rule: cannot log future prayer until Azan starts
+    if (!item.hasStarted) {
+      const localizedName = (t(item.name.toLowerCase() as any) as string) || item.name;
+      setNoticeMessage(
+        `${localizedName} starts at ${item.time}. You can log it once its time arrives.`
+      );
+      return;
+    }
+
+    setConfirmPrayer(item.name);
   };
 
   const handleConfirm = () => {
@@ -62,64 +80,32 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
         />
       </View>
 
+      {/* Strict Future Prayer Notice Toast */}
+      {noticeMessage && (
+        <Pressable
+          onPress={() => setNoticeMessage(null)}
+          style={[styles.noticeBanner, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.accent }]}
+        >
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+            <Path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill={theme.colors.accent} />
+          </Svg>
+          <AppText variant="caption" color={theme.colors.textPrimary} style={styles.noticeText}>
+            {noticeMessage}
+          </AppText>
+        </Pressable>
+      )}
+
       {/* 5 Prayer Cards Grid */}
       <View style={styles.cardsRow} accessibilityRole="toolbar" accessibilityLabel="Daily Prayers Tracker">
-        {prayers.map((item) => {
-          const isSelected = item.isNext;
-
-          return (
-            <Pressable
-              key={item.name}
-              onPress={() => handlePrayerPress(item)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: item.completed }}
-              accessibilityLabel={`${item.name} at ${item.time}`}
-              hitSlop={6}
-              style={({ pressed }) => [
-                styles.prayerCard,
-                {
-                  backgroundColor: isSelected ? theme.colors.secondaryTint : theme.colors.surface,
-                  borderColor: isSelected
-                    ? theme.colors.accent
-                    : item.completed
-                    ? theme.colors.primary
-                    : theme.colors.border,
-                  borderWidth: isSelected ? 1.5 : 1,
-                  transform: [{ scale: pressed ? 0.96 : 1 }],
-                },
-              ]}
-            >
-              <AppText
-                variant="bodySmall"
-                color={isSelected ? theme.colors.primary : theme.colors.textPrimary}
-                style={styles.prayerName}
-              >
-                {t(item.name.toLowerCase() as any) || item.name}
-              </AppText>
-
-              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.prayerTime}>
-                {item.time}
-              </AppText>
-
-              {/* Status Circle Indicator */}
-              <View style={styles.circleContainer}>
-                {item.completed ? (
-                  <View style={[styles.completedCircle, { backgroundColor: theme.colors.primary }]}>
-                    <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13L9 17L19 7" stroke={theme.colors.textOnPrimary} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    </Svg>
-                  </View>
-                ) : isSelected ? (
-                  <View style={[styles.currentCircle, { borderColor: theme.colors.primary }]}>
-                    <View style={[styles.innerGoldDot, { backgroundColor: theme.colors.accent }]} />
-                  </View>
-                ) : (
-                  <View style={[styles.emptyCircle, { borderColor: theme.colors.border }]} />
-                )}
-              </View>
-            </Pressable>
-          );
-        })}
+        {prayers.map((item) => (
+          <HomePrayerCardItem
+            key={item.name}
+            item={item}
+            theme={theme}
+            onPress={handlePrayerPress}
+            localizedName={(t(item.name.toLowerCase() as any) as string) || item.name}
+          />
+        ))}
       </View>
 
       {/* Islamic Honesty Prayer Confirmation Modal */}
@@ -165,59 +151,19 @@ const styles = StyleSheet.create({
     gap: SPACING.xs + 2,
     marginTop: SPACING.xs,
   },
-  prayerCard: {
-    flex: 1,
-    minHeight: 88,
-    borderRadius: RADIUS.lg,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: 2,
+  noticeBanner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#202923',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  prayerName: {
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  prayerTime: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  circleContainer: {
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: SPACING.xs + 2,
+    paddingVertical: SPACING.xs + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
     marginTop: 2,
   },
-  completedCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  currentCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  innerGoldDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  emptyCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
+  noticeText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

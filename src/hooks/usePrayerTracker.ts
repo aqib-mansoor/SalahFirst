@@ -20,6 +20,7 @@ export interface PrayerStatus {
   completed: boolean;
   isNext: boolean;
   isCurrent: boolean;
+  hasStarted: boolean;
   remainingTimeText?: string;
 }
 
@@ -168,6 +169,15 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       const todayKey = getTodayDateKey(userLocation?.timezone);
       if (completedMap[prayerName] === completed) return;
 
+      // Strict rule: user cannot mark future prayer as done before its time starts
+      if (completed) {
+        const lower = prayerName.toLowerCase() as keyof typeof prayerData.raw;
+        const rawDate = prayerData.raw?.[lower];
+        if (rawDate && Date.now() < rawDate.getTime()) {
+          return;
+        }
+      }
+
       const updatedToday = { ...completedMap, [prayerName]: completed };
       const updatedHistory = { ...historyMap, [todayKey]: updatedToday };
 
@@ -178,7 +188,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       await handlePostCompletionAlerts(prayerName, completed, updatedToday, todayKey);
       notifyTrackerPreferencesChanged();
     },
-    [completedMap, historyMap, userLocation?.timezone]
+    [completedMap, historyMap, userLocation?.timezone, prayerData.raw]
   );
 
   const togglePrayer = useCallback(
@@ -215,14 +225,24 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
 
   const prayersList: PrayerStatus[] = useMemo(() => {
     const names = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+    const nowMs = Date.now();
+    const currentObligatory = prayerData.currentPeriod?.obligatorySalahName;
+
     return names.map((name) => {
       const lower = name.toLowerCase() as keyof typeof prayerData.raw;
+      const rawDate = prayerData.raw?.[lower];
+      const hasStarted = rawDate ? nowMs >= rawDate.getTime() : false;
+      const isCurrent = currentObligatory
+        ? currentObligatory === name
+        : prayerData.nextPrayerName === name;
+
       return {
         name,
         time: (prayerData as any)[lower] || '--:--',
         completed: !!completedMap[name],
         isNext: prayerData.nextPrayerName === name,
-        isCurrent: prayerData.currentPeriod?.obligatorySalahName === name,
+        isCurrent,
+        hasStarted,
         remainingTimeText:
           prayerData.nextPrayerName === name ? formatRemainingTime(prayerData.nextPrayerDate) : undefined,
       };
