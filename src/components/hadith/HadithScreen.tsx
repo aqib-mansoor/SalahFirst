@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
 import { useHadithCollection } from '@/hooks/useHadithCollection';
 import { AppContainer } from '@/components/common';
@@ -9,7 +10,7 @@ import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithActionButtons } from './HadithActionButtons';
 import { HadithPagination } from './HadithPagination';
-import { QuranReflectionCard3D } from './QuranReflectionCard3D';
+import { HadithBookmarksCard } from './HadithBookmarksCard';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
 
 export interface HadithScreenProps {
@@ -18,19 +19,24 @@ export interface HadithScreenProps {
 
 export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => {
   const [showWallpaper, setShowWallpaper] = useState(false);
+  const insets = useSafeAreaInsets();
   const {
     currentHadith,
     currentIndex,
     totalHadiths,
-    showUrdu,
+    translationMode,
+    setTranslationMode,
+    savedHadiths,
+    savedIds,
     isSaved,
     toastMessage,
-    toggleUrdu,
     toggleSave,
     shareHadith,
     dismissToast,
     nextHadith,
     prevHadith,
+    randomHadith,
+    jumpToHadith,
   } = useHadithCollection();
 
   if (showWallpaper) {
@@ -48,13 +54,13 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
         <HadithToast message={toastMessage} onDismiss={dismissToast} />
 
         {/* Stable Flow Header */}
-        <HadithHeader
-          showUrdu={showUrdu}
-          onToggleUrdu={toggleUrdu}
-        />
+        <HadithHeader savedCount={savedIds.length} />
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 90 },
+          ]}
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
@@ -62,7 +68,8 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
             hadith={currentHadith}
             currentIndex={currentIndex}
             totalHadiths={totalHadiths}
-            showUrdu={showUrdu}
+            translationMode={translationMode}
+            onSelectTranslationMode={setTranslationMode}
           />
 
           <HadithActionButtons
@@ -75,9 +82,14 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
           <HadithPagination
             onPrev={prevHadith}
             onNext={nextHadith}
+            onRandom={randomHadith}
           />
 
-          <QuranReflectionCard3D />
+          <HadithBookmarksCard
+            savedHadiths={savedHadiths}
+            currentIndex={currentIndex}
+            onSelectHadith={jumpToHadith}
+          />
         </ScrollView>
 
         <HomeBottomNav
@@ -95,8 +107,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: SPACING.xs,
-    paddingBottom: 100,
     gap: SPACING.lg,
   },
 });
-
