@@ -9,6 +9,7 @@ import { HomeScreen } from '@/components/home';
 import { PrayerTimesScreen, AzanPrefsScreen } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
+import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
@@ -35,7 +36,9 @@ export type AppStep =
   | 'azan-prefs'
   | 'focus-config'
   | 'focus-active'
-  | 'wallpaper';
+  | 'wallpaper'
+  | 'privacy-policy'
+  | 'terms';
 
 function AppContent() {
   const theme = useTheme();
@@ -106,7 +109,7 @@ function AppContent() {
         setCurrentStep('main');
         return true;
       }
-      if (currentStep === 'azan-prefs') {
+      if (currentStep === 'azan-prefs' || currentStep === 'privacy-policy' || currentStep === 'terms') {
         setCurrentStep('settings');
         return true;
       }
@@ -201,11 +204,19 @@ function AppContent() {
           <SettingsScreen
             onBack={() => setCurrentStep('main')}
             onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+            onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
+            onOpenTerms={() => setCurrentStep('terms')}
             onNavigateTab={(tab) => {
               setActiveTab(tab);
               setCurrentStep('main');
             }}
           />
+        )}
+        {currentStep === 'privacy-policy' && (
+          <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />
+        )}
+        {currentStep === 'terms' && (
+          <TermsScreen onBack={() => setCurrentStep('settings')} />
         )}
         {currentStep === 'azan-prefs' && (
           <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />

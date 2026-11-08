@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert, Linking } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useThemeState } from '@/hooks/useTheme';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -23,6 +23,8 @@ import { fetchAlAdhanTimings, comparePrayerTimings } from '@/utils/aladhanApi';
 export interface SettingsScreenProps {
   onBack: () => void;
   onOpenAzanPrefs: () => void;
+  onOpenPrivacyPolicy: () => void;
+  onOpenTerms: () => void;
   onNavigateTab: (tab: HomeTab) => void;
 }
 
@@ -44,6 +46,8 @@ const CALC_LABELS: Record<CalculationMethodName, string> = {
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onBack,
   onOpenAzanPrefs,
+  onOpenPrivacyPolicy,
+  onOpenTerms,
   onNavigateTab,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
@@ -144,24 +148,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     );
   };
 
-  const handlePrivacyPolicy = () => {
-    Alert.alert(
-      'Privacy & Data Transparency',
-      'SalahFirst calculates prayer times locally on your device without accounts or user tracking.\n\nOptional features (GPS city detection, city search, and timing verification) query OpenStreetMap and AlAdhan services ephemerally.\n\nAll personal prayer history and settings remain strictly on your device.',
-      [
-        { text: 'Close', style: 'cancel' },
-        {
-          text: 'View Privacy Policy',
-          onPress: () => {
-            Linking.openURL('https://salahfirst.app/privacy').catch(() => {
-              Alert.alert('Notice', 'Unable to open privacy policy link.');
-            });
-          },
-        },
-      ]
-    );
-  };
-
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
@@ -202,7 +188,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               else if (language === 'ur') setLanguage('ar');
               else setLanguage('en');
             }}
-            onOpenPrivacyPolicy={handlePrivacyPolicy}
+            onOpenPrivacyPolicy={onOpenPrivacyPolicy}
+            onOpenTerms={onOpenTerms}
           />
         </ScrollView>
 

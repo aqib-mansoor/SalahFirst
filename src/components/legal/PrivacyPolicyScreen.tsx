@@ -4,6 +4,7 @@ import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { TranslationKey } from '@/i18n';
 import { LegalHeader } from './LegalHeader';
 import { LegalSectionCard } from './LegalSectionCard';
 
@@ -11,7 +12,13 @@ export interface PrivacyPolicyScreenProps {
   onBack: () => void;
 }
 
-const SECTION_KEYS = [
+interface SectionKeyItem {
+  titleKey: TranslationKey;
+  bodyKey: TranslationKey;
+  highlight?: boolean;
+}
+
+const SECTION_KEYS: SectionKeyItem[] = [
   { titleKey: 'ppSection1Title', bodyKey: 'ppSection1Body', highlight: true },
   { titleKey: 'ppSection2Title', bodyKey: 'ppSection2Body' },
   { titleKey: 'ppSection3Title', bodyKey: 'ppSection3Body' },

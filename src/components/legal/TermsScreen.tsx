@@ -4,6 +4,7 @@ import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { TranslationKey } from '@/i18n';
 import { LegalHeader } from './LegalHeader';
 import { LegalSectionCard } from './LegalSectionCard';
 
@@ -11,7 +12,13 @@ export interface TermsScreenProps {
   onBack: () => void;
 }
 
-const SECTION_KEYS = [
+interface SectionKeyItem {
+  titleKey: TranslationKey;
+  bodyKey: TranslationKey;
+  highlight?: boolean;
+}
+
+const SECTION_KEYS: SectionKeyItem[] = [
   { titleKey: 'tcSection1Title', bodyKey: 'tcSection1Body', highlight: true },
   { titleKey: 'tcSection2Title', bodyKey: 'tcSection2Body' },
   { titleKey: 'tcSection3Title', bodyKey: 'tcSection3Body' },
