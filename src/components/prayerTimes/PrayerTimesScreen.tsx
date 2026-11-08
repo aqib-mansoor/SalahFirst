@@ -14,12 +14,18 @@ import {
   PrayerTimesDateSwitcher,
   PrayerTimesLocationCard,
   SunMilestonesCard,
+  NextTomorrowPrayerCard,
   NaflTimingsCard,
   PrayerTimeRow,
   LocationBottomSheet,
   AzanPrefsScreen,
 } from '@/components/prayerTimes';
-import { getPrayerTimes, calculateDailyNaflSchedule, CALCULATION_METHOD_LABELS } from '@/utils/prayerTimes';
+import {
+  getPrayerTimes,
+  formatRemainingTime,
+  calculateDailyNaflSchedule,
+  CALCULATION_METHOD_LABELS,
+} from '@/utils/prayerTimes';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -27,14 +33,6 @@ export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
   onNavigateTab?: (tab: HomeTab) => void;
 }
-
-const ARABIC_NAMES: Record<string, string> = {
-  Fajr: 'الفجر',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
-};
 
 export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateHome,
@@ -73,9 +71,19 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
     );
   }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic]);
 
+  // When today's Isha is reached, tomorrow's Fajr becomes next
+  const isAfterTodayIsha = useMemo(() => {
+    if (!isToday || !prayerData?.raw?.isha) return false;
+    return Date.now() >= prayerData.raw.isha.getTime();
+  }, [isToday, prayerData?.raw?.isha]);
+
   // Prayers list: live with real-time countdown when today, static schedule when other date
   const activePrayersList = useMemo(() => {
-    if (isToday) return prayersList;
+    if (isToday) {
+      return isAfterTodayIsha
+        ? prayersList.map((p) => (p.name === 'Fajr' ? { ...p, isNext: false, remainingTimeText: undefined } : p))
+        : prayersList;
+    }
     const names = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
     return names.map((name) => ({
       name,
@@ -86,39 +94,26 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       hasStarted: false,
       remainingTimeText: undefined,
     }));
-  }, [isToday, prayersList, activePrayerData]);
+  }, [isToday, isAfterTodayIsha, prayersList, activePrayerData]);
 
   const naflSchedule = useMemo(() => {
     return calculateDailyNaflSchedule(activePrayerData.raw, undefined, location?.timezone);
   }, [activePrayerData.raw, location?.timezone]);
 
   useEffect(() => {
-    if (needsCitySelection && !location) {
-      setSheetVisible(true);
-    }
+    if (needsCitySelection && !location) setSheetVisible(true);
   }, [needsCitySelection, location]);
 
-  if (showAzanPrefs) {
-    return <AzanPrefsScreen onBack={() => setShowAzanPrefs(false)} />;
-  }
+  if (showAzanPrefs) return <AzanPrefsScreen onBack={() => setShowAzanPrefs(false)} />;
 
   const handleTabChange = (tab: HomeTab) => {
     setActiveTab(tab);
-    if (tab === 'home' && onNavigateHome) {
-      onNavigateHome();
-    } else if (onNavigateTab) {
-      onNavigateTab(tab);
-    }
+    if (tab === 'home' && onNavigateHome) onNavigateHome();
+    else onNavigateTab?.(tab);
   };
 
-  const handleSelectCity = (city: PresetCity) => {
-    updateLocation({
-      city: city.name,
-      country: city.country,
-      latitude: city.latitude,
-      longitude: city.longitude,
-      isGps: false,
-    });
+  const handleSelectCity = (c: PresetCity) => {
+    updateLocation({ city: c.name, country: c.country, latitude: c.latitude, longitude: c.longitude, isGps: false });
   };
 
   return (
@@ -134,7 +129,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
 
         <PrayerTimesDateSwitcher
           date={viewedDate}
-          isToday={isToday}
+          dateOffset={dateOffset}
           hijriDateFormatted={hijriDateFormatted}
           onPrevDay={() => setDateOffset((prev) => prev - 1)}
           onNextDay={() => setDateOffset((prev) => prev + 1)}
@@ -158,6 +153,14 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             sunsetTime={activePrayerData.maghrib}
           />
 
+          {isToday && isAfterTodayIsha && (
+            <NextTomorrowPrayerCard
+              prayerName={prayerData.nextPrayerName}
+              timeFormatted={prayerData.nextPrayerTimeFormatted}
+              remainingTimeText={formatRemainingTime(prayerData.nextPrayerDate)}
+            />
+          )}
+
           <View style={styles.prayerList}>
             {activePrayersList.map((p) => {
               const key = p.name.toLowerCase() as 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -165,7 +168,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
                 <PrayerTimeRow
                   key={p.name}
                   name={p.name}
-                  arabicName={ARABIC_NAMES[p.name] || ''}
                   time={p.time}
                   notification={alerts[key]}
                   isNext={p.isNext}

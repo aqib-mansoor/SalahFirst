@@ -9,7 +9,7 @@ import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerTimeRowProps {
   name: string;
-  arabicName: string;
+  arabicName?: string;
   time: string;
   notification: NotificationMode;
   isNext?: boolean;
@@ -18,9 +18,17 @@ export interface PrayerTimeRowProps {
   onCycleNotification?: () => void;
 }
 
+const DEFAULT_ARABIC_NAMES: Record<string, string> = {
+  Fajr: 'الفجر',
+  Dhuhr: 'الظهر',
+  Asr: 'العصر',
+  Maghrib: 'المغرب',
+  Isha: 'العشاء',
+};
+
 export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   name,
-  arabicName,
+  arabicName = DEFAULT_ARABIC_NAMES[name] || '',
   time,
   notification,
   isNext = false,

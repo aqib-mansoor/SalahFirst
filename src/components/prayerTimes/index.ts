@@ -3,6 +3,7 @@ export * from './PrayerTimesDateSwitcher';
 export * from './PrayerTimesLocationCard';
 export * from './SunriseCard';
 export * from './SunMilestonesCard';
+export * from './NextTomorrowPrayerCard';
 export * from './NaflTimingsCard';
 export * from './NotificationModeIcons';
 export * from './PrayerTimeRow';
