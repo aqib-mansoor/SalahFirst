@@ -26,6 +26,7 @@ import {
 export interface SettingsScreenProps {
   onBack: () => void;
   onOpenAzanPrefs: () => void;
+  onOpenFocusConfig?: () => void;
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
 }
@@ -48,6 +49,7 @@ const CALC_LABELS: Record<CalculationMethodName, string> = {
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onBack,
   onOpenAzanPrefs,
+  onOpenFocusConfig,
   onOpenPrivacyPolicy,
   onOpenTerms,
 }) => {
@@ -147,6 +149,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
             onOpenLocation={() => setSheetVisible(true)}
             onOpenAzanPrefs={onOpenAzanPrefs}
+            onOpenFocusConfig={onOpenFocusConfig}
             onToggleJuristic={handleToggleJuristic}
             onCycleCalculationMethod={handleCycleCalcMethod}
           />

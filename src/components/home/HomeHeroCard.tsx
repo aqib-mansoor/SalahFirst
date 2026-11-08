@@ -23,6 +23,7 @@ export interface HomeHeroCardProps {
   progressRatio?: number;
   offsetBadge?: string | null;
   onStartPrayerFocus?: () => void;
+  onOpenFocusSettings?: () => void;
   periodCategory?: PrayerPeriodCategory;
   periodId?: string;
 }
@@ -38,6 +39,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   allCompleted = false,
   progressRatio = 0,
   onStartPrayerFocus,
+  onOpenFocusSettings,
   periodCategory = 'obligatory',
   periodId,
 }) => {
@@ -165,6 +167,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           prayerName={localizedFocusPrayer}
           durationMinutes={15}
           onPress={onStartPrayerFocus}
+          onOpenSettings={onOpenFocusSettings}
         />
       )}
     </View>

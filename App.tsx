@@ -50,6 +50,7 @@ function AppContent() {
   const [progressSubTab, setProgressSubTab] = useState<ProgressSubTab>('tracker');
   const [focusDuration, setFocusDuration] = useState<FocusDuration>(15);
   const [focusPrayerName, setFocusPrayerName] = useState<string>('Asr');
+  const [focusConfigOrigin, setFocusConfigOrigin] = useState<'main' | 'settings'>('main');
   const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
 
   const { location } = useDeviceLocation();
@@ -120,8 +121,12 @@ function AppContent() {
   // Handle Android hardware back button
   useEffect(() => {
     const onBackPress = () => {
-      if (currentStep === 'wallpaper' || currentStep === 'focus-config' || currentStep === 'settings') {
+      if (currentStep === 'wallpaper' || currentStep === 'settings') {
         setCurrentStep('main');
+        return true;
+      }
+      if (currentStep === 'focus-config') {
+        setCurrentStep(focusConfigOrigin);
         return true;
       }
       if (currentStep === 'azan-prefs' || currentStep === 'privacy-policy' || currentStep === 'terms') {
@@ -137,7 +142,7 @@ function AppContent() {
 
     const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => sub.remove();
-  }, [currentStep, activeTab]);
+  }, [currentStep, activeTab, focusConfigOrigin]);
 
   const handleContinueToSetup = () => {
     setCurrentStep('setup');
@@ -149,12 +154,28 @@ function AppContent() {
     setActiveTab('home');
   };
 
-  const handleOpenFocusConfig = () => {
+  const handleStartFocusImmediately = () => {
     const currentPending = prayersList.find(
       (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
     );
-    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Asr');
+    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
     setFocusPrayerName(suggested);
+    setActiveSession(null);
+    setCurrentStep('focus-active');
+  };
+
+  const handleOpenFocusConfigFromHome = () => {
+    const currentPending = prayersList.find(
+      (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
+    );
+    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
+    setFocusPrayerName(suggested);
+    setFocusConfigOrigin('main');
+    setCurrentStep('focus-config');
+  };
+
+  const handleOpenFocusConfigFromSettings = () => {
+    setFocusConfigOrigin('settings');
     setCurrentStep('focus-config');
   };
 
@@ -187,7 +208,8 @@ function AppContent() {
           progressSubTab={progressSubTab}
           setProgressSubTab={setProgressSubTab}
           onOpenSettings={() => setCurrentStep('settings')}
-          onStartPrayerFocus={handleOpenFocusConfig}
+          onStartPrayerFocus={handleStartFocusImmediately}
+          onOpenFocusSettings={handleOpenFocusConfigFromHome}
           onOpenWallpaper={() => setCurrentStep('wallpaper')}
         />
       )}
@@ -196,6 +218,7 @@ function AppContent() {
         <SettingsScreen
           onBack={() => setCurrentStep('main')}
           onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+          onOpenFocusConfig={handleOpenFocusConfigFromSettings}
           onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
           onOpenTerms={() => setCurrentStep('terms')}
         />
@@ -220,7 +243,7 @@ function AppContent() {
             isha: prayerData.isha,
           }}
           rawPrayerDates={prayerData.raw}
-          onBack={() => setCurrentStep('main')}
+          onBack={() => setCurrentStep(focusConfigOrigin)}
           onBeginFocus={handleBeginFocus}
         />
       )}

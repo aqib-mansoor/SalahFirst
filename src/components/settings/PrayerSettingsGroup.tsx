@@ -17,6 +17,7 @@ export interface PrayerSettingsGroupProps {
   onUpdateHijriAdjustment?: (newAdjustment: number) => void;
   onOpenLocation: () => void;
   onOpenAzanPrefs: () => void;
+  onOpenFocusConfig?: () => void;
   onToggleJuristic: () => void;
   onCycleCalculationMethod?: () => void;
 }
@@ -30,6 +31,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   onUpdateHijriAdjustment,
   onOpenLocation,
   onOpenAzanPrefs,
+  onOpenFocusConfig,
   onToggleJuristic,
   onCycleCalculationMethod,
 }) => {
@@ -164,6 +166,28 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
           </View>
           {ChevronRight}
         </Pressable>
+
+        {onOpenFocusConfig && (
+          <>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Pressable onPress={onOpenFocusConfig} style={styles.row}>
+              <View style={styles.leftRow}>
+                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                  <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+                <View style={styles.textCol}>
+                  <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                    Prayer Focus & Congregation
+                  </AppText>
+                  <AppText variant="caption" color={theme.colors.textSecondary}>
+                    Congregation delays • Duration & distractions
+                  </AppText>
+                </View>
+              </View>
+              {ChevronRight}
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

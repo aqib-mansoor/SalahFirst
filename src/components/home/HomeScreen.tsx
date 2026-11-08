@@ -16,6 +16,7 @@ export interface HomeScreenProps {
   onOpenSettings?: () => void;
   onNavigateTab?: (tab: HomeTab) => void;
   onStartPrayerFocus?: () => void;
+  onOpenFocusSettings?: () => void;
   onOpenStreaks?: () => void;
   onOpenWallpaper?: () => void;
 }
@@ -24,6 +25,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenSettings,
   onNavigateTab,
   onStartPrayerFocus,
+  onOpenFocusSettings,
   onOpenStreaks,
   onOpenWallpaper,
 }) => {
@@ -90,6 +92,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             periodCategory={prayerData.currentPeriod?.category}
             periodId={prayerData.currentPeriod?.id}
             onStartPrayerFocus={onStartPrayerFocus}
+            onOpenFocusSettings={onOpenFocusSettings}
           />
 
           {/* Salah Tracker with Honesty Confirmation Modal */}

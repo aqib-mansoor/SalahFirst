@@ -14,6 +14,7 @@ export interface MainTabShellProps {
   setProgressSubTab: (subTab: ProgressSubTab) => void;
   onOpenSettings: () => void;
   onStartPrayerFocus: () => void;
+  onOpenFocusSettings?: () => void;
   onOpenWallpaper: () => void;
 }
 
@@ -28,6 +29,7 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
   setProgressSubTab,
   onOpenSettings,
   onStartPrayerFocus,
+  onOpenFocusSettings,
   onOpenWallpaper,
 }) => {
   return (
@@ -37,6 +39,7 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
           onOpenSettings={onOpenSettings}
           onNavigateTab={setActiveTab}
           onStartPrayerFocus={onStartPrayerFocus}
+          onOpenFocusSettings={onOpenFocusSettings}
           onOpenStreaks={() => {
             setProgressSubTab('streaks');
             setActiveTab('progress');
