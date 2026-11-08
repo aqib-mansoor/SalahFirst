@@ -329,5 +329,8 @@
   "notificationModeOff": "بند",
   "nowActive": "جاری ہے",
   "viewingDate": "منتخب تاریخ",
-  "returnToToday": "آج"
+  "returnToToday": "آج",
+  "tomorrow": "کل",
+  "backToToday": "واپس آج پر جائیں",
+  "nextPrayerTomorrow": "اگلی نماز (کل)"
 }

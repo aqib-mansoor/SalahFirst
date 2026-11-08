@@ -329,5 +329,8 @@
   "notificationModeOff": "Off",
   "nowActive": "NOW",
   "viewingDate": "Viewing Date",
-  "returnToToday": "Today"
+  "returnToToday": "Today",
+  "tomorrow": "Tomorrow",
+  "backToToday": "Back to Today",
+  "nextPrayerTomorrow": "Next Prayer (Tomorrow)"
 }

@@ -330,5 +330,8 @@
   "notificationModeOff": "إيقاف",
   "nowActive": "الآن",
   "viewingDate": "التاريخ المحدد",
-  "returnToToday": "اليوم"
+  "returnToToday": "اليوم",
+  "tomorrow": "غداً",
+  "backToToday": "العودة إلى اليوم",
+  "nextPrayerTomorrow": "الصلاة القادمة (غداً)"
 }
