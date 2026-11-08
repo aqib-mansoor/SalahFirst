@@ -1,9 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Share, Alert, useWindowDimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Share,
+  Alert,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
 import { HadithItem } from '@/data/hadiths';
 import { WallpaperHeader } from './WallpaperHeader';
@@ -102,18 +110,37 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         return;
       }
 
+      let contentUri = uri;
+      const { status } = await MediaLibrary.requestPermissionsAsync(true);
+      if (status === 'granted') {
+        const asset = await MediaLibrary.createAssetAsync(uri);
+        contentUri = asset.uri;
+      }
+
+      if (Platform.OS === 'android') {
+        try {
+          await IntentLauncher.startActivityAsync('android.intent.action.ATTACH_DATA', {
+            data: contentUri,
+            type: 'image/png',
+            flags: 1,
+          });
+          showToast('Select "Wallpaper" to set Home or Lock screen.');
+          return;
+        } catch {
+          // Intent fallback
+        }
+      }
+
       const isSharingAvailable = await Sharing.isAvailableAsync();
       if (isSharingAvailable) {
         await Sharing.shareAsync(uri, {
           mimeType: 'image/png',
-          dialogTitle: `Export ${activeTheme.name} Wallpaper`,
+          dialogTitle: `Set ${activeTheme.name} Wallpaper`,
         });
-        showToast('Image exported. Select "Use as Wallpaper" or apply via Gallery.');
-      } else {
-        showToast('System sharing is not available on this device.');
+        showToast('Choose "Set as Wallpaper" in system dialog.');
       }
     } catch {
-      showToast('Error exporting wallpaper.');
+      showToast('Error setting wallpaper.');
     } finally {
       setIsProcessing(false);
     }
@@ -143,12 +170,19 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: activeTheme.ambientBackground },
+      ]}
+    >
       <StatusBar style="light" />
 
-      {/* Top Header */}
+      {/* Top Header with Theme Name & 1/4 Counter */}
       <WallpaperHeader
         themeName={activeTheme.name}
+        currentIndex={activeThemeIndex}
+        totalThemes={WALLPAPER_THEMES.length}
         onClose={onClose}
       />
 
@@ -162,14 +196,14 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         </View>
       )}
 
-      {/* Interactive Swipeable Wallpaper Carousel */}
+      {/* 3D Phone Mockup Animated Carousel */}
       <WallpaperCarousel
         hadith={hadith}
         activeIndex={activeThemeIndex}
         onIndexChange={setActiveThemeIndex}
       />
 
-      {/* Hidden Render Target for High-Resolution Image Capture */}
+      {/* Hidden Render Target for Full-Resolution Capture */}
       <ViewShot
         ref={captureViewRef}
         options={{ format: 'png', quality: 1.0 }}
@@ -183,11 +217,12 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         />
       </ViewShot>
 
-      {/* 3-Button Action Dock */}
+      {/* Streamlined 3-Action Dock: Save, Set Wallpaper, Share */}
       <WallpaperActionDock
         onSaveImage={handleSaveImage}
         onSetWallpaper={handleSetWallpaper}
         onShareStatus={handleShareStatus}
+        isProcessing={isProcessing}
       />
     </View>
   );
@@ -196,7 +231,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D3828',
+    backgroundColor: '#041710',
   },
   toastOverlay: {
     position: 'absolute',
