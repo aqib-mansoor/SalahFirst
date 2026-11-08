@@ -8,6 +8,7 @@ import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusHeader } from './ActiveFocusHeader';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
 import { FocusCompletionModal } from './FocusCompletionModal';
+import { FocusExitEarlyModal } from './FocusExitEarlyModal';
 import { ActiveFocusActions } from './ActiveFocusActions';
 import { FocusDuration } from '@/types';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -47,6 +48,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const [isCompleted, setIsCompleted] = useState(
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
+  const [showExitModal, setShowExitModal] = useState(false);
 
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
@@ -77,22 +79,18 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   }, [tick]);
 
   const handleExitEarly = () => {
-    Alert.alert(
-      t('exitFocusEarlyPrompt'),
-      t('exitFocusConfirm'),
-      [
-        { text: t('stayFocused'), style: 'cancel' },
-        {
-          text: t('exit'),
-          style: 'destructive',
-          onPress: async () => {
-            await clearActiveFocusSession();
-            await cancelFocusNotifications();
-            onExit();
-          },
-        },
-      ]
-    );
+    setShowExitModal(true);
+  };
+
+  const handleConfirmExit = async () => {
+    setShowExitModal(false);
+    await clearActiveFocusSession();
+    await cancelFocusNotifications();
+    onExit();
+  };
+
+  const handleStayFocused = () => {
+    setShowExitModal(false);
   };
 
   const handleEmergencyCall = async () => {
