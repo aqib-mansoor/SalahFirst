@@ -43,8 +43,6 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const localizedNextPrayer =
     (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
-  const periodSubtitle = periodSubtitleKey ? (t(periodSubtitleKey as any) as string) : undefined;
-
   let statusText = isCurrentCompleted ? `${t('completed')} ✓` : t('pending');
   let statusPillStyle = isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill;
   let statusTextColor = isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)';
@@ -80,7 +78,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         style={styles.watermarkTopRight}
       />
 
-      {/* Top Section: Pill + Status + Period Subtitle */}
+      {/* Top Section: Pill + Status */}
       <View style={styles.topSection}>
         <View style={styles.topRow}>
           <View style={[styles.currentTag, { borderColor: 'rgba(243, 196, 64, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.18)' }]}>
@@ -96,20 +94,6 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
             </AppText>
           </View>
         </View>
-
-        {periodSubtitle ? (
-          <View style={styles.subtitleRow}>
-            <AppText
-              variant="caption"
-              color="#FFFFFF"
-              style={styles.subtitleText}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {periodSubtitle}
-            </AppText>
-          </View>
-        ) : null}
       </View>
 
       {/* Center Countdown & Azan Time */}
@@ -187,33 +171,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   goldDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 6, height: 6, borderRadius: 3,
   },
   currentText: {
-    fontWeight: '700',
-    fontSize: 11,
+    fontWeight: '700', fontSize: 11,
   },
   statusPill: {
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: SPACING.sm + 2, paddingVertical: 3,
+    borderRadius: RADIUS.full, backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
-  statusPillCompleted: {
-    backgroundColor: 'rgba(214, 181, 109, 0.22)',
-  },
-  statusPillProhibited: {
-    backgroundColor: 'rgba(239, 83, 80, 0.22)',
-  },
-  statusPillNafl: {
-    backgroundColor: 'rgba(214, 181, 109, 0.22)',
-  },
-  completedTag: {
-    fontWeight: '700',
-    fontSize: 11,
-  },
+  statusPillCompleted: { backgroundColor: 'rgba(243, 196, 64, 0.22)' },
+  statusPillProhibited: { backgroundColor: 'rgba(239, 83, 80, 0.22)' },
+  statusPillNafl: { backgroundColor: 'rgba(243, 196, 64, 0.22)' },
+  completedTag: { fontWeight: '700', fontSize: 11 },
   centerRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
