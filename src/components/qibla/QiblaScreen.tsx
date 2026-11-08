@@ -1,9 +1,9 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, View, Animated } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useQiblaCompass } from '@/hooks/useQiblaCompass';
-import { AppContainer } from '@/components/common';
+import { AppContainer, CurvedHeaderContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { QiblaHeader } from './QiblaHeader';
 import { QiblaDial3D } from './QiblaDial3D';
@@ -28,19 +28,41 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
     needsCalibration,
   } = useQiblaCompass(location?.latitude, location?.longitude);
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(64);
+
   return (
     <AppContainer edges={['top']}>
       <View style={styles.screenWrapper}>
-        <QiblaHeader
-          cityName={location?.city || 'Current Location'}
-          country={location?.country || ''}
-          qiblaBearing={qiblaBearing}
-          cardinal={cardinal}
-        />
+        {/* Dynamic Curved Elevated Header on Scroll */}
+        <CurvedHeaderContainer
+          scrollY={scrollY}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            if (h > 0 && Math.abs(h - headerHeight) > 1) {
+              setHeaderHeight(h);
+            }
+          }}
+        >
+          <QiblaHeader
+            cityName={location?.city || 'Current Location'}
+            country={location?.country || ''}
+            qiblaBearing={qiblaBearing}
+            cardinal={cardinal}
+          />
+        </CurvedHeaderContainer>
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
+        <Animated.ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: headerHeight + SPACING.xs },
+          ]}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
           bounces={false}
         >
           <QiblaTelemetryCard
@@ -62,7 +84,7 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
             hasSensor={hasSensor}
             needsCalibration={needsCalibration}
           />
-        </ScrollView>
+        </Animated.ScrollView>
 
         <HomeBottomNav
           activeTab="qibla"

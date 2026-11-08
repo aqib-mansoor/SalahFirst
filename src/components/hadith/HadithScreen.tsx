@@ -99,7 +99,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
           />
 
           <QuranReflectionCard3D />
-        </ScrollView>
+        </Animated.ScrollView>
 
         <HomeBottomNav
           activeTab="hadith"

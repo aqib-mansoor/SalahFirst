@@ -159,7 +159,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
               <Path d="M9 18l6-6-6-6" stroke={theme.colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
-        </ScrollView>
+        </Animated.ScrollView>
 
         {/* Bottom Nav */}
         <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />

@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { StyleSheet, View, Animated } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
-import { AppContainer, AppText } from '@/components/common';
+import { AppContainer, AppText, CurvedHeaderContainer } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
@@ -55,20 +55,9 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   } = usePrayerTracker(location);
 
   // Dynamic real stats derived from historyMap
-  const { dayOverview, dayBarData } = useMemo(
-    () => getLast7Days(historyMap),
-    [historyMap]
-  );
-  const { longestStreak, streakNote } = useMemo(
-    () => calculateLongestStreak(historyMap),
-    [historyMap]
-  );
-  const totalPrayers = useMemo(
-    () => calculateTotalPrayers(historyMap),
-    [historyMap]
-  );
-
-  // Dynamic month data for the calendar
+  const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
+  const { longestStreak, streakNote } = useMemo(() => calculateLongestStreak(historyMap), [historyMap]);
+  const totalPrayers = useMemo(() => calculateTotalPrayers(historyMap), [historyMap]);
   const monthData = useMemo(
     () => generateCalendarMonth(selectedYear, selectedMonth, historyMap, selectedDay),
     [selectedYear, selectedMonth, historyMap, selectedDay]
@@ -115,17 +104,39 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     [selectedCell, toggleHistoricalPrayer]
   );
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(60);
+
   return (
     <AppContainer edges={['top']}>
       <View style={styles.screenWrapper}>
-        <ProgressTabsHeader
-          activeTab={activeSubTab}
-          onTabChange={setActiveSubTab}
-        />
+        {/* Dynamic Curved Elevated Header on Scroll */}
+        <CurvedHeaderContainer
+          scrollY={scrollY}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            if (h > 0 && Math.abs(h - headerHeight) > 1) {
+              setHeaderHeight(h);
+            }
+          }}
+        >
+          <ProgressTabsHeader
+            activeTab={activeSubTab}
+            onTabChange={setActiveSubTab}
+          />
+        </CurvedHeaderContainer>
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
+        <Animated.ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: headerHeight + SPACING.xs },
+          ]}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
           bounces={false}
         >
           {activeSubTab === 'tracker' && (
@@ -195,7 +206,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               />
             </>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
 
         <HomeBottomNav
           activeTab="progress"

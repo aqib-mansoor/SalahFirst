@@ -123,7 +123,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             onReadFull={() => handleTabChange('hadith')}
             onOpenWallpaper={onOpenWallpaper}
           />
-        </ScrollView>
+        </Animated.ScrollView>
 
         {/* Docked Bottom Navigation Bar */}
         <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
