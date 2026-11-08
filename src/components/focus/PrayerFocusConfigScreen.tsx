@@ -69,14 +69,15 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
     }
     setOffsets(updated);
     await saveFocusOffsets(updated);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
   };
 
-  const handleSaveUniversal = async () => {
+  const handleSaveAndReturn = async () => {
     await saveFocusOffsets(offsets);
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2500);
+    setTimeout(() => {
+      setIsSaved(false);
+      onBack();
+    }, 800);
   };
 
   const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
@@ -151,32 +152,34 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             },
           ]}
         >
-          {selectedPrayer === 'All' ? (
-            <View style={styles.actionColumn}>
-              <AppButton
-                label={isSaved ? '✓ Universal Settings Saved' : 'Save Focus Preferences'}
-                onPress={handleSaveUniversal}
-                size="lg"
-                style={[styles.beginButton, { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary }]}
-              />
-              <Pressable
-                onPress={() => onBeginFocus(duration, effectivePrayer)}
-                hitSlop={8}
-                style={styles.secondaryLink}
-              >
-                <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
-                  Begin Focus Now ({effectivePrayer}) ›
-                </AppText>
-              </Pressable>
-            </View>
-          ) : (
+          <View style={styles.actionColumn}>
             <AppButton
-              label={`Begin ${selectedPrayer} Focus (${duration} min)`}
-              onPress={() => onBeginFocus(duration, selectedPrayer)}
+              label={
+                isSaved
+                  ? '✓ Settings Saved'
+                  : selectedPrayer === 'All'
+                  ? 'Save All Focus Settings'
+                  : `Save ${selectedPrayer} Settings`
+              }
+              onPress={handleSaveAndReturn}
               size="lg"
-              style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
+              style={[
+                styles.beginButton,
+                { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary },
+              ]}
             />
-          )}
+            <Pressable
+              onPress={() => onBeginFocus(duration, effectivePrayer)}
+              hitSlop={8}
+              style={styles.secondaryLink}
+              accessibilityRole="button"
+              accessibilityLabel={`Begin ${effectivePrayer} Focus now`}
+            >
+              <AppText variant="bodySmall" color={theme.colors.primary} style={styles.secondaryText}>
+                Begin Focus Now ({effectivePrayer} • {duration}m) ›
+              </AppText>
+            </Pressable>
+          </View>
         </View>
       </View>
     </AppContainer>
