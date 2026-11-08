@@ -182,6 +182,14 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         onConfirmPrayed={handleConfirmPrayed}
         onNotYet={handleNotYet}
       />
+
+      <FocusExitEarlyModal
+        visible={showExitModal}
+        prayerName={effectivePrayer}
+        remainingSeconds={remainingSeconds}
+        onStayFocused={handleStayFocused}
+        onConfirmExit={handleConfirmExit}
+      />
     </AppContainer>
   );
 };
