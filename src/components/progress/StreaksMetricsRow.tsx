@@ -28,7 +28,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           styles.metricCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: 'rgba(243, 196, 64, 0.25)',
+            borderColor: theme.colors.border,
           },
         ]}
       >
@@ -52,7 +52,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           styles.metricCard,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: 'rgba(243, 196, 64, 0.25)',
+            borderColor: theme.colors.border,
           },
         ]}
       >

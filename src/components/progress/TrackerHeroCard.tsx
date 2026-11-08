@@ -30,7 +30,7 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(243, 196, 64, 0.35)',
+          borderColor: 'rgba(255, 255, 255, 0.12)',
         },
       ]}
     >

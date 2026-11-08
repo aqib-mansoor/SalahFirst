@@ -73,7 +73,7 @@ export const TrackerSunnahCard: React.FC = () => {
         <View style={[styles.countBadge, { backgroundColor: theme.colors.surfaceElevated }]}>
           <AppText
             variant="caption"
-            color={completedCount > 0 ? theme.colors.accent : theme.colors.textMuted}
+            color={completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
             style={styles.countText}
           >
             {completedCount} / {SUNNAH_PRAYERS.length}
@@ -100,7 +100,7 @@ export const TrackerSunnahCard: React.FC = () => {
                 isDone
                   ? {
                       backgroundColor: theme.colors.mintTint,
-                      borderColor: theme.colors.accent,
+                      borderColor: theme.colors.border,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,

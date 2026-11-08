@@ -90,10 +90,6 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
                         : bar.completed > 0
                         ? theme.colors.primary
                         : theme.colors.surfaceElevated,
-                      borderColor: isFull
-                        ? 'rgba(243, 196, 64, 0.4)'
-                        : 'transparent',
-                      borderWidth: isFull ? 1 : 0,
                     },
                   ]}
                 />

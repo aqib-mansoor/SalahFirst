@@ -29,7 +29,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(243, 196, 64, 0.4)',
+          borderColor: 'rgba(255, 255, 255, 0.12)',
         },
       ]}
     >
@@ -50,13 +50,13 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
         </AppText>
       </View>
 
-      {/* Slim Flame Badge with Gold Border Ring */}
+      {/* Slim Flame Badge */}
       <View
         style={[
           styles.flameBadge,
           {
             backgroundColor: theme.colors.accentTint,
-            borderColor: theme.colors.accent,
+            borderColor: 'rgba(255, 255, 255, 0.15)',
           },
         ]}
       >

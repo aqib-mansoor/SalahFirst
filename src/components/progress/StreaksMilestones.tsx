@@ -32,8 +32,8 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
           style={[
             styles.milestoneCard,
             {
-              backgroundColor: is7Achieved ? theme.colors.accentTint : theme.colors.surface,
-              borderColor: is7Achieved ? theme.colors.accent : theme.colors.border,
+              backgroundColor: is7Achieved ? theme.colors.mintTint : theme.colors.surface,
+              borderColor: theme.colors.border,
             },
           ]}
         >
@@ -85,8 +85,8 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
           style={[
             styles.milestoneCard,
             {
-              backgroundColor: is30Achieved ? theme.colors.accentTint : theme.colors.surface,
-              borderColor: is30Achieved ? theme.colors.accent : theme.colors.border,
+              backgroundColor: is30Achieved ? theme.colors.mintTint : theme.colors.surface,
+              borderColor: theme.colors.border,
             },
           ]}
         >

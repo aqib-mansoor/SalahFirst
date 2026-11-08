@@ -30,21 +30,21 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
       style={({ pressed }) => [
         styles.card,
         {
-          backgroundColor: theme.colors.surface,
-          borderColor: prayer.completed ? theme.colors.borderGold : theme.colors.border,
+          backgroundColor: prayer.completed ? theme.colors.mintTint : theme.colors.surface,
+          borderColor: theme.colors.border,
         },
         prayer.completed && styles.cardCompleted,
         pressed && { opacity: 0.85 },
       ]}
     >
-      {/* Slim Checkmark Button */}
+      {/* Slim Natural Checkmark Button */}
       <View
         style={[
           styles.checkCircle,
           prayer.completed
             ? {
                 backgroundColor: theme.colors.primary,
-                borderColor: theme.colors.accent,
+                borderColor: theme.colors.primary,
               }
             : {
                 backgroundColor: 'transparent',
@@ -83,11 +83,8 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
           styles.badge,
           {
             backgroundColor: prayer.completed
-              ? theme.colors.mintTint
+              ? theme.colors.surface
               : theme.colors.surfaceElevated,
-            borderColor: prayer.completed
-              ? 'rgba(243, 196, 64, 0.3)'
-              : 'transparent',
           },
         ]}
       >
@@ -109,7 +106,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 2,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.lg,
-    borderWidth: 1.2,
+    borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
@@ -118,7 +115,7 @@ const styles = StyleSheet.create({
   cardCompleted: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
@@ -148,7 +145,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 2,
     paddingVertical: 3.5,
     borderRadius: RADIUS.full,
-    borderWidth: 1,
   },
   badgeText: {
     fontWeight: '700',

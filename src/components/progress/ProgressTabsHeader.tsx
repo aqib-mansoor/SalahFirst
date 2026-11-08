@@ -48,34 +48,22 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
                 styles.tabItem,
                 isActive && {
                   backgroundColor: theme.colors.primary,
-                  borderColor: theme.colors.accent,
-                  borderWidth: 1,
                   shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 4,
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 3,
                   elevation: 2,
                 },
                 pressed && { opacity: 0.85 },
               ]}
             >
-              <View style={styles.tabContentRow}>
-                <AppText
-                  variant="bodySmall"
-                  color={isActive ? theme.colors.textInverse : theme.colors.textMuted}
-                  style={[styles.tabLabel, isActive && styles.activeTabLabel]}
-                >
-                  {tab.label}
-                </AppText>
-                {isActive && (
-                  <View
-                    style={[
-                      styles.activeGoldDot,
-                      { backgroundColor: theme.colors.accent },
-                    ]}
-                  />
-                )}
-              </View>
+              <AppText
+                variant="bodySmall"
+                color={isActive ? theme.colors.textInverse : theme.colors.textMuted}
+                style={[styles.tabLabel, isActive && styles.activeTabLabel]}
+              >
+                {tab.label}
+              </AppText>
             </Pressable>
           );
         })}
@@ -93,7 +81,7 @@ const styles = StyleSheet.create({
   tabBarSurface: {
     flexDirection: 'row',
     borderRadius: RADIUS.full,
-    padding: 4,
+    padding: 3,
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
@@ -104,24 +92,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  tabContentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
   },
   tabLabel: {
     fontWeight: '600',
-    fontSize: 13,
+    fontSize: 12.5,
   },
   activeTabLabel: {
-    fontWeight: '800',
-  },
-  activeGoldDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    fontWeight: '700',
   },
 });

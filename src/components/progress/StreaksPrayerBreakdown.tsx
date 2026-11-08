@@ -85,8 +85,8 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
           </AppText>
         </View>
 
-        <View style={[styles.rankBadge, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
-          <AppText variant="caption" color={theme.colors.accent} style={styles.rankTitleText}>
+        <View style={[styles.rankBadge, { backgroundColor: theme.colors.mintTint, borderColor: theme.colors.border }]}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.rankTitleText}>
             {rankTitle}
           </AppText>
         </View>

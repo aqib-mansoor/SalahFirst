@@ -14,7 +14,7 @@ export const TrackerWisdomBanner: React.FC = () => {
         styles.banner,
         {
           backgroundColor: theme.colors.surfaceElevated,
-          borderColor: 'rgba(243, 196, 64, 0.3)',
+          borderColor: theme.colors.border,
         },
       ]}
     >
