@@ -4,6 +4,7 @@ export * from './HomeHeroCard';
 export * from './HomeSalahTracker';
 export * from './HomeDailyHadith';
 export * from './HomeBottomNav';
+export * from './IslamicNavIcons';
 export * from './PrayerConfirmModal';
 export * from './HomePrayerCardItem';
 export * from './HomeTasbihWidget';

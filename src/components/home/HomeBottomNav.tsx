@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { IslamicNavIcon } from './IslamicNavIcons';
 
 export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
 
@@ -30,122 +30,115 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
     { id: 'progress', label: t('navProgress') },
   ];
 
-  const renderIcon = (tabId: HomeTab, isActive: boolean) => {
-    const strokeColor = isActive ? theme.colors.accent : theme.colors.textSecondary;
-
-    switch (tabId) {
-      case 'home':
-        return (
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M12 3L4 9V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V9L12 3Z"
-              stroke={strokeColor}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <Path d="M9 21V12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12V21" stroke={strokeColor} strokeWidth="2" />
-          </Svg>
-        );
-      case 'prayers':
-        return (
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="9" stroke={strokeColor} strokeWidth="2" />
-            <Path d="M12 7V12L15 14" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" />
-          </Svg>
-        );
-      case 'qibla':
-        return (
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="9" stroke={strokeColor} strokeWidth="2" />
-            <Path d="M14.5 9.5L9.5 14.5M16.5 7.5L12 19L10 14L5 12L16.5 7.5Z" stroke={strokeColor} strokeWidth="2" strokeLinejoin="round" />
-          </Svg>
-        );
-      case 'hadith':
-        return (
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z" stroke={strokeColor} strokeWidth="2" />
-          </Svg>
-        );
-      case 'progress':
-        return (
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Path d="M18 20V10M12 20V4M6 20V14" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
-          </Svg>
-        );
-    }
-  };
-
   return (
     <View
       style={[
-        styles.navContainer,
+        styles.floatingWrapper,
         {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-          paddingBottom: Math.max(insets.bottom, 10),
+          paddingBottom: Math.max(insets.bottom, SPACING.xs),
         },
       ]}
-      accessibilityRole="tablist"
+      pointerEvents="box-none"
     >
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.id;
+      {/* Floating Island Navigation Dock */}
+      <View
+        style={[
+          styles.islandDock,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
+        ]}
+        accessibilityRole="tablist"
+      >
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
 
-        return (
-          <Pressable
-            key={tab.id}
-            onPress={() => onTabChange(tab.id)}
-            style={styles.tabButton}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: isActive }}
-            accessibilityLabel={tab.label}
-            hitSlop={8}
-          >
-            <View style={styles.iconWrapper}>
-              {isActive && <View style={[styles.activeDot, { backgroundColor: theme.colors.accent }]} />}
-              {renderIcon(tab.id, isActive)}
-            </View>
-            <AppText
-              variant="caption"
-              color={isActive ? theme.colors.accent : theme.colors.textSecondary}
-              style={[styles.tabLabel, { fontWeight: isActive ? '700' : '500' }]}
+          return (
+            <Pressable
+              key={tab.id}
+              onPress={() => onTabChange(tab.id)}
+              style={({ pressed }) => [
+                styles.tabButton,
+                isActive && [
+                  styles.activeTabButton,
+                  {
+                    backgroundColor: theme.colors.accentTint,
+                    borderColor: theme.colors.accent,
+                  },
+                ],
+                pressed && { opacity: 0.75 },
+              ]}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={tab.label}
+              hitSlop={6}
             >
-              {tab.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
+              <IslamicNavIcon tabId={tab.id} isActive={isActive} size={21} />
+
+              <AppText
+                variant="caption"
+                color={isActive ? theme.colors.textPrimary : theme.colors.textSecondary}
+                style={[
+                  styles.tabLabel,
+                  {
+                    fontWeight: isActive ? '800' : '600',
+                    color: isActive ? theme.colors.textPrimary : theme.colors.textSecondary,
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {tab.label}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  navContainer: {
+  floatingWrapper: {
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.xs,
+  },
+  islandDock: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1,
-    paddingTop: SPACING.sm,
+    borderRadius: RADIUS.xxl,
+    borderWidth: 1,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: SPACING.xs + 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   tabButton: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    flex: 1,
+    gap: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 4,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: 'transparent',
     minHeight: 48,
   },
-  iconWrapper: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    position: 'absolute',
-    top: -6,
+  activeTabButton: {
+    borderWidth: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 10.5,
+    letterSpacing: 0.1,
   },
 });
