@@ -124,17 +124,6 @@ export const HomeTasbihWidget: React.FC = () => {
         <View style={styles.cardInner}>
           {/* Left: Dhikr Info & Progress */}
           <View style={styles.leftCol}>
-            <View style={styles.phasePillRow}>
-              <View style={[styles.phasePill, { backgroundColor: 'rgba(243, 196, 64, 0.22)', borderColor: theme.colors.accent }]}>
-                <AppText variant="caption" color={theme.colors.accentLight} style={styles.phaseText}>
-                  Phase {phaseIndex + 1} of 3
-                </AppText>
-              </View>
-              <AppText variant="caption" color="rgba(255, 255, 255, 0.75)" style={styles.targetCountText}>
-                Goal: {currentPhase.target}
-              </AppText>
-            </View>
-
             <AppText variant="titleMedium" color="#FFFFFF" style={styles.arabicDhikr}>
               {currentPhase.arabic}
             </AppText>
@@ -185,10 +174,6 @@ const styles = StyleSheet.create({
     padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md,
   },
   leftCol: { flex: 1, gap: 4 },
-  phasePillRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  phasePill: { paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1 },
-  phaseText: { fontWeight: '800', fontSize: 10 },
-  targetCountText: { fontSize: 11, fontWeight: '500' },
   arabicDhikr: { fontSize: 20, fontWeight: '700', lineHeight: 28 },
   translitText: { fontSize: 12.5, fontWeight: '700' },
   meaningText: { fontWeight: '400' },

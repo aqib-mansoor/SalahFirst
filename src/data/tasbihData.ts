@@ -22,7 +22,18 @@ export const DHIKR_PHASES: DhikrPhase[] = [
     arabic: 'اللَّهُ أَكْبَرُ',
     transliteration: 'Allahu Akbar',
     translation: 'Allah is the Greatest',
-    target: 34,
+    target: 33,
+  },
+  {
+    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
+    transliteration: 'La ilaha illallah',
+    translation: 'None has the right to be worshipped except Allah',
+    target: 33,
+  },
+  {
+    arabic: 'أَسْتَغْفِرُ اللَّهَ',
+    transliteration: 'Astaghfirullah',
+    translation: 'I seek forgiveness from Allah',
+    target: 33,
   },
 ];
-
