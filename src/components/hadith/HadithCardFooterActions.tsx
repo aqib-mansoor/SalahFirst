@@ -43,7 +43,7 @@ export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = (
         </Svg>
       </Pressable>
 
-      {/* 2. Bookmark Action */}
+      {/* 2. Sacred Gold Bookmark Action */}
       <Pressable
         onPress={onSavePress}
         hitSlop={6}
@@ -52,8 +52,8 @@ export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = (
         style={({ pressed }) => [
           styles.circleBtn,
           {
-            backgroundColor: isSaved ? theme.colors.secondaryTint : theme.colors.surfaceElevated,
-            borderColor: isSaved ? theme.colors.primary : theme.colors.border,
+            backgroundColor: isSaved ? theme.colors.accentTint : theme.colors.surfaceElevated,
+            borderColor: isSaved ? theme.colors.accent : theme.colors.border,
           },
           pressed && { opacity: 0.75 },
         ]}
@@ -61,8 +61,8 @@ export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = (
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
           <Path
             d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z"
-            fill={isSaved ? theme.colors.primary : 'none'}
-            stroke={theme.colors.primary}
+            fill={isSaved ? theme.colors.accent : 'none'}
+            stroke={isSaved ? theme.colors.accent : theme.colors.primary}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -128,4 +128,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-

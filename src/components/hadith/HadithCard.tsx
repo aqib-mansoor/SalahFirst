@@ -44,7 +44,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         },
       ]}
     >
-      {/* Background Rub el Hizb Watermark */}
+      {/* Background Sacred Gold Rub el Hizb Watermark */}
       <View style={styles.watermarkLayer}>
         <Svg width={110} height={110} viewBox="0 0 110 110">
           <G transform="translate(55, 55)">
@@ -53,30 +53,40 @@ export const HadithCard: React.FC<HadithCardProps> = ({
               y="-36"
               width="72"
               height="72"
-              stroke={theme.colors.mintTintPressed}
-              strokeWidth="1.2"
+              stroke={theme.colors.accent}
+              strokeWidth="1.3"
               fill="none"
+              opacity={0.4}
             />
             <Rect
               x="-36"
               y="-36"
               width="72"
               height="72"
-              stroke={theme.colors.mintTintPressed}
-              strokeWidth="1.2"
+              stroke={theme.colors.accent}
+              strokeWidth="1.3"
               fill="none"
               transform="rotate(45)"
+              opacity={0.4}
             />
           </G>
         </Svg>
       </View>
 
-      {/* Top Header Row: Category Badge & Index Counter */}
+      {/* Top Header Row: Gold Category Badge & Index Counter */}
       <View style={styles.topRow}>
-        <View style={[styles.badgePill, { backgroundColor: theme.colors.secondaryTint }]}>
+        <View
+          style={[
+            styles.badgePill,
+            {
+              backgroundColor: theme.colors.accentTint,
+              borderColor: theme.colors.accent,
+            },
+          ]}
+        >
           <AppText
             variant="caption"
-            color={theme.colors.primary}
+            color={theme.colors.warning}
             style={styles.badgeText}
             numberOfLines={1}
           >
@@ -183,7 +193,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -15,
     left: -15,
-    opacity: 0.5,
   },
   topRow: {
     flexDirection: 'row',
@@ -195,6 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 2,
     paddingVertical: 3,
     borderRadius: RADIUS.sm,
+    borderWidth: 1,
     flexShrink: 1,
   },
   badgeText: {

@@ -48,7 +48,7 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         </AppText>
       </Pressable>
 
-      {/* Shuffle / Random Button */}
+      {/* Sacred Gold Shuffle / Random Button */}
       <Pressable
         onPress={onRandom}
         accessibilityRole="button"
@@ -57,8 +57,8 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         style={({ pressed }) => [
           styles.randomButton,
           {
-            backgroundColor: theme.colors.secondaryTint,
-            borderColor: theme.colors.primary,
+            backgroundColor: theme.colors.accentTint,
+            borderColor: theme.colors.accent,
           },
           pressed && { opacity: 0.8 },
         ]}
@@ -66,13 +66,13 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
           <Path
             d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"
-            stroke={theme.colors.primary}
+            stroke={theme.colors.warning}
             strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </Svg>
-        <AppText variant="caption" color={theme.colors.primary} style={styles.randomLabel}>
+        <AppText variant="caption" color={theme.colors.warning} style={styles.randomLabel}>
           {t('randomHadith') || 'Random'}
         </AppText>
       </Pressable>
@@ -109,10 +109,10 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingHorizontal: SPACING.lg,
-    gap: SPACING.sm,
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    gap: SPACING.xs + 2,
   },
   navButton: {
     flex: 1,
@@ -120,9 +120,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     gap: SPACING.xs,
+  },
+  navLabel: {
+    fontWeight: '700',
+    fontSize: 12,
   },
   randomButton: {
     flexDirection: 'row',
@@ -134,12 +139,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 5,
   },
-  navLabel: {
-    fontWeight: '700',
-    fontSize: 12,
-  },
   randomLabel: {
     fontWeight: '800',
     fontSize: 11,
+    letterSpacing: 0.3,
   },
 });

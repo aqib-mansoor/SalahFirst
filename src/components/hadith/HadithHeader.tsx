@@ -30,20 +30,20 @@ export const HadithHeader: React.FC<HadithHeaderProps> = ({ savedCount }) => {
           style={[
             styles.savedBadge,
             {
-              backgroundColor: theme.colors.secondaryTint,
-              borderColor: theme.colors.primary,
+              backgroundColor: theme.colors.accentTint,
+              borderColor: theme.colors.accent,
             },
           ]}
         >
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
             <Path
               d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z"
-              fill={theme.colors.primary}
-              stroke={theme.colors.primary}
+              fill={theme.colors.accent}
+              stroke={theme.colors.accent}
               strokeWidth="2"
             />
           </Svg>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.savedBadgeText}>
+          <AppText variant="caption" color={theme.colors.warning} style={styles.savedBadgeText}>
             {savedCount}
           </AppText>
         </View>
@@ -64,21 +64,20 @@ const styles = StyleSheet.create({
   titleColumn: {
     flex: 1,
     gap: 2,
-    marginRight: SPACING.sm,
   },
   title: {
     fontWeight: '800',
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontWeight: '500',
-    fontSize: 12,
   },
   savedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: RADIUS.full,
     borderWidth: 1,
   },
