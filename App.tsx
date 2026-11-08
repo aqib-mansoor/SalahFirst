@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
@@ -21,7 +21,6 @@ import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { FocusDuration } from '@/types';
-import { ScreenTransitionWrapper } from '@/components/common';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
@@ -166,105 +165,124 @@ function AppContent() {
   return (
     <SafeAreaProvider>
       <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
-      <ScreenTransitionWrapper
-        transitionKey={currentStep === 'main' ? `main-${activeTab}` : `step-${currentStep}`}
-      >
-        {currentStep === 'welcome' && (
-          <WelcomeScreen onContinue={handleContinueToSetup} />
-        )}
-        {currentStep === 'setup' && (
-          <SetupScreen onComplete={handleCompleteSetup} />
-        )}
-        {currentStep === 'main' && activeTab === 'home' && (
-          <HomeScreen
-            onOpenSettings={() => setCurrentStep('settings')}
-            onNavigateTab={setActiveTab}
-            onStartPrayerFocus={handleOpenFocusConfig}
-            onOpenStreaks={() => {
-              setProgressSubTab('streaks');
-              setActiveTab('progress');
-            }}
-            onOpenWallpaper={() => setCurrentStep('wallpaper')}
-          />
-        )}
-        {currentStep === 'main' && activeTab === 'prayers' && (
-          <PrayerTimesScreen
-            onNavigateHome={() => setActiveTab('home')}
-            onNavigateTab={setActiveTab}
-          />
-        )}
-        {currentStep === 'main' && activeTab === 'qibla' && (
-          <QiblaScreen onNavigateTab={setActiveTab} />
-        )}
-        {currentStep === 'main' && activeTab === 'hadith' && (
-          <HadithScreen onNavigateTab={setActiveTab} />
-        )}
-        {currentStep === 'main' && activeTab === 'progress' && (
-          <ProgressScreen
-            initialSubTab={progressSubTab}
-            onNavigateTab={(tab) => {
-              setActiveTab(tab);
-              if (tab === 'progress') setProgressSubTab('tracker');
-            }}
-          />
-        )}
-        {currentStep === 'settings' && (
-          <SettingsScreen
-            onBack={() => setCurrentStep('main')}
-            onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
-            onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
-            onOpenTerms={() => setCurrentStep('terms')}
-            onNavigateTab={(tab) => {
-              setActiveTab(tab);
-              setCurrentStep('main');
-            }}
-          />
-        )}
-        {currentStep === 'privacy-policy' && (
-          <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />
-        )}
-        {currentStep === 'terms' && (
-          <TermsScreen onBack={() => setCurrentStep('settings')} />
-        )}
-        {currentStep === 'azan-prefs' && (
-          <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
-        )}
-        {currentStep === 'focus-config' && (
-          <PrayerFocusConfigScreen
-            initialPrayer={focusPrayerName}
-            prayerTimesMap={{
-              fajr: prayerData.fajr,
-              dhuhr: prayerData.dhuhr,
-              asr: prayerData.asr,
-              maghrib: prayerData.maghrib,
-              isha: prayerData.isha,
-            }}
-            onBack={() => setCurrentStep('main')}
-            onBeginFocus={handleBeginFocus}
-          />
-        )}
-        {currentStep === 'focus-active' && (
-          <ActiveFocusScreen
-            duration={focusDuration}
-            prayerName={focusPrayerName}
-            existingSession={activeSession}
-            onExit={() => {
-              setActiveSession(null);
-              setCurrentStep('main');
-            }}
-            onCompletePrayer={handleCompletePrayerFocus}
-          />
-        )}
-        {currentStep === 'wallpaper' && (
-          <HadithWallpaperScreen
-            hadith={VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
-            onClose={() => setCurrentStep('main')}
-          />
-        )}
-      </ScreenTransitionWrapper>
+      {currentStep === 'welcome' && (
+        <WelcomeScreen onContinue={handleContinueToSetup} />
+      )}
+      {currentStep === 'setup' && (
+        <SetupScreen onComplete={handleCompleteSetup} />
+      )}
+
+      {/* Persistent Zero-Unmount Tab Shell */}
+      {currentStep === 'main' && (
+        <View style={styles.mainContainer}>
+          <View style={[styles.tabContent, activeTab !== 'home' && styles.hiddenTab]}>
+            <HomeScreen
+              onOpenSettings={() => setCurrentStep('settings')}
+              onNavigateTab={setActiveTab}
+              onStartPrayerFocus={handleOpenFocusConfig}
+              onOpenStreaks={() => {
+                setProgressSubTab('streaks');
+                setActiveTab('progress');
+              }}
+              onOpenWallpaper={() => setCurrentStep('wallpaper')}
+            />
+          </View>
+
+          <View style={[styles.tabContent, activeTab !== 'prayers' && styles.hiddenTab]}>
+            <PrayerTimesScreen
+              onNavigateHome={() => setActiveTab('home')}
+              onNavigateTab={setActiveTab}
+            />
+          </View>
+
+          <View style={[styles.tabContent, activeTab !== 'qibla' && styles.hiddenTab]}>
+            <QiblaScreen onNavigateTab={setActiveTab} />
+          </View>
+
+          <View style={[styles.tabContent, activeTab !== 'hadith' && styles.hiddenTab]}>
+            <HadithScreen onNavigateTab={setActiveTab} />
+          </View>
+
+          <View style={[styles.tabContent, activeTab !== 'progress' && styles.hiddenTab]}>
+            <ProgressScreen
+              initialSubTab={progressSubTab}
+              onNavigateTab={(tab) => {
+                setActiveTab(tab);
+                if (tab === 'progress') setProgressSubTab('tracker');
+              }}
+            />
+          </View>
+        </View>
+      )}
+
+      {currentStep === 'settings' && (
+        <SettingsScreen
+          onBack={() => setCurrentStep('main')}
+          onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+          onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
+          onOpenTerms={() => setCurrentStep('terms')}
+          onNavigateTab={(tab) => {
+            setActiveTab(tab);
+            setCurrentStep('main');
+          }}
+        />
+      )}
+      {currentStep === 'privacy-policy' && (
+        <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />
+      )}
+      {currentStep === 'terms' && (
+        <TermsScreen onBack={() => setCurrentStep('settings')} />
+      )}
+      {currentStep === 'azan-prefs' && (
+        <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
+      )}
+      {currentStep === 'focus-config' && (
+        <PrayerFocusConfigScreen
+          initialPrayer={focusPrayerName}
+          prayerTimesMap={{
+            fajr: prayerData.fajr,
+            dhuhr: prayerData.dhuhr,
+            asr: prayerData.asr,
+            maghrib: prayerData.maghrib,
+            isha: prayerData.isha,
+          }}
+          onBack={() => setCurrentStep('main')}
+          onBeginFocus={handleBeginFocus}
+        />
+      )}
+      {currentStep === 'focus-active' && (
+        <ActiveFocusScreen
+          duration={focusDuration}
+          prayerName={focusPrayerName}
+          existingSession={activeSession}
+          onExit={() => {
+            setActiveSession(null);
+            setCurrentStep('main');
+          }}
+          onCompletePrayer={handleCompletePrayerFocus}
+        />
+      )}
+      {currentStep === 'wallpaper' && (
+        <HadithWallpaperScreen
+          hadith={VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
+          onClose={() => setCurrentStep('main')}
+        />
+      )}
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
+  tabContent: {
+    flex: 1,
+  },
+  hiddenTab: {
+    display: 'none',
+  },
+});
 
 export default function App() {
   return (
