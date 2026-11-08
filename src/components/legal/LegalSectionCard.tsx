@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -9,12 +9,16 @@ export interface LegalSectionCardProps {
   title: string;
   body: string;
   highlight?: boolean;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export const LegalSectionCard: React.FC<LegalSectionCardProps> = ({
   title,
   body,
   highlight = false,
+  actionLabel,
+  onAction,
 }) => {
   const theme = useTheme();
   const { isRTL } = useTranslation();
@@ -45,6 +49,28 @@ export const LegalSectionCard: React.FC<LegalSectionCardProps> = ({
       >
         {body}
       </AppText>
+
+      {actionLabel && onAction && (
+        <Pressable
+          onPress={onAction}
+          hitSlop={8}
+          accessibilityRole="link"
+          accessibilityLabel={actionLabel}
+          style={[
+            styles.linkBtn,
+            { backgroundColor: theme.colors.mintTint, borderColor: theme.colors.primary },
+            isRTL && styles.linkBtnRTL,
+          ]}
+        >
+          <AppText
+            variant="caption"
+            color={theme.colors.primary}
+            style={styles.linkText}
+          >
+            {actionLabel} ↗
+          </AppText>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -63,5 +89,18 @@ const styles = StyleSheet.create({
   body: {
     lineHeight: 20,
   },
+  linkBtn: {
+    marginTop: SPACING.xs,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  linkBtnRTL: {
+    alignSelf: 'flex-end',
+  },
+  linkText: {
+    fontWeight: '700',
+  },
 });
-

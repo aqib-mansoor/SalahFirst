@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, Linking, Alert } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer } from '@/components/common';
@@ -40,6 +40,12 @@ export const TermsScreen: React.FC<TermsScreenProps> = ({ onBack }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
+  const handleOpenPortfolio = () => {
+    Linking.openURL('https://aqibfolio.vercel.app').catch(() => {
+      Alert.alert('Notice', 'Unable to open developer portfolio link.');
+    });
+  };
+
   return (
     <AppContainer
       edges={['top', 'left', 'right', 'bottom']}
@@ -55,14 +61,19 @@ export const TermsScreen: React.FC<TermsScreenProps> = ({ onBack }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        {SECTION_KEYS.map((s, index) => (
-          <LegalSectionCard
-            key={index}
-            title={t(s.titleKey)}
-            body={t(s.bodyKey)}
-            highlight={s.highlight}
-          />
-        ))}
+        {SECTION_KEYS.map((s, index) => {
+          const isContactSection = s.titleKey === 'tcSection15Title';
+          return (
+            <LegalSectionCard
+              key={index}
+              title={t(s.titleKey)}
+              body={t(s.bodyKey)}
+              highlight={s.highlight}
+              actionLabel={isContactSection ? t('contactPortfolioBtn') : undefined}
+              onAction={isContactSection ? handleOpenPortfolio : undefined}
+            />
+          );
+        })}
       </ScrollView>
     </AppContainer>
   );
