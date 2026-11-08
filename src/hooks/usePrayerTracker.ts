@@ -189,9 +189,7 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
       const lower = name.toLowerCase() as keyof typeof prayerData.raw;
       const rawDate = prayerData.raw?.[lower];
       const hasStarted = rawDate ? nowMs >= rawDate.getTime() : false;
-      const isCurrent = currentObligatory
-        ? currentObligatory === name
-        : prayerData.nextPrayerName === name;
+      const isCurrent = currentObligatory ? currentObligatory === name : false;
 
       return {
         name,

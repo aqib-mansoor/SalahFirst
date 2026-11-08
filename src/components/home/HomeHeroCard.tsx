@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
@@ -15,6 +16,8 @@ export interface HomeHeroCardProps {
   nextPrayerTimeFormatted: string;
   countdownText: string;
   isCurrentCompleted?: boolean;
+  allCompleted?: boolean;
+  showFocusButton?: boolean;
   onStartPrayerFocus?: () => void;
   periodCategory?: PrayerPeriodCategory;
   periodSubtitleKey?: string;
@@ -28,6 +31,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   nextPrayerTimeFormatted,
   countdownText,
   isCurrentCompleted = false,
+  allCompleted = false,
+  showFocusButton = true,
   onStartPrayerFocus,
   periodCategory = 'obligatory',
   periodSubtitleKey,
@@ -43,54 +48,42 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const localizedNextPrayer =
     (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
-  let statusText = isCurrentCompleted ? `${t('completed')} ✓` : t('pending');
-  let statusPillStyle = isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill;
-  let statusTextColor = isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)';
-  let dotColor = theme.colors.accent;
-
-  if (periodCategory === 'prohibited') {
-    statusText = t('prohibited');
-    statusPillStyle = styles.statusPillProhibited;
-    statusTextColor = '#FF8A80';
-    dotColor = '#FF8A80';
-  } else if (periodCategory === 'nafl') {
-    statusText = periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl');
-    statusPillStyle = styles.statusPillNafl;
-    statusTextColor = theme.colors.accent;
-    dotColor = theme.colors.accent;
-  } else if (periodCategory === 'informational') {
-    statusText = t('detectingLocation');
-    statusPillStyle = styles.statusPill;
-    statusTextColor = 'rgba(255, 255, 255, 0.85)';
-    dotColor = theme.colors.secondary;
-  }
+  const isObligatory = periodCategory === 'obligatory';
+  const statusConfig = {
+    prohibited: { text: t('prohibited'), style: styles.statusPillProhibited, color: '#FF8A80', dot: '#FF8A80' },
+    nafl: { text: periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl'), style: styles.statusPillNafl, color: theme.colors.accent, dot: theme.colors.accent },
+    informational: { text: t('detectingLocation'), style: styles.statusPill, color: 'rgba(255, 255, 255, 0.85)', dot: theme.colors.secondary },
+    obligatory: {
+      text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
+      style: isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill,
+      color: isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)',
+      dot: theme.colors.accent,
+    },
+  }[periodCategory] || {
+    text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
+    style: isCurrentCompleted ? styles.statusPillCompleted : styles.statusPill,
+    color: isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)',
+    dot: theme.colors.accent,
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
-      <IslamicMihrabCanvas
-        goldColor={theme.colors.accent}
-        opacity={0.16}
-      />
-      <IslamicWatermark
-        size={240}
-        opacity={0.07}
-        color={theme.colors.accent}
-        style={styles.watermarkTopRight}
-      />
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.16} />
+      <IslamicWatermark size={240} opacity={0.07} color={theme.colors.accent} style={styles.watermarkTopRight} />
 
       {/* Top Section: Pill + Status */}
       <View style={styles.topSection}>
         <View style={styles.topRow}>
           <View style={[styles.currentTag, { borderColor: 'rgba(243, 196, 64, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.18)' }]}>
-            <View style={[styles.goldDot, { backgroundColor: dotColor }]} />
+            <View style={[styles.goldDot, { backgroundColor: statusConfig.dot }]} />
             <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
               {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
             </AppText>
           </View>
 
-          <View style={[styles.statusPill, statusPillStyle]}>
-            <AppText variant="caption" color={statusTextColor} style={styles.completedTag}>
-              {statusText}
+          <View style={[styles.statusPill, statusConfig.style]}>
+            <AppText variant="caption" color={statusConfig.color} style={styles.completedTag}>
+              {statusConfig.text}
             </AppText>
           </View>
         </View>
@@ -118,8 +111,21 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         </View>
       </View>
 
-      {/* "Start Prayer Focus" CTA Button */}
-      <HeroFocusButton onPress={onStartPrayerFocus} />
+      {/* Bottom Section: Celebration Banner or Prayer Focus CTA */}
+      {allCompleted ? (
+        <View style={styles.allCompletedBanner}>
+          <View style={[styles.allCompletedIcon, { backgroundColor: theme.colors.accent }]}>
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path d="M20 6L9 17L4 12" stroke={theme.colors.buttonGoldText || '#0A261B'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </View>
+          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.allCompletedText}>
+            {t('allPrayersCompleted')}
+          </AppText>
+        </View>
+      ) : showFocusButton ? (
+        <HeroFocusButton onPress={onStartPrayerFocus} />
+      ) : null}
     </View>
   );
 };
@@ -211,5 +217,28 @@ const styles = StyleSheet.create({
   azanTime: {
     fontSize: 24,
     fontWeight: '800',
+  },
+  allCompletedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(243, 196, 64, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(243, 196, 64, 0.35)',
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    gap: SPACING.sm,
+  },
+  allCompletedIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  allCompletedText: {
+    fontWeight: '700',
+    fontSize: 12,
+    flex: 1,
   },
 });

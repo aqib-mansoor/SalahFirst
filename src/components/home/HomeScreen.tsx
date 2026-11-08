@@ -52,6 +52,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     ? prayersList.find((p) => p.name === currentObligatoryName)
     : null;
   const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
+  const allCompleted = completedCount === 5;
+  const showFocusButton =
+    !allCompleted &&
+    !!currentObligatoryName &&
+    !isCurrentCompleted &&
+    prayerData.currentPeriod?.category !== 'prohibited';
 
   return (
     <AppContainer
@@ -82,6 +88,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             nextPrayerTimeFormatted={prayerData.nextPrayerTimeFormatted}
             countdownText={countdownText}
             isCurrentCompleted={isCurrentCompleted}
+            allCompleted={allCompleted}
+            showFocusButton={showFocusButton}
             periodCategory={prayerData.currentPeriod?.category}
             periodSubtitleKey={prayerData.currentPeriod?.descriptionKey}
             periodId={prayerData.currentPeriod?.id}
