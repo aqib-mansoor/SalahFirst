@@ -48,18 +48,18 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   // Bell button mode styles
   let bellColor = theme.colors.textMuted;
   let bellBg = theme.colors.surfaceElevated;
-  let notifLabel = t('notificationModeOff');
+  let notifLabel = t('notificationModeSilent');
 
-  if (notification === 'azan') {
+  if (notification === 'AZAN' || notification === 'TONE') {
     bellColor = theme.colors.primary;
     bellBg = theme.colors.secondaryTint;
     notifLabel = t('notificationModeAzan');
-  } else if (notification === 'vibrate') {
+  } else if (notification === 'VIBRATE') {
     bellColor = theme.colors.accent;
     bellBg = theme.colors.accentTint;
     notifLabel = t('notificationModeVibrate');
-  } else if (notification === 'silent') {
-    bellColor = theme.colors.text;
+  } else if (notification === 'SILENT') {
+    bellColor = theme.colors.textMuted;
     bellBg = theme.colors.surfaceElevated;
     notifLabel = t('notificationModeSilent');
   }

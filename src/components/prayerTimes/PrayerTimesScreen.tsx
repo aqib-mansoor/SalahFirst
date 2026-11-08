@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -6,14 +6,20 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
+import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer, AppText } from '@/components/common';
 import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
-import { PrayerTimesHeader } from './PrayerTimesHeader';
-import { PrayerTimesLocationCard } from './PrayerTimesLocationCard';
-import { SunriseCard } from './SunriseCard';
-import { PrayerTimeRow } from './PrayerTimeRow';
-import { LocationBottomSheet } from './LocationBottomSheet';
-import { AzanPrefsScreen } from './AzanPrefsScreen';
+import {
+  PrayerTimesHeader,
+  PrayerTimesDateSwitcher,
+  PrayerTimesLocationCard,
+  SunMilestonesCard,
+  NaflTimingsCard,
+  PrayerTimeRow,
+  LocationBottomSheet,
+  AzanPrefsScreen,
+} from '@/components/prayerTimes';
+import { getPrayerTimes, calculateDailyNaflSchedule, CALCULATION_METHOD_LABELS } from '@/utils/prayerTimes';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -39,10 +45,52 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   const [activeTab, setActiveTab] = useState<HomeTab>('prayers');
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
+  const [dateOffset, setDateOffset] = useState<number>(0);
 
   const { location, updateLocation, needsCitySelection, requestGpsLocation } = useDeviceLocation();
   const { prayerData, prayersList, juristic, calcMethod } = usePrayerTracker(location);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
+
+  const viewedDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + dateOffset);
+    return d;
+  }, [dateOffset]);
+
+  const isToday = dateOffset === 0;
+  const { hijriDateFormatted } = useHijriDate(location?.country, viewedDate);
+
+  // Compute viewed prayer times when navigating dates
+  const activePrayerData = useMemo(() => {
+    if (isToday) return prayerData;
+    return getPrayerTimes(
+      location?.latitude,
+      location?.longitude,
+      viewedDate,
+      calcMethod,
+      juristic,
+      location?.timezone
+    );
+  }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic]);
+
+  // Prayers list: live with real-time countdown when today, static schedule when other date
+  const activePrayersList = useMemo(() => {
+    if (isToday) return prayersList;
+    const names = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+    return names.map((name) => ({
+      name,
+      time: (activePrayerData as any)[name.toLowerCase()] || '--:--',
+      completed: false,
+      isNext: false,
+      isCurrent: false,
+      hasStarted: false,
+      remainingTimeText: undefined,
+    }));
+  }, [isToday, prayersList, activePrayerData]);
+
+  const naflSchedule = useMemo(() => {
+    return calculateDailyNaflSchedule(activePrayerData.raw, undefined, location?.timezone);
+  }, [activePrayerData.raw, location?.timezone]);
 
   useEffect(() => {
     if (needsCitySelection && !location) {
@@ -79,31 +127,39 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       style={{ backgroundColor: theme.colors.background }}
     >
       <View style={styles.container}>
-        {/* Stable Flow Header */}
         <PrayerTimesHeader
           countryName={location?.country}
           onOpenAzanPrefs={() => setShowAzanPrefs(true)}
+        />
+
+        <PrayerTimesDateSwitcher
+          date={viewedDate}
+          isToday={isToday}
+          hijriDateFormatted={hijriDateFormatted}
+          onPrevDay={() => setDateOffset((prev) => prev - 1)}
+          onNextDay={() => setDateOffset((prev) => prev + 1)}
+          onResetToday={() => setDateOffset(0)}
         />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scroll}
         >
-
-          {/* Location Selector Card */}
           <PrayerTimesLocationCard
-            cityName={location?.city || 'Detecting Location...'}
+            cityName={location?.city}
             country={location?.country || ''}
+            methodName={CALCULATION_METHOD_LABELS[calcMethod]}
             juristicMethod={juristic}
             onOpenLocationSheet={() => setSheetVisible(true)}
           />
 
-          {/* Sunrise Card */}
-          <SunriseCard time={prayerData.sunrise} />
+          <SunMilestonesCard
+            sunriseTime={activePrayerData.sunrise}
+            sunsetTime={activePrayerData.maghrib}
+          />
 
-          {/* Prayer Time Rows */}
           <View style={styles.prayerList}>
-            {prayersList.map((p) => {
+            {activePrayersList.map((p) => {
               const key = p.name.toLowerCase() as 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
               return (
                 <PrayerTimeRow
@@ -113,6 +169,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
                   time={p.time}
                   notification={alerts[key]}
                   isNext={p.isNext}
+                  isCurrent={p.isCurrent}
                   remainingTimeText={p.remainingTimeText}
                   onCycleNotification={() => cyclePrayerMode(key)}
                 />
@@ -120,7 +177,14 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             })}
           </View>
 
-          {/* Configure Audio Footer Button */}
+          <NaflTimingsCard
+            tahajjudRange={naflSchedule.tahajjudRange}
+            lastThirdRange={naflSchedule.lastThirdRange}
+            ishraqRange={naflSchedule.ishraqRange}
+            duhaRange={naflSchedule.duhaRange}
+            zawalRange={naflSchedule.zawalRange}
+          />
+
           <Pressable
             onPress={() => setShowAzanPrefs(true)}
             style={({ pressed }) => [
@@ -140,13 +204,11 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
           </Pressable>
         </ScrollView>
 
-        {/* Bottom Nav */}
         <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
 
-        {/* Location Bottom Sheet */}
         <LocationBottomSheet
           visible={sheetVisible}
-          currentCityName={location?.city || 'Select City'}
+          currentCityName={location?.city || t('selectCity')}
           isGps={location?.isGps}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
