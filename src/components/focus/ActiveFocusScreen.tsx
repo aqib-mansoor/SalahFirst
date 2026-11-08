@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Pressable, Alert, Linking, AppState, AppStateStatus } from 'react-native';
+import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
+import { SPACING, PALETTE } from '@/constants/theme';
 import { AppContainer, AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
+import { ActiveFocusHeader } from './ActiveFocusHeader';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
 import { FocusCompletionModal } from './FocusCompletionModal';
 import { ActiveFocusActions } from './ActiveFocusActions';
@@ -34,7 +35,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   onExit,
   onCompletePrayer,
 }) => {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const sessionRef = useRef<FocusSession>(
@@ -48,7 +48,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
 
-  // Persist session to AsyncStorage and trigger background notifications on mount
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
     startFocusNotifications(sessionRef.current.prayerName, sessionRef.current.durationMinutes);
@@ -62,22 +61,18 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     }
   }, []);
 
-  // Interval timer for real-time countdown
   useEffect(() => {
     if (isCompleted) return;
-
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [isCompleted, tick]);
 
-  // Handle app coming to foreground from background
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
       if (nextState === 'active') {
         tick();
       }
     });
-
     return () => subscription.remove();
   }, [tick]);
 
@@ -128,56 +123,55 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
   const effectivePrayer = sessionRef.current.prayerName;
   const effectiveDuration = sessionRef.current.durationMinutes;
+  const totalSeconds = effectiveDuration * 60;
 
   return (
-    <AppContainer
-      edges={['top', 'left', 'right']}
-      style={{ backgroundColor: theme.colors.primaryHero }}
-    >
-      <IslamicWatermark size={260} opacity={0.03} color="rgba(255, 255, 255, 0.05)" style={styles.watermarkTop} />
-      <IslamicWatermark size={260} opacity={0.03} color="rgba(255, 255, 255, 0.05)" style={styles.watermarkBottom} />
+    <AppContainer edges={[]} style={styles.screenBg}>
+      {/* Spiritual Sanctuary Radial Backdrop */}
+      <Svg style={StyleSheet.absoluteFill}>
+        <Defs>
+          <RadialGradient id="sanctuaryGlow" cx="50%" cy="40%" r="65%">
+            <Stop offset="0%" stopColor="#145A41" stopOpacity="0.8" />
+            <Stop offset="65%" stopColor="#0B3E2D" stopOpacity="0.95" />
+            <Stop offset="100%" stopColor="#041E14" stopOpacity="1" />
+          </RadialGradient>
+        </Defs>
+        <Rect width="100%" height="100%" fill="url(#sanctuaryGlow)" />
+      </Svg>
 
-      <View style={[styles.container, { paddingTop: Math.max(insets.top, SPACING.xs) }]}>
-        {/* Top Header */}
-        <View style={styles.header}>
-          <View style={styles.headerBadge}>
-            <View style={styles.headerDot} />
-            <AppText variant="caption" color={PALETTE.white} style={styles.headerTitle}>
-              {effectivePrayer} Focus • {effectiveDuration}m
-            </AppText>
-          </View>
+      <IslamicWatermark size={280} opacity={0.025} color="rgba(255, 255, 255, 0.04)" style={styles.watermarkTop} />
+      <IslamicWatermark size={280} opacity={0.025} color="rgba(255, 255, 255, 0.04)" style={styles.watermarkBottom} />
 
-          {__DEV__ && (
-            <Pressable
-              onPress={() => {
-                sessionRef.current.targetEndTimestamp = Date.now();
-                setRemainingSeconds(0);
-                setIsCompleted(true);
-              }}
-              style={styles.simulateBtn}
-            >
-              <AppText variant="caption" style={styles.simulateText}>
-                DEV: End Timer
-              </AppText>
-            </Pressable>
-          )}
-        </View>
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, 24) + 16 }]}>
+        <ActiveFocusHeader
+          prayerName={effectivePrayer}
+          durationMinutes={effectiveDuration}
+          onSimulateEnd={() => {
+            sessionRef.current.targetEndTimestamp = Date.now();
+            setRemainingSeconds(0);
+            setIsCompleted(true);
+          }}
+        />
 
-        {/* Center Timer & Motivation */}
         <View style={styles.centerSection}>
-          <ActiveFocusTimer remainingSeconds={remainingSeconds} />
+          <ActiveFocusTimer
+            remainingSeconds={remainingSeconds}
+            totalSeconds={totalSeconds}
+          />
 
-          <View style={styles.motivationColumn}>
-            <AppText variant="titleLarge" color={PALETTE.white} align="center" style={styles.motivationTitle}>
+          <View style={styles.spiritualColumn}>
+            <AppText variant="bodySmall" style={styles.quranicArabic}>
+              وَأَقِمِ ٱلصَّلَوٰةَ لِذِكْرِى
+            </AppText>
+            <AppText variant="titleMedium" color={PALETTE.white} align="center" style={styles.motivationTitle}>
               {t('bePresent')}
             </AppText>
-            <AppText variant="bodyMedium" align="center" style={styles.motivationSub}>
+            <AppText variant="bodySmall" align="center" style={styles.motivationSub}>
               {t('setDistractionsAside')}
             </AppText>
           </View>
         </View>
 
-        {/* Bottom Actions */}
         <ActiveFocusActions
           onEmergencyCall={handleEmergencyCall}
           onExitEarly={handleExitEarly}
@@ -195,74 +189,45 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
+  screenBg: {
+    backgroundColor: '#041E14',
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.lg,
   },
   watermarkTop: {
-    top: -50,
-    left: -90,
+    top: -80,
+    left: -110,
   },
   watermarkBottom: {
-    bottom: -60,
-    right: -90,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: SPACING.xs,
-  },
-  headerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  headerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#34D399',
-  },
-  headerTitle: {
-    fontWeight: '700',
-    fontSize: 12,
-    letterSpacing: 0.3,
-  },
-  simulateBtn: {
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  simulateText: {
-    fontWeight: '600',
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.7)',
+    bottom: -90,
+    right: -110,
   },
   centerSection: {
     alignItems: 'center',
-    gap: SPACING.lg,
+    gap: SPACING.md,
   },
-  motivationColumn: {
+  spiritualColumn: {
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: 6,
     paddingHorizontal: SPACING.lg,
+  },
+  quranicArabic: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: 'rgba(110, 231, 183, 0.9)',
+    fontWeight: '600',
+    letterSpacing: 1,
+    marginBottom: 2,
   },
   motivationTitle: {
     fontWeight: '800',
+    letterSpacing: -0.2,
   },
   motivationSub: {
-    lineHeight: 22,
-    color: 'rgba(255, 255, 255, 0.75)',
+    lineHeight: 20,
+    color: 'rgba(255, 255, 255, 0.68)',
   },
 });

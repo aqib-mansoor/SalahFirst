@@ -19,7 +19,7 @@ export const ActiveFocusActions: React.FC<ActiveFocusActionsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <View style={[styles.bottomRow, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+    <View style={[styles.bottomRow, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
       <Pressable
         onPress={onEmergencyCall}
         accessibilityRole="button"
@@ -31,7 +31,7 @@ export const ActiveFocusActions: React.FC<ActiveFocusActionsProps> = ({
           pressed && styles.pressed,
         ]}
       >
-        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.9)" strokeWidth={2}>
+        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.85)" strokeWidth={2}>
           <Path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
         </Svg>
         <AppText variant="caption" color={PALETTE.white} style={styles.pillText}>
@@ -73,11 +73,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    paddingVertical: 10,
+    paddingVertical: 11,
     paddingHorizontal: 16,
     borderRadius: RADIUS.full,
     borderWidth: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(5, 35, 23, 0.65)',
   },
   emergencyPill: {
     borderColor: 'rgba(255, 255, 255, 0.16)',
@@ -92,10 +92,12 @@ const styles = StyleSheet.create({
   pillText: {
     fontWeight: '600',
     fontSize: 12,
+    letterSpacing: 0.2,
   },
   exitText: {
     fontWeight: '600',
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.75)',
+    letterSpacing: 0.2,
   },
 });
