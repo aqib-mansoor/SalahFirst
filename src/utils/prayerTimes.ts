@@ -1,7 +1,13 @@
-import { Coordinates, CalculationMethod, PrayerTimes, Madhab, HighLatitudeRule, PolarCircleResolution } from 'adhan';
+import { Coordinates, Madhab } from 'adhan';
 import type { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
 import { getCurrentPrayerPeriod, createFallbackPeriod } from './currentPrayerPeriod';
+import {
+  getMethodParams,
+  createRobustPrayerTimes,
+} from './prayerCalculationBase';
+
+export * from './prayerCalculationBase';
 
 export interface FormattedPrayerTimes {
   fajr: string;
@@ -38,69 +44,6 @@ export const formatRemainingTime = (targetDate: Date, now: Date = new Date()): s
   if (hours === 0) return `IN ${mins}M`;
   if (mins === 0) return `IN ${hours}H`;
   return `IN ${hours}H ${mins}M`;
-};
-
-export const getDefaultMethodForCountry = (country?: string): CalculationMethodName => {
-  if (!country) return 'Karachi';
-  const c = country.toLowerCase().trim();
-  if (/saudi|makkah|madinah/.test(c)) return 'UmmAlQura';
-  if (/emirates|uae|dubai|abu dhabi/.test(c)) return 'Dubai';
-  if (/egypt|sudan|jordan|lebanon|syria/.test(c)) return 'Egyptian';
-  if (/united states|usa|canada/.test(c)) return 'NorthAmerica';
-  if (c.includes('kuwait')) return 'Kuwait';
-  if (c.includes('qatar')) return 'Qatar';
-  if (/singapore|malaysia|indonesia/.test(c)) return 'Singapore';
-  if (/turkey|türkiye/.test(c)) return 'Turkey';
-  return 'Karachi';
-};
-
-export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
-  if (!country) return 'Hanafi';
-  const c = country.toLowerCase().trim();
-  return /pakistan|india|bangladesh|turkey|türkiye|afghanistan/.test(c) ? 'Hanafi' : 'Standard';
-};
-
-export const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
-  const map: Record<string, () => any> = {
-    UmmAlQura: CalculationMethod.UmmAlQura,
-    Dubai: CalculationMethod.Dubai,
-    MuslimWorldLeague: CalculationMethod.MuslimWorldLeague,
-    Egyptian: CalculationMethod.Egyptian,
-    NorthAmerica: CalculationMethod.NorthAmerica,
-    MoonsightingCommittee: CalculationMethod.MoonsightingCommittee,
-    Kuwait: CalculationMethod.Kuwait,
-    Qatar: CalculationMethod.Qatar,
-    Singapore: CalculationMethod.Singapore,
-    Tehran: CalculationMethod.Tehran,
-    Turkey: CalculationMethod.Turkey,
-    Karachi: CalculationMethod.Karachi,
-  };
-  return (map[method] || CalculationMethod.Karachi)();
-};
-
-export const createRobustPrayerTimes = (
-  coords: Coordinates,
-  date: Date,
-  params: ReturnType<typeof getMethodParams>
-): PrayerTimes => {
-  params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
-  params.highLatitudeRule = HighLatitudeRule.recommended(coords);
-  try {
-    const pt = new PrayerTimes(coords, date, params);
-    if (
-      !pt.fajr || isNaN(pt.fajr.getTime()) ||
-      !pt.sunrise || isNaN(pt.sunrise.getTime()) ||
-      !pt.dhuhr || isNaN(pt.dhuhr.getTime()) ||
-      !pt.maghrib || isNaN(pt.maghrib.getTime())
-    ) {
-      throw new Error('Astronomical polar anomaly');
-    }
-    return pt;
-  } catch {
-    const fallbackLat = coords.latitude > 0 ? 60.0 : -60.0;
-    const fallbackCoords = new Coordinates(fallbackLat, coords.longitude);
-    return new PrayerTimes(fallbackCoords, date, params);
-  }
 };
 
 export const getPrayerTimes = (

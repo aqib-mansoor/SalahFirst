@@ -1,7 +1,7 @@
 import { Coordinates, CalculationMethod, PrayerTimes, HighLatitudeRule, PolarCircleResolution } from 'adhan';
-import { CalculationMethodName, JuristicMethod } from '@/types';
+import type { CalculationMethodName, JuristicMethod } from '@/types';
 
-export const getDefaultCalculationMethodForCountry = (country?: string): CalculationMethodName => {
+export const getDefaultMethodForCountry = (country?: string): CalculationMethodName => {
   if (!country) return 'Karachi';
   const c = country.toLowerCase().trim();
   if (c.includes('saudi') || c.includes('makkah')) return 'UmmAlQura';
@@ -14,6 +14,8 @@ export const getDefaultCalculationMethodForCountry = (country?: string): Calcula
   if (/turkey|türkiye/.test(c)) return 'Turkey';
   return 'Karachi';
 };
+
+export const getDefaultCalculationMethodForCountry = getDefaultMethodForCountry;
 
 export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
   if (!country) return 'Hanafi';

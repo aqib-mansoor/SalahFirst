@@ -3,7 +3,6 @@ import type {
   CalculationMethodName,
   JuristicMethod,
   CurrentPrayerPeriod,
-  NextPrayerPeriod,
   PrayerPeriodId,
   PrayerPeriodCategory,
 } from '@/types';
@@ -68,29 +67,16 @@ export const createFallbackPeriod = (instant: Date = new Date(), timezone?: stri
   isObligatory: false,
   isProhibited: false,
   isNafl: false,
-  nextPeriod: {
-    id: 'fajr',
-    nameKey: 'fajr',
-    startTime: instant,
-    timeFormatted: '--:--',
-  },
+  nextPeriod: { id: 'fajr', nameKey: 'fajr', startTime: instant, timeFormatted: '--:--' },
 });
 
 export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPrayerPeriod => {
-  const {
-    latitude,
-    longitude,
-    date = new Date(),
-    method = 'Karachi',
-    juristic = 'Hanafi',
-    timezone,
-  } = params;
+  const { latitude, longitude, date = new Date(), method = 'Karachi', juristic = 'Hanafi', timezone } = params;
 
   if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
     return createFallbackPeriod(date, timezone);
   }
 
-  // Resolve raw prayer times if not provided
   let today = params.rawToday;
   let tomorrow = params.rawTomorrow;
   let yesterday = params.rawYesterday;
@@ -99,14 +85,11 @@ export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPraye
     const coords = new Coordinates(latitude, longitude);
     const mParams = getMethodParams(method);
     mParams.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
-
     const targetDate = createCalendarDateForCalculation(date, timezone);
     today = today || createRobustPrayerTimes(coords, targetDate, mParams);
-
     const tmrw = new Date(targetDate);
     tmrw.setDate(tmrw.getDate() + 1);
     tomorrow = tomorrow || createRobustPrayerTimes(coords, tmrw, mParams);
-
     const ystd = new Date(targetDate);
     ystd.setDate(ystd.getDate() - 1);
     yesterday = yesterday || createRobustPrayerTimes(coords, ystd, mParams);
@@ -123,159 +106,82 @@ export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPraye
   const maghribMs = today.maghrib.getTime();
   const ishaMs = today.isha.getTime();
 
-  let id: PrayerPeriodId;
-  let nameKey: string;
-  let category: PrayerPeriodCategory;
-  let startTime: Date;
-  let endTime: Date;
-  let descriptionKey: string;
-  let obligatoryName: 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha' | undefined;
-  let nextPeriod: NextPrayerPeriod;
-
-  if (nowMs < fajrMs) {
-    // Night portion before dawn (Day D-1 Maghrib to Day D Fajr)
-    const night = calculateNightBoundaries(yesterday.maghrib, today.fajr);
-    if (nowMs >= night.lastThirdStart.getTime()) {
-      id = 'tahajjud_last_third';
-      nameKey = 'periodTahajjud';
-      category = 'nafl';
-      startTime = night.lastThirdStart;
-      endTime = today.fajr;
-      descriptionKey = 'periodTahajjudLastThirdSubtitle';
-      nextPeriod = { id: 'fajr', nameKey: 'fajr', startTime: today.fajr, timeFormatted: '' };
-    } else if (nowMs >= night.islamicMidnight.getTime()) {
-      id = 'tahajjud';
-      nameKey = 'periodTahajjud';
-      category = 'nafl';
-      startTime = night.islamicMidnight;
-      endTime = night.lastThirdStart;
-      descriptionKey = 'periodTahajjudSubtitle';
-      nextPeriod = { id: 'tahajjud_last_third', nameKey: 'periodTahajjud', startTime: night.lastThirdStart, timeFormatted: '' };
-    } else {
-      id = 'isha';
-      nameKey = 'isha';
-      category = 'obligatory';
-      obligatoryName = 'Isha';
-      startTime = yesterday.isha;
-      endTime = night.islamicMidnight;
-      descriptionKey = 'periodIshaSubtitle';
-      nextPeriod = { id: 'tahajjud', nameKey: 'periodTahajjud', startTime: night.islamicMidnight, timeFormatted: '' };
-    }
-  } else if (nowMs < sunriseMs) {
-    id = 'fajr';
-    nameKey = 'fajr';
-    category = 'obligatory';
-    obligatoryName = 'Fajr';
-    startTime = today.fajr;
-    endTime = today.sunrise;
-    descriptionKey = 'periodFajrSubtitle';
-    nextPeriod = { id: 'sunrise_prohibited', nameKey: 'periodSunrise', startTime: today.sunrise, timeFormatted: '' };
-  } else if (nowMs < ishraqStartMs) {
-    id = 'sunrise_prohibited';
-    nameKey = 'periodSunrise';
-    category = 'prohibited';
-    startTime = today.sunrise;
-    endTime = new Date(ishraqStartMs);
-    descriptionKey = 'periodSunriseSubtitle';
-    nextPeriod = { id: 'ishraq', nameKey: 'periodIshraq', startTime: new Date(ishraqStartMs), timeFormatted: '' };
-  } else if (nowMs < duhaStartMs) {
-    id = 'ishraq';
-    nameKey = 'periodIshraq';
-    category = 'nafl';
-    startTime = new Date(ishraqStartMs);
-    endTime = new Date(duhaStartMs);
-    descriptionKey = 'periodIshraqSubtitle';
-    nextPeriod = { id: 'duha', nameKey: 'periodDuha', startTime: new Date(duhaStartMs), timeFormatted: '' };
-  } else if (nowMs < zawalStartMs) {
-    id = 'duha';
-    nameKey = 'periodDuha';
-    category = 'nafl';
-    startTime = new Date(duhaStartMs);
-    endTime = new Date(zawalStartMs);
-    descriptionKey = 'periodDuhaSubtitle';
-    nextPeriod = { id: 'zawal_prohibited', nameKey: 'periodZawal', startTime: new Date(zawalStartMs), timeFormatted: '' };
-  } else if (nowMs < dhuhrMs) {
-    id = 'zawal_prohibited';
-    nameKey = 'periodZawal';
-    category = 'prohibited';
-    startTime = new Date(zawalStartMs);
-    endTime = today.dhuhr;
-    descriptionKey = 'periodZawalSubtitle';
-    nextPeriod = { id: 'dhuhr', nameKey: 'dhuhr', startTime: today.dhuhr, timeFormatted: '' };
-  } else if (nowMs < asrMs) {
-    id = 'dhuhr';
-    nameKey = 'dhuhr';
-    category = 'obligatory';
-    obligatoryName = 'Dhuhr';
-    startTime = today.dhuhr;
-    endTime = today.asr;
-    descriptionKey = 'periodDhuhrSubtitle';
-    nextPeriod = { id: 'asr', nameKey: 'asr', startTime: today.asr, timeFormatted: '' };
-  } else if (nowMs < maghribMs) {
-    id = 'asr';
-    nameKey = 'asr';
-    category = 'obligatory';
-    obligatoryName = 'Asr';
-    startTime = today.asr;
-    endTime = today.maghrib;
-    descriptionKey = 'periodAsrSubtitle';
-    nextPeriod = { id: 'maghrib', nameKey: 'maghrib', startTime: today.maghrib, timeFormatted: '' };
-  } else if (nowMs < ishaMs) {
-    id = 'maghrib';
-    nameKey = 'maghrib';
-    category = 'obligatory';
-    obligatoryName = 'Maghrib';
-    startTime = today.maghrib;
-    endTime = today.isha;
-    descriptionKey = 'periodMaghribSubtitle';
-    nextPeriod = { id: 'isha', nameKey: 'isha', startTime: today.isha, timeFormatted: '' };
-  } else {
-    // Night portion after Isha (Day D Maghrib to Day D+1 Fajr)
-    const night = calculateNightBoundaries(today.maghrib, tomorrow.fajr);
-    if (nowMs >= night.lastThirdStart.getTime()) {
-      id = 'tahajjud_last_third';
-      nameKey = 'periodTahajjud';
-      category = 'nafl';
-      startTime = night.lastThirdStart;
-      endTime = tomorrow.fajr;
-      descriptionKey = 'periodTahajjudLastThirdSubtitle';
-      nextPeriod = { id: 'fajr', nameKey: 'fajr', startTime: tomorrow.fajr, timeFormatted: '' };
-    } else if (nowMs >= night.islamicMidnight.getTime()) {
-      id = 'tahajjud';
-      nameKey = 'periodTahajjud';
-      category = 'nafl';
-      startTime = night.islamicMidnight;
-      endTime = night.lastThirdStart;
-      descriptionKey = 'periodTahajjudSubtitle';
-      nextPeriod = { id: 'tahajjud_last_third', nameKey: 'periodTahajjud', startTime: night.lastThirdStart, timeFormatted: '' };
-    } else {
-      id = 'isha';
-      nameKey = 'isha';
-      category = 'obligatory';
-      obligatoryName = 'Isha';
-      startTime = today.isha;
-      endTime = night.islamicMidnight;
-      descriptionKey = 'periodIshaSubtitle';
-      nextPeriod = { id: 'tahajjud', nameKey: 'periodTahajjud', startTime: night.islamicMidnight, timeFormatted: '' };
-    }
-  }
-
-  nextPeriod.timeFormatted = formatTimeInTimezone(nextPeriod.startTime, timezone);
-
-  return {
+  const makePeriod = (
+    id: PrayerPeriodId,
+    nameKey: string,
+    cat: PrayerPeriodCategory,
+    start: Date,
+    end: Date,
+    descKey: string,
+    nextId: PrayerPeriodId,
+    nextNameKey: string,
+    nextStart: Date,
+    fard?: 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha'
+  ): CurrentPrayerPeriod => ({
     id,
     nameKey,
-    category,
-    startTime,
-    endTime,
-    startTimeFormatted: formatTimeInTimezone(startTime, timezone),
-    endTimeFormatted: formatTimeInTimezone(endTime, timezone),
-    descriptionKey,
+    category: cat,
+    startTime: start,
+    endTime: end,
+    startTimeFormatted: formatTimeInTimezone(start, timezone),
+    endTimeFormatted: formatTimeInTimezone(end, timezone),
+    descriptionKey: descKey,
     isCalculatedWindow: true,
-    isObligatory: category === 'obligatory',
-    isProhibited: category === 'prohibited',
-    isNafl: category === 'nafl',
-    nextPeriod,
-    obligatorySalahName: obligatoryName,
-  };
+    isObligatory: cat === 'obligatory',
+    isProhibited: cat === 'prohibited',
+    isNafl: cat === 'nafl',
+    nextPeriod: {
+      id: nextId,
+      nameKey: nextNameKey,
+      startTime: nextStart,
+      timeFormatted: formatTimeInTimezone(nextStart, timezone),
+    },
+    obligatorySalahName: fard,
+  });
+
+  if (nowMs < fajrMs) {
+    const night = calculateNightBoundaries(yesterday.maghrib, today.fajr);
+    if (nowMs >= night.lastThirdStart.getTime()) {
+      return makePeriod('tahajjud_last_third', 'periodTahajjud', 'nafl', night.lastThirdStart, today.fajr, 'periodTahajjudLastThirdSubtitle', 'fajr', 'fajr', today.fajr);
+    }
+    if (nowMs >= night.islamicMidnight.getTime()) {
+      return makePeriod('tahajjud', 'periodTahajjud', 'nafl', night.islamicMidnight, night.lastThirdStart, 'periodTahajjudSubtitle', 'tahajjud_last_third', 'periodTahajjud', night.lastThirdStart);
+    }
+    return makePeriod('isha', 'isha', 'obligatory', yesterday.isha, night.islamicMidnight, 'periodIshaSubtitle', 'tahajjud', 'periodTahajjud', night.islamicMidnight, 'Isha');
+  }
+
+  if (nowMs < sunriseMs) {
+    return makePeriod('fajr', 'fajr', 'obligatory', today.fajr, today.sunrise, 'periodFajrSubtitle', 'sunrise_prohibited', 'periodSunrise', today.sunrise, 'Fajr');
+  }
+  if (nowMs < ishraqStartMs) {
+    return makePeriod('sunrise_prohibited', 'periodSunrise', 'prohibited', today.sunrise, new Date(ishraqStartMs), 'periodSunriseSubtitle', 'ishraq', 'periodIshraq', new Date(ishraqStartMs));
+  }
+  if (nowMs < duhaStartMs) {
+    return makePeriod('ishraq', 'periodIshraq', 'nafl', new Date(ishraqStartMs), new Date(duhaStartMs), 'periodIshraqSubtitle', 'duha', 'periodDuha', new Date(duhaStartMs));
+  }
+  if (nowMs < zawalStartMs) {
+    return makePeriod('duha', 'periodDuha', 'nafl', new Date(duhaStartMs), new Date(zawalStartMs), 'periodDuhaSubtitle', 'zawal_prohibited', 'periodZawal', new Date(zawalStartMs));
+  }
+  if (nowMs < dhuhrMs) {
+    return makePeriod('zawal_prohibited', 'periodZawal', 'prohibited', new Date(zawalStartMs), today.dhuhr, 'periodZawalSubtitle', 'dhuhr', 'dhuhr', today.dhuhr);
+  }
+  if (nowMs < asrMs) {
+    return makePeriod('dhuhr', 'dhuhr', 'obligatory', today.dhuhr, today.asr, 'periodDhuhrSubtitle', 'asr', 'asr', today.asr, 'Dhuhr');
+  }
+  if (nowMs < maghribMs) {
+    return makePeriod('asr', 'asr', 'obligatory', today.asr, today.maghrib, 'periodAsrSubtitle', 'maghrib', 'maghrib', today.maghrib, 'Asr');
+  }
+  if (nowMs < ishaMs) {
+    return makePeriod('maghrib', 'maghrib', 'obligatory', today.maghrib, today.isha, 'periodMaghribSubtitle', 'isha', 'isha', today.isha, 'Maghrib');
+  }
+
+  // Evening after Isha
+  const night = calculateNightBoundaries(today.maghrib, tomorrow.fajr);
+  if (nowMs >= night.lastThirdStart.getTime()) {
+    return makePeriod('tahajjud_last_third', 'periodTahajjud', 'nafl', night.lastThirdStart, tomorrow.fajr, 'periodTahajjudLastThirdSubtitle', 'fajr', 'fajr', tomorrow.fajr);
+  }
+  if (nowMs >= night.islamicMidnight.getTime()) {
+    return makePeriod('tahajjud', 'periodTahajjud', 'nafl', night.islamicMidnight, night.lastThirdStart, 'periodTahajjudSubtitle', 'tahajjud_last_third', 'periodTahajjud', night.lastThirdStart);
+  }
+  return makePeriod('isha', 'isha', 'obligatory', today.isha, night.islamicMidnight, 'periodIshaSubtitle', 'tahajjud', 'periodTahajjud', night.islamicMidnight, 'Isha');
 };
