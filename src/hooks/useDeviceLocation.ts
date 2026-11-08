@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Linking, AppState } from 'react-native';
+import { Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
@@ -29,15 +29,37 @@ export const useDeviceLocation = () => {
         setErrorMessage(null);
       }
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setPermissionDenied(true);
+      // Check if hardware location services are enabled on the device
+      const servicesEnabled = await Location.hasServicesEnabledAsync().catch(() => false);
+      if (!servicesEnabled) {
+        if (!isSilentBackground) {
+          setErrorMessage('Location services are disabled on your device.');
+        }
         if (!globalCurrentLocation) {
           setNeedsCitySelection(true);
         }
-        setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
         setIsLoading(false);
         return;
+      }
+
+      // In silent background checks, never force a system permission modal
+      if (isSilentBackground) {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setPermissionDenied(true);
+          if (!globalCurrentLocation) {
+            setNeedsCitySelection(true);
+          }
+          setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
+          setIsLoading(false);
+          return;
+        }
       }
 
       setPermissionDenied(false);
@@ -121,13 +143,13 @@ export const useDeviceLocation = () => {
         globalCurrentLocation = cached;
         setLocation(cached);
         setIsLoading(false);
-        // Only refresh GPS in background if user previously chose GPS! Never overwrite manual city!
+        // Only refresh GPS silently in background if previously enabled and services are active
         if (cached.isGps) {
           fetchCurrentGps(true);
         }
       } else {
-        // First run without saved location: request fresh GPS
-        fetchCurrentGps(false);
+        // First run without saved location: run silently without blocking popup
+        fetchCurrentGps(true);
       }
     };
 
@@ -138,23 +160,8 @@ export const useDeviceLocation = () => {
       setIsLoading(false);
     }
 
-    // Auto-detect when user grants permission after opening phone Settings
-    const appStateSub = AppState.addEventListener('change', async (nextState) => {
-      if (nextState === 'active') {
-        try {
-          const { status } = await Location.getForegroundPermissionsAsync();
-          if (status === 'granted') {
-            setPermissionDenied(false);
-            setNeedsCitySelection(false);
-            fetchCurrentGps(false);
-          }
-        } catch {}
-      }
-    });
-
     return () => {
       locationListeners.delete(setLocation);
-      appStateSub.remove();
     };
   }, [fetchCurrentGps]);
 

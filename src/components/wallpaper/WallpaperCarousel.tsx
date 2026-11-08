@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   StyleSheet,
   View,
   Animated,
+  Platform,
   useWindowDimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { WALLPAPER_THEMES } from '@/constants/wallpaperThemes';
+import { WALLPAPER_THEMES, WallpaperTheme } from '@/constants/wallpaperThemes';
 import { HadithItem } from '@/data/hadiths';
-import { WallpaperSlide } from './WallpaperSlide';
-import { WallpaperPhoneOverlay, WallpaperPreviewMode } from './WallpaperPhoneOverlay';
+import { WallpaperCarouselItem } from './WallpaperCarouselItem';
+import { WallpaperPreviewMode } from './WallpaperPhoneOverlay';
 import { RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -18,34 +19,65 @@ export interface WallpaperCarouselProps {
   hadith: HadithItem;
   activeIndex: number;
   onIndexChange: (index: number) => void;
-  scrollX: Animated.Value;
   cardWidth: number;
   cardHeight: number;
   itemFullWidth: number;
   previewMode?: WallpaperPreviewMode;
+  scrollX?: Animated.Value;
 }
 
 export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
   hadith,
   activeIndex,
   onIndexChange,
-  scrollX,
   cardWidth,
   cardHeight,
   itemFullWidth,
   previewMode = 'clean',
+  scrollX: externalScrollX,
 }) => {
   const theme = useTheme();
   const { width } = useWindowDimensions();
+  const internalScrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = externalScrollX || internalScrollX;
   const sideSpacer = Math.max((width - itemFullWidth) / 2, 0);
 
-  const handleMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const offsetX = e.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / itemFullWidth);
-    if (index >= 0 && index < WALLPAPER_THEMES.length) {
-      onIndexChange(index);
-    }
-  };
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: itemFullWidth,
+      offset: itemFullWidth * index,
+      index,
+    }),
+    [itemFullWidth]
+  );
+
+  const handleScrollEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = e.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / itemFullWidth);
+      const clampedIndex = Math.max(0, Math.min(index, WALLPAPER_THEMES.length - 1));
+      if (clampedIndex !== activeIndex) {
+        onIndexChange(clampedIndex);
+      }
+    },
+    [itemFullWidth, activeIndex, onIndexChange]
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: WallpaperTheme; index: number }) => (
+      <WallpaperCarouselItem
+        item={item}
+        index={index}
+        hadith={hadith}
+        cardWidth={cardWidth}
+        cardHeight={cardHeight}
+        itemFullWidth={itemFullWidth}
+        scrollX={scrollX}
+        previewMode={previewMode}
+      />
+    ),
+    [hadith, cardWidth, cardHeight, itemFullWidth, scrollX, previewMode]
+  );
 
   const isLightScreen = !WALLPAPER_THEMES[activeIndex]?.isDark;
 
@@ -54,91 +86,34 @@ export const WallpaperCarousel: React.FC<WallpaperCarouselProps> = ({
       <Animated.FlatList
         data={WALLPAPER_THEMES}
         keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
         horizontal
         showsHorizontalScrollIndicator={false}
         snapToInterval={itemFullWidth}
+        snapToAlignment="center"
+        disableIntervalMomentum={true}
         decelerationRate="fast"
         bounces={false}
         scrollEventThrottle={16}
+        initialNumToRender={3}
+        maxToRenderPerBatch={3}
+        windowSize={5}
+        removeClippedSubviews={Platform.OS === 'android'}
         contentContainerStyle={{
           paddingHorizontal: sideSpacer,
           alignItems: 'center',
         }}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
+          { useNativeDriver: true }
         )}
-        onMomentumScrollEnd={handleMomentumScrollEnd}
-        renderItem={({ item, index }) => {
-          const inputRange = [
-            (index - 1) * itemFullWidth,
-            index * itemFullWidth,
-            (index + 1) * itemFullWidth,
-          ];
-
-          const scale = scrollX.interpolate({
-            inputRange,
-            outputRange: [0.88, 1, 0.88],
-            extrapolate: 'clamp',
-          });
-
-          const opacity = scrollX.interpolate({
-            inputRange,
-            outputRange: [0.6, 1, 0.6],
-            extrapolate: 'clamp',
-          });
-
-          return (
-            <Animated.View
-              style={[
-                styles.slideItemWrapper,
-                {
-                  width: itemFullWidth,
-                  transform: [{ scale }],
-                  opacity,
-                },
-              ]}
-            >
-              {/* Phone Mockup Frame */}
-              <View
-                style={[
-                  styles.phoneFrame,
-                  {
-                    width: cardWidth,
-                    height: cardHeight,
-                    borderColor: item.isDark
-                      ? 'rgba(255, 255, 255, 0.28)'
-                      : 'rgba(0, 0, 0, 0.12)',
-                  },
-                ]}
-              >
-                {/* Top Phone Notch / Dynamic Island */}
-                <View style={styles.dynamicIsland} />
-
-                {/* Seamless Borderless Lockscreen Target */}
-                <WallpaperSlide
-                  theme={item}
-                  hadith={hadith}
-                  width={cardWidth}
-                  height={cardHeight}
-                  isPhonePreview={true}
-                />
-
-                {/* Interactive Phone Lock Screen / Home Screen Overlay */}
-                <WallpaperPhoneOverlay
-                  mode={previewMode}
-                  isDarkTheme={item.isDark}
-                  width={cardWidth}
-                  height={cardHeight}
-                />
-              </View>
-            </Animated.View>
-          );
-        }}
+        onMomentumScrollEnd={handleScrollEnd}
+        onScrollEndDrag={handleScrollEnd}
       />
 
-      {/* Modern Animated Dot Indicators */}
-      <View style={styles.paginationRow}>
+      {/* Pagination Dots */}
+      <View style={styles.paginationRow} pointerEvents="none">
         {WALLPAPER_THEMES.map((t, i) => {
           const isActive = i === activeIndex;
           const inactiveDotColor = isLightScreen
@@ -167,30 +142,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-  },
-  slideItemWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phoneFrame: {
-    borderRadius: 32,
-    borderWidth: 2,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    elevation: 8,
-    position: 'relative',
-  },
-  dynamicIsland: {
-    position: 'absolute',
-    top: 8,
-    alignSelf: 'center',
-    width: 60,
-    height: 12,
-    borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 10,
   },
   paginationRow: {
     position: 'absolute',

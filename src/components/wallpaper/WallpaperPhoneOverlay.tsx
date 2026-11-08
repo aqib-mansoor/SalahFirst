@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { AppText } from '@/components/common';
@@ -13,7 +13,7 @@ export interface WallpaperPhoneOverlayProps {
   height: number;
 }
 
-export const WallpaperPhoneOverlay: React.FC<WallpaperPhoneOverlayProps> = ({
+export const WallpaperPhoneOverlay = memo<WallpaperPhoneOverlayProps>(({
   mode,
   isDarkTheme,
 }) => {
@@ -94,7 +94,7 @@ export const WallpaperPhoneOverlay: React.FC<WallpaperPhoneOverlayProps> = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   lockscreenContainer: {

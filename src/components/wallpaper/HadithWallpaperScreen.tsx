@@ -5,7 +5,6 @@ import {
   Share,
   Alert,
   Platform,
-  Animated,
   useWindowDimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -40,35 +39,16 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const captureViewRef = useRef<ViewShotRef>(null);
 
-  // Proportional phone mockup sizes
   const cardWidth = Math.round(width * 0.72);
   const cardHeight = Math.round(height * 0.63);
   const itemFullWidth = cardWidth + SPACING.sm * 2;
-  const scrollX = useRef(new Animated.Value(0)).current;
-
   const activeTheme = WALLPAPER_THEMES[activeThemeIndex];
 
-  // Dynamic real-time ambient background interpolation
-  const bgInterpolation = scrollX.interpolate({
-    inputRange: WALLPAPER_THEMES.map((_, i) => i * itemFullWidth),
-    outputRange: WALLPAPER_THEMES.map((t) => t.ambientBackground),
-    extrapolate: 'clamp',
-  });
-
-  // Track active index as the user swipes
   useEffect(() => {
-    const listenerId = scrollX.addListener(({ value }) => {
-      const nextIdx = Math.min(
-        Math.max(Math.round(value / itemFullWidth), 0),
-        WALLPAPER_THEMES.length - 1
-      );
-      setActiveThemeIndex((prev) => (prev !== nextIdx ? nextIdx : prev));
-    });
     return () => {
-      scrollX.removeListener(listenerId);
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
-  }, [itemFullWidth]);
+  }, []);
 
   const showToast = (msg: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -186,7 +166,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   };
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor: bgInterpolation }]}>
+    <View style={[styles.container, { backgroundColor: activeTheme.ambientBackground }]}>
       <StatusBar style={activeTheme.isDark ? 'light' : 'dark'} />
 
       {/* Header with Theme Name, Index, & Interactive Phone Preview Toggle */}
@@ -211,7 +191,6 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         hadith={hadith}
         activeIndex={activeThemeIndex}
         onIndexChange={setActiveThemeIndex}
-        scrollX={scrollX}
         cardWidth={cardWidth}
         cardHeight={cardHeight}
         itemFullWidth={itemFullWidth}
@@ -239,7 +218,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
         onShareStatus={handleShareStatus}
         isProcessing={isProcessing}
       />
-    </Animated.View>
+    </View>
   );
 };
 

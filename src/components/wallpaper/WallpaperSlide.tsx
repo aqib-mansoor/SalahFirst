@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Rect, Circle, G } from 'react-native-svg';
 import { SPACING } from '@/constants/theme';
@@ -14,7 +14,7 @@ export interface WallpaperSlideProps {
   isPhonePreview?: boolean;
 }
 
-export const WallpaperSlide: React.FC<WallpaperSlideProps> = ({
+export const WallpaperSlide = memo<WallpaperSlideProps>(({
   theme,
   hadith,
   width,
@@ -130,7 +130,7 @@ export const WallpaperSlide: React.FC<WallpaperSlideProps> = ({
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   slideContainer: {
