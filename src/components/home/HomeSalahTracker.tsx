@@ -80,9 +80,9 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
                 {
                   backgroundColor: isSelected ? theme.colors.secondaryTint : theme.colors.surface,
                   borderColor: isSelected
-                    ? theme.colors.primary
+                    ? theme.colors.accent
                     : item.completed
-                    ? theme.colors.secondary
+                    ? theme.colors.primary
                     : theme.colors.border,
                   borderWidth: isSelected ? 1.5 : 1,
                   transform: [{ scale: pressed ? 0.96 : 1 }],

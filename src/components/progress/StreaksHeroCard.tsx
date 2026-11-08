@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Path, Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksHeroCardProps {
@@ -20,22 +20,14 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(168, 198, 176, 0.25)',
+          borderColor: 'rgba(243, 196, 64, 0.35)',
         },
       ]}
     >
-      {/* 8-pointed star geometric watermark at 5% opacity */}
-      <View style={styles.watermarkLayer}>
-        <Svg width={120} height={120} viewBox="0 0 120 120">
-          <G transform="translate(60, 60)">
-            <Rect x="-40" y="-40" width="80" height="80" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1.5" fill="none" />
-            <Rect x="-40" y="-40" width="80" height="80" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1.5" fill="none" transform="rotate(45)" />
-          </G>
-        </Svg>
-      </View>
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.16} />
 
       <View style={styles.contentCol}>
-        <AppText variant="caption" color={theme.colors.secondary} style={styles.label}>
+        <AppText variant="caption" color={theme.colors.accentLight} style={styles.label}>
           {t('currentStreak')}
         </AppText>
         <AppText variant="titleLarge" color={theme.colors.textOnPrimary} style={styles.streakNumber}>
@@ -44,7 +36,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays }) 
             {t('daysFiveOfFive')}
           </AppText>
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.secondary} style={styles.subtext}>
+        <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.subtext}>
           {t('streakMotivational')}
         </AppText>
       </View>

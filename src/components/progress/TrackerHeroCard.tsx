@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TrackerHeroCardProps {
@@ -22,20 +22,12 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
       style={[
         styles.card,
         {
-          backgroundColor: theme.colors.primary,
-          borderColor: theme.colors.borderGold,
+          backgroundColor: theme.colors.primaryHero,
+          borderColor: 'rgba(243, 196, 64, 0.35)',
         },
       ]}
     >
-      {/* Islamic Watermark */}
-      <View style={styles.watermarkLayer}>
-        <Svg width={110} height={110} viewBox="0 0 110 110">
-          <G transform="translate(55, 55)">
-            <Rect x="-36" y="-36" width="72" height="72" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" fill="none" />
-            <Rect x="-36" y="-36" width="72" height="72" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" fill="none" transform="rotate(45)" />
-          </G>
-        </Svg>
-      </View>
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.16} />
 
       {/* Left Content Column */}
       <View style={styles.textColumn}>

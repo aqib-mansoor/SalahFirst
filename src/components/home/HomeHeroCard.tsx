@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { useTranslation } from '@/context/LocalizationContext';
 import type { PrayerPeriodCategory } from '@/types';
@@ -69,19 +69,23 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
+      <IslamicMihrabCanvas
+        goldColor={theme.colors.accent}
+        opacity={0.16}
+      />
       <IslamicWatermark
-        size={260}
-        opacity={0.08}
-        color={theme.colors.watermark}
+        size={240}
+        opacity={0.07}
+        color={theme.colors.accent}
         style={styles.watermarkTopRight}
       />
 
       {/* Top Section: Pill + Status + Period Subtitle */}
       <View style={styles.topSection}>
         <View style={styles.topRow}>
-          <View style={[styles.currentTag, { borderColor: 'rgba(168, 198, 176, 0.3)' }]}>
+          <View style={[styles.currentTag, { borderColor: 'rgba(243, 196, 64, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.18)' }]}>
             <View style={[styles.goldDot, { backgroundColor: dotColor }]} />
-            <AppText variant="caption" color={theme.colors.secondary} style={styles.currentText}>
+            <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
               {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
             </AppText>
           </View>
@@ -97,7 +101,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           <View style={styles.subtitleRow}>
             <AppText
               variant="caption"
-              color="rgba(255, 255, 255, 0.88)"
+              color="#FFFFFF"
               style={styles.subtitleText}
               numberOfLines={1}
               ellipsizeMode="tail"
@@ -111,7 +115,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Center Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" color={theme.colors.secondary} style={styles.nextPrayerLabel}>
+          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
 
@@ -121,7 +125,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         </View>
 
         <View style={styles.rightAzan}>
-          <AppText variant="caption" color={theme.colors.secondary} style={styles.azanLabel}>
+          <AppText variant="caption" color={theme.colors.accentLight} style={styles.azanLabel}>
             {t('azanTime')}
           </AppText>
           <AppText color={theme.colors.textOnPrimary} style={styles.azanTime}>
@@ -144,13 +148,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
-    shadowColor: '#072418',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 3,
+    borderWidth: 1.2,
+    borderColor: 'rgba(243, 196, 64, 0.40)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    elevation: 4,
   },
   watermarkTopRight: {
     top: -40,
