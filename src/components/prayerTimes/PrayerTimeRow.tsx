@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { NotificationMode } from '@/types';
@@ -27,11 +27,11 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
 }) => {
   const theme = useTheme();
 
-  const cardBg = isNext ? theme.colors.bannerGreen : theme.colors.surface;
-  const textColor = isNext ? theme.colors.bannerGreenText : theme.colors.text;
-  const subtextColor = isNext ? theme.colors.accentLight : theme.colors.textMuted;
-  const bellBg = isNext ? 'rgba(255, 255, 255, 0.15)' : theme.colors.mintTint;
-  const bellColor = isNext ? theme.colors.bannerGreenText : theme.colors.primary;
+  const cardBg = isNext ? theme.colors.secondaryTint : theme.colors.surface;
+  const textColor = theme.colors.textPrimary;
+  const subtextColor = theme.colors.textSecondary;
+  const bellBg = isNext ? theme.colors.surface : theme.colors.secondaryTint;
+  const bellColor = theme.colors.primary;
 
   return (
     <View
@@ -39,7 +39,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         styles.card,
         {
           backgroundColor: cardBg,
-          borderColor: isNext ? theme.colors.borderGold : theme.colors.border,
+          borderColor: isNext ? theme.colors.primary : theme.colors.border,
           borderWidth: isNext ? 1.5 : 1,
         },
       ]}
@@ -49,7 +49,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         <View
           style={[
             styles.dot,
-            { backgroundColor: isNext ? PALETTE.gold : theme.colors.primary },
+            { backgroundColor: isNext ? theme.colors.accent : theme.colors.primary },
           ]}
         />
 
@@ -71,8 +71,8 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
 
       {/* Center Dedicated Non-Overlapping Next Badge */}
       {isNext && (
-        <View style={[styles.nextBadge, { backgroundColor: PALETTE.gold }]}>
-          <AppText variant="caption" color={PALETTE.emeraldDeep} style={styles.nextBadgeText}>
+        <View style={[styles.nextBadge, { backgroundColor: theme.colors.accent }]}>
+          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.nextBadgeText}>
             NEXT • {remainingTimeText || 'IN 1H 24M'}
           </AppText>
         </View>
@@ -94,6 +94,8 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
             styles.bellButton,
             {
               backgroundColor: bellBg,
+              borderColor: theme.colors.border,
+              borderWidth: 1,
               transform: [{ scale: pressed ? 0.94 : 1 }],
             },
           ]}
@@ -124,6 +126,11 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     marginVertical: 4,
     gap: SPACING.sm,
+    shadowColor: '#202923',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
   leftSection: {
     flexDirection: 'row',
@@ -184,4 +191,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-

@@ -81,12 +81,12 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {!hasPermission && (
-          <View style={[styles.warningBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.error }]}>
+          <View style={[styles.warningBanner, { backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }]}>
             <View style={styles.warningContent}>
-              <AppText variant="titleSmall" color={theme.colors.error} style={styles.boldText}>
+              <AppText variant="titleSmall" color={theme.colors.warning} style={styles.boldText}>
                 {t('notificationsDisabled')}
               </AppText>
-              <AppText variant="caption" color={theme.colors.textMuted} style={styles.infoText}>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.infoText}>
                 {t('enableNotificationsPrompt')}
               </AppText>
             </View>
@@ -96,7 +96,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
               accessibilityLabel={t('enable')}
               style={[styles.enableBtn, { backgroundColor: theme.colors.primary }]}
             >
-              <AppText variant="caption" color={theme.colors.textInverse} style={styles.enableBtnText}>
+              <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.enableBtnText}>
                 {t('enable')}
               </AppText>
             </Pressable>

@@ -51,6 +51,11 @@ const styles = StyleSheet.create({
   base: {
     borderRadius: RADIUS.lg,
     borderWidth: 1,
+    shadowColor: '#202923',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
 });
 

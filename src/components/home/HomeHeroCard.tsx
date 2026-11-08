@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -35,20 +35,20 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
-      {/* Elegant Canvas Watermark positioned cleanly in top-right away from text */}
+    <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
+      {/* 8-pointed star watermark at 5% opacity inside #145A46 emerald container */}
       <IslamicWatermark
         size={260}
-        opacity={0.14}
-        color={PALETTE.emeraldWatermark}
+        opacity={0.05}
+        color="rgba(255, 255, 255, 0.05)"
         style={styles.watermarkTopRight}
       />
 
       {/* Top Row: Current Prayer Pill + Completed Status */}
       <View style={styles.topRow}>
-        <View style={styles.currentTag}>
-          <View style={styles.goldDot} />
-          <AppText variant="caption" style={styles.currentText}>
+        <View style={[styles.currentTag, { borderColor: 'rgba(168, 198, 176, 0.3)' }]}>
+          <View style={[styles.goldDot, { backgroundColor: theme.colors.accent }]} />
+          <AppText variant="caption" color={theme.colors.secondary} style={styles.currentText}>
             {t('currentPrayer')}: {localizedCurrentPrayer} ({currentTimeFormatted})
           </AppText>
         </View>
@@ -56,7 +56,8 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         <View style={[styles.statusPill, isCurrentCompleted && styles.statusPillCompleted]}>
           <AppText
             variant="caption"
-            style={[styles.completedTag, isCurrentCompleted && styles.completedTagGreen]}
+            color={isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)'}
+            style={styles.completedTag}
           >
             {isCurrentCompleted ? `${t('completed')} ✓` : t('pending')}
           </AppText>
@@ -66,26 +67,26 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Center Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" style={styles.nextPrayerLabel}>
-            {t('nextPrayer')} • <AppText style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
+          <AppText variant="bodySmall" color={theme.colors.secondary} style={styles.nextPrayerLabel}>
+            {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
 
-          <AppText style={styles.countdownNumber}>
+          <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
             {countdownText}
           </AppText>
         </View>
 
         <View style={styles.rightAzan}>
-          <AppText variant="caption" style={styles.azanLabel}>
+          <AppText variant="caption" color={theme.colors.secondary} style={styles.azanLabel}>
             {t('azanTime')}
           </AppText>
-          <AppText style={styles.azanTime}>
+          <AppText color={theme.colors.textOnPrimary} style={styles.azanTime}>
             {nextPrayerTimeFormatted}
           </AppText>
         </View>
       </View>
 
-      {/* Focus Mode Button in Splash Screen Gold */}
+      {/* "Start Prayer Focus" CTA Button in Soft Gold with #202923 Dark Charcoal text */}
       <Pressable
         onPress={onStartPrayerFocus}
         accessibilityRole="button"
@@ -94,18 +95,18 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         style={({ pressed }) => [
           styles.focusButton,
           {
-            backgroundColor: pressed ? theme.colors.buttonGoldPressed : theme.colors.buttonGold,
+            backgroundColor: pressed ? '#C5A359' : theme.colors.accent,
             transform: [{ scale: pressed ? 0.98 : 1 }],
           },
         ]}
       >
-        <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.colors.buttonGoldText}>
+        <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.colors.textOnAccent}>
           <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </Svg>
-        <AppText variant="titleSmall" color={theme.colors.buttonGoldText} style={styles.focusButtonText}>
+        <AppText variant="titleSmall" color={theme.colors.textOnAccent} style={styles.focusButtonText}>
           {t('startPrayerFocus')}
         </AppText>
-        <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.focusDurationText}>
+        <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.focusDurationText}>
           15 min
         </AppText>
       </Pressable>
@@ -122,12 +123,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'rgba(204, 161, 95, 0.32)',
-    shadowColor: PALETTE.emeraldDark,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 8,
+    borderColor: 'rgba(168, 198, 176, 0.25)',
+    shadowColor: '#202923',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   watermarkTopRight: {
     top: -40,
@@ -146,20 +147,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: 'rgba(204, 161, 95, 0.18)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(204, 161, 95, 0.45)',
   },
   goldDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#FDE68A',
   },
   currentText: {
     fontWeight: '700',
     fontSize: 11,
-    color: '#FDE68A',
   },
   statusPill: {
     paddingHorizontal: SPACING.sm + 2,
@@ -168,16 +166,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   statusPillCompleted: {
-    backgroundColor: 'rgba(204, 161, 95, 0.22)',
+    backgroundColor: 'rgba(214, 181, 109, 0.22)',
   },
   completedTag: {
-    fontWeight: '600',
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.85)',
-  },
-  completedTagGreen: {
-    color: '#FDE68A',
     fontWeight: '700',
+    fontSize: 11,
   },
   centerRow: {
     flexDirection: 'row',
@@ -191,17 +184,14 @@ const styles = StyleSheet.create({
   nextPrayerLabel: {
     fontSize: 13,
     lineHeight: 18,
-    color: PALETTE.goldLight,
   },
   nextPrayerBold: {
     fontWeight: '700',
-    color: '#FFFFFF',
     fontSize: 13.5,
   },
   countdownNumber: {
     fontSize: 34,
     fontWeight: '700',
-    color: '#FFFFFF',
     lineHeight: 44,
     letterSpacing: 0.8,
     fontVariant: ['tabular-nums'],
@@ -212,13 +202,11 @@ const styles = StyleSheet.create({
   },
   azanLabel: {
     fontSize: 11.5,
-    color: PALETTE.goldLight,
     fontWeight: '600',
   },
   azanTime: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#FFFFFF',
   },
   focusButton: {
     flexDirection: 'row',
@@ -227,18 +215,18 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     borderRadius: RADIUS.lg,
     gap: SPACING.sm,
-    shadowColor: '#000',
+    shadowColor: '#202923',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
   focusButtonText: {
     fontWeight: '700',
     fontSize: 15,
   },
   focusDurationText: {
-    opacity: 0.85,
+    opacity: 0.9,
     fontSize: 12.5,
     fontWeight: '600',
   },

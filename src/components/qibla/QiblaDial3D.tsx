@@ -146,7 +146,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             style={[
               styles.needleShaft,
               {
-                backgroundColor: theme.colors.primary,
+                backgroundColor: theme.colors.accent,
                 borderColor: theme.colors.accent,
               },
             ]}

@@ -31,24 +31,21 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   ];
 
   const renderIcon = (tabId: HomeTab, isActive: boolean) => {
-    const strokeColor = isActive ? theme.colors.primary : theme.colors.textSubtle;
+    const strokeColor = isActive ? theme.colors.primary : theme.colors.textSecondary;
 
     switch (tabId) {
       case 'home':
         return (
-          <View style={styles.homeIconWrapper}>
-            {isActive && <View style={[styles.activeDot, { backgroundColor: theme.colors.accent }]} />}
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M12 3L4 9V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V9L12 3Z"
-                stroke={strokeColor}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <Path d="M9 21V12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12V21" stroke={strokeColor} strokeWidth="2" />
-            </Svg>
-          </View>
+          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M12 3L4 9V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V9L12 3Z"
+              stroke={strokeColor}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Path d="M9 21V12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12V21" stroke={strokeColor} strokeWidth="2" />
+          </Svg>
         );
       case 'prayers':
         return (
@@ -104,10 +101,13 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             accessibilityLabel={tab.label}
             hitSlop={8}
           >
-            {renderIcon(tab.id, isActive)}
+            <View style={styles.iconWrapper}>
+              {isActive && <View style={[styles.activeDot, { backgroundColor: theme.colors.accent }]} />}
+              {renderIcon(tab.id, isActive)}
+            </View>
             <AppText
               variant="caption"
-              color={isActive ? theme.colors.primary : theme.colors.textSubtle}
+              color={isActive ? theme.colors.primary : theme.colors.textSecondary}
               style={[styles.tabLabel, { fontWeight: isActive ? '700' : '500' }]}
             >
               {tab.label}
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 48,
   },
-  homeIconWrapper: {
+  iconWrapper: {
     alignItems: 'center',
     position: 'relative',
   },

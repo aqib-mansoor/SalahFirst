@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
@@ -27,10 +27,8 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
 
   const handlePrayerPress = (item: PrayerStatus) => {
     if (item.completed) {
-      // Toggle off directly if already marked
       onTogglePrayer(item.name);
     } else {
-      // Prompt honesty confirmation modal before marking complete
       setConfirmPrayer(item.name);
     }
   };
@@ -46,20 +44,20 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
     <View style={styles.container}>
       {/* Section Header */}
       <View style={styles.headerRow}>
-        <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
+        <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
           {t('todaysSalah')}
         </AppText>
-        <AppText variant="bodySmall" color={PALETTE.emeraldDark} style={styles.countText}>
+        <AppText variant="bodySmall" color={theme.colors.primary} style={styles.countText}>
           {t('prayersCompletedCount', { count: completedCount, total: 5 })}
         </AppText>
       </View>
 
       {/* Progress Bar Track */}
-      <View style={[styles.progressTrack, { backgroundColor: '#E5E7EB' }]}>
+      <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}>
         <View
           style={[
             styles.progressFill,
-            { backgroundColor: PALETTE.emeraldDark, width: `${progressPercent}%` },
+            { backgroundColor: theme.colors.primary, width: `${progressPercent}%` },
           ]}
         />
       </View>
@@ -80,39 +78,43 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
               style={({ pressed }) => [
                 styles.prayerCard,
                 {
-                  backgroundColor: theme.colors.surface,
-                  borderColor: isSelected ? PALETTE.emeraldDark : '#E2E8F0',
-                  borderWidth: isSelected ? 1.8 : 1,
+                  backgroundColor: isSelected ? theme.colors.secondaryTint : theme.colors.surface,
+                  borderColor: isSelected
+                    ? theme.colors.primary
+                    : item.completed
+                    ? theme.colors.secondary
+                    : theme.colors.border,
+                  borderWidth: isSelected ? 1.5 : 1,
                   transform: [{ scale: pressed ? 0.96 : 1 }],
                 },
               ]}
             >
               <AppText
                 variant="bodySmall"
-                color={isSelected ? PALETTE.emeraldDark : theme.colors.text}
+                color={isSelected ? theme.colors.primary : theme.colors.textPrimary}
                 style={styles.prayerName}
               >
                 {t(item.name.toLowerCase() as any) || item.name}
               </AppText>
 
-              <AppText variant="caption" color={theme.colors.textMuted} style={styles.prayerTime}>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.prayerTime}>
                 {item.time}
               </AppText>
 
               {/* Status Circle Indicator */}
               <View style={styles.circleContainer}>
                 {item.completed ? (
-                  <View style={[styles.completedCircle, { backgroundColor: PALETTE.emeraldDark }]}>
+                  <View style={[styles.completedCircle, { backgroundColor: theme.colors.primary }]}>
                     <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13L9 17L19 7" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      <Path d="M5 13L9 17L19 7" stroke={theme.colors.textOnPrimary} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                     </Svg>
                   </View>
                 ) : isSelected ? (
-                  <View style={[styles.currentCircle, { borderColor: PALETTE.emeraldDark }]}>
-                    <View style={[styles.innerGoldDot, { backgroundColor: PALETTE.gold }]} />
+                  <View style={[styles.currentCircle, { borderColor: theme.colors.primary }]}>
+                    <View style={[styles.innerGoldDot, { backgroundColor: theme.colors.accent }]} />
                   </View>
                 ) : (
-                  <View style={[styles.emptyCircle, { borderColor: '#CBD5E1' }]} />
+                  <View style={[styles.emptyCircle, { borderColor: theme.colors.border }]} />
                 )}
               </View>
             </Pressable>
@@ -171,10 +173,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
+    shadowColor: '#202923',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 6,
+    shadowRadius: 12,
     elevation: 2,
   },
   prayerName: {
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    borderWidth: 2,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },

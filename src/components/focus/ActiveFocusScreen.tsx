@@ -125,10 +125,10 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   return (
     <AppContainer
       edges={['top', 'left', 'right', 'bottom']}
-      style={{ backgroundColor: theme.colors.bannerGreen }}
+      style={{ backgroundColor: theme.colors.primaryHero }}
     >
-      <IslamicWatermark size={320} opacity={0.16} style={styles.watermarkTop} />
-      <IslamicWatermark size={340} opacity={0.16} style={styles.watermarkBottom} />
+      <IslamicWatermark size={320} opacity={0.05} color="rgba(255, 255, 255, 0.05)" style={styles.watermarkTop} />
+      <IslamicWatermark size={340} opacity={0.05} color="rgba(255, 255, 255, 0.05)" style={styles.watermarkBottom} />
 
       <View style={styles.container}>
         {/* Top Header */}

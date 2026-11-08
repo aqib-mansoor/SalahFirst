@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Modal, Pressable } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import Svg, { Path } from 'react-native-svg';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, AppButton } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -32,20 +32,20 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
       onRequestClose={onCancel}
     >
       <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable style={[styles.dialog, { backgroundColor: theme.colors.surface }]}>
+        <Pressable style={[styles.dialog, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
           {/* Top Mosque / Crescent Icon */}
-          <View style={[styles.iconWrapper, { backgroundColor: theme.colors.mintTint }]}>
+          <View style={[styles.iconWrapper, { backgroundColor: theme.colors.secondaryTint }]}>
             <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M12 2C8 6 6 9 6 13C6 16.31 8.69 19 12 19C15.31 19 18 16.31 18 13C18 9 16 6 12 2Z"
-                stroke={PALETTE.emeraldDark}
+                stroke={theme.colors.primary}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <Path
                 d="M12 13V19M9 19H15"
-                stroke={PALETTE.emeraldDark}
+                stroke={theme.colors.primary}
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -53,26 +53,26 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
           </View>
 
           {/* Title & Question */}
-          <AppText variant="titleMedium" color={theme.colors.text} align="center" style={styles.title}>
+          <AppText variant="titleMedium" color={theme.colors.textPrimary} align="center" style={styles.title}>
             Confirm {localizedPrayer} Salah
           </AppText>
 
-          <AppText variant="bodyMedium" color={theme.colors.textMuted} align="center" style={styles.subtitle}>
+          <AppText variant="bodyMedium" color={theme.colors.textSecondary} align="center" style={styles.subtitle}>
             Have you completed your {localizedPrayer} prayer today?
           </AppText>
 
           {/* Sincerity & Honesty Callout Box */}
-          <View style={styles.honestyCallout}>
+          <View style={[styles.honestyCallout, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
             <View style={styles.ayahBox}>
-              <AppText variant="caption" align="center" style={styles.ayahText}>
+              <AppText variant="caption" align="center" color={theme.colors.textPrimary} style={styles.ayahText}>
                 "وَكَانَ اللَّهُ بِمَا تَعْمَلُونَ عَلِيمًا"
               </AppText>
-              <AppText variant="caption" align="center" style={styles.ayahTranslation}>
+              <AppText variant="caption" align="center" color={theme.colors.textSecondary} style={styles.ayahTranslation}>
                 "And Allah is ever knowing of what you do." (4:128)
               </AppText>
             </View>
 
-            <AppText variant="caption" align="center" style={styles.honestyNote}>
+            <AppText variant="caption" align="center" color={theme.colors.textPrimary} style={styles.honestyNote}>
               Be honest with yourself and Allah. Only mark as completed if you have genuinely offered this prayer.
             </AppText>
           </View>
@@ -92,7 +92,7 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
               onPress={onCancel}
               variant="ghost"
               size="md"
-              textColor={theme.colors.textMuted}
+              textColor={theme.colors.textSecondary}
               style={styles.cancelBtn}
             />
           </View>
@@ -114,13 +114,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     borderRadius: RADIUS.xl,
+    borderWidth: 1,
     padding: SPACING.xl,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowColor: '#202923',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
   },
   iconWrapper: {
     width: 56,
@@ -140,8 +141,6 @@ const styles = StyleSheet.create({
   },
   honestyCallout: {
     width: '100%',
-    backgroundColor: '#FEF9EE',
-    borderColor: '#F3E8CE',
     borderWidth: 1,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
@@ -152,17 +151,14 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   ayahText: {
-    color: PALETTE.goldDark,
     fontWeight: '700',
     fontSize: 13,
   },
   ayahTranslation: {
-    color: '#854D0E',
     fontStyle: 'italic',
     fontSize: 11,
   },
   honestyNote: {
-    color: '#713F12',
     lineHeight: 16,
     fontSize: 11.5,
     fontWeight: '500',
@@ -181,4 +177,3 @@ const styles = StyleSheet.create({
     minHeight: 40,
   },
 });
-

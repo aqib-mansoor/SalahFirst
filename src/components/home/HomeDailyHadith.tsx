@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable, Share } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
@@ -32,7 +32,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
     <View style={styles.container}>
       {/* Section Header */}
       <View style={styles.headerRow}>
-        <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
+        <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
           Daily Hadith
         </AppText>
         <Pressable
@@ -41,21 +41,21 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
           accessibilityRole="button"
           accessibilityLabel="Read full Hadith collection"
         >
-          <AppText variant="bodySmall" color={PALETTE.emeraldDark} style={styles.readFull}>
+          <AppText variant="bodySmall" color={theme.colors.primary} style={styles.readFull}>
             Read Full ›
           </AppText>
         </Pressable>
       </View>
 
-      {/* Mature Hadith Card with Left Gold Accent Bar */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <View style={styles.leftGoldAccent} />
+      {/* Mature Hadith Card with 3px Left Gold Accent Bar */}
+      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+        <View style={[styles.leftGoldAccent, { backgroundColor: theme.colors.accent }]} />
 
         <View style={styles.cardContent}>
           {/* Badge & Category */}
           <View style={styles.badgeRow}>
-            <View style={styles.badgePill}>
-              <AppText variant="caption" color={PALETTE.goldDark} style={styles.badgeText}>
+            <View style={[styles.badgePill, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
+              <AppText variant="caption" color={theme.colors.textPrimary} style={styles.badgeText}>
                 {dailyHadith.badge}
               </AppText>
             </View>
@@ -64,7 +64,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
           {/* Arabic Calligraphy */}
           <AppText
             variant="arabicMotto"
-            color={theme.colors.text}
+            color={theme.colors.textPrimary}
             align="right"
             style={styles.arabicText}
           >
@@ -72,21 +72,21 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
           </AppText>
 
           {/* Urdu Translation */}
-          <AppText color="#475569" align="right" style={styles.urduText}>
+          <AppText color={theme.colors.textSecondary} align="right" style={styles.urduText}>
             {urduText}
           </AppText>
 
           {/* English Translation */}
-          <AppText color="#334155" style={styles.englishText}>
+          <AppText color={theme.colors.textPrimary} style={styles.englishText}>
             "{englishText}"
           </AppText>
 
           {/* Fine Divider */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
           {/* Footer: Source + Action Buttons */}
           <View style={styles.footerRow}>
-            <AppText variant="caption" color={theme.colors.textMuted} style={styles.sourceText}>
+            <AppText variant="caption" color={theme.colors.textSecondary} style={styles.sourceText}>
               {sourceText}
             </AppText>
 
@@ -99,12 +99,12 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
                 accessibilityLabel="Generate Hadith Wallpaper"
                 style={({ pressed }) => [
                   styles.actionBtn,
-                  { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint },
+                  { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.secondaryTint },
                 ]}
               >
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Rect x="3" y="3" width="18" height="18" rx="2" stroke={PALETTE.emeraldDark} strokeWidth="2" />
-                  <Path d="M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" stroke={PALETTE.emeraldDark} strokeWidth="2" />
+                  <Rect x="3" y="3" width="18" height="18" rx="2" stroke={theme.colors.primary} strokeWidth="2" />
+                  <Path d="M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21" stroke={theme.colors.primary} strokeWidth="2" />
                 </Svg>
               </Pressable>
 
@@ -116,12 +116,12 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull, on
                 accessibilityLabel="Share Hadith"
                 style={({ pressed }) => [
                   styles.actionBtn,
-                  { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.mintTint },
+                  { backgroundColor: pressed ? theme.colors.mintTintPressed : theme.colors.secondaryTint },
                 ]}
               >
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M4 12V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V12" stroke={PALETTE.emeraldDark} strokeWidth="2" strokeLinecap="round" />
-                  <Path d="M16 6L12 2L8 6M12 2V15" stroke={PALETTE.emeraldDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <Path d="M4 12V20C4 20.55 4.45 21 5 21H19C19.55 21 20 20.55 20 20V12" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" />
+                  <Path d="M16 6L12 2L8 6M12 2V15" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </Svg>
               </Pressable>
             </View>
@@ -151,13 +151,12 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: '#E6EAE8',
     overflow: 'hidden',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowColor: '#202923',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
     elevation: 2,
   },
   leftGoldAccent: {
@@ -165,8 +164,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 4,
-    backgroundColor: PALETTE.gold,
+    width: 3,
   },
   cardContent: {
     padding: SPACING.lg,
@@ -180,9 +178,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: '#FBF8F2',
     borderWidth: 1,
-    borderColor: '#EFE7DA',
   },
   badgeText: {
     fontWeight: '800',
@@ -206,7 +202,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
     marginVertical: SPACING.xs,
   },
   footerRow: {

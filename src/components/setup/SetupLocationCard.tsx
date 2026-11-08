@@ -34,11 +34,11 @@ export const SetupLocationCard: React.FC<SetupLocationCardProps> = ({
     }
     if (location) {
       return location.isGps
-        ? { text: t('gpsLocked'), bg: '#E6F4ED', color: theme.colors.primary }
-        : { text: t('manualCity'), bg: '#E6F4ED', color: theme.colors.primary };
+        ? { text: t('gpsLocked'), bg: theme.colors.secondaryTint, color: theme.colors.primary }
+        : { text: t('manualCity'), bg: theme.colors.secondaryTint, color: theme.colors.primary };
     }
     if (permissionDenied) {
-      return { text: t('permissionNeeded'), bg: '#FEE2E2', color: '#DC2626' };
+      return { text: t('permissionNeeded'), bg: theme.colors.warningBg, color: theme.colors.warning };
     }
     return { text: t('locationNotSet'), bg: theme.colors.border, color: theme.colors.textMuted };
   };
