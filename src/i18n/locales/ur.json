@@ -293,5 +293,27 @@
   "tcSection14Title": "14. شرائط میں ترامیم",
   "tcSection14Body": "ہم ضرورت کے تحت ان شرائط کو تبدیل کرنے کا حق محفوظ رکھتے ہیں۔ ایپ کا مسلسل استعمال نئی شرائط کی رضامندی سمجھا جائے گا۔",
   "tcSection15Title": "15. رابطہ کی معلومات",
-  "tcSection15Body": "ان شرائط و ضوابط سے متعلق کسی بھی سوال، تجاویز یا استفسارات کے لیے، براہ کرم آفیشل ڈویلپر رابطہ صفحہ کے ذریعے رابطہ کریں۔"
+  "tcSection15Body": "ان شرائط و ضوابط سے متعلق کسی بھی سوال، تجاویز یا استفسارات کے لیے، براہ کرم آفیشل ڈویلپر رابطہ صفحہ کے ذریعے رابطہ کریں۔",
+
+  "periodTahajjud": "تہجد",
+  "periodSunrise": "طلوعِ آفتاب",
+  "periodIshraq": "اشراق",
+  "periodDuha": "چاشت / ضحیٰ",
+  "periodZawal": "زوال",
+  "periodAwwabin": "اوابین",
+  "periodTahajjudLastThirdSubtitle": "رات کا آخری تہائی حصہ (افضل ترین)",
+  "periodTahajjudSubtitle": "قیام اللیل کا وقت",
+  "periodSunriseSubtitle": "ممنوع وقت کے بعد نماز کا وقت شروع ہوگا",
+  "periodIshraqSubtitle": "طلوعِ آفتاب کے بعد کی نفل نماز",
+  "periodDuhaSubtitle": "چاشت کی نفل نماز کا وقت",
+  "periodZawalSubtitle": "اس دوران نماز پڑھنا ممنوع ہے",
+  "periodFajrSubtitle": "نمازِ فجر — طلوع آفتاب پر ختم",
+  "periodDhuhrSubtitle": "نمازِ ظہر کا وقت",
+  "periodAsrSubtitle": "نمازِ عصر کا وقت",
+  "periodMaghribSubtitle": "مغرب کے بعد اوابین کی نماز مستحب ہے",
+  "periodIshaSubtitle": "عشاء کے بعد قیام اللیل کا وقت شروع ہوتا ہے",
+  "nafl": "نفل",
+  "prohibited": "ممنوع",
+  "lastThirdPill": "آخری تہائی",
+  "waitingForIshraq": "اشراق کا انتظار"
 }

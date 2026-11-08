@@ -293,5 +293,27 @@
   "tcSection14Title": "14. Changes to Terms",
   "tcSection14Body": "We reserve the right to revise these Terms & Conditions as the application evolves. Continued use of SalahFirst following any updates constitutes acceptance of the modified terms.",
   "tcSection15Title": "15. Contact Information",
-  "tcSection15Body": "For questions, feedback, or inquiries regarding these Terms & Conditions, please reach out via the official developer contact page."
+  "tcSection15Body": "For questions, feedback, or inquiries regarding these Terms & Conditions, please reach out via the official developer contact page.",
+
+  "periodTahajjud": "Tahajjud",
+  "periodSunrise": "Sunrise",
+  "periodIshraq": "Ishraq",
+  "periodDuha": "Duha / Chasht",
+  "periodZawal": "Zawal",
+  "periodAwwabin": "Awwabin",
+  "periodTahajjudLastThirdSubtitle": "Last third of the night (Most virtuous)",
+  "periodTahajjudSubtitle": "Night Prayer period (Qiyam al-Layl)",
+  "periodSunriseSubtitle": "Prayer time begins after the prohibited interval",
+  "periodIshraqSubtitle": "Post-sunrise voluntary prayer",
+  "periodDuhaSubtitle": "Forenoon voluntary prayer",
+  "periodZawalSubtitle": "Prayer is prohibited during this interval",
+  "periodFajrSubtitle": "Dawn prayer — ends at sunrise",
+  "periodDhuhrSubtitle": "Midday prayer",
+  "periodAsrSubtitle": "Afternoon prayer",
+  "periodMaghribSubtitle": "Awwabin voluntary prayer recommended after Maghrib",
+  "periodIshaSubtitle": "Night Prayer period begins after Isha",
+  "nafl": "Nafl",
+  "prohibited": "Prohibited",
+  "lastThirdPill": "Last 1/3",
+  "waitingForIshraq": "Waiting for Ishraq"
 }

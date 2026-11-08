@@ -90,3 +90,42 @@ export interface StoredPrayerRecord {
   date: string; // YYYY-MM-DD
   completedPrayers: Record<SalahName, boolean>;
 }
+
+export type PrayerPeriodCategory = 'obligatory' | 'nafl' | 'prohibited' | 'informational';
+
+export type PrayerPeriodId =
+  | 'tahajjud_last_third'
+  | 'tahajjud'
+  | 'fajr'
+  | 'sunrise_prohibited'
+  | 'ishraq'
+  | 'duha'
+  | 'zawal_prohibited'
+  | 'dhuhr'
+  | 'asr'
+  | 'maghrib'
+  | 'isha';
+
+export interface NextPrayerPeriod {
+  id: PrayerPeriodId;
+  nameKey: string;
+  startTime: Date;
+  timeFormatted: string;
+}
+
+export interface CurrentPrayerPeriod {
+  id: PrayerPeriodId;
+  nameKey: string;
+  category: PrayerPeriodCategory;
+  startTime: Date;
+  endTime: Date;
+  startTimeFormatted: string;
+  endTimeFormatted: string;
+  descriptionKey: string;
+  isCalculatedWindow: boolean;
+  isObligatory: boolean;
+  isProhibited: boolean;
+  isNafl: boolean;
+  nextPeriod: NextPrayerPeriod;
+  obligatorySalahName?: 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
+}

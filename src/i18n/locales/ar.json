@@ -294,5 +294,27 @@
   "tcSection14Title": "14. التعديل على الشروط",
   "tcSection14Body": "نحتفظ بالحق في تعديل هذه الشروط عند تحديث التطبيق. ويُعد استمرارك في استخدام التطبيق موافقة ضمنية على الشروط المعدلة.",
   "tcSection15Title": "15. معلومات الاتصال",
-  "tcSection15Body": "لأي أسئلة أو ملاحظات أو استفسارات بخصوص هذه الشروط والأحكام، يُرجى التواصل عبر صفحة الاتصال الرسمية للمطور."
+  "tcSection15Body": "لأي أسئلة أو ملاحظات أو استفسارات بخصوص هذه الشروط والأحكام، يُرجى التواصل عبر صفحة الاتصال الرسمية للمطور.",
+
+  "periodTahajjud": "تهجد",
+  "periodSunrise": "شروق الشمس",
+  "periodIshraq": "إشراق",
+  "periodDuha": "صلاة الضحى",
+  "periodZawal": "زوال الشمس",
+  "periodAwwabin": "صلاة الأوابين",
+  "periodTahajjudLastThirdSubtitle": "الثلث الأخير من الليل (أفضل الأوقات)",
+  "periodTahajjudSubtitle": "وقت قيام الليل",
+  "periodSunriseSubtitle": "يبدأ وقت الصلاة بعد انقضاء وقت النهي",
+  "periodIshraqSubtitle": "صلاة نافلة بعد شروق الشمس",
+  "periodDuhaSubtitle": "صلاة الضحى المباركة",
+  "periodZawalSubtitle": "الصلاة منهي عنها في هذا الوقت",
+  "periodFajrSubtitle": "صلاة الفجر — تنتهي عند الشروق",
+  "periodDhuhrSubtitle": "صلاة الظهر",
+  "periodAsrSubtitle": "صلاة العصر",
+  "periodMaghribSubtitle": "يستحب صلاة الأوابين بعد المغرب",
+  "periodIshaSubtitle": "يبدأ قيام الليل بعد صلاة العشاء",
+  "nafl": "نفل",
+  "prohibited": "منهي عنه",
+  "lastThirdPill": "الثلث الأخير",
+  "waitingForIshraq": "في انتظار الإشراق"
 }
