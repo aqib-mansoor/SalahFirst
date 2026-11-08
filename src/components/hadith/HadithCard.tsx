@@ -1,25 +1,36 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem } from '@/data/hadiths';
+import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 
 export interface HadithCardProps {
   hadith: HadithItem;
   currentIndex: number;
   totalHadiths: number;
-  showUrdu: boolean;
+  translationMode: HadithTranslationMode;
+  onSelectTranslationMode: (mode: HadithTranslationMode) => void;
 }
+
+const TRANSLATION_OPTIONS: { id: HadithTranslationMode; label: string }[] = [
+  { id: 'en', label: 'English' },
+  { id: 'ur', label: 'اردو' },
+  { id: 'both', label: 'Both' },
+];
 
 export const HadithCard: React.FC<HadithCardProps> = ({
   hadith,
   currentIndex,
   totalHadiths,
-  showUrdu,
+  translationMode,
+  onSelectTranslationMode,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -31,7 +42,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         },
       ]}
     >
-      {/* Background Islamic Watermark */}
+      {/* Background Rub el Hizb Watermark */}
       <View style={styles.watermarkLayer}>
         <Svg width={110} height={110} viewBox="0 0 110 110">
           <G transform="translate(55, 55)">
@@ -58,12 +69,12 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         </Svg>
       </View>
 
-      {/* Top Header Row: Fixed badge & counter layout without overlap */}
+      {/* Top Header Row: Category Badge & Index Counter */}
       <View style={styles.topRow}>
-        <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
+        <View style={[styles.badgePill, { backgroundColor: theme.colors.secondaryTint }]}>
           <AppText
             variant="caption"
-            color={theme.colors.textMuted}
+            color={theme.colors.primary}
             style={styles.badgeText}
             numberOfLines={1}
           >
@@ -78,6 +89,50 @@ export const HadithCard: React.FC<HadithCardProps> = ({
         >
           #{currentIndex + 1} of {totalHadiths}
         </AppText>
+      </View>
+
+      {/* Sleek Translation Mode Segmented Track */}
+      <View
+        style={[
+          styles.translationTrack,
+          {
+            backgroundColor: theme.colors.surfaceElevated,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
+        {TRANSLATION_OPTIONS.map((opt) => {
+          const active = translationMode === opt.id;
+          const displayLabel = opt.id === 'both' ? (t('translationBoth') || 'Both') : opt.label;
+          return (
+            <Pressable
+              key={opt.id}
+              onPress={() => onSelectTranslationMode(opt.id)}
+              hitSlop={4}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`${displayLabel} translation`}
+              style={[
+                styles.segment,
+                active && [
+                  styles.activeSegment,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.primary,
+                  },
+                ],
+              ]}
+            >
+              <AppText
+                variant="caption"
+                color={active ? theme.colors.primary : theme.colors.textMuted}
+                style={[styles.segmentLabel, active && styles.activeSegmentLabel]}
+              >
+                {displayLabel}
+              </AppText>
+            </Pressable>
+          );
+        })}
       </View>
 
       {/* Arabic Calligraphy Content */}
@@ -95,16 +150,18 @@ export const HadithCard: React.FC<HadithCardProps> = ({
       <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
       {/* English Translation */}
-      <AppText
-        variant="bodyMedium"
-        color={theme.colors.text}
-        style={styles.englishText}
-      >
-        {hadith.english}
-      </AppText>
+      {(translationMode === 'en' || translationMode === 'both') && (
+        <AppText
+          variant="bodyMedium"
+          color={theme.colors.text}
+          style={styles.englishText}
+        >
+          {hadith.english}
+        </AppText>
+      )}
 
-      {/* Urdu Translation (Conditionally visible when showUrdu is toggled) */}
-      {showUrdu && (
+      {/* Urdu Translation */}
+      {(translationMode === 'ur' || translationMode === 'both') && (
         <View style={[styles.urduBox, { backgroundColor: theme.colors.privacyBg }]}>
           <AppText
             variant="bodyMedium"
@@ -175,12 +232,41 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 13,
   },
+  translationTrack: {
+    flexDirection: 'row',
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    padding: 3,
+    gap: 4,
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeSegment: {
+    borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  segmentLabel: {
+    fontWeight: '600',
+    fontSize: 11,
+  },
+  activeSegmentLabel: {
+    fontWeight: '700',
+  },
   arabicSection: {
     paddingVertical: SPACING.xs,
   },
   arabicText: {
-    fontSize: 24,
-    lineHeight: 40,
+    fontSize: 22,
+    lineHeight: 38,
     textAlign: 'center',
     fontWeight: '600',
   },
@@ -215,4 +301,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

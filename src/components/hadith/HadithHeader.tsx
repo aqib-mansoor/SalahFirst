@@ -1,79 +1,53 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface HadithHeaderProps {
-  showUrdu: boolean;
-  onToggleUrdu: () => void;
+  savedCount: number;
 }
 
-export const HadithHeader: React.FC<HadithHeaderProps> = ({
-  showUrdu,
-  onToggleUrdu,
-}) => {
+export const HadithHeader: React.FC<HadithHeaderProps> = ({ savedCount }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.titleColumn}>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
-          Hadith of the Day
+          {t('dailyHadithTitle')}
         </AppText>
         <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-          Daily wisdom • Offline verified collection
+          {t('dailyHadithWisdom')}
         </AppText>
       </View>
 
-      <Pressable
-        onPress={onToggleUrdu}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: showUrdu }}
-        accessibilityLabel="Toggle Urdu translation"
-        accessibilityHint="Shows or hides verified Urdu translations for Hadiths"
-        hitSlop={8}
-        style={({ pressed }) => [
-          styles.toggleButton,
-          showUrdu
-            ? {
-                backgroundColor: theme.colors.primary,
-                borderColor: theme.colors.primary,
-              }
-            : {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.primary,
-              },
-          pressed && { opacity: 0.8 },
-        ]}
-      >
-        {showUrdu ? (
-          <AppText
-            variant="bodySmall"
-            color={theme.colors.textInverse}
-            style={styles.activeToggleText}
-          >
-            EN + اردو
+      {savedCount > 0 && (
+        <View
+          style={[
+            styles.savedBadge,
+            {
+              backgroundColor: theme.colors.secondaryTint,
+              borderColor: theme.colors.primary,
+            },
+          ]}
+        >
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z"
+              fill={theme.colors.primary}
+              stroke={theme.colors.primary}
+              strokeWidth="2"
+            />
+          </Svg>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.savedBadgeText}>
+            {savedCount}
           </AppText>
-        ) : (
-          <View style={styles.toggleContentColumn}>
-            <AppText
-              variant="caption"
-              color={theme.colors.primary}
-              style={styles.toggleTextEn}
-            >
-              Show Urdu
-            </AppText>
-            <AppText
-              variant="caption"
-              color={theme.colors.primary}
-              style={styles.toggleTextUr}
-            >
-              اردو
-            </AppText>
-          </View>
-        )}
-      </Pressable>
+        </View>
+      )}
     </View>
   );
 };
@@ -84,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
+    paddingTop: SPACING.sm,
     paddingBottom: SPACING.xs,
   },
   titleColumn: {
@@ -97,30 +71,19 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontWeight: '500',
-  },
-  toggleButton: {
-    minWidth: 88,
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeToggleText: {
-    fontWeight: '800',
-    fontSize: 13,
-  },
-  toggleContentColumn: {
-    alignItems: 'center',
-    gap: 1,
-  },
-  toggleTextEn: {
-    fontWeight: '700',
     fontSize: 12,
   },
-  toggleTextUr: {
-    fontWeight: '700',
-    fontSize: 11,
+  savedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  savedBadgeText: {
+    fontWeight: '800',
+    fontSize: 12,
   },
 });

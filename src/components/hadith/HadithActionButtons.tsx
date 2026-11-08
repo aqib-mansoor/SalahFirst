@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.xs,
     elevation: 2,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,

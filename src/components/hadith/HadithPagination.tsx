@@ -9,11 +9,13 @@ import { AppText } from '@/components/common';
 export interface HadithPaginationProps {
   onPrev: () => void;
   onNext: () => void;
+  onRandom: () => void;
 }
 
 export const HadithPagination: React.FC<HadithPaginationProps> = ({
   onPrev,
   onNext,
+  onRandom,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -25,7 +27,6 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         onPress={onPrev}
         accessibilityRole="button"
         accessibilityLabel={t('prevHadith')}
-        accessibilityHint="Navigates to the previous verified Hadith"
         hitSlop={8}
         style={({ pressed }) => [
           styles.navButton,
@@ -47,12 +48,40 @@ export const HadithPagination: React.FC<HadithPaginationProps> = ({
         </AppText>
       </Pressable>
 
+      {/* Shuffle / Random Button */}
+      <Pressable
+        onPress={onRandom}
+        accessibilityRole="button"
+        accessibilityLabel={t('randomHadith') || 'Random Hadith'}
+        hitSlop={8}
+        style={({ pressed }) => [
+          styles.randomButton,
+          {
+            backgroundColor: theme.colors.secondaryTint,
+            borderColor: theme.colors.primary,
+          },
+          pressed && { opacity: 0.8 },
+        ]}
+      >
+        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"
+            stroke={theme.colors.primary}
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+        <AppText variant="caption" color={theme.colors.primary} style={styles.randomLabel}>
+          {t('randomHadith') || 'Random'}
+        </AppText>
+      </Pressable>
+
       {/* Next Button */}
       <Pressable
         onPress={onNext}
         accessibilityRole="button"
         accessibilityLabel={t('nextHadith')}
-        accessibilityHint="Navigates to the next verified Hadith"
         hitSlop={8}
         style={({ pressed }) => [
           styles.navButton,
@@ -81,7 +110,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingHorizontal: SPACING.lg,
-    gap: SPACING.md,
+    gap: SPACING.sm,
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   navButton: {
@@ -94,8 +124,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: SPACING.xs,
   },
+  randomButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    gap: 5,
+  },
   navLabel: {
     fontWeight: '700',
+    fontSize: 12,
+  },
+  randomLabel: {
+    fontWeight: '800',
+    fontSize: 11,
   },
 });
-
