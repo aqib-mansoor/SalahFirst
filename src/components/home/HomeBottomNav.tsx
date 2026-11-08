@@ -7,8 +7,12 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { IslamicNavIcon } from './IslamicNavIcons';
 
-// Enable layout animation on Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+// Enable layout animation on Android (legacy architecture only)
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental &&
+  !(global as any).nativeFabricUIManager
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 

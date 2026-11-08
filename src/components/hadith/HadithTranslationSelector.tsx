@@ -7,8 +7,8 @@ import { useTranslation } from '@/context/LocalizationContext';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 
 export interface HadithTranslationSelectorProps {
-  translationMode: HadithTranslationMode;
-  onSelectTranslationMode: (mode: HadithTranslationMode) => void;
+  translationMode?: HadithTranslationMode;
+  onSelectTranslationMode?: (mode: HadithTranslationMode) => void;
 }
 
 const TRANSLATION_OPTIONS: { id: HadithTranslationMode; label: string }[] = [
@@ -18,11 +18,17 @@ const TRANSLATION_OPTIONS: { id: HadithTranslationMode; label: string }[] = [
 ];
 
 export const HadithTranslationSelector: React.FC<HadithTranslationSelectorProps> = ({
-  translationMode,
+  translationMode = 'both',
   onSelectTranslationMode,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const handleSelect = (mode: HadithTranslationMode) => {
+    if (typeof onSelectTranslationMode === 'function') {
+      onSelectTranslationMode(mode);
+    }
+  };
 
   return (
     <View
@@ -40,7 +46,7 @@ export const HadithTranslationSelector: React.FC<HadithTranslationSelectorProps>
         return (
           <Pressable
             key={opt.id}
-            onPress={() => onSelectTranslationMode(opt.id)}
+            onPress={() => handleSelect(opt.id)}
             hitSlop={4}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
@@ -96,4 +102,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

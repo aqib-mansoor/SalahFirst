@@ -12,15 +12,15 @@ export interface HadithCardProps {
   hadith: HadithItem;
   currentIndex: number;
   totalHadiths: number;
-  translationMode: HadithTranslationMode;
-  onSelectTranslationMode: (mode: HadithTranslationMode) => void;
+  translationMode?: HadithTranslationMode;
+  onSelectTranslationMode?: (mode: HadithTranslationMode) => void;
 }
 
 export const HadithCard: React.FC<HadithCardProps> = ({
   hadith,
   currentIndex,
   totalHadiths,
-  translationMode,
+  translationMode = 'both',
   onSelectTranslationMode,
 }) => {
   const theme = useTheme();
