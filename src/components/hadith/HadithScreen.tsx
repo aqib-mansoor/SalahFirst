@@ -5,20 +5,20 @@ import { SPACING } from '@/constants/theme';
 import { useHadithCollection } from '@/hooks/useHadithCollection';
 import { AppContainer } from '@/components/common';
 import { HomeTab } from '@/components/home/HomeBottomNav';
+import { HadithItem } from '@/data/hadiths';
 import { HadithHeader } from './HadithHeader';
 import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithPagination } from './HadithPagination';
 import { HadithBookmarksCard } from './HadithBookmarksCard';
 import { HadithBookmarksSheet } from './HadithBookmarksSheet';
-import { HadithWallpaperScreen } from '@/components/wallpaper/HadithWallpaperScreen';
 
 export interface HadithScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
+  onOpenWallpaper?: (hadith: HadithItem) => void;
 }
 
-export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => {
-  const [showWallpaper, setShowWallpaper] = useState(false);
+export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpenWallpaper }) => {
   const [showBookmarksSheet, setShowBookmarksSheet] = useState(false);
   const insets = useSafeAreaInsets();
   const {
@@ -40,15 +40,6 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
     randomHadith,
     jumpToHadith,
   } = useHadithCollection();
-
-  if (showWallpaper) {
-    return (
-      <HadithWallpaperScreen
-        hadith={currentHadith}
-        onClose={() => setShowWallpaper(false)}
-      />
-    );
-  }
 
   return (
     <AppContainer edges={['top', 'left', 'right']}>
@@ -73,7 +64,7 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
             translationMode={translationMode}
             isSaved={isSaved}
             onSelectTranslationMode={setTranslationMode}
-            onWallpaperPress={() => setShowWallpaper(true)}
+            onWallpaperPress={() => onOpenWallpaper?.(currentHadith)}
             onSavePress={toggleSave}
             onSharePress={shareHadith}
           />

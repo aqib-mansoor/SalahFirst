@@ -11,6 +11,7 @@ import { HomeSalahTracker } from './HomeSalahTracker';
 import { HomeTasbihWidget } from './HomeTasbihWidget';
 import { HomeDailyHadith } from './HomeDailyHadith';
 import { HomeTab } from './HomeBottomNav';
+import { HadithItem } from '@/data/hadiths';
 
 export interface HomeScreenProps {
   onOpenSettings?: () => void;
@@ -18,7 +19,7 @@ export interface HomeScreenProps {
   onStartPrayerFocus?: () => void;
   onOpenFocusSettings?: () => void;
   onOpenStreaks?: () => void;
-  onOpenWallpaper?: () => void;
+  onOpenWallpaper?: (hadith?: HadithItem) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({

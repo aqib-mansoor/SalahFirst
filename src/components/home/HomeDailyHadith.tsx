@@ -4,11 +4,11 @@ import Svg, { Path, Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
+import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
 
 export interface HomeDailyHadithProps {
   onReadFull?: () => void;
-  onOpenWallpaper?: () => void;
+  onOpenWallpaper?: (hadith?: HadithItem) => void;
 }
 
 export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {

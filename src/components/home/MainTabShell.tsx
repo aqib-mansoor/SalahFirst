@@ -7,6 +7,7 @@ import { HadithScreen } from '@/components/hadith';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
 import { HomeBottomNav, HomeTab } from './HomeBottomNav';
 import { useTheme } from '@/hooks/useTheme';
+import { HadithItem } from '@/data/hadiths';
 
 export interface MainTabShellProps {
   activeTab: HomeTab;
@@ -16,7 +17,7 @@ export interface MainTabShellProps {
   onOpenSettings: () => void;
   onStartPrayerFocus: () => void;
   onOpenFocusSettings?: () => void;
-  onOpenWallpaper: () => void;
+  onOpenWallpaper: (hadith?: HadithItem) => void;
 }
 
 /**
@@ -63,7 +64,10 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
       </View>
 
       <View style={[styles.tabContent, activeTab !== 'hadith' && styles.hiddenTab]}>
-        <HadithScreen onNavigateTab={setActiveTab} />
+        <HadithScreen
+          onNavigateTab={setActiveTab}
+          onOpenWallpaper={onOpenWallpaper}
+        />
       </View>
 
       <View style={[styles.tabContent, activeTab !== 'progress' && styles.hiddenTab]}>

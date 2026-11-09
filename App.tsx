@@ -13,7 +13,7 @@ import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
-import { VERIFIED_HADITHS, getDayOfYearHadithIndex } from '@/data/hadiths';
+import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
 import { ProgressSubTab } from '@/components/progress';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
@@ -45,6 +45,7 @@ function AppContent() {
   const [focusPrayerName, setFocusPrayerName] = useState<string>('Asr');
   const [focusConfigOrigin, setFocusConfigOrigin] = useState<'main' | 'settings'>('main');
   const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
+  const [wallpaperHadith, setWallpaperHadith] = useState<HadithItem | null>(null);
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
@@ -186,6 +187,11 @@ function AppContent() {
     setCurrentStep('focus-active');
   };
 
+  const handleOpenWallpaper = (hadith?: HadithItem) => {
+    setWallpaperHadith(hadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]);
+    setCurrentStep('wallpaper');
+  };
+
   const handleCompletePrayerFocus = () => setPrayerCompleted(focusPrayerName, true);
 
   return (
@@ -194,18 +200,20 @@ function AppContent() {
       {currentStep === 'welcome' && <WelcomeScreen onContinue={handleContinueToSetup} />}
       {currentStep === 'setup' && <SetupScreen onComplete={handleCompleteSetup} />}
 
-      {/* Persistent Zero-Unmount Tab Shell */}
-      {currentStep === 'main' && (
-        <MainTabShell
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          progressSubTab={progressSubTab}
-          setProgressSubTab={setProgressSubTab}
-          onOpenSettings={() => setCurrentStep('settings')}
-          onStartPrayerFocus={handleStartFocusImmediately}
-          onOpenFocusSettings={handleOpenFocusConfigFromHome}
-          onOpenWallpaper={() => setCurrentStep('wallpaper')}
-        />
+      {/* Persistent Zero-Unmount Tab Shell (Hidden during secondary flows to prevent duplicate navbars) */}
+      {currentStep !== 'welcome' && currentStep !== 'setup' && (
+        <View style={[styles.mainShell, currentStep !== 'main' && styles.hiddenScreen]}>
+          <MainTabShell
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            progressSubTab={progressSubTab}
+            setProgressSubTab={setProgressSubTab}
+            onOpenSettings={() => setCurrentStep('settings')}
+            onStartPrayerFocus={handleStartFocusImmediately}
+            onOpenFocusSettings={handleOpenFocusConfigFromHome}
+            onOpenWallpaper={handleOpenWallpaper}
+          />
+        </View>
       )}
 
       {currentStep === 'settings' && (
@@ -217,15 +225,9 @@ function AppContent() {
           onOpenTerms={() => setCurrentStep('terms')}
         />
       )}
-      {currentStep === 'privacy-policy' && (
-        <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />
-      )}
-      {currentStep === 'terms' && (
-        <TermsScreen onBack={() => setCurrentStep('settings')} />
-      )}
-      {currentStep === 'azan-prefs' && (
-        <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />
-      )}
+      {currentStep === 'privacy-policy' && <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />}
+      {currentStep === 'terms' && <TermsScreen onBack={() => setCurrentStep('settings')} />}
+      {currentStep === 'azan-prefs' && <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />}
       {currentStep === 'focus-config' && (
         <PrayerFocusConfigScreen
           initialPrayer={focusPrayerName}
@@ -255,7 +257,7 @@ function AppContent() {
       )}
       {currentStep === 'wallpaper' && (
         <HadithWallpaperScreen
-          hadith={VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
+          hadith={wallpaperHadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
           onClose={() => setCurrentStep('main')}
         />
       )}
@@ -285,5 +287,11 @@ export default function App() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  mainShell: {
+    flex: 1,
+  },
+  hiddenScreen: {
+    display: 'none',
   },
 });
