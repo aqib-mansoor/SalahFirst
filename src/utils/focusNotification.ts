@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { FOCUS_CHANNEL_ID } from './notificationChannels';
+import { pruneDeliveredNotifications } from './notificationCleanup';
 
 export const FOCUS_ACTIVE_NOTIF_ID = 'salahfirst_focus_active';
 export const FOCUS_DONE_NOTIF_ID = 'salahfirst_focus_done';
@@ -11,11 +12,12 @@ export const FOCUS_BREACH_NOTIF_ID = 'salahfirst_focus_breach';
  */
 export const triggerFocusBreachNotification = async (prayerName: string): Promise<void> => {
   try {
+    await pruneDeliveredNotifications(FOCUS_BREACH_NOTIF_ID);
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_BREACH_NOTIF_ID,
       content: {
-        title: `⚠️ ${prayerName} Prayer Focus Active`,
-        body: `You navigated away from your prayer session. Return to SalahFirst to complete your Salah.`,
+        title: `${prayerName} • Prayer in Progress`,
+        body: 'Focus shield active. Return to SalahFirst to complete your Salah.',
         sound: 'default',
         data: { type: 'focus-breach', prayerName },
         ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
@@ -42,12 +44,14 @@ export const startFocusNotifications = async (
   durationMinutes: number
 ): Promise<void> => {
   try {
+    await pruneDeliveredNotifications(FOCUS_ACTIVE_NOTIF_ID);
+
     // 1. Ongoing active shield notification
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_ACTIVE_NOTIF_ID,
       content: {
-        title: `🕌 ${prayerName} Focus Mode Active`,
-        body: `${durationMinutes}m prayer shield running. Distractions minimized.`,
+        title: `${prayerName} • Focus Shield Active`,
+        body: `${durationMinutes}m prayer shield running. Distractions silenced.`,
         data: { type: 'focus-active', prayerName },
         sticky: true,
         autoDismiss: false,
@@ -61,8 +65,8 @@ export const startFocusNotifications = async (
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_DONE_NOTIF_ID,
       content: {
-        title: `✅ ${prayerName} Focus Complete`,
-        body: `Alhamdulillah! Tap to confirm you completed your ${prayerName} prayer.`,
+        title: `${prayerName} • Focus Complete`,
+        body: `Alhamdulillah. Tap to log your ${prayerName} prayer.`,
         data: { type: 'focus-completed', prayerName },
         ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
       },
@@ -71,9 +75,7 @@ export const startFocusNotifications = async (
         date: triggerDate,
       },
     });
-  } catch (error) {
-    console.warn('[FocusNotification] Failed to schedule focus notifications', error);
-  }
+  } catch {}
 };
 
 /**
@@ -84,8 +86,5 @@ export const cancelFocusNotifications = async (): Promise<void> => {
     await Notifications.dismissNotificationAsync(FOCUS_ACTIVE_NOTIF_ID);
     await Notifications.cancelScheduledNotificationAsync(FOCUS_ACTIVE_NOTIF_ID);
     await Notifications.cancelScheduledNotificationAsync(FOCUS_DONE_NOTIF_ID);
-  } catch (error) {
-    console.warn('[FocusNotification] Failed to cancel focus notifications', error);
-  }
+  } catch {}
 };
-

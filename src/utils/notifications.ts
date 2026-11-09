@@ -7,6 +7,7 @@ import { formatDateKey } from './trackerStatistics';
 import { isWithinQuietHours } from './notificationQuietHours';
 import { getLocalDateComponents } from './timezone';
 import { loadFocusOffsets, loadFocusPreferences, PrayerFocusOffsets } from './prayerFocusOffsets';
+import { dismissDeliveredByPrayer } from './notificationCleanup';
 import {
   PRAYER_CHANNEL_ID,
   REMINDER_CHANNEL_ID,
@@ -76,6 +77,7 @@ export const cancelMissedPrayerNotification = async (
   try {
     const identifier = `salahfirst-missed-${prayerName.toLowerCase()}-${dateKey}`;
     await Notifications.cancelScheduledNotificationAsync(identifier);
+    await dismissDeliveredByPrayer(prayerName);
   } catch {}
 };
 
@@ -86,8 +88,8 @@ export const triggerStreakNotification = async (): Promise<void> => {
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: (i18n.t('notifStreakTitle') as string) || 'Alhamdulillah',
-        body: (i18n.t('notifStreakBody') as string) || 'You completed all 5 prayers today. May Allah accept your worship.',
+        title: (i18n.t('notifStreakTitle') as string) || 'SalahFirst • Daily Completion',
+        body: (i18n.t('notifStreakBody') as string) || 'Alhamdulillah. You completed all 5 prayers today.',
         sound: 'default',
         data: { type: 'streak-encouragement' },
       },
@@ -96,9 +98,18 @@ export const triggerStreakNotification = async (): Promise<void> => {
   } catch {}
 };
 
+let isScheduling = false;
+let queuedScheduleParams: SchedulePrayerParams | null = null;
+
 export const scheduleAllPrayerAlerts = async (
   params: SchedulePrayerParams
 ): Promise<number> => {
+  if (isScheduling) {
+    queuedScheduleParams = params;
+    return 0;
+  }
+  isScheduling = true;
+
   try {
     const { latitude, longitude, timezone, alerts, calculationMethod = 'Karachi', juristicMethod = 'Hanafi' } = params;
     if (latitude === undefined || longitude === undefined) return 0;
@@ -106,7 +117,6 @@ export const scheduleAllPrayerAlerts = async (
     const { granted } = await checkNotificationPermissions();
     if (!granted) return 0;
 
-    // Safely cancel only prayer, pre-reminder, and auto-focus notifications so inspiration notifications are preserved
     const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     for (const notif of scheduled) {
       if (
@@ -122,10 +132,7 @@ export const scheduleAllPrayerAlerts = async (
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
     const [history, focusOffsets, focusPrefs] = await Promise.all([
-      storage.get<Record<string, Record<string, boolean>>>(
-        APP_CONFIG.storageKeys.prayerTracker,
-        {}
-      ),
+      storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
       loadFocusOffsets(),
       loadFocusPreferences(),
     ]);
@@ -181,8 +188,8 @@ export const scheduleAllPrayerAlerts = async (
           await Notifications.scheduleNotificationAsync({
             identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
             content: {
-              title: (i18n.t(alarmTitleKey as any) as string) || `Time for ${prayer.name}`,
-              body: (i18n.t(alarmBodyKey as any) as string) || 'Hayya \'alas-Salah — Turn your attention to Salah.',
+              title: (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
+              body: (i18n.t(alarmBodyKey as any) as string) || `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
               sound: mode === 'VIBRATE' ? undefined : 'default',
               data: { prayerName: prayer.name, type: 'prayer-alarm' },
             },
@@ -206,8 +213,8 @@ export const scheduleAllPrayerAlerts = async (
             await Notifications.scheduleNotificationAsync({
               identifier: `salahfirst-autofocus-${prayer.key}-${dateKey}`,
               content: {
-                title: `🕌 ${prayer.name} Focus Mode Active`,
-                body: `${focusDurationMins}m prayer shield running. Distractions minimized.`,
+                title: `${prayer.name} • Focus Shield Active`,
+                body: `${focusDurationMins}m prayer shield running. Distractions silenced.`,
                 sound: 'default',
                 data: {
                   type: 'auto-focus-start',
@@ -238,8 +245,8 @@ export const scheduleAllPrayerAlerts = async (
             await Notifications.scheduleNotificationAsync({
               identifier: `salahfirst-missed-${prayer.key}-${dateKey}`,
               content: {
-                title: (i18n.t(missedTitleKey as any) as string) || `${prayer.name} hasn't been marked yet`,
-                body: (i18n.t(missedBodyKey as any) as string) || 'Take a moment for your prayer, if you haven\'t already.',
+                title: (i18n.t(missedTitleKey as any) as string) || `${prayer.name} • Unmarked Prayer`,
+                body: (i18n.t(missedBodyKey as any) as string) || `Take a peaceful moment to complete and log your ${prayer.name}.`,
                 sound: 'default',
                 data: { prayerName: prayer.name, type: 'missed-followup' },
               },
@@ -264,8 +271,8 @@ export const scheduleAllPrayerAlerts = async (
           await Notifications.scheduleNotificationAsync({
             identifier: `salahfirst-reflection-${dateKey}`,
             content: {
-              title: (i18n.t('notifDailyReflectionTitle') as string) || 'A moment to reflect 🤍',
-              body: (i18n.t('notifDailyReflectionBody') as string) || 'How was your Salah today? Take a moment to review your day.',
+              title: (i18n.t('notifDailyReflectionTitle') as string) || 'SalahFirst • Evening Reflection',
+              body: (i18n.t('notifDailyReflectionBody') as string) || 'Take a quiet moment to review your prayers today.',
               sound: 'default',
               data: { type: 'daily-reflection' },
             },
@@ -281,7 +288,12 @@ export const scheduleAllPrayerAlerts = async (
     }
 
     return scheduledCount;
-  } catch {
-    return 0;
+  } finally {
+    isScheduling = false;
+    if (queuedScheduleParams) {
+      const next = queuedScheduleParams;
+      queuedScheduleParams = null;
+      scheduleAllPrayerAlerts(next);
+    }
   }
 };

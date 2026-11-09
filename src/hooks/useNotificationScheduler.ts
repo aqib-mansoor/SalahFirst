@@ -1,10 +1,7 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { UserLocation, PrayerAlertConfig, CalculationMethodName, JuristicMethod } from '@/types';
-import {
-  scheduleAllPrayerAlerts,
-  requestNotificationPermission,
-} from '@/utils/notifications';
+import { scheduleAllPrayerAlerts, requestNotificationPermission } from '@/utils/notifications';
 import {
   scheduleDailyInspirationNotification,
   updatePendingInspirationLanguage,
@@ -24,7 +21,9 @@ export const useNotificationScheduler = (
   juristicMethod?: JuristicMethod,
   language?: string
 ) => {
-  const syncAlarms = useCallback(async () => {
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const executeSync = useCallback(async () => {
     await scheduleAllPrayerAlerts({
       latitude: location?.latitude,
       longitude: location?.longitude,
@@ -38,6 +37,23 @@ export const useNotificationScheduler = (
       language,
     });
   }, [location?.latitude, location?.longitude, location?.timezone, alerts, calculationMethod, juristicMethod, language]);
+
+  const syncAlarms = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      executeSync();
+    }, 500);
+  }, [executeSync]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Synchronize scheduled prayer alarms whenever parameters change
   useEffect(() => {
@@ -83,7 +99,7 @@ export const useNotificationScheduler = (
   const requestPermissions = useCallback(async () => {
     const granted = await requestNotificationPermission();
     if (granted) {
-      await syncAlarms();
+      syncAlarms();
     }
     return granted;
   }, [syncAlarms]);

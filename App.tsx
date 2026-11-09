@@ -31,6 +31,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession, createFocusSession, saveActiveFocusSession } from '@/utils/focusSession';
 import { checkAndActivateCurrentAutoFocus } from '@/utils/prayerFocusOffsets';
+import { registerSingleNotificationPolicy } from '@/utils/notificationCleanup';
 
 export type { AppStep };
 
@@ -142,6 +143,9 @@ function AppContent() {
     return () => subscription.remove();
   }, []);
 
+  // Enforce single active alert in notification shade
+  useEffect(() => registerSingleNotificationPolicy(), []);
+
   // Handle Android hardware back button
   useAppBackHandler({
     currentStep,
@@ -151,40 +155,30 @@ function AppContent() {
     focusConfigOrigin,
   });
 
-  const handleContinueToSetup = () => {
-    setCurrentStep('setup');
-  };
-
+  const handleContinueToSetup = () => setCurrentStep('setup');
   const handleCompleteSetup = async () => {
     await storage.set(APP_CONFIG.storageKeys.hasCompletedSetup, true);
     setCurrentStep('main');
     setActiveTab('home');
   };
-
   const getSuggestedPrayerName = () => {
-    const currentPending = prayersList.find(
-      (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
-    );
-    return currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
+    const pending = prayersList.find((p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed);
+    return pending ? pending.name : (prayerData.nextPrayerName || 'Fajr');
   };
-
   const handleStartFocusImmediately = () => {
     setFocusPrayerName(getSuggestedPrayerName());
     setActiveSession(null);
     setCurrentStep('focus-active');
   };
-
   const handleOpenFocusConfigFromHome = () => {
     setFocusPrayerName(getSuggestedPrayerName());
     setFocusConfigOrigin('main');
     setCurrentStep('focus-config');
   };
-
   const handleOpenFocusConfigFromSettings = () => {
     setFocusConfigOrigin('settings');
     setCurrentStep('focus-config');
   };
-
   const handleBeginFocus = (duration: FocusDuration, prayerName: string) => {
     setFocusDuration(duration);
     setFocusPrayerName(prayerName);

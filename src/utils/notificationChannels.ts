@@ -13,7 +13,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   if (Platform.OS !== 'android') return;
 
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_ID, {
-    name: 'Prayer Time & Azan Alerts',
+    name: 'Prayer Call & Azan',
     importance: Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 300, 200, 300],
     lightColor: '#114B36',
@@ -23,7 +23,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
-    name: 'Pre-Prayer Gentle Reminders',
+    name: 'Pre-Prayer Reminder',
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 200, 100, 200],
     lightColor: '#CCA15F',
@@ -33,7 +33,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(MISSED_CHANNEL_ID, {
-    name: 'Missed Prayer Follow-ups',
+    name: 'Prayer Tracker Reminder',
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 150, 100, 150],
     lightColor: '#CCA15F',
@@ -43,7 +43,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(REFLECTION_CHANNEL_ID, {
-    name: 'Daily Reflection & Streaks',
+    name: 'Daily Reflection',
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 100, 100, 100],
     lightColor: '#114B36',
@@ -53,7 +53,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(INSPIRATION_CHANNEL_ID, {
-    name: 'Daily Islamic Inspiration',
+    name: 'Daily Quran & Hadith',
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 150, 100, 150],
     lightColor: '#CCA15F',
@@ -63,7 +63,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(REENGAGEMENT_CHANNEL_ID, {
-    name: 'Gentle Islamic Reconnection',
+    name: 'Gentle Reconnection',
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 150, 100, 150],
     lightColor: '#114B36',
@@ -73,7 +73,7 @@ export const setupNotificationChannels = async (): Promise<void> => {
   });
 
   await Notifications.setNotificationChannelAsync(FOCUS_CHANNEL_ID, {
-    name: 'Prayer Focus Mode & Shield',
+    name: 'Salah Focus Mode',
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 200, 100, 200],
     lightColor: '#114B36',
@@ -117,4 +117,3 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     return false;
   }
 };
-
