@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Pressable, Animated } from 'react-native';
 import { SETUP_QURAN_AYAT, QuranAyah } from '@/data';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -55,18 +55,18 @@ export const SetupAyahCarousel: React.FC = () => {
   const currentAyah: QuranAyah = SETUP_QURAN_AYAT[activeIndex];
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.bannerGreen }]}>
+    <View style={[styles.card, { backgroundColor: theme.colors.primaryHero, borderColor: theme.colors.borderGold }]}>
       {/* Islamic Geometry Canvas Watermarks */}
       <IslamicWatermark
         size={240}
         opacity={0.22}
-        color={PALETTE.emeraldWatermark}
+        color={theme.colors.watermark}
         style={styles.watermarkTopRight}
       />
       <IslamicWatermark
         size={220}
         opacity={0.16}
-        color={PALETTE.goldLight}
+        color={theme.colors.accentLight}
         style={styles.watermarkBottomLeft}
       />
 
@@ -77,19 +77,19 @@ export const SetupAyahCarousel: React.FC = () => {
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
         ]}
       >
-        <AppText variant="ayahArabic" style={styles.arabicText}>
+        <AppText variant="ayahArabic" color={theme.colors.textOnPrimary} style={styles.arabicText}>
           {currentAyah.arabic}
         </AppText>
 
-        <AppText style={styles.urduText}>
+        <AppText color={theme.colors.accentLight} style={styles.urduText}>
           {currentAyah.urdu}
         </AppText>
 
-        <AppText style={styles.englishText}>
+        <AppText color={theme.colors.textOnPrimary} style={styles.englishText}>
           "{currentAyah.english}"
         </AppText>
 
-        <AppText style={styles.referenceText}>
+        <AppText color={theme.colors.accent} style={styles.referenceText}>
           — {currentAyah.reference}
         </AppText>
       </Animated.View>
@@ -105,7 +105,7 @@ export const SetupAyahCarousel: React.FC = () => {
               style={[
                 styles.dot,
                 {
-                  backgroundColor: isActive ? PALETTE.gold : 'rgba(255, 255, 255, 0.35)',
+                  backgroundColor: isActive ? theme.colors.accent : 'rgba(255, 255, 255, 0.35)',
                   width: isActive ? 22 : 6,
                 },
               ]}
@@ -127,8 +127,7 @@ const styles = StyleSheet.create({
     minHeight: 180,
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'rgba(204, 161, 95, 0.28)',
-    shadowColor: PALETTE.emeraldDark,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 14,
@@ -147,27 +146,23 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.xs,
   },
   arabicText: {
-    color: '#FFFFFF',
     fontSize: 22,
     lineHeight: 36,
     fontWeight: '700',
     textAlign: 'right',
   },
   urduText: {
-    color: '#FEF3C7',
     fontSize: 13.5,
     lineHeight: 23,
     fontWeight: '500',
     textAlign: 'right',
   },
   englishText: {
-    color: 'rgba(255, 255, 255, 0.92)',
     fontSize: 13,
     lineHeight: 20,
     fontStyle: 'italic',
   },
   referenceText: {
-    color: '#FDE68A',
     fontSize: 11.5,
     fontWeight: '600',
     textAlign: 'right',

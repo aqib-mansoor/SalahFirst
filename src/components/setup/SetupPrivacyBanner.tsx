@@ -16,7 +16,7 @@ export const SetupPrivacyBanner: React.FC = () => {
         styles.container,
         {
           backgroundColor: theme.colors.privacyBg,
-          borderColor: theme.isDark ? theme.colors.border : '#DCE8E1',
+          borderColor: theme.colors.border,
         },
       ]}
     >

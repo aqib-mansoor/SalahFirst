@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { WELCOME_THEME } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { IslamicWatermark } from './IslamicWatermark';
 import { WelcomeHeader } from './WelcomeHeader';
 import { WelcomeBrand } from './WelcomeBrand';
@@ -15,10 +15,12 @@ export interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onContinue = () => {},
 }) => {
+  const theme = useTheme();
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right', 'bottom']}
-      style={[styles.container, { backgroundColor: WELCOME_THEME.background }]}
+      style={[styles.container, { backgroundColor: theme.colors.primaryHero }]}
     >
       <StatusBar style="light" />
 
@@ -26,13 +28,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       <IslamicWatermark
         size={340}
         opacity={0.25}
-        color={WELCOME_THEME.watermark}
+        color={theme.colors.watermark}
         style={styles.topRightWatermark}
       />
       <IslamicWatermark
         size={360}
         opacity={0.25}
-        color={WELCOME_THEME.watermark}
+        color={theme.colors.watermark}
         style={styles.bottomLeftWatermark}
       />
 

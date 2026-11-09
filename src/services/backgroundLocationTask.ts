@@ -104,7 +104,7 @@ export const registerBackgroundLocation = async (): Promise<boolean> => {
       foregroundService: {
         notificationTitle: 'SalahFirst Location Synchronization',
         notificationBody: 'Keeping your local prayer times accurate.',
-        notificationColor: '#114B36',
+        notificationColor: '#0E7449',
       },
     });
 

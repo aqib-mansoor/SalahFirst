@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
 import { APP_CONFIG } from '@/constants/config';
-import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 
@@ -11,15 +11,7 @@ export const SetupHeader: React.FC = () => {
   const theme = useTheme();
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.surface,
-          borderBottomColor: theme.colors.border,
-        },
-      ]}
-    >
+    <View style={styles.container}>
       {/* Brand Identity: Mini 3D Crescent & App Name */}
       <View style={styles.brandRow}>
         <View style={styles.logoWrapper}>
@@ -30,15 +22,23 @@ export const SetupHeader: React.FC = () => {
           <Text style={[styles.brandWord, { color: theme.colors.text }]}>
             {APP_CONFIG.nameFirst}
           </Text>
-          <Text style={[styles.brandWord, { color: PALETTE.gold }]}>
+          <Text style={[styles.brandWord, { color: theme.colors.accent }]}>
             {APP_CONFIG.nameSecond}
           </Text>
         </Text>
       </View>
 
       {/* Golden Arabic Bismillah Pill */}
-      <View style={styles.bismillahPill}>
-        <AppText variant="caption" color={PALETTE.goldDark} style={styles.bismillahText}>
+      <View
+        style={[
+          styles.bismillahPill,
+          {
+            backgroundColor: theme.colors.accentTint,
+            borderColor: theme.colors.accent,
+          },
+        ]}
+      >
+        <AppText variant="caption" color={theme.colors.textPrimary} style={styles.bismillahText}>
           {APP_CONFIG.bismillah}
         </AppText>
       </View>
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
-    borderBottomWidth: 1,
+    paddingTop: SPACING.xs,
+    paddingBottom: SPACING.xs,
   },
   brandRow: {
     flexDirection: 'row',
@@ -88,9 +88,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm + 4,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
-    backgroundColor: '#FBF8F2',
     borderWidth: 1,
-    borderColor: '#EFE7DA',
   },
   bismillahText: {
     fontSize: 12.5,
