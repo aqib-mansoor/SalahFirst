@@ -153,14 +153,16 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           ]}
         >
           <AppButton
-            label={isSaved ? '✓ Settings Saved' : 'Save Settings'}
-            onPress={handleSaveAndReturn}
+            label={`Begin ${effectivePrayer} Focus (${duration}m)`}
+            onPress={() => onBeginFocus(duration, effectivePrayer)}
             size="lg"
-            style={[
-              styles.beginButton,
-              { backgroundColor: isSaved ? theme.colors.mintTint : theme.colors.primary },
-            ]}
+            style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
           />
+          <Pressable onPress={handleSaveAndReturn} hitSlop={8} style={styles.saveBtn}>
+            <AppText variant="caption" color={theme.colors.textMuted} align="center">
+              {isSaved ? '✓ Default Settings Saved' : 'Save as Default'}
+            </AppText>
+          </Pressable>
         </View>
       </View>
     </AppContainer>
@@ -175,6 +177,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
-  dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1 },
+  dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1, gap: 4 },
   beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 52 },
+  saveBtn: { paddingVertical: 6, alignItems: 'center', justifyContent: 'center' },
 });

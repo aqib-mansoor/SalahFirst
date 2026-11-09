@@ -9,11 +9,13 @@ export interface FocusSession {
   startTimestamp: number;
   targetEndTimestamp: number;
   status: 'active' | 'completed' | 'cancelled';
+  breachCount?: number;
 }
 
 export const createFocusSession = (
   prayerName: string,
-  durationMinutes: FocusDuration
+  durationMinutes: FocusDuration,
+  breachCount: number = 0
 ): FocusSession => {
   const now = Date.now();
   return {
@@ -22,6 +24,7 @@ export const createFocusSession = (
     startTimestamp: now,
     targetEndTimestamp: now + durationMinutes * 60 * 1000,
     status: 'active',
+    breachCount,
   };
 };
 

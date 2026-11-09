@@ -4,6 +4,35 @@ import { FOCUS_CHANNEL_ID } from './notificationChannels';
 
 export const FOCUS_ACTIVE_NOTIF_ID = 'salahfirst_focus_active';
 export const FOCUS_DONE_NOTIF_ID = 'salahfirst_focus_done';
+export const FOCUS_BREACH_NOTIF_ID = 'salahfirst_focus_breach';
+
+/**
+ * Triggers an immediate high-priority warning when user departs from active focus
+ */
+export const triggerFocusBreachNotification = async (prayerName: string): Promise<void> => {
+  try {
+    await Notifications.scheduleNotificationAsync({
+      identifier: FOCUS_BREACH_NOTIF_ID,
+      content: {
+        title: `⚠️ ${prayerName} Prayer Focus Active`,
+        body: `You navigated away from your prayer session. Return to SalahFirst to complete your Salah.`,
+        sound: 'default',
+        data: { type: 'focus-breach', prayerName },
+        ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
+      },
+      trigger: null,
+    });
+  } catch {}
+};
+
+/**
+ * Dismisses focus breach warning notification
+ */
+export const dismissFocusBreachNotification = async (): Promise<void> => {
+  try {
+    await Notifications.dismissNotificationAsync(FOCUS_BREACH_NOTIF_ID);
+  } catch {}
+};
 
 /**
  * Starts ongoing and scheduled completion notifications for active focus

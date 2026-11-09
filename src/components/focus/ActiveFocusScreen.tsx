@@ -19,7 +19,12 @@ import {
   clearActiveFocusSession,
   calculateRemainingSeconds,
 } from '@/utils/focusSession';
-import { startFocusNotifications, cancelFocusNotifications } from '@/utils/focusNotification';
+import {
+  startFocusNotifications,
+  cancelFocusNotifications,
+  triggerFocusBreachNotification,
+  dismissFocusBreachNotification,
+} from '@/utils/focusNotification';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
@@ -49,6 +54,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
   const [showExitModal, setShowExitModal] = useState(false);
+  const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
@@ -71,12 +77,23 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
-      if (nextState === 'active') {
+      if (nextState === 'background' || nextState === 'inactive') {
+        if (!isCompleted) {
+          triggerFocusBreachNotification(sessionRef.current.prayerName);
+          setBreachCount((prev) => {
+            const next = prev + 1;
+            sessionRef.current.breachCount = next;
+            saveActiveFocusSession(sessionRef.current);
+            return next;
+          });
+        }
+      } else if (nextState === 'active') {
+        dismissFocusBreachNotification();
         tick();
       }
     });
     return () => subscription.remove();
-  }, [tick]);
+  }, [isCompleted, tick]);
 
   const handleExitEarly = () => {
     setShowExitModal(true);
@@ -84,6 +101,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
 
   const handleConfirmExit = async () => {
     setShowExitModal(false);
+    await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
     onExit();
@@ -107,6 +125,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   };
 
   const handleConfirmPrayed = async () => {
+    await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
     onCompletePrayer();
@@ -114,6 +133,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   };
 
   const handleNotYet = async () => {
+    await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
     onExit();
@@ -179,6 +199,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
       <FocusCompletionModal
         visible={isCompleted}
         prayerName={effectivePrayer}
+        breachCount={breachCount}
         onConfirmPrayed={handleConfirmPrayed}
         onNotYet={handleNotYet}
       />

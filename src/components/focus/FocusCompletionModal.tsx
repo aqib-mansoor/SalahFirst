@@ -8,6 +8,7 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface FocusCompletionModalProps {
   visible: boolean;
   prayerName: string;
+  breachCount?: number;
   onConfirmPrayed: () => void;
   onNotYet: () => void;
 }
@@ -15,6 +16,7 @@ export interface FocusCompletionModalProps {
 export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
   visible,
   prayerName,
+  breachCount = 0,
   onConfirmPrayed,
   onNotYet,
 }) => {
@@ -26,9 +28,22 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
   return (
     <View style={styles.overlay}>
       <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <View style={[styles.badgePill, { backgroundColor: theme.colors.mintTint }]}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-            {t('focusFinished')}
+        <View
+          style={[
+            styles.badgePill,
+            {
+              backgroundColor: breachCount === 0 ? theme.colors.mintTint : theme.colors.warningBg,
+            },
+          ]}
+        >
+          <AppText
+            variant="caption"
+            color={breachCount === 0 ? theme.colors.primary : theme.colors.warning}
+            style={styles.badgeText}
+          >
+            {breachCount === 0
+              ? '🛡️ ZERO DISTRACTIONS • FULL KHUSHU'
+              : `⚠️ ${breachCount} DISTRACTION INTERRUPTION(S)`}
           </AppText>
         </View>
 
