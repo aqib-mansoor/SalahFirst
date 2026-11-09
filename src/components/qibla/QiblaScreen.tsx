@@ -5,7 +5,7 @@ import { SPACING } from '@/constants/theme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useQiblaCompass } from '@/hooks/useQiblaCompass';
 import { AppContainer } from '@/components/common';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -101,12 +101,6 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
             needsCalibration={needsCalibration}
           />
         </ScrollView>
-
-        {/* Global Bottom Navigation */}
-        <HomeBottomNav
-          activeTab="qibla"
-          onTabChange={onNavigateTab}
-        />
 
         {/* Worldwide City Selector Bottom Sheet */}
         <LocationBottomSheet

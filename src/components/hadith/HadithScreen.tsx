@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
 import { useHadithCollection } from '@/hooks/useHadithCollection';
 import { AppContainer } from '@/components/common';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeTab } from '@/components/home/HomeBottomNav';
 import { HadithHeader } from './HadithHeader';
 import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
@@ -100,11 +100,6 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab }) => 
           onSelectHadith={jumpToHadith}
           onRemoveBookmark={toggleSaveById}
           onClose={() => setShowBookmarksSheet(false)}
-        />
-
-        <HomeBottomNav
-          activeTab="hadith"
-          onTabChange={onNavigateTab}
         />
       </View>
     </AppContainer>

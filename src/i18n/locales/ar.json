@@ -253,6 +253,12 @@
   "dailyInspirationQuietHoursTitle": "ساعات الهدوء",
   "dailyInspirationQuietHoursDesc": "لا يتم إرسال أي تنبيهات في ساعات الراحة (من 10:00 م حتى 5:00 ص).",
 
+  "reengagementGroupTitle": "تذكير لطيف للعودة",
+  "reengagementToggleTitle": "رسائل التذكير اللطيفة",
+  "reengagementToggleDesc": "تذكير قلبي هادئ عند الغياب لأكثر من 24 ساعة للإقبال على الصلاة والذكر.",
+  "reengagementStandbyTitle": "حماية ذكية للخصوصية",
+  "reengagementStandbyDesc": "يُجدول بين 10:00 صباحاً و 8:00 مساءً ويُلغى تلقائياً بمجرد فتح التطبيق.",
+
   "wallpaper": "خلفية",
   "hadithWallpaperGallery": "معرض خلفيات الحديث",
   "wallpaperGallerySubtitle": "4 سمات إسلامية • تصدير عالي الدقة",

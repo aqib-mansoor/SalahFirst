@@ -9,6 +9,12 @@ import {
   scheduleDailyInspirationNotification,
   updatePendingInspirationLanguage,
 } from '@/utils/inspirationScheduler';
+import {
+  scheduleStandbyReengagement,
+  cancelPendingReengagement,
+  updatePendingReengagementLanguage,
+} from '@/utils/reengagementScheduler';
+import { recordAppActive } from '@/utils/reengagementManager';
 import { addTrackerListener } from './usePrayerTracker';
 
 export const useNotificationScheduler = (
@@ -38,10 +44,11 @@ export const useNotificationScheduler = (
     syncAlarms();
   }, [syncAlarms]);
 
-  // When language changes, update any pending inspiration notification content
+  // When language changes, update any pending inspiration and reengagement notification content
   useEffect(() => {
     if (language) {
       updatePendingInspirationLanguage(language);
+      updatePendingReengagementLanguage(language);
     }
   }, [language]);
 
@@ -52,15 +59,26 @@ export const useNotificationScheduler = (
     });
   }, [syncAlarms]);
 
-  // Re-synchronize alarms when the app returns from background to foreground
+  // Handle AppState: active resets reengagement & syncs alarms, background queues standby reengagement
   useEffect(() => {
+    recordAppActive();
+    cancelPendingReengagement();
+
     const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
+        recordAppActive();
+        cancelPendingReengagement();
         syncAlarms();
+      } else if (state === 'background' || state === 'inactive') {
+        recordAppActive();
+        scheduleStandbyReengagement({
+          timezone: location?.timezone,
+          language,
+        });
       }
     });
     return () => subscription.remove();
-  }, [syncAlarms]);
+  }, [syncAlarms, location?.timezone, language]);
 
   const requestPermissions = useCallback(async () => {
     const granted = await requestNotificationPermission();

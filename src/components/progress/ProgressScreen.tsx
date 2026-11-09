@@ -7,7 +7,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { AppContainer, AppText } from '@/components/common';
 import { HadithToast } from '@/components/hadith/HadithToast';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeTab } from '@/components/home/HomeBottomNav';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
 import { TrackerPrayerRow } from './TrackerPrayerRow';
@@ -191,8 +191,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
             <HadithToast message={guidanceToast} onDismiss={() => setGuidanceToast(null)} />
           </View>
         )}
-
-        <HomeBottomNav activeTab="progress" onTabChange={onNavigateTab} />
       </View>
     </AppContainer>
   );

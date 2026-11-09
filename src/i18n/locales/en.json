@@ -252,6 +252,12 @@
   "dailyInspirationQuietHoursTitle": "Quiet Hours Protection",
   "dailyInspirationQuietHoursDesc": "Never sends reminders during quiet hours (10:00 PM – 5:00 AM).",
 
+  "reengagementGroupTitle": "Gentle Islamic Reminders",
+  "reengagementToggleTitle": "Gentle Reconnection",
+  "reengagementToggleDesc": "Sends a peaceful, heartfelt reminder when inactive for 24 hours to help reconnect with Salah.",
+  "reengagementStandbyTitle": "Smart Standby Protection",
+  "reengagementStandbyDesc": "Scheduled between 10:00 AM – 8:00 PM and instantly cancelled whenever you open the app.",
+
   "wallpaper": "Wallpaper",
   "hadithWallpaperGallery": "Hadith Wallpaper Gallery",
   "wallpaperGallerySubtitle": "4 Islamic themes • High-resolution export",

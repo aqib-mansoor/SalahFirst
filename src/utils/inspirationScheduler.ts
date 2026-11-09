@@ -9,6 +9,7 @@ import {
   recordInspirationDelivery,
   INSPIRATION_CONFIG_KEY,
 } from './inspirationManager';
+import { hasDeliveredReengagementOnDate } from './reengagementManager';
 import {
   InspirationConfig,
   InspirationItem,
@@ -98,15 +99,17 @@ export const scheduleDailyInspirationNotification = async (params: {
     const todayKey = todayLocal.dateKey;
 
     const alreadyDeliveredToday = await hasDeliveredOnDate(todayKey);
+    const alreadyDeliveredReengagement = await hasDeliveredReengagementOnDate(todayKey);
     const scheduledList = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     const existingToday = scheduledList.find((n) => n.identifier === `salahfirst-inspiration-${todayKey}`);
+    const existingReengagement = scheduledList.find((n) => n.identifier === `salahfirst-reengagement-${todayKey}`);
 
     let targetDate = new Date();
     let targetDateKey = todayKey;
 
-    // Check if we should target today or tomorrow
+    // Check if we should target today or tomorrow (enforce strict max 1 daily notification)
     const currentHour = now.getHours();
-    if (alreadyDeliveredToday || existingToday || currentHour >= 20) {
+    if (alreadyDeliveredToday || alreadyDeliveredReengagement || existingToday || existingReengagement || currentHour >= 20) {
       // Advance to tomorrow
       targetDate.setDate(now.getDate() + 1);
       const tomorrowLocal = getLocalDateComponents(targetDate, params.timezone);

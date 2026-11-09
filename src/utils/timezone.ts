@@ -10,6 +10,8 @@ export interface LocalDateComponents {
   month: number; // 0-indexed
   day: number;
   dateKey: string; // YYYY-MM-DD
+  hour: number;
+  minute: number;
 }
 
 // In-memory cache to guarantee zero overhead on repeated lookups
@@ -113,26 +115,35 @@ export const getLocalDateComponents = (
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
     });
     const parts = formatter.formatToParts(date);
     let year = date.getUTCFullYear();
     let month = date.getUTCMonth();
     let day = date.getUTCDate();
+    let hour = date.getUTCHours();
+    let minute = date.getUTCMinutes();
     for (const p of parts) {
       if (p.type === 'year') year = parseInt(p.value, 10);
       if (p.type === 'month') month = parseInt(p.value, 10) - 1;
       if (p.type === 'day') day = parseInt(p.value, 10);
+      if (p.type === 'hour') hour = parseInt(p.value, 10);
+      if (p.type === 'minute') minute = parseInt(p.value, 10);
     }
     const mm = month + 1 < 10 ? `0${month + 1}` : `${month + 1}`;
     const dd = day < 10 ? `0${day}` : `${day}`;
-    return { year, month, day, dateKey: `${year}-${mm}-${dd}` };
+    return { year, month, day, dateKey: `${year}-${mm}-${dd}`, hour, minute };
   } catch {
     const y = date.getFullYear();
     const m = date.getMonth();
     const d = date.getDate();
+    const h = date.getHours();
+    const min = date.getMinutes();
     const mm = m + 1 < 10 ? `0${m + 1}` : `${m + 1}`;
     const dd = d < 10 ? `0${d}` : `${d}`;
-    return { year: y, month: m, day: d, dateKey: `${y}-${mm}-${dd}` };
+    return { year: y, month: m, day: d, dateKey: `${y}-${mm}-${dd}`, hour: h, minute: min };
   }
 };
 

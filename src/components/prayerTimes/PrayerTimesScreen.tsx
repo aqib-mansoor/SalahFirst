@@ -7,7 +7,7 @@ import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer, AppText } from '@/components/common';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeTab } from '@/components/home/HomeBottomNav';
 import {
   PrayerTimesHeader,
   PrayerTimesDateSwitcher,
@@ -39,7 +39,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<HomeTab>('prayers');
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showAzanPrefs, setShowAzanPrefs] = useState(false);
   const [dateOffset, setDateOffset] = useState<number>(0);
@@ -104,12 +103,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   }, [needsCitySelection, location]);
 
   if (showAzanPrefs) return <AzanPrefsScreen onBack={() => setShowAzanPrefs(false)} />;
-
-  const handleTabChange = (tab: HomeTab) => {
-    setActiveTab(tab);
-    if (tab === 'home' && onNavigateHome) onNavigateHome();
-    else onNavigateTab?.(tab);
-  };
 
   const handleSelectCity = (c: PresetCity) => {
     updateLocation({ city: c.name, country: c.country, latitude: c.latitude, longitude: c.longitude, isGps: false });
@@ -188,8 +181,6 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
             zawalRange={naflSchedule.zawalRange}
           />
         </ScrollView>
-
-        <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
 
         <LocationBottomSheet
           visible={sheetVisible}

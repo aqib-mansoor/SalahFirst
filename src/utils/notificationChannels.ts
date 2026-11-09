@@ -6,6 +6,7 @@ export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
 export const MISSED_CHANNEL_ID = 'salahfirst-missed-reminders';
 export const REFLECTION_CHANNEL_ID = 'salahfirst-reflection';
 export const INSPIRATION_CHANNEL_ID = 'salahfirst-daily-inspiration';
+export const REENGAGEMENT_CHANNEL_ID = 'salahfirst-reengagement';
 export const FOCUS_CHANNEL_ID = 'salahfirst-focus-mode';
 
 export const setupNotificationChannels = async (): Promise<void> => {
@@ -56,6 +57,16 @@ export const setupNotificationChannels = async (): Promise<void> => {
     importance: Notifications.AndroidImportance.DEFAULT,
     vibrationPattern: [0, 150, 100, 150],
     lightColor: '#CCA15F',
+    enableLights: true,
+    enableVibrate: true,
+    sound: 'default',
+  });
+
+  await Notifications.setNotificationChannelAsync(REENGAGEMENT_CHANNEL_ID, {
+    name: 'Gentle Islamic Reconnection',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    vibrationPattern: [0, 150, 100, 150],
+    lightColor: '#114B36',
     enableLights: true,
     enableVibrate: true,
     sound: 'default',

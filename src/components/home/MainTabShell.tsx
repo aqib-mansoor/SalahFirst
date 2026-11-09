@@ -5,7 +5,7 @@ import { PrayerTimesScreen } from '@/components/prayerTimes';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
-import { HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
 
 export interface MainTabShellProps {
   activeTab: HomeTab;
@@ -72,6 +72,9 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
           }}
         />
       </View>
+
+      {/* Single Persistent Floating Navigation Bar */}
+      <HomeBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </View>
   );
 };

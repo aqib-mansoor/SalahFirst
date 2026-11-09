@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -10,7 +10,7 @@ import { HomeHeroCard } from './HomeHeroCard';
 import { HomeSalahTracker } from './HomeSalahTracker';
 import { HomeTasbihWidget } from './HomeTasbihWidget';
 import { HomeDailyHadith } from './HomeDailyHadith';
-import { HomeBottomNav, HomeTab } from './HomeBottomNav';
+import { HomeTab } from './HomeBottomNav';
 
 export interface HomeScreenProps {
   onOpenSettings?: () => void;
@@ -30,15 +30,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenWallpaper,
 }) => {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const { location, permissionDenied } = useDeviceLocation();
-
-  const handleTabChange = (tab: HomeTab) => {
-    setActiveTab(tab);
-    if (onNavigateTab) {
-      onNavigateTab(tab);
-    }
-  };
 
   const {
     prayerData,
@@ -70,7 +62,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}
-          onSelectCity={() => handleTabChange('prayers')}
+          onSelectCity={() => onNavigateTab && onNavigateTab('prayers')}
         />
 
         {/* Scrollable Dashboard Body */}
@@ -107,13 +99,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Mature Daily Hadith Section with Arabic, Urdu & English */}
           <HomeDailyHadith
-            onReadFull={() => handleTabChange('hadith')}
+            onReadFull={() => onNavigateTab && onNavigateTab('hadith')}
             onOpenWallpaper={onOpenWallpaper}
           />
         </ScrollView>
-
-        {/* Docked Bottom Navigation Bar */}
-        <HomeBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </View>
     </AppContainer>
   );

@@ -12,6 +12,7 @@ import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
 import { InspirationSettingsGroup } from './InspirationSettingsGroup';
+import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
 import { CalculationMethodName, JuristicMethod } from '@/types';
@@ -22,6 +23,10 @@ import {
   saveInspirationConfig,
   scheduleDailyInspirationNotification,
 } from '@/utils/inspirationScheduler';
+import {
+  getReengagementConfig,
+  saveReengagementConfig,
+} from '@/utils/reengagementScheduler';
 
 export interface SettingsScreenProps {
   onBack: () => void;
@@ -60,11 +65,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { language, setLanguage } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
+  const [reengagementEnabled, setReengagementEnabled] = useState(true);
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
+    getReengagementConfig().then((cfg) => setReengagementEnabled(cfg.enabled));
   }, []);
+
+  const handleToggleReengagement = async (val: boolean) => {
+    setReengagementEnabled(val);
+    const cfg = await getReengagementConfig();
+    await saveReengagementConfig({ ...cfg, enabled: val });
+  };
 
   const handleToggleInspiration = async (val: boolean) => {
     setInspirationEnabled(val);
@@ -164,6 +177,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <InspirationSettingsGroup
             enabled={inspirationEnabled}
             onToggleEnabled={handleToggleInspiration}
+          />
+
+          <ReengagementSettingsGroup
+            enabled={reengagementEnabled}
+            onToggleEnabled={handleToggleReengagement}
           />
 
           <GeneralSettingsGroup

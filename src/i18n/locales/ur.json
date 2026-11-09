@@ -252,6 +252,12 @@
   "dailyInspirationQuietHoursTitle": "پرسکون اوقات کا احترام",
   "dailyInspirationQuietHoursDesc": "رات 10 بجے سے صبح 5 بجے کے درمیان کوئی پیغام ارسال نہیں کیا جاتا۔",
 
+  "reengagementGroupTitle": "یاد دہانی برائے رجوع",
+  "reengagementToggleTitle": "پُرسکون واپسی کا پیغام",
+  "reengagementToggleDesc": "جب آپ 24 گھنٹے ایپ نہ کھولیں تو نماز سے دوبارہ جڑنے کے لیے ایک پُرسکون پیغام۔",
+  "reengagementStandbyTitle": "خودکار حفاظت",
+  "reengagementStandbyDesc": "صبح 10 سے رات 8 بجے کے درمیان، اور ایپ کھولتے ہی خودبخود منسوخ ہو جاتا ہے۔",
+
   "wallpaper": "وال پیپر",
   "hadithWallpaperGallery": "حدیث وال پیپر گیلری",
   "wallpaperGallerySubtitle": "4 اسلامی تھیمز • اعلیٰ کوالٹی برآمد",

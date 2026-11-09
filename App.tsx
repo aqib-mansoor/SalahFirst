@@ -112,6 +112,9 @@ function AppContent() {
       } else if (data && data.type === 'daily-inspiration') {
         setCurrentStep('main');
         setActiveTab('hadith');
+      } else if (data && data.type === 'reengagement') {
+        setCurrentStep('main');
+        setActiveTab('home');
       }
     });
 
