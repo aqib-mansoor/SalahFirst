@@ -43,10 +43,10 @@ export const HeroFocusButton: React.FC<HeroFocusButtonProps> = ({
         <Svg width={17} height={17} viewBox="0 0 24 24" fill={theme.colors.textOnAccent}>
           <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </Svg>
-        <AppText variant="titleSmall" color={theme.colors.textOnAccent} style={styles.focusButtonText}>
+        <AppText variant="titleSmall" color={theme.colors.textOnAccent} style={styles.focusButtonText} numberOfLines={1}>
           {label}
         </AppText>
-        <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.focusDurationText}>
+        <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.focusDurationText} numberOfLines={1}>
           {durationMinutes}m
         </AppText>
       </Pressable>

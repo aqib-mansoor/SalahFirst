@@ -100,7 +100,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
           ]}
         >
           <View style={[styles.goldDot, { backgroundColor: statusConfig.dot }]} />
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText}>
+          <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText} numberOfLines={1}>
             {t('currentPrayer').toUpperCase()}: {localizedCurrentPrayer} ({currentTimeFormatted})
           </AppText>
         </View>

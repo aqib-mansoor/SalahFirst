@@ -106,6 +106,8 @@ export const AppButton: React.FC<AppButtonProps> = ({
           <AppText
             variant={size === 'sm' ? 'bodySmall' : 'titleSmall'}
             color={resolvedTextColor}
+            numberOfLines={1}
+            adjustsFontSizeToFit
             style={styles.label}
           >
             {label}

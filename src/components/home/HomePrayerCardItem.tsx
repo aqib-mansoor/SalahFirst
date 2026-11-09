@@ -77,12 +77,13 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
       <AppText
         variant="bodySmall"
         color={isCurrentActive ? theme.colors.primary : theme.colors.textPrimary}
+        numberOfLines={1}
         style={styles.prayerName}
       >
         {localizedName}
       </AppText>
 
-      <AppText variant="caption" color={theme.colors.textSecondary} style={styles.prayerTime}>
+      <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1} style={styles.prayerTime}>
         {item.time}
       </AppText>
 
