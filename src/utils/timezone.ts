@@ -107,11 +107,12 @@ export const resolveTimezone = (
 
 export const getLocalDateComponents = (
   date: Date = new Date(),
-  timezone: string = 'UTC'
+  timezone?: string
 ): LocalDateComponents => {
+  const resolvedTz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
+      timeZone: resolvedTz,
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',

@@ -6,8 +6,9 @@ const assert = (cond: any, msg: string) => {
 import { SALAH_AND_CONNECTION_REMINDERS } from '../data/reengagement/salahAndConnectionReminders';
 import { QURAN_AND_HOPE_REMINDERS } from '../data/reengagement/quranAndHopeReminders';
 import { calculateReengagementTargetTime } from '../utils/reengagementTiming';
-import { INACTIVITY_THRESHOLD_MS } from '../utils/reengagementManager';
 import { ReengagementItem } from '../data/reengagement/types';
+
+export const INACTIVITY_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const ALL_REENGAGEMENT_ITEMS: ReengagementItem[] = [
   ...SALAH_AND_CONNECTION_REMINDERS,
