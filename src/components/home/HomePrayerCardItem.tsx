@@ -126,7 +126,7 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
       </View>
     </Pressable>
   </Animated.View>
-  );
+);
 };
 
 const styles = StyleSheet.create({
