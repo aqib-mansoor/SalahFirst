@@ -70,6 +70,32 @@ export const prayerSlice = createSlice({
       storage.set(APP_CONFIG.storageKeys.prayerTracker, state.historyMap).catch(() => {});
     },
 
+    carryOverPrayers: (
+      state,
+      action: PayloadAction<{ fromDateKey: string; toDateKey: string }>
+    ) => {
+      const { fromDateKey, toDateKey } = action.payload;
+      if (!fromDateKey || !toDateKey || fromDateKey === toDateKey) return;
+      const source = state.historyMap[fromDateKey];
+      if (!source) return;
+      if (!state.historyMap[toDateKey]) {
+        state.historyMap[toDateKey] = {
+          Fajr: false,
+          Dhuhr: false,
+          Asr: false,
+          Maghrib: false,
+          Isha: false,
+        };
+      }
+      Object.entries(source).forEach(([prayer, completed]) => {
+        if (completed) {
+          state.historyMap[toDateKey][prayer] = true;
+        }
+      });
+      state.streakCount = calculateCurrentStreak(state.historyMap);
+      storage.set(APP_CONFIG.storageKeys.prayerTracker, state.historyMap).catch(() => {});
+    },
+
     setCalculationMethod: (state, action: PayloadAction<CalculationMethodName>) => {
       state.calcMethod = action.payload;
       storage.set(APP_CONFIG.storageKeys.calculationMethod, action.payload).catch(() => {});
@@ -85,6 +111,7 @@ export const prayerSlice = createSlice({
 export const {
   hydratePrayerState,
   setPrayerCompleted,
+  carryOverPrayers,
   setCalculationMethod,
   setJuristicMethod,
 } = prayerSlice.actions;

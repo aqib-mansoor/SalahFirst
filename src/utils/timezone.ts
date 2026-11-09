@@ -179,3 +179,68 @@ export const createCalendarDateForCalculation = (
   const { year, month, day } = getLocalDateComponents(instant, timezone);
   return new Date(year, month, day, 12, 0, 0);
 };
+
+export interface LocationTimeDiff {
+  destinationTime: string;
+  destinationDate: string;
+  differenceMinutes: number;
+  differenceText: string;
+  dayRelation: 'same' | 'yesterday' | 'tomorrow';
+  destDateKey: string;
+  currentDateKey: string;
+}
+
+export const calculateLocationTimeDiff = (
+  destinationTimezone: string,
+  currentTimezone?: string
+): LocationTimeDiff => {
+  const currentTz = currentTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const now = new Date();
+
+  const destComp = getLocalDateComponents(now, destinationTimezone);
+  const currentComp = getLocalDateComponents(now, currentTz);
+
+  const destUtcEpoch = Date.UTC(destComp.year, destComp.month, destComp.day, destComp.hour, destComp.minute);
+  const currentUtcEpoch = Date.UTC(currentComp.year, currentComp.month, currentComp.day, currentComp.hour, currentComp.minute);
+
+  const diffMinutes = Math.round((destUtcEpoch - currentUtcEpoch) / 60000);
+
+  let dayRelation: 'same' | 'yesterday' | 'tomorrow' = 'same';
+  if (destComp.dateKey < currentComp.dateKey) {
+    dayRelation = 'yesterday';
+  } else if (destComp.dateKey > currentComp.dateKey) {
+    dayRelation = 'tomorrow';
+  }
+
+  let differenceText = 'Same time zone as phone';
+  if (diffMinutes !== 0) {
+    const isBehind = diffMinutes < 0;
+    const absMins = Math.abs(diffMinutes);
+    const hrs = Math.floor(absMins / 60);
+    const mins = absMins % 60;
+    const timeStr = mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+    differenceText = isBehind ? `${timeStr} behind phone time` : `${timeStr} ahead of phone time`;
+  }
+
+  const destHour12 = destComp.hour % 12 || 12;
+  const destAmPm = destComp.hour >= 12 ? 'PM' : 'AM';
+  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+  const destinationTime = `${pad(destHour12)}:${pad(destComp.minute)} ${destAmPm}`;
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const destDateObj = new Date(destComp.year, destComp.month, destComp.day);
+  const dayName = dayNames[destDateObj.getDay()];
+  const monthName = monthNames[destComp.month];
+  const destinationDate = `${dayName}, ${destComp.day} ${monthName}`;
+
+  return {
+    destinationTime,
+    destinationDate,
+    differenceMinutes: diffMinutes,
+    differenceText,
+    dayRelation,
+    destDateKey: destComp.dateKey,
+    currentDateKey: currentComp.dateKey,
+  };
+};
