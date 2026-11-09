@@ -7,6 +7,7 @@ export * from './NextTomorrowPrayerCard';
 export * from './NaflTimingsCard';
 export * from './NotificationModeIcons';
 export * from './PrayerTimeRow';
+export * from './LocationSheetHeader';
 export * from './LocationBottomSheet';
 export * from './LocationChangeConfirmModal';
 export * from './LocationChangeBreakdownCard';

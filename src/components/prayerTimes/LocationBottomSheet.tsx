@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, StyleSheet, View, Pressable, ScrollView } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,7 +10,9 @@ import { LocationCityRow } from './LocationCityRow';
 import { LocationGpsPinnedCard } from './LocationGpsPinnedCard';
 import { LocationSearchBar } from './LocationSearchBar';
 import { LocationChangeConfirmModal } from './LocationChangeConfirmModal';
+import { LocationSheetHeader } from './LocationSheetHeader';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { CityModalCountryRow } from '@/components/setup/CityModalCountryRow';
 
 export interface LocationBottomSheetProps {
   visible: boolean;
@@ -37,6 +38,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const { location: deviceLoc } = useDeviceLocation();
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [onlineCities, setOnlineCities] = useState<PresetCity[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -47,11 +49,27 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const currentCountry = propCountry || deviceLoc?.country;
   const currentTimezone = propTimezone || deviceLoc?.timezone;
 
+  const countries = useMemo(() => {
+    const map = new Map<string, number>();
+    PRESET_CITIES.forEach((c) => {
+      map.set(c.country, (map.get(c.country) || 0) + 1);
+    });
+    return Array.from(map.entries()).map(([country, count]) => ({
+      country,
+      cityCount: count,
+    }));
+  }, []);
+
   const trimmed = search.trim().toLowerCase();
   const filteredPresets = trimmed
     ? PRESET_CITIES.filter((c) => c.name.toLowerCase().includes(trimmed) || c.country.toLowerCase().includes(trimmed))
     : PRESET_CITIES;
   const displayCities = [...filteredPresets, ...onlineCities];
+
+  const countryCities = useMemo(() => {
+    if (!selectedCountry) return [];
+    return PRESET_CITIES.filter((c) => c.country === selectedCountry);
+  }, [selectedCountry]);
 
   const handleOnlineSearch = async () => {
     if (trimmed.length < 2) return;
@@ -72,6 +90,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   const handleClose = () => {
     setSearch('');
+    setSelectedCountry(null);
     setOnlineCities([]);
     setOnlineError(null);
     setAttribution(null);
@@ -101,31 +120,25 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           <Pressable style={styles.backdrop} onPress={handleClose} />
 
           <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
-            {/* Top Grab Handle */}
-            <View style={styles.handleWrap}>
-              <View style={[styles.dragHandle, { backgroundColor: theme.colors.border }]} />
-            </View>
+            <LocationSheetHeader
+              selectedCountry={selectedCountry}
+              isSearching={Boolean(trimmed)}
+              onBackToCountries={() => setSelectedCountry(null)}
+              onClose={handleClose}
+            />
 
-            {/* Header Row */}
-            <View style={styles.headerRow}>
-              <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-                {t('selectCity')}
-              </AppText>
-              <Pressable
-                onPress={handleClose}
-                hitSlop={12}
-                accessibilityRole="button"
-                accessibilityLabel="Close location selection"
-                style={[styles.closeBtn, { backgroundColor: theme.colors.surfaceElevated }]}
-              >
-                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M18 6L6 18M6 6l12 12" stroke={theme.colors.text} strokeWidth="2.2" strokeLinecap="round" />
-                </Svg>
-              </Pressable>
-            </View>
+            {selectedCountry && !trimmed && (
+              <View style={[styles.activeCountryBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+                <AppText variant="titleSmall" color={theme.colors.text}>
+                  {selectedCountry}
+                </AppText>
+                <AppText variant="caption" color={theme.colors.textMuted}>
+                  {countryCities.length} verified cities
+                </AppText>
+              </View>
+            )}
 
-            {/* Pinned Top GPS Card */}
-            {onUseGps && (
+            {onUseGps && !selectedCountry && !trimmed && (
               <LocationGpsPinnedCard
                 isGps={isGps}
                 onPress={() => {
@@ -135,7 +148,6 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               />
             )}
 
-            {/* Search Input Bar & Online Lookup */}
             <LocationSearchBar
               search={search}
               isSearching={isSearching}
@@ -150,19 +162,35 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               onOnlineSearch={handleOnlineSearch}
             />
 
-            {/* Scrollable Cities List */}
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-              {displayCities.map((city) => {
-                const isSelected = !isGps && city.name.toLowerCase() === currentCityName.toLowerCase();
-                return (
+              {trimmed ? (
+                displayCities.map((city) => (
                   <LocationCityRow
                     key={city.id}
                     city={city}
-                    isSelected={isSelected}
+                    isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
                     onSelect={handleCitySelect}
                   />
-                );
-              })}
+                ))
+              ) : selectedCountry ? (
+                countryCities.map((city) => (
+                  <LocationCityRow
+                    key={city.id}
+                    city={city}
+                    isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
+                    onSelect={handleCitySelect}
+                  />
+                ))
+              ) : (
+                countries.map((item) => (
+                  <CityModalCountryRow
+                    key={item.country}
+                    country={item.country}
+                    cityCount={item.cityCount}
+                    onPress={() => setSelectedCountry(item.country)}
+                  />
+                ))
+              )}
             </ScrollView>
           </View>
         </View>
@@ -199,30 +227,14 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
     gap: SPACING.sm,
   },
-  handleWrap: {
-    alignItems: 'center',
-    paddingVertical: SPACING.xs,
-  },
-  dragHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: RADIUS.full,
-  },
-  headerRow: {
+  activeCountryBanner: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: SPACING.xs,
-  },
-  title: {
-    fontWeight: '800',
-  },
-  closeBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: RADIUS.full,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
   },
   list: {
     gap: SPACING.xs + 2,
