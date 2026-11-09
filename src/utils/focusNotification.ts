@@ -16,14 +16,16 @@ export const triggerFocusBreachNotification = async (
 ): Promise<void> => {
   try {
     await pruneDeliveredNotifications(FOCUS_BREACH_NOTIF_ID);
-    const body = blockedAppsSummary
-      ? `Step away from ${blockedAppsSummary}. Tap now to return to your Salah.`
-      : 'Focus shield active. Tap now to return to SalahFirst to complete your Salah.';
+    const targetMention =
+      blockedAppsSummary && blockedAppsSummary.length <= 25
+        ? blockedAppsSummary
+        : 'distractions';
+    const body = `Salah first, scroll later. Put ${targetMention} aside and stand before your Lord for ${prayerName}.`;
 
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_BREACH_NOTIF_ID,
       content: {
-        title: `⚠️ ${prayerName} • Prayer in Progress`,
+        title: `${prayerName} Focus • Salah in Progress`,
         body,
         sound: 'default',
         data: { type: 'focus-breach', prayerName },
