@@ -15,6 +15,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { searchWorldwideCity } from '@/utils/geocoding';
+import { CityModalCountryRow } from './CityModalCountryRow';
+import { CityModalCityRow } from './CityModalCityRow';
 
 export interface SetupCityModalProps {
   visible: boolean;
@@ -89,6 +91,11 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
     setSelectedCountry(null);
     setErrorMessage(null);
     onClose();
+  };
+
+  const handleCityPick = (city: PresetCity) => {
+    onSelect(city);
+    handleClose();
   };
 
   return (
@@ -210,26 +217,10 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => {
-                    onSelect(item);
-                    handleClose();
-                  }}
-                  style={({ pressed }) => [
-                    styles.listItem,
-                    {
-                      borderBottomColor: theme.colors.border,
-                      backgroundColor: pressed ? theme.colors.mintTint : 'transparent',
-                    },
-                  ]}
-                >
-                  <AppText variant="titleSmall" color={theme.colors.text}>
-                    {item.name}
-                  </AppText>
-                  <AppText variant="caption" color={theme.colors.textMuted}>
-                    {item.country} • Qibla {item.qiblaDegrees}°
-                  </AppText>
-                </Pressable>
+                <CityModalCityRow
+                  city={item}
+                  onPress={() => handleCityPick(item)}
+                />
               )}
             />
           ) : selectedCountry ? (
@@ -238,26 +229,11 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => {
-                    onSelect(item);
-                    handleClose();
-                  }}
-                  style={({ pressed }) => [
-                    styles.listItem,
-                    {
-                      borderBottomColor: theme.colors.border,
-                      backgroundColor: pressed ? theme.colors.mintTint : 'transparent',
-                    },
-                  ]}
-                >
-                  <AppText variant="titleSmall" color={theme.colors.text}>
-                    {item.name}
-                  </AppText>
-                  <AppText variant="caption" color={theme.colors.textMuted}>
-                    Qibla {item.qiblaDegrees}° • {item.methodName}
-                  </AppText>
-                </Pressable>
+                <CityModalCityRow
+                  city={item}
+                  subtitle={`Qibla ${item.qiblaDegrees}° • ${item.methodName}`}
+                  onPress={() => handleCityPick(item)}
+                />
               )}
             />
           ) : (
@@ -266,35 +242,11 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               keyExtractor={(item) => item.country}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) => (
-                <Pressable
+                <CityModalCountryRow
+                  country={item.country}
+                  cityCount={item.cityCount}
                   onPress={() => setSelectedCountry(item.country)}
-                  style={({ pressed }) => [
-                    styles.listItem,
-                    styles.countryItem,
-                    {
-                      borderBottomColor: theme.colors.border,
-                      backgroundColor: pressed ? theme.colors.mintTint : 'transparent',
-                    },
-                  ]}
-                >
-                  <View>
-                    <AppText variant="titleSmall" color={theme.colors.text}>
-                      {item.country}
-                    </AppText>
-                    <AppText variant="caption" color={theme.colors.textMuted}>
-                      {item.cityCount} {item.cityCount === 1 ? 'city' : 'cities'}
-                    </AppText>
-                  </View>
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M9 18L15 12L9 6"
-                      stroke={theme.colors.textMuted}
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </Svg>
-                </Pressable>
+                />
               )}
             />
           )}
@@ -371,14 +323,5 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  listItem: {
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-  },
-  countryItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
 });
