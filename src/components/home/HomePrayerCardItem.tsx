@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, View, Pressable, Animated } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS, Theme } from '@/constants/theme';
 import { AppText } from '@/components/common';
@@ -21,32 +21,46 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
   const isCurrentActive = item.isCurrent;
   const isFuture = !item.hasStarted && !item.completed;
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const prevCompleted = useRef(item.completed);
+
+  useEffect(() => {
+    if (!prevCompleted.current && item.completed) {
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.08, duration: 110, useNativeDriver: true }),
+        Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
+      ]).start();
+    }
+    prevCompleted.current = item.completed;
+  }, [item.completed]);
+
   return (
-    <Pressable
-      onPress={() => onPress(item)}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: item.completed, disabled: isFuture }}
-      accessibilityLabel={`${item.name} at ${item.time}`}
-      hitSlop={6}
-      style={({ pressed }) => [
-        styles.prayerCard,
-        {
-          backgroundColor: isCurrentActive
-            ? theme.colors.secondaryTint
-            : item.completed
-            ? theme.colors.surfaceSubtle
-            : theme.colors.surface,
-          borderColor: isCurrentActive
-            ? theme.colors.accent
-            : item.completed
-            ? theme.colors.primary
-            : theme.colors.border,
-          borderWidth: isCurrentActive ? 1.6 : 1,
-          opacity: 1,
-          transform: [{ scale: pressed ? 0.96 : 1 }],
-        },
-      ]}
-    >
+    <Animated.View style={[styles.cardWrapper, { transform: [{ scale: scaleAnim }] }]}>
+      <Pressable
+        onPress={() => onPress(item)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: item.completed, disabled: isFuture }}
+        accessibilityLabel={`${item.name} at ${item.time}`}
+        hitSlop={6}
+        style={({ pressed }) => [
+          styles.prayerCard,
+          {
+            backgroundColor: isCurrentActive
+              ? theme.colors.secondaryTint
+              : item.completed
+              ? theme.colors.surfaceSubtle
+              : theme.colors.surface,
+            borderColor: isCurrentActive
+              ? theme.colors.accent
+              : item.completed
+              ? theme.colors.primary
+              : theme.colors.border,
+            borderWidth: isCurrentActive ? 1.6 : 1,
+            opacity: 1,
+            transform: [{ scale: pressed ? 0.96 : 1 }],
+          },
+        ]}
+      >
       {/* Islamic Arch & Star Canvas Layer */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <Svg width="100%" height="100%" viewBox="0 0 60 90" preserveAspectRatio="none">
@@ -111,10 +125,14 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
         )}
       </View>
     </Pressable>
+  </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  cardWrapper: {
+    flex: 1,
+  },
   prayerCard: {
     flex: 1,
     minHeight: 88,
