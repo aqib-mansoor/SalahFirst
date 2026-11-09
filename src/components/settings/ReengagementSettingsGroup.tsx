@@ -43,7 +43,7 @@ export const ReengagementSettingsGroup: React.FC<ReengagementSettingsGroupProps>
             <View
               style={[
                 styles.iconBox,
-                { backgroundColor: theme.colors.primaryTint },
+                { backgroundColor: theme.colors.mintTint },
               ]}
             >
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -100,7 +100,7 @@ export const ReengagementSettingsGroup: React.FC<ReengagementSettingsGroupProps>
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                  stroke={theme.colors.mint}
+                  stroke={theme.colors.primary}
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -110,7 +110,7 @@ export const ReengagementSettingsGroup: React.FC<ReengagementSettingsGroupProps>
 
             <View style={styles.textCol}>
               <AppText
-                variant="labelSmall"
+                variant="titleSmall"
                 color={theme.colors.textPrimary}
                 style={styles.infoTitle}
               >
