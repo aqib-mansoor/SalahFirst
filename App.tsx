@@ -92,16 +92,18 @@ function AppContent() {
         return;
       }
 
-      const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
-      if (autoSession) {
-        setActiveSession(autoSession);
-        setFocusPrayerName(autoSession.prayerName);
-        setFocusDuration(autoSession.durationMinutes);
-        setCurrentStep('focus-active');
+      if (location?.latitude != null) {
+        const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
+        if (autoSession) {
+          setActiveSession(autoSession);
+          setFocusPrayerName(autoSession.prayerName);
+          setFocusDuration(autoSession.durationMinutes);
+          setCurrentStep('focus-active');
+        }
       }
     };
     initApp();
-  }, [prayerData.raw]);
+  }, [location?.latitude, prayerData.raw]);
 
   // Listen for user tapping a scheduled prayer alert or inspiration notification
   useEffect(() => {
@@ -190,9 +192,7 @@ function AppContent() {
     setCurrentStep('focus-active');
   };
 
-  const handleCompletePrayerFocus = () => {
-    setPrayerCompleted(focusPrayerName, true);
-  };
+  const handleCompletePrayerFocus = () => setPrayerCompleted(focusPrayerName, true);
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
