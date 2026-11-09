@@ -42,7 +42,7 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
             ? theme.colors.primary
             : theme.colors.border,
           borderWidth: isCurrentActive ? 1.6 : 1,
-          opacity: isFuture ? 0.72 : 1,
+          opacity: 1,
           transform: [{ scale: pressed ? 0.96 : 1 }],
         },
       ]}

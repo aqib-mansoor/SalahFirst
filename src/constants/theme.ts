@@ -36,7 +36,7 @@ export const salahFirstColors = {
     accent: '#F7CF57',
     accentTint: '#2B2308',
     textPrimary: '#F2F9F5',
-    textSecondary: '#8EA89B',
+    textSecondary: '#A8C2B6',
     textOnPrimary: '#FFFFFF',
     textOnAccent: '#071812',
     border: '#193F31',

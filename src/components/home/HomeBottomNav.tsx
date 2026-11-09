@@ -63,6 +63,9 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           const isActive = activeTab === tab.id;
 
           if (isActive) {
+            const activeBg = theme.isDark ? theme.colors.secondaryTint : theme.colors.accentLight;
+            const activeColor = theme.isDark ? theme.colors.accent : theme.colors.textPrimary;
+
             return (
               <Pressable
                 key={tab.id}
@@ -70,7 +73,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 style={({ pressed }) => [
                   styles.activePill,
                   {
-                    backgroundColor: theme.colors.accentLight,
+                    backgroundColor: activeBg,
                     borderColor: theme.colors.accent,
                     shadowColor: theme.colors.accent,
                   },
@@ -85,11 +88,11 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   tabId={tab.id}
                   isActive={true}
                   size={19}
-                  customColor={theme.colors.textPrimary}
+                  customColor={activeColor}
                 />
                 <AppText
                   variant="caption"
-                  color={theme.colors.textPrimary}
+                  color={activeColor}
                   style={styles.activeLabel}
                   numberOfLines={1}
                 >

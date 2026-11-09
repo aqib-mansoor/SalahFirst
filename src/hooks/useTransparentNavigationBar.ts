@@ -24,6 +24,7 @@ export const useTransparentNavigationBar = ({
       // 'light' = light bar background with dark content (dark icons/buttons)
       const style: NavigationBarStyle = forceLightButtons || isDark ? 'dark' : 'light';
       NavigationBar.setStyle(style);
+      NavigationBar.setBackgroundColorAsync('#00000000');
     } catch {}
   }, [isDark, forceLightButtons]);
 };

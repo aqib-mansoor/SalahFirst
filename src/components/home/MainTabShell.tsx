@@ -6,6 +6,7 @@ import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
 import { HomeBottomNav, HomeTab } from './HomeBottomNav';
+import { useTheme } from '@/hooks/useTheme';
 
 export interface MainTabShellProps {
   activeTab: HomeTab;
@@ -32,8 +33,10 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
   onOpenFocusSettings,
   onOpenWallpaper,
 }) => {
+  const theme = useTheme();
+
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, { backgroundColor: theme.colors.background }]}>
       <View style={[styles.tabContent, activeTab !== 'home' && styles.hiddenTab]}>
         <HomeScreen
           onOpenSettings={onOpenSettings}
