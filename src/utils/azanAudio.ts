@@ -15,9 +15,9 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
   alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
 };
 
-// Exact seconds offset to eliminate pre-recitation silence/delay (e.g. Makkah starts at 3.8s)
+// Exact seconds offset to eliminate pre-recitation silence/delay (bundled offline assets are trimmed to start immediately at 0s)
 export const AZAN_START_OFFSETS: Record<AzanReciterKey, number> = {
-  makkah: 3.8,
+  makkah: 0,
   madinah: 0,
   alAqsa: 0,
 };
