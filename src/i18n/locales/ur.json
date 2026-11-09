@@ -387,5 +387,8 @@
   "reciterAlAqsa": "مسجد اقصیٰ",
   "connectingToStream": "آڈیو اسٹریم سے رابطہ ہو رہا ہے...",
   "playingAzan": "{reciter} اذان چل رہی ہے",
-  "audioStreamError": "آڈیو اسٹریم دستیاب نہیں ہے۔ انٹرنیٹ کنکشن چیک کریں۔"
+  "audioStreamError": "آڈیو اسٹریم دستیاب نہیں ہے۔ انٹرنیٹ کنکشن چیک کریں۔",
+  "batteryOptTitle": "بروقت اور درست اذان",
+  "batteryOptDesc": "بیٹری آپٹیمائزیشن کو غیر فعال کریں تاکہ آپ کا آلہ اذان کے الرٹ کو نہ روکے۔",
+  "batteryOptButton": "بیٹری ترتیبات"
 }

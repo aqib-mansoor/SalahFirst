@@ -387,5 +387,8 @@
   "reciterAlAqsa": "Al-Aqsa",
   "connectingToStream": "Connecting to audio stream...",
   "playingAzan": "Playing {reciter} Azan",
-  "audioStreamError": "Audio stream unavailable. Check internet connection."
+  "audioStreamError": "Audio stream unavailable. Check internet connection.",
+  "batteryOptTitle": "Reliable Azan on Android",
+  "batteryOptDesc": "Allow SalahFirst to run without battery restrictions so alarms are never silenced by your device.",
+  "batteryOptButton": "Check Battery Settings"
 }

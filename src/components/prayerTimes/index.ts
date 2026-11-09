@@ -20,6 +20,7 @@ export * from './NotificationPreferencesCard';
 export * from './AzanAudioPreviewCard';
 export * from './AzanPrefsHeader';
 export * from './MasterAlarmCard';
+export * from './BatteryOptimizationCard';
 export * from './FloatingAzanBanner';
 export * from './AzanPrefsScreen';
 export * from './PrayerTimesScreen';
