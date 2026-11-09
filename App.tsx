@@ -191,12 +191,8 @@ function AppContent() {
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
-      {currentStep === 'welcome' && (
-        <WelcomeScreen onContinue={handleContinueToSetup} />
-      )}
-      {currentStep === 'setup' && (
-        <SetupScreen onComplete={handleCompleteSetup} />
-      )}
+      {currentStep === 'welcome' && <WelcomeScreen onContinue={handleContinueToSetup} />}
+      {currentStep === 'setup' && <SetupScreen onComplete={handleCompleteSetup} />}
 
       {/* Persistent Zero-Unmount Tab Shell */}
       {currentStep === 'main' && (
