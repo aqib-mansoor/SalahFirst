@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { HomeScreen } from '@/components/home/HomeScreen';
+import { HomeScreen } from './HomeScreen';
 import { PrayerTimesScreen } from '@/components/prayerTimes';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
-import { HomeBottomNav, HomeTab } from '@/components/home/HomeBottomNav';
+import { HomeBottomNav, HomeTab } from './HomeBottomNav';
 
 export interface MainTabShellProps {
   activeTab: HomeTab;

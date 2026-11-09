@@ -4,7 +4,7 @@ import {
   ReengagementItem,
   ReengagementHistoryEntry,
   ReengagementCategory,
-} from '@/data/reengagement';
+} from '../data/reengagement';
 
 export const REENGAGEMENT_HISTORY_KEY = '@salahfirst_reengagement_history';
 export const LAST_ACTIVE_TIME_KEY = '@salahfirst_last_active_time';
