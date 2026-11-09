@@ -113,15 +113,14 @@ export const deriveHistoryMapFromLedger = (
   return map;
 };
 
-export const migrateLegacyHistoryToLedger = async (
+export const clearCachedLedgerForTesting = (): void => {
+  cachedLedgerEvents = null;
+};
+
+export const buildMigratedEventsFromLegacy = (
   legacyHistory: Record<string, Record<string, boolean>>,
   defaultTimezone: string = 'Asia/Karachi'
-): Promise<PrayerCompletionEvent[]> => {
-  const existingEvents = await loadPrayerLedger();
-  if (existingEvents.length > 0) {
-    return existingEvents;
-  }
-
+): PrayerCompletionEvent[] => {
   const migratedEvents: PrayerCompletionEvent[] = [];
 
   Object.entries(legacyHistory).forEach(([dateKey, prayers]) => {
@@ -150,6 +149,19 @@ export const migrateLegacyHistoryToLedger = async (
     });
   });
 
+  return migratedEvents;
+};
+
+export const migrateLegacyHistoryToLedger = async (
+  legacyHistory: Record<string, Record<string, boolean>>,
+  defaultTimezone: string = 'Asia/Karachi'
+): Promise<PrayerCompletionEvent[]> => {
+  const existingEvents = await loadPrayerLedger();
+  if (existingEvents.length > 0) {
+    return existingEvents;
+  }
+
+  const migratedEvents = buildMigratedEventsFromLegacy(legacyHistory, defaultTimezone);
   if (migratedEvents.length > 0) {
     await savePrayerLedger(migratedEvents);
   }
