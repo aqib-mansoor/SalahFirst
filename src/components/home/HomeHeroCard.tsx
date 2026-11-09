@@ -122,7 +122,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Center Row: Next Prayer Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel}>
+          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel} numberOfLines={1}>
             {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
           </AppText>
           <View style={styles.countdownRow}>
