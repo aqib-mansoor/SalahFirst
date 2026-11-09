@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppContainer, AppText, AppButton, ScreenHeader } from '@/components/common';
+import { AppContainer, AppButton, ScreenHeader } from '@/components/common';
 import { FocusPrayerSelector, FocusPrayerSelection } from './FocusPrayerSelector';
 import { FocusCongregationDelayCard } from './FocusCongregationDelayCard';
 import { FocusDurationCard } from './FocusDurationCard';
@@ -25,7 +25,7 @@ export interface PrayerFocusConfigScreenProps {
   prayerTimesMap?: Record<string, string>;
   rawPrayerDates?: Record<string, Date>;
   onBack: () => void;
-  onBeginFocus: (duration: FocusDuration, prayerName: string) => void;
+  onBeginFocus?: (duration: FocusDuration, prayerName: string) => void;
 }
 
 export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = ({
@@ -33,7 +33,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   prayerTimesMap,
   rawPrayerDates,
   onBack,
-  onBeginFocus,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -50,7 +49,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const [blockNews, setBlockNews] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
   const [playAzan, setPlayAzan] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([loadFocusOffsets(), loadFocusPreferences()]).then(([loadedOffsets, loadedPrefs]) => {
@@ -71,7 +70,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const targetAzan = prayerTimesMap && selectedPrayer !== 'All' ? prayerTimesMap[currentPrayerKey] : undefined;
   const targetRawDate = rawPrayerDates && selectedPrayer !== 'All' ? rawPrayerDates[currentPrayerKey] : undefined;
 
-  const handleUpdateDelay = async (mins: number) => {
+  const handleUpdateDelay = (mins: number) => {
     let updated: PrayerFocusOffsets;
     if (selectedPrayer === 'All') {
       updated = { fajr: mins, dhuhr: mins, asr: mins, maghrib: mins, isha: mins };
@@ -79,10 +78,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       updated = { ...offsets, [currentPrayerKey]: mins };
     }
     setOffsets(updated);
-    await saveFocusOffsets(updated);
   };
 
   const handleSaveAndReturn = async () => {
+    setIsSaving(true);
     await Promise.all([
       saveFocusOffsets(offsets),
       saveFocusPreferences({
@@ -95,27 +94,9 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         blockNews,
       }),
     ]);
-    setIsSaved(true);
-    setTimeout(() => {
-      setIsSaved(false);
-      onBack();
-    }, 800);
+    setIsSaving(false);
+    onBack();
   };
-
-  const handleBeginWithSave = async () => {
-    await saveFocusPreferences({
-      autoStartOnAzan: autoStart,
-      defaultDuration: duration,
-      playAzanBefore: playAzan,
-      blockSocial,
-      blockShortVideos,
-      blockGames,
-      blockNews,
-    });
-    onBeginFocus(duration, effectivePrayer);
-  };
-
-  const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
 
   return (
     <AppContainer
@@ -188,16 +169,13 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           ]}
         >
           <AppButton
-            label={`Begin ${effectivePrayer} Focus (${duration}m)`}
-            onPress={handleBeginWithSave}
+            label={(t('saveChanges') as string) || 'Save Changes'}
+            onPress={handleSaveAndReturn}
             size="lg"
-            style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
+            loading={isSaving}
+            disabled={isSaving}
+            style={[styles.saveButton, { backgroundColor: theme.colors.primary }]}
           />
-          <Pressable onPress={handleSaveAndReturn} hitSlop={8} style={styles.saveBtn}>
-            <AppText variant="caption" color={theme.colors.textMuted} align="center">
-              {isSaved ? '✓ Default Settings Saved' : 'Save as Default'}
-            </AppText>
-          </Pressable>
         </View>
       </View>
     </AppContainer>
@@ -211,8 +189,20 @@ const styles = StyleSheet.create({
   scrollWrapper: {
     flex: 1,
   },
-  scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xs, paddingBottom: SPACING.xl, gap: SPACING.md },
-  dockedFooter: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.sm + 2, borderTopWidth: 1, gap: 4 },
-  beginButton: { width: '100%', borderRadius: RADIUS.lg, minHeight: 52 },
-  saveBtn: { paddingVertical: 6, alignItems: 'center', justifyContent: 'center' },
+  scroll: {
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xs,
+    paddingBottom: SPACING.xl,
+    gap: SPACING.md,
+  },
+  dockedFooter: {
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.sm + 4,
+    borderTopWidth: 1,
+  },
+  saveButton: {
+    width: '100%',
+    borderRadius: RADIUS.lg,
+    minHeight: 52,
+  },
 });
