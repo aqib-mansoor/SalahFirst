@@ -8,6 +8,7 @@ export const REFLECTION_CHANNEL_ID = 'salahfirst-reflection';
 export const INSPIRATION_CHANNEL_ID = 'salahfirst-daily-inspiration';
 export const REENGAGEMENT_CHANNEL_ID = 'salahfirst-reengagement';
 export const FOCUS_CHANNEL_ID = 'salahfirst-focus-mode';
+export const FOCUS_BREACH_CHANNEL_ID = 'salahfirst-focus-breach';
 
 export const setupNotificationChannels = async (): Promise<void> => {
   if (Platform.OS !== 'android') return;
@@ -74,11 +75,21 @@ export const setupNotificationChannels = async (): Promise<void> => {
 
   await Notifications.setNotificationChannelAsync(FOCUS_CHANNEL_ID, {
     name: 'Salah Focus Mode',
-    importance: Notifications.AndroidImportance.HIGH,
+    importance: Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 200, 100, 200],
     lightColor: '#0E7449',
     enableLights: true,
-    enableVibrate: false,
+    enableVibrate: true,
+    sound: 'default',
+  });
+
+  await Notifications.setNotificationChannelAsync(FOCUS_BREACH_CHANNEL_ID, {
+    name: 'Salah Focus Interceptor',
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 350, 150, 350],
+    lightColor: '#D97706',
+    enableLights: true,
+    enableVibrate: true,
     sound: 'default',
   });
 };

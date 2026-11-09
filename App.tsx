@@ -117,7 +117,18 @@ function AppContent() {
         targetEndTimestamp?: number;
       } | null;
 
-      if (data && data.type === 'auto-focus-start' && data.prayerName) {
+      if (data && (data.type === 'focus-breach' || data.type === 'focus-active')) {
+        getActiveFocusSession().then((session) => {
+          if (session) {
+            setActiveSession(session);
+            setFocusPrayerName(session.prayerName);
+            setFocusDuration(session.durationMinutes);
+          } else if (data.prayerName) {
+            setFocusPrayerName(String(data.prayerName));
+          }
+          setCurrentStep('focus-active');
+        });
+      } else if (data && data.type === 'auto-focus-start' && data.prayerName) {
         const prayer = String(data.prayerName);
         const duration = (Number(data.duration) || 15) as FocusDuration;
         const session = createFocusSession(prayer, duration);
@@ -180,12 +191,6 @@ function AppContent() {
     setFocusConfigOrigin('settings');
     setCurrentStep('focus-config');
   };
-  const handleBeginFocus = (duration: FocusDuration, prayerName: string) => {
-    setFocusDuration(duration);
-    setFocusPrayerName(prayerName);
-    setActiveSession(null);
-    setCurrentStep('focus-active');
-  };
 
   const handleOpenWallpaper = (hadith?: HadithItem) => {
     setWallpaperHadith(hadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]);
@@ -240,7 +245,6 @@ function AppContent() {
           }}
           rawPrayerDates={prayerData.raw}
           onBack={() => setCurrentStep(focusConfigOrigin)}
-          onBeginFocus={handleBeginFocus}
         />
       )}
       {currentStep === 'focus-active' && (
@@ -285,13 +289,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  mainShell: {
-    flex: 1,
-  },
-  hiddenScreen: {
-    display: 'none',
-  },
+  root: { flex: 1 },
+  mainShell: { flex: 1 },
+  hiddenScreen: { display: 'none' },
 });

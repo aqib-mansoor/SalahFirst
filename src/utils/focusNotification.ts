@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { FOCUS_CHANNEL_ID } from './notificationChannels';
+import { FOCUS_CHANNEL_ID, FOCUS_BREACH_CHANNEL_ID } from './notificationChannels';
 import { pruneDeliveredNotifications } from './notificationCleanup';
 
 export const FOCUS_ACTIVE_NOTIF_ID = 'salahfirst_focus_active';
@@ -10,17 +10,24 @@ export const FOCUS_BREACH_NOTIF_ID = 'salahfirst_focus_breach';
 /**
  * Triggers an immediate high-priority warning when user departs from active focus
  */
-export const triggerFocusBreachNotification = async (prayerName: string): Promise<void> => {
+export const triggerFocusBreachNotification = async (
+  prayerName: string,
+  blockedAppsSummary?: string
+): Promise<void> => {
   try {
     await pruneDeliveredNotifications(FOCUS_BREACH_NOTIF_ID);
+    const body = blockedAppsSummary
+      ? `Step away from ${blockedAppsSummary}. Tap now to return to your Salah.`
+      : 'Focus shield active. Tap now to return to SalahFirst to complete your Salah.';
+
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_BREACH_NOTIF_ID,
       content: {
-        title: `${prayerName} • Prayer in Progress`,
-        body: 'Focus shield active. Return to SalahFirst to complete your Salah.',
+        title: `⚠️ ${prayerName} • Prayer in Progress`,
+        body,
         sound: 'default',
         data: { type: 'focus-breach', prayerName },
-        ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
+        ...(Platform.OS === 'android' ? { channelId: FOCUS_BREACH_CHANNEL_ID } : {}),
       },
       trigger: null,
     });
