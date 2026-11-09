@@ -180,6 +180,26 @@ export const createCalendarDateForCalculation = (
   return new Date(year, month, day, 12, 0, 0);
 };
 
+export const localTimeToUtcEpoch = (
+  year: number,
+  month: number, // 0-indexed
+  day: number,
+  hour: number,
+  minute: number,
+  second: number = 0,
+  timezone?: string
+): number => {
+  const targetTz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const utcGuess = Date.UTC(year, month, day, hour, minute, second);
+  const comp1 = getLocalDateComponents(new Date(utcGuess), targetTz);
+  const offset1 = Date.UTC(comp1.year, comp1.month, comp1.day, comp1.hour, comp1.minute) - utcGuess;
+  const epochEstimate = utcGuess - offset1;
+
+  const comp2 = getLocalDateComponents(new Date(epochEstimate), targetTz);
+  const offset2 = Date.UTC(comp2.year, comp2.month, comp2.day, comp2.hour, comp2.minute) - epochEstimate;
+  return utcGuess - offset2;
+};
+
 export interface LocationTimeDiff {
   destinationTime: string;
   destinationDate: string;

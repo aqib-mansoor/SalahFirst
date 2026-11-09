@@ -17,6 +17,8 @@ export const APP_CONFIG = {
     userLocation: '@salahfirst_location',
     userPreferences: '@salahfirst_preferences',
     prayerTracker: '@salahfirst_prayer_tracker',
+    prayerLedger: '@salahfirst_prayer_ledger',
+    prayerCycle: '@salahfirst_prayer_cycle',
     streak: '@salahfirst_streak',
     calculationMethod: '@salahfirst_calc_method',
     juristicMethod: '@salahfirst_juristic_method',

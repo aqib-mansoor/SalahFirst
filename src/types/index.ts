@@ -28,7 +28,13 @@ export interface UserLocation {
   isGps: boolean;
   region?: string;
   timezone?: string;
+  lastUpdated?: number;
+  isConfirmed?: boolean;
+  isStale?: boolean;
+  source?: 'gps' | 'manual' | 'preset';
 }
+
+export * from './prayerLedger';
 
 export type NotificationMode = 'AZAN' | 'TONE' | 'VIBRATE' | 'SILENT';
 export type ReminderOffset = 'off' | '10m' | '15m' | '30m';

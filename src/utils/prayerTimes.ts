@@ -1,6 +1,6 @@
-import { Coordinates, Madhab } from 'adhan';
+import { Coordinates, Madhab, PrayerTimes } from 'adhan';
 import type { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
-import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
+import { formatTimeInTimezone, createCalendarDateForCalculation, getLocalDateComponents, localTimeToUtcEpoch } from './timezone';
 import { getCurrentPrayerPeriod, createFallbackPeriod } from './currentPrayerPeriod';
 import {
   getMethodParams,
@@ -9,6 +9,24 @@ import {
 
 export * from './prayerCalculationBase';
 export * from './currentPrayerPeriod';
+
+export const normalizeAdhanToUtcDate = (
+  adhanDate: Date,
+  targetComp: { year: number; month: number; day: number },
+  timezone?: string
+): Date => {
+  if (!adhanDate || isNaN(adhanDate.getTime())) return adhanDate;
+  const epoch = localTimeToUtcEpoch(
+    targetComp.year,
+    targetComp.month,
+    targetComp.day,
+    adhanDate.getHours(),
+    adhanDate.getMinutes(),
+    adhanDate.getSeconds(),
+    timezone
+  );
+  return new Date(epoch);
+};
 
 export interface FormattedPrayerTimes {
   fajr: string;
@@ -96,6 +114,19 @@ export const getPrayerTimes = (
   yesterday.setDate(yesterday.getDate() - 1);
   const ptYesterday = createRobustPrayerTimes(coordinates, yesterday, params);
 
+  const todayComp = getLocalDateComponents(targetDate, timezone);
+  const tomorrowComp = getLocalDateComponents(tomorrow, timezone);
+
+  const rawTodayNormalized = {
+    fajr: normalizeAdhanToUtcDate(ptToday.fajr, todayComp, timezone),
+    sunrise: normalizeAdhanToUtcDate(ptToday.sunrise, todayComp, timezone),
+    dhuhr: normalizeAdhanToUtcDate(ptToday.dhuhr, todayComp, timezone),
+    asr: normalizeAdhanToUtcDate(ptToday.asr, todayComp, timezone),
+    maghrib: normalizeAdhanToUtcDate(ptToday.maghrib, todayComp, timezone),
+    isha: normalizeAdhanToUtcDate(ptToday.isha, todayComp, timezone),
+  };
+  const tomorrowFajr = normalizeAdhanToUtcDate(ptTomorrow.fajr, tomorrowComp, timezone);
+
   const currentPeriod = getCurrentPrayerPeriod({
     latitude,
     longitude,
@@ -110,54 +141,82 @@ export const getPrayerTimes = (
 
   const now = date.getTime();
   let nextName: SalahName = 'Fajr';
-  let nextTime = ptToday.fajr;
+  let nextTime = rawTodayNormalized.fajr;
 
-  if (now < ptToday.fajr.getTime()) {
+  if (now < rawTodayNormalized.fajr.getTime()) {
     nextName = 'Fajr';
-    nextTime = ptToday.fajr;
-  } else if (now < ptToday.dhuhr.getTime()) {
+    nextTime = rawTodayNormalized.fajr;
+  } else if (now < rawTodayNormalized.dhuhr.getTime()) {
     nextName = 'Dhuhr';
-    nextTime = ptToday.dhuhr;
-  } else if (now < ptToday.asr.getTime()) {
+    nextTime = rawTodayNormalized.dhuhr;
+  } else if (now < rawTodayNormalized.asr.getTime()) {
     nextName = 'Asr';
-    nextTime = ptToday.asr;
-  } else if (now < ptToday.maghrib.getTime()) {
+    nextTime = rawTodayNormalized.asr;
+  } else if (now < rawTodayNormalized.maghrib.getTime()) {
     nextName = 'Maghrib';
-    nextTime = ptToday.maghrib;
-  } else if (now < ptToday.isha.getTime()) {
+    nextTime = rawTodayNormalized.maghrib;
+  } else if (now < rawTodayNormalized.isha.getTime()) {
     nextName = 'Isha';
-    nextTime = ptToday.isha;
+    nextTime = rawTodayNormalized.isha;
   } else {
     nextName = 'Fajr';
-    nextTime = ptTomorrow.fajr;
+    nextTime = tomorrowFajr;
   }
 
   return {
-    fajr: formatTimeInTimezone(ptToday.fajr, timezone),
-    sunrise: formatTimeInTimezone(ptToday.sunrise, timezone),
-    dhuhr: formatTimeInTimezone(ptToday.dhuhr, timezone),
-    asr: formatTimeInTimezone(ptToday.asr, timezone),
-    maghrib: formatTimeInTimezone(ptToday.maghrib, timezone),
-    isha: formatTimeInTimezone(ptToday.isha, timezone),
+    fajr: formatTimeInTimezone(rawTodayNormalized.fajr, timezone),
+    sunrise: formatTimeInTimezone(rawTodayNormalized.sunrise, timezone),
+    dhuhr: formatTimeInTimezone(rawTodayNormalized.dhuhr, timezone),
+    asr: formatTimeInTimezone(rawTodayNormalized.asr, timezone),
+    maghrib: formatTimeInTimezone(rawTodayNormalized.maghrib, timezone),
+    isha: formatTimeInTimezone(rawTodayNormalized.isha, timezone),
     currentPrayerName: currentPeriod.nameKey,
     currentTimeFormatted: currentPeriod.startTimeFormatted,
     nextPrayerName: nextName,
     nextPrayerTimeFormatted: formatTimeInTimezone(nextTime, timezone),
     nextPrayerDate: nextTime,
-    raw: {
-      fajr: ptToday.fajr,
-      sunrise: ptToday.sunrise,
-      dhuhr: ptToday.dhuhr,
-      asr: ptToday.asr,
-      maghrib: ptToday.maghrib,
-      isha: ptToday.isha,
-    },
+    raw: rawTodayNormalized,
     currentPeriod,
   };
 };
 
 export const getRawPrayerTimes = (
   latitude?: number | null,
+  longitude?: number | null,
+  date: Date = new Date(),
+  method: CalculationMethodName = 'Karachi',
+  juristic: JuristicMethod = 'Hanafi',
+  timezone?: string
+) => {
+  if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
+    const dummyDate = new Date();
+    return {
+      fajr: dummyDate,
+      sunrise: dummyDate,
+      dhuhr: dummyDate,
+      asr: dummyDate,
+      maghrib: dummyDate,
+      isha: dummyDate,
+    };
+  }
+
+  const coordinates = new Coordinates(latitude, longitude);
+  const params = getMethodParams(method);
+  params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
+
+  const targetDate = createCalendarDateForCalculation(date, timezone);
+  const ptToday = createRobustPrayerTimes(coordinates, targetDate, params);
+  const todayComp = getLocalDateComponents(targetDate, timezone);
+
+  return {
+    fajr: normalizeAdhanToUtcDate(ptToday.fajr, todayComp, timezone),
+    sunrise: normalizeAdhanToUtcDate(ptToday.sunrise, todayComp, timezone),
+    dhuhr: normalizeAdhanToUtcDate(ptToday.dhuhr, todayComp, timezone),
+    asr: normalizeAdhanToUtcDate(ptToday.asr, todayComp, timezone),
+    maghrib: normalizeAdhanToUtcDate(ptToday.maghrib, todayComp, timezone),
+    isha: normalizeAdhanToUtcDate(ptToday.isha, todayComp, timezone),
+  };
+};
   longitude?: number | null,
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
