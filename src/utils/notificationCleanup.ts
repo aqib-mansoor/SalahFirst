@@ -48,3 +48,4 @@ export const registerSingleNotificationPolicy = (): (() => void) => {
   });
   return () => subscription.remove();
 };
+
