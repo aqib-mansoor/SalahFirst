@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { Linking, AppState, AppStateStatus } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { reverseGeocodeCoordinates } from '@/utils/geocoding';
+import { reconcilePrayerCycle } from '@/utils/prayerCycleManager';
+import { registerBackgroundLocation } from '@/services/backgroundLocationTask';
 
-// Global subscriber set to sync location instantaneously across all active screens
 const locationListeners = new Set<(loc: UserLocation) => void>();
 let globalCurrentLocation: UserLocation | null = null;
 
@@ -20,6 +21,7 @@ export const useDeviceLocation = () => {
   const notifyAll = (newLoc: UserLocation) => {
     globalCurrentLocation = newLoc;
     locationListeners.forEach((listener) => listener(newLoc));
+    reconcilePrayerCycle(newLoc).catch(() => {});
   };
 
   const fetchCurrentGps = useCallback(async (isSilentBackground: boolean = false) => {
@@ -29,7 +31,6 @@ export const useDeviceLocation = () => {
         setErrorMessage(null);
       }
 
-      // Check if hardware location services are enabled on the device
       const servicesEnabled = await Location.hasServicesEnabledAsync().catch(() => false);
       if (!servicesEnabled) {
         if (!isSilentBackground) {
@@ -42,7 +43,6 @@ export const useDeviceLocation = () => {
         return;
       }
 
-      // In silent background checks, never force a system permission modal
       if (isSilentBackground) {
         const { status } = await Location.getForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -65,25 +65,6 @@ export const useDeviceLocation = () => {
       setPermissionDenied(false);
       setNeedsCitySelection(false);
 
-      // Fast-path: quickly reverse geocode last known position if available
-      try {
-        const lastKnown = await Location.getLastKnownPositionAsync();
-        if (lastKnown && !globalCurrentLocation) {
-          const rev = await reverseGeocodeCoordinates(lastKnown.coords.latitude, lastKnown.coords.longitude);
-          const quickLoc: UserLocation = {
-            city: rev.city,
-            region: rev.region,
-            country: rev.country,
-            latitude: lastKnown.coords.latitude,
-            longitude: lastKnown.coords.longitude,
-            timezone: rev.timezone,
-            isGps: true,
-          };
-          setLocation(quickLoc);
-          notifyAll(quickLoc);
-        }
-      } catch {}
-
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
@@ -99,11 +80,16 @@ export const useDeviceLocation = () => {
         longitude,
         timezone: rev.timezone,
         isGps: true,
+        isConfirmed: true,
+        isStale: false,
+        lastUpdated: Date.now(),
+        source: 'gps',
       };
 
       setLocation(freshLocation);
       notifyAll(freshLocation);
       await storage.set(APP_CONFIG.storageKeys.userLocation, freshLocation);
+      registerBackgroundLocation().catch(() => {});
     } catch {
       if (!isSilentBackground) {
         setErrorMessage('Unable to lock GPS. Please select your city manually.');
@@ -121,34 +107,40 @@ export const useDeviceLocation = () => {
   }, []);
 
   const updateLocation = useCallback(async (newLoc: UserLocation) => {
-    setLocation(newLoc);
-    notifyAll(newLoc);
+    const confirmed: UserLocation = {
+      ...newLoc,
+      isConfirmed: true,
+      isStale: false,
+      lastUpdated: Date.now(),
+      source: newLoc.isGps ? 'gps' : 'manual',
+    };
+    setLocation(confirmed);
+    notifyAll(confirmed);
     setNeedsCitySelection(false);
     setPermissionDenied(false);
     setErrorMessage(null);
-    await storage.set(APP_CONFIG.storageKeys.userLocation, newLoc);
+    await storage.set(APP_CONFIG.storageKeys.userLocation, confirmed);
   }, []);
 
   useEffect(() => {
     locationListeners.add(setLocation);
 
     const initializeLocation = async () => {
-      // 1. Instantly load cached location from local storage
       const cached = await storage.get<UserLocation | null>(
         APP_CONFIG.storageKeys.userLocation,
         null
       );
 
       if (cached) {
-        globalCurrentLocation = cached;
-        setLocation(cached);
+        const isStale = cached.lastUpdated ? Date.now() - cached.lastUpdated > 4 * 3600 * 1000 : false;
+        const primed = { ...cached, isStale };
+        globalCurrentLocation = primed;
+        setLocation(primed);
         setIsLoading(false);
-        // Only refresh GPS silently in background if previously enabled and services are active
         if (cached.isGps) {
           fetchCurrentGps(true);
         }
       } else {
-        // First run without saved location: run silently without blocking popup
         fetchCurrentGps(true);
       }
     };
@@ -160,8 +152,16 @@ export const useDeviceLocation = () => {
       setIsLoading(false);
     }
 
+    // AppState listener to synchronize location when returning to active foreground
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active' && globalCurrentLocation?.isGps) {
+        fetchCurrentGps(true);
+      }
+    });
+
     return () => {
       locationListeners.delete(setLocation);
+      sub.remove();
     };
   }, [fetchCurrentGps]);
 
@@ -171,6 +171,8 @@ export const useDeviceLocation = () => {
     permissionDenied,
     errorMessage,
     needsCitySelection,
+    isStale: location?.isStale ?? false,
+    isConfirmed: location?.isConfirmed ?? false,
     requestGpsLocation: () => fetchCurrentGps(false),
     openSettings,
     updateLocation,

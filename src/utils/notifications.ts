@@ -108,6 +108,7 @@ export const scheduleAllPrayerAlerts = async (
     const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     for (const notif of scheduled) {
       if (
+        notif.identifier.startsWith('salahfirst-alarm-') ||
         notif.identifier.startsWith('salahfirst-prayer-') ||
         notif.identifier.startsWith('salahfirst-pre-') ||
         notif.identifier.startsWith('salahfirst-missed-')
@@ -130,8 +131,7 @@ export const scheduleAllPrayerAlerts = async (
     const qEnd = alerts?.quietHoursEnd ?? '05:00';
 
     for (let dayOffset = 0; dayOffset < 3; dayOffset++) {
-      const targetDate = new Date();
-      targetDate.setDate(now.getDate() + dayOffset);
+      const targetDate = new Date(now.getTime() + dayOffset * 86400000);
       const dateKey = getLocalDateComponents(targetDate, timezone).dateKey;
       const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod, timezone);
 
