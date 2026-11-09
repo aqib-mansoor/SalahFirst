@@ -213,8 +213,8 @@ export const scheduleAllPrayerAlerts = async (
             await Notifications.scheduleNotificationAsync({
               identifier: `salahfirst-autofocus-${prayer.key}-${dateKey}`,
               content: {
-                title: `${prayer.name} • Focus Shield Active`,
-                body: `${focusDurationMins}m prayer shield running. Distractions silenced.`,
+                title: `${prayer.name} Focus • Time for Salah`,
+                body: `Salah first, scroll later. Put distractions aside and stand before your Lord for ${prayer.name}.`,
                 sound: 'default',
                 data: {
                   type: 'auto-focus-start',
