@@ -32,7 +32,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Synchronous Appearance listener for instantaneous system dark/light switching
   useEffect(() => {
     const sub = Appearance.addChangeListener(({ colorScheme }) => {
-      setSystemScheme(colorScheme);
+      setSystemScheme(colorScheme || 'light');
     });
     return () => sub.remove();
   }, []);
