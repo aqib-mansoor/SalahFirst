@@ -29,7 +29,8 @@ import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar
 import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
-import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
+import { getActiveFocusSession, FocusSession, createFocusSession, saveActiveFocusSession } from '@/utils/focusSession';
+import { checkAndActivateCurrentAutoFocus } from '@/utils/prayerFocusOffsets';
 
 export type { AppStep };
 
@@ -88,16 +89,43 @@ function AppContent() {
         setFocusPrayerName(savedSession.prayerName);
         setFocusDuration(savedSession.durationMinutes);
         setCurrentStep('focus-active');
+        return;
+      }
+
+      const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
+      if (autoSession) {
+        setActiveSession(autoSession);
+        setFocusPrayerName(autoSession.prayerName);
+        setFocusDuration(autoSession.durationMinutes);
+        setCurrentStep('focus-active');
       }
     };
     initApp();
-  }, []);
+  }, [prayerData.raw]);
 
   // Listen for user tapping a scheduled prayer alert or inspiration notification
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data;
-      if (data && data.prayerName) {
+      const data = response.notification.request.content.data as {
+        type?: string;
+        prayerName?: string;
+        duration?: FocusDuration;
+        targetEndTimestamp?: number;
+      } | null;
+
+      if (data && data.type === 'auto-focus-start' && data.prayerName) {
+        const prayer = String(data.prayerName);
+        const duration = (Number(data.duration) || 15) as FocusDuration;
+        const session = createFocusSession(prayer, duration);
+        if (data.targetEndTimestamp) {
+          session.targetEndTimestamp = Number(data.targetEndTimestamp);
+        }
+        saveActiveFocusSession(session);
+        setActiveSession(session);
+        setFocusPrayerName(prayer);
+        setFocusDuration(duration);
+        setCurrentStep('focus-active');
+      } else if (data && data.prayerName) {
         setFocusPrayerName(String(data.prayerName));
         setCurrentStep('focus-config');
       } else if (data && data.type === 'daily-inspiration') {

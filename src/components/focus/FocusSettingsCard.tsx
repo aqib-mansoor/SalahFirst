@@ -30,10 +30,10 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
       <View style={styles.row}>
         <View style={styles.textColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-            Auto-prompt at prayer time
+            Auto-start Focus at Namaz time
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
-            Notify to start Focus when local prayer time arrives
+            Automatically turns on prayer focus after congregation delay
           </AppText>
         </View>
 

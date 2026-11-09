@@ -16,6 +16,8 @@ import {
   DEFAULT_FOCUS_OFFSETS,
   loadFocusOffsets,
   saveFocusOffsets,
+  loadFocusPreferences,
+  saveFocusPreferences,
 } from '@/utils/prayerFocusOffsets';
 
 export interface PrayerFocusConfigScreenProps {
@@ -51,7 +53,16 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
-    loadFocusOffsets().then(setOffsets);
+    Promise.all([loadFocusOffsets(), loadFocusPreferences()]).then(([loadedOffsets, loadedPrefs]) => {
+      setOffsets(loadedOffsets);
+      setAutoStart(loadedPrefs.autoStartOnAzan);
+      setDuration(loadedPrefs.defaultDuration);
+      setPlayAzan(loadedPrefs.playAzanBefore);
+      setBlockSocial(loadedPrefs.blockSocial);
+      setBlockShortVideos(loadedPrefs.blockShortVideos);
+      setBlockGames(loadedPrefs.blockGames);
+      setBlockNews(loadedPrefs.blockNews);
+    });
   }, []);
 
   const currentPrayerKey =
@@ -72,12 +83,36 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   };
 
   const handleSaveAndReturn = async () => {
-    await saveFocusOffsets(offsets);
+    await Promise.all([
+      saveFocusOffsets(offsets),
+      saveFocusPreferences({
+        autoStartOnAzan: autoStart,
+        defaultDuration: duration,
+        playAzanBefore: playAzan,
+        blockSocial,
+        blockShortVideos,
+        blockGames,
+        blockNews,
+      }),
+    ]);
     setIsSaved(true);
     setTimeout(() => {
       setIsSaved(false);
       onBack();
     }, 800);
+  };
+
+  const handleBeginWithSave = async () => {
+    await saveFocusPreferences({
+      autoStartOnAzan: autoStart,
+      defaultDuration: duration,
+      playAzanBefore: playAzan,
+      blockSocial,
+      blockShortVideos,
+      blockGames,
+      blockNews,
+    });
+    onBeginFocus(duration, effectivePrayer);
   };
 
   const effectivePrayer = selectedPrayer === 'All' ? (initialPrayer !== 'All' ? initialPrayer : 'Fajr') : selectedPrayer;
@@ -154,7 +189,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         >
           <AppButton
             label={`Begin ${effectivePrayer} Focus (${duration}m)`}
-            onPress={() => onBeginFocus(duration, effectivePrayer)}
+            onPress={handleBeginWithSave}
             size="lg"
             style={[styles.beginButton, { backgroundColor: theme.colors.primary }]}
           />

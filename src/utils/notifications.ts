@@ -6,6 +6,7 @@ import { APP_CONFIG } from '@/constants/config';
 import { formatDateKey } from './trackerStatistics';
 import { isWithinQuietHours } from './notificationQuietHours';
 import { getLocalDateComponents } from './timezone';
+import { loadFocusOffsets, loadFocusPreferences, PrayerFocusOffsets } from './prayerFocusOffsets';
 import {
   PRAYER_CHANNEL_ID,
   REMINDER_CHANNEL_ID,
@@ -13,6 +14,7 @@ import {
   REFLECTION_CHANNEL_ID,
   INSPIRATION_CHANNEL_ID,
   REENGAGEMENT_CHANNEL_ID,
+  FOCUS_CHANNEL_ID,
   setupNotificationChannels,
   checkNotificationPermissions,
   requestNotificationPermission,
@@ -104,24 +106,29 @@ export const scheduleAllPrayerAlerts = async (
     const { granted } = await checkNotificationPermissions();
     if (!granted) return 0;
 
-    // Safely cancel only prayer and pre-reminder notifications so inspiration notifications are preserved
+    // Safely cancel only prayer, pre-reminder, and auto-focus notifications so inspiration notifications are preserved
     const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     for (const notif of scheduled) {
       if (
         notif.identifier.startsWith('salahfirst-alarm-') ||
         notif.identifier.startsWith('salahfirst-prayer-') ||
         notif.identifier.startsWith('salahfirst-pre-') ||
-        notif.identifier.startsWith('salahfirst-missed-')
+        notif.identifier.startsWith('salahfirst-missed-') ||
+        notif.identifier.startsWith('salahfirst-autofocus-')
       ) {
         await Notifications.cancelScheduledNotificationAsync(notif.identifier).catch(() => {});
       }
     }
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
-    const history = await storage.get<Record<string, Record<string, boolean>>>(
-      APP_CONFIG.storageKeys.prayerTracker,
-      {}
-    );
+    const [history, focusOffsets, focusPrefs] = await Promise.all([
+      storage.get<Record<string, Record<string, boolean>>>(
+        APP_CONFIG.storageKeys.prayerTracker,
+        {}
+      ),
+      loadFocusOffsets(),
+      loadFocusPreferences(),
+    ]);
 
     const now = new Date();
     let scheduledCount = 0;
@@ -186,6 +193,37 @@ export const scheduleAllPrayerAlerts = async (
             },
           });
           scheduledCount++;
+        }
+
+        // 2b. Automatic Prayer Focus Mode Alarm (at Azan + Congregation Delay)
+        if (focusPrefs.autoStartOnAzan !== false) {
+          const congregationDelay = focusOffsets[prayer.key as keyof PrayerFocusOffsets] ?? 20;
+          const focusStartDate = new Date(prayerDate.getTime() + congregationDelay * 60000);
+          const focusDurationMins = focusPrefs.defaultDuration ?? 15;
+          const focusEndDate = new Date(focusStartDate.getTime() + focusDurationMins * 60000);
+
+          if (focusStartDate > now) {
+            await Notifications.scheduleNotificationAsync({
+              identifier: `salahfirst-autofocus-${prayer.key}-${dateKey}`,
+              content: {
+                title: `🕌 ${prayer.name} Focus Mode Active`,
+                body: `${focusDurationMins}m prayer shield running. Distractions minimized.`,
+                sound: 'default',
+                data: {
+                  type: 'auto-focus-start',
+                  prayerName: prayer.name,
+                  duration: focusDurationMins,
+                  targetEndTimestamp: focusEndDate.getTime(),
+                },
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: focusStartDate,
+                channelId: FOCUS_CHANNEL_ID,
+              },
+            });
+            scheduledCount++;
+          }
         }
 
         // 3. Gentle Missed/Unmarked Follow-up Reminder (30 mins after prayer time)
