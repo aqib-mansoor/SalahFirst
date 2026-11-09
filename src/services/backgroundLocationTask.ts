@@ -124,3 +124,4 @@ export const unregisterBackgroundLocation = async (): Promise<void> => {
     }
   } catch {}
 };
+

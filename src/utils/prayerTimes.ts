@@ -217,25 +217,5 @@ export const getRawPrayerTimes = (
     isha: normalizeAdhanToUtcDate(ptToday.isha, todayComp, timezone),
   };
 };
-  longitude?: number | null,
-  date: Date = new Date(),
-  method: CalculationMethodName = 'Karachi',
-  juristic: JuristicMethod = 'Hanafi',
-  timezone?: string
-): { fajr: Date; sunrise: Date; dhuhr: Date; asr: Date; maghrib: Date; isha: Date } => {
-  const coordinates = new Coordinates(latitude ?? 0, longitude ?? 0);
-  const params = getMethodParams(method);
-  params.madhab = juristic === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
-  const targetDate = createCalendarDateForCalculation(date, timezone);
-  const pt = createRobustPrayerTimes(coordinates, targetDate, params);
-  return {
-    fajr: pt.fajr,
-    sunrise: pt.sunrise,
-    dhuhr: pt.dhuhr,
-    asr: pt.asr,
-    maghrib: pt.maghrib,
-    isha: pt.isha,
-  };
-};
 
 export { getIslamicDateFormatted } from './hijriCalendar';

@@ -50,3 +50,4 @@ export const useTrackerCountdown = (
 
   return { countdownText, periodProgressRatio };
 };
+

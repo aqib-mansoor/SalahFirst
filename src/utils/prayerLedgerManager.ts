@@ -156,3 +156,4 @@ export const migrateLegacyHistoryToLedger = async (
 
   return migratedEvents;
 };
+
