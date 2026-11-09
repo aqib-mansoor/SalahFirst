@@ -58,7 +58,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <View style={styles.container}>
         {/* Stable Flow Header */}
         <HomeHeader
-          cityName={location?.city || (permissionDenied ? 'Select City' : 'Detecting...')}
+          cityName={location?.city || 'Select City'}
           countryName={location?.country}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}

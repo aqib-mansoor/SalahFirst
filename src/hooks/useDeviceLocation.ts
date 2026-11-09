@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Linking, AppState, AppStateStatus } from 'react-native';
+import { Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { reverseGeocodeCoordinates } from '@/utils/geocoding';
 import { reconcilePrayerCycle } from '@/utils/prayerCycleManager';
-import { registerBackgroundLocation } from '@/services/backgroundLocationTask';
+import { unregisterBackgroundLocation } from '@/services/backgroundLocationTask';
 
 const locationListeners = new Set<(loc: UserLocation) => void>();
 let globalCurrentLocation: UserLocation | null = null;
 
 export const useDeviceLocation = () => {
   const [location, setLocation] = useState<UserLocation | null>(globalCurrentLocation);
-  const [isLoading, setIsLoading] = useState<boolean>(!globalCurrentLocation);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [needsCitySelection, setNeedsCitySelection] = useState<boolean>(false);
@@ -24,18 +24,14 @@ export const useDeviceLocation = () => {
     reconcilePrayerCycle(newLoc).catch(() => {});
   };
 
-  const fetchCurrentGps = useCallback(async (isSilentBackground: boolean = false) => {
+  const fetchCurrentGps = useCallback(async () => {
     try {
-      if (!isSilentBackground) {
-        setIsLoading(true);
-        setErrorMessage(null);
-      }
+      setIsLoading(true);
+      setErrorMessage(null);
 
       const servicesEnabled = await Location.hasServicesEnabledAsync().catch(() => false);
       if (!servicesEnabled) {
-        if (!isSilentBackground) {
-          setErrorMessage('Location services are disabled on your device.');
-        }
+        setErrorMessage('Location services are disabled on your device.');
         if (!globalCurrentLocation) {
           setNeedsCitySelection(true);
         }
@@ -43,23 +39,15 @@ export const useDeviceLocation = () => {
         return;
       }
 
-      if (isSilentBackground) {
-        const { status } = await Location.getForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setIsLoading(false);
-          return;
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setPermissionDenied(true);
+        if (!globalCurrentLocation) {
+          setNeedsCitySelection(true);
         }
-      } else {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setPermissionDenied(true);
-          if (!globalCurrentLocation) {
-            setNeedsCitySelection(true);
-          }
-          setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
-          setIsLoading(false);
-          return;
-        }
+        setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
+        setIsLoading(false);
+        return;
       }
 
       setPermissionDenied(false);
@@ -89,13 +77,10 @@ export const useDeviceLocation = () => {
       setLocation(freshLocation);
       notifyAll(freshLocation);
       await storage.set(APP_CONFIG.storageKeys.userLocation, freshLocation);
-      registerBackgroundLocation().catch(() => {});
     } catch {
-      if (!isSilentBackground) {
-        setErrorMessage('Unable to lock GPS. Please select your city manually.');
-        if (!globalCurrentLocation) {
-          setNeedsCitySelection(true);
-        }
+      setErrorMessage('Unable to lock GPS. Please select your city manually.');
+      if (!globalCurrentLocation) {
+        setNeedsCitySelection(true);
       }
     } finally {
       setIsLoading(false);
@@ -126,23 +111,19 @@ export const useDeviceLocation = () => {
     locationListeners.add(setLocation);
 
     const initializeLocation = async () => {
+      // Unregister any legacy background polling tasks
+      unregisterBackgroundLocation().catch(() => {});
+
       const cached = await storage.get<UserLocation | null>(
         APP_CONFIG.storageKeys.userLocation,
         null
       );
 
       if (cached) {
-        const isStale = cached.lastUpdated ? Date.now() - cached.lastUpdated > 4 * 3600 * 1000 : false;
-        const primed = { ...cached, isStale };
-        globalCurrentLocation = primed;
-        setLocation(primed);
-        setIsLoading(false);
-        if (cached.isGps) {
-          fetchCurrentGps(true);
-        }
-      } else {
-        fetchCurrentGps(true);
+        globalCurrentLocation = cached;
+        setLocation(cached);
       }
+      setIsLoading(false);
     };
 
     if (!globalCurrentLocation) {
@@ -152,18 +133,10 @@ export const useDeviceLocation = () => {
       setIsLoading(false);
     }
 
-    // AppState listener to synchronize location when returning to active foreground
-    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
-      if (state === 'active' && globalCurrentLocation?.isGps) {
-        fetchCurrentGps(true);
-      }
-    });
-
     return () => {
       locationListeners.delete(setLocation);
-      sub.remove();
     };
-  }, [fetchCurrentGps]);
+  }, []);
 
   return {
     location,
@@ -173,7 +146,7 @@ export const useDeviceLocation = () => {
     needsCitySelection,
     isStale: location?.isStale ?? false,
     isConfirmed: location?.isConfirmed ?? false,
-    requestGpsLocation: () => fetchCurrentGps(false),
+    requestGpsLocation: () => fetchCurrentGps(),
     openSettings,
     updateLocation,
   };

@@ -154,7 +154,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           contentContainerStyle={styles.scroll}
         >
           <PrayerSettingsGroup
-            cityName={location?.city || 'Detecting Location...'}
+            cityName={location?.city || 'Select City'}
             country={location?.country || ''}
             juristicMethod={juristic}
             calculationMethodName={CALC_LABELS[calcMethod] || calcMethod}
