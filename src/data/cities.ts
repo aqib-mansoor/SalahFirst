@@ -102,8 +102,66 @@ export const PRESET_CITIES: PresetCity[] = [
 
   // Southeast Asia & Australia
   createCity('my-1', 'Kuala Lumpur', 'Malaysia', 3.139, 101.6869, 'MUIS Singapore'),
+  createCity('my-2', 'Penang', 'Malaysia', 5.4164, 100.3327, 'MUIS Singapore'),
   createCity('id-1', 'Jakarta', 'Indonesia', -6.2088, 106.8456, 'MUIS Singapore'),
+  createCity('id-2', 'Surabaya', 'Indonesia', -7.2575, 112.7521, 'MUIS Singapore'),
+  createCity('id-3', 'Bandung', 'Indonesia', -6.9175, 107.6191, 'MUIS Singapore'),
   createCity('sg-1', 'Singapore', 'Singapore', 1.3521, 103.8198, 'MUIS Singapore'),
   createCity('au-1', 'Sydney', 'Australia', -33.8688, 151.2093, 'Muslim World League'),
+
+  // South Africa & Sub-Saharan Africa
+  createCity('za-1', 'Johannesburg', 'South Africa', -26.2041, 28.0473, 'Muslim World League'),
+  createCity('za-2', 'Cape Town', 'South Africa', -33.9249, 18.4241, 'Muslim World League'),
+  createCity('za-3', 'Durban', 'South Africa', -29.8587, 31.0218, 'Muslim World League'),
+  createCity('za-4', 'Pretoria', 'South Africa', -25.7479, 28.2293, 'Muslim World League'),
+  createCity('ng-1', 'Lagos', 'Nigeria', 6.5244, 3.3792, 'Egyptian General Authority'),
+  createCity('ng-2', 'Abuja', 'Nigeria', 9.0765, 7.3986, 'Egyptian General Authority'),
+  createCity('ng-3', 'Kano', 'Nigeria', 12.0022, 8.592, 'Egyptian General Authority'),
+  createCity('ke-1', 'Nairobi', 'Kenya', -1.2921, 36.8219, 'Muslim World League'),
+  createCity('ke-2', 'Mombasa', 'Kenya', -4.0435, 39.6682, 'Muslim World League'),
+
+  // North Africa & Levant
+  createCity('ma-1', 'Casablanca', 'Morocco', 33.5731, -7.5898, 'Muslim World League'),
+  createCity('ma-2', 'Rabat', 'Morocco', 34.0209, -6.8416, 'Muslim World League'),
+  createCity('ma-3', 'Marrakech', 'Morocco', 31.6295, -7.9811, 'Muslim World League'),
+  createCity('dz-1', 'Algiers', 'Algeria', 36.7538, 3.0588, 'Muslim World League'),
+  createCity('tn-1', 'Tunis', 'Tunisia', 36.8065, 10.1815, 'Muslim World League'),
+  createCity('jo-1', 'Amman', 'Jordan', 31.9454, 35.9284, 'Muslim World League'),
+  createCity('lb-1', 'Beirut', 'Lebanon', 33.8938, 35.5018, 'Muslim World League'),
+
+  // Central Asia
+  createCity('uz-1', 'Tashkent', 'Uzbekistan', 41.2995, 69.2401, 'Muslim World League'),
+  createCity('kz-1', 'Almaty', 'Kazakhstan', 43.222, 76.8512, 'Muslim World League'),
+  createCity('az-1', 'Baku', 'Azerbaijan', 40.4093, 49.8671, 'Muslim World League'),
 ];
+
+export const findNearestPresetCity = (
+  latitude: number,
+  longitude: number,
+  countryHint?: string
+): PresetCity => {
+  let pool = PRESET_CITIES;
+  if (countryHint) {
+    const hint = countryHint.toLowerCase();
+    const countryCities = PRESET_CITIES.filter(
+      (c) => c.country.toLowerCase() === hint || hint.includes(c.country.toLowerCase())
+    );
+    if (countryCities.length > 0) {
+      pool = countryCities;
+    }
+  }
+
+  let nearest = pool[0];
+  let minDistance = Infinity;
+  for (const c of pool) {
+    const dLat = c.latitude - latitude;
+    const dLon = c.longitude - longitude;
+    const distSq = dLat * dLat + dLon * dLon;
+    if (distSq < minDistance) {
+      minDistance = distSq;
+      nearest = c;
+    }
+  }
+  return nearest;
+};
 

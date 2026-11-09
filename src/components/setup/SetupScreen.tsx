@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING } from '@/constants/theme';
@@ -30,6 +30,14 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
     updateLocation,
   } = useDeviceLocation();
 
+  const hasLocation = Boolean(location && location.latitude && location.longitude);
+
+  useEffect(() => {
+    if (!location && !permissionDenied) {
+      requestGpsLocation();
+    }
+  }, []);
+
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({
       city: city.name,
@@ -39,6 +47,14 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
       isGps: false,
     });
     setCityModalVisible(false);
+  };
+
+  const handleGetStarted = () => {
+    if (!hasLocation) {
+      setCityModalVisible(true);
+      return;
+    }
+    onComplete?.();
   };
 
   const ChevronRight = (
@@ -87,8 +103,8 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         {/* Pinned Bottom Footer (Positioned identically to splash screen) */}
         <View style={styles.footer}>
           <AppButton
-            label={t('getStarted')}
-            onPress={onComplete || (() => {})}
+            label={hasLocation ? t('getStarted') : isLoading ? t('detectingLocation') : t('selectLocationToStart')}
+            onPress={handleGetStarted}
             variant="gold"
             size="lg"
             rightIcon={ChevronRight}
@@ -101,6 +117,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
           visible={cityModalVisible}
           onClose={() => setCityModalVisible(false)}
           onSelect={handleSelectCity}
+          requiredNotice={!hasLocation ? t('locationRequiredNotice') : undefined}
         />
       </View>
     </AppContainer>

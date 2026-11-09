@@ -19,12 +19,14 @@ export interface SetupCityModalProps {
   visible: boolean;
   onClose: () => void;
   onSelect: (city: PresetCity) => void;
+  requiredNotice?: string;
 }
 
 export const SetupCityModal: React.FC<SetupCityModalProps> = ({
   visible,
   onClose,
   onSelect,
+  requiredNotice,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -83,6 +85,22 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
               </AppText>
             </Pressable>
           </View>
+
+          {requiredNotice && (
+            <View
+              style={[
+                styles.noticeBox,
+                {
+                  backgroundColor: theme.colors.accentTint,
+                  borderColor: theme.colors.accent,
+                },
+              ]}
+            >
+              <AppText variant="caption" color={theme.colors.textPrimary}>
+                {requiredNotice}
+              </AppText>
+            </View>
+          )}
 
           <TextInput
             placeholder={t('searchCityOrCountry')}
@@ -183,6 +201,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.md,
+  },
+  noticeBox: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    marginBottom: SPACING.sm,
   },
   input: {
     height: 48,

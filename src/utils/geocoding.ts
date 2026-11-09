@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { PRESET_CITIES, PresetCity } from '@/data';
+import { PRESET_CITIES, PresetCity, findNearestPresetCity } from '@/data';
 import { calculateQiblaBearing } from '@/utils/qiblaCalculations';
 import { getDefaultMethodForCountry } from '@/utils/prayerTimes';
 import { resolveTimezone } from '@/utils/timezone';
@@ -74,6 +74,20 @@ export const reverseGeocodeCoordinates = async (
       country = addr.country || country;
     }
   } catch {}
+
+  // Offline / Unresolved Fallback: Match nearest preset city in country or region
+  if (city === 'Current City' || country === 'Current Country') {
+    const nearest = findNearestPresetCity(
+      latitude,
+      longitude,
+      country !== 'Current Country' ? country : undefined
+    );
+    if (nearest) {
+      if (city === 'Current City') city = nearest.name;
+      if (country === 'Current Country') country = nearest.country;
+      if (!region && nearest.region) region = nearest.region;
+    }
+  }
 
   return { city, region, country, timezone: defaultTz };
 };

@@ -185,6 +185,8 @@
   "makeSalahPriority": "Make Salah a priority.",
   "setupHeroSubtitle": "Stay consistent with accurate Azan times, Qibla direction, distraction-free Prayer Focus, and daily Hadith—stored privately on your phone with no sign-up or cloud account.",
   "getStarted": "Get Started",
+  "selectLocationToStart": "Select City to Continue",
+  "locationRequiredNotice": "Please set your location or choose your city to calculate accurate prayer times.",
   "continueToSetup": "Continue to Setup",
   "tagline": "Make time for what matters.",
   "welcomePrivacyBadge": "100% Private • Offline-First • No Account Required",
