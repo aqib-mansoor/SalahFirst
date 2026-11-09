@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "352083727056",
+    "project_id": "salahfirst-f86c5",
+    "storage_bucket": "salahfirst-f86c5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352083727056:android:40c48d446abc9d5632c4d5",
+        "android_client_info": {
+          "package_name": "com.salahfirst.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9iP076fQMM6sAiAnoQzXpGg9F2sCCXC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
