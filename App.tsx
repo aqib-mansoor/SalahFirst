@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
 import { Provider } from 'react-redux';
@@ -26,21 +26,12 @@ import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { useAzanAutoReciter } from '@/hooks/useAzanAutoReciter';
 import { useTheme } from '@/hooks/useTheme';
 import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
+import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
 
-export type AppStep =
-  | 'welcome'
-  | 'setup'
-  | 'main'
-  | 'settings'
-  | 'azan-prefs'
-  | 'focus-config'
-  | 'focus-active'
-  | 'wallpaper'
-  | 'privacy-policy'
-  | 'terms';
+export type { AppStep };
 
 function AppContent() {
   const theme = useTheme();
@@ -61,7 +52,7 @@ function AppContent() {
     prayerData,
     calcMethod,
     juristic,
-  } = usePrayerTracker(location);
+  } = usePrayerTracker(location, { enableCountdown: false });
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
 
@@ -122,30 +113,13 @@ function AppContent() {
   }, []);
 
   // Handle Android hardware back button
-  useEffect(() => {
-    const onBackPress = () => {
-      if (currentStep === 'wallpaper' || currentStep === 'settings') {
-        setCurrentStep('main');
-        return true;
-      }
-      if (currentStep === 'focus-config') {
-        setCurrentStep(focusConfigOrigin);
-        return true;
-      }
-      if (currentStep === 'azan-prefs' || currentStep === 'privacy-policy' || currentStep === 'terms') {
-        setCurrentStep('settings');
-        return true;
-      }
-      if (currentStep === 'main' && activeTab !== 'home') {
-        setActiveTab('home');
-        return true;
-      }
-      return false;
-    };
-
-    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => sub.remove();
-  }, [currentStep, activeTab, focusConfigOrigin]);
+  useAppBackHandler({
+    currentStep,
+    setCurrentStep,
+    activeTab,
+    setActiveTab,
+    focusConfigOrigin,
+  });
 
   const handleContinueToSetup = () => {
     setCurrentStep('setup');
@@ -157,22 +131,21 @@ function AppContent() {
     setActiveTab('home');
   };
 
-  const handleStartFocusImmediately = () => {
+  const getSuggestedPrayerName = () => {
     const currentPending = prayersList.find(
       (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
     );
-    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
-    setFocusPrayerName(suggested);
+    return currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
+  };
+
+  const handleStartFocusImmediately = () => {
+    setFocusPrayerName(getSuggestedPrayerName());
     setActiveSession(null);
     setCurrentStep('focus-active');
   };
 
   const handleOpenFocusConfigFromHome = () => {
-    const currentPending = prayersList.find(
-      (p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed
-    );
-    const suggested = currentPending ? currentPending.name : (prayerData.nextPrayerName || 'Fajr');
-    setFocusPrayerName(suggested);
+    setFocusPrayerName(getSuggestedPrayerName());
     setFocusConfigOrigin('main');
     setCurrentStep('focus-config');
   };
@@ -194,7 +167,7 @@ function AppContent() {
   };
 
   return (
-    <SafeAreaProvider style={{ backgroundColor: theme.colors.background }}>
+    <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
       {currentStep === 'welcome' && (
         <WelcomeScreen onContinue={handleContinueToSetup} />
@@ -273,18 +246,26 @@ function AppContent() {
         prayerName={recitingPrayer}
         onStop={stopRecitation}
       />
-    </SafeAreaProvider>
+    </View>
   );
 }
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <LocalizationProvider>
-          <AppContent />
-        </LocalizationProvider>
-      </ThemeProvider>
-    </Provider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <Provider store={store}>
+        <ThemeProvider>
+          <LocalizationProvider>
+            <AppContent />
+          </LocalizationProvider>
+        </ThemeProvider>
+      </Provider>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

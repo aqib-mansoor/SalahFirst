@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
     borderWidth: 1,
     marginTop: 2,
+    minHeight: 26,
   },
   locationText: {
     fontSize: 11,

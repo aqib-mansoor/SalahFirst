@@ -6,12 +6,15 @@ export const useTrackerCountdown = (
   prayerData: FormattedPrayerTimes,
   activeCycle: PrayerCycle | null,
   onCycleBoundaryReached: () => void,
-  onRefreshNeeded: () => void
+  onRefreshNeeded: () => void,
+  enabled: boolean = true
 ) => {
   const [countdownText, setCountdownText] = useState<string>('00:00:00');
   const [periodProgressRatio, setPeriodProgressRatio] = useState<number>(0);
 
   useEffect(() => {
+    if (!enabled) return;
+
     const updateCountdown = () => {
       const now = Date.now();
 
@@ -46,7 +49,7 @@ export const useTrackerCountdown = (
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [prayerData.nextPrayerDate, activeCycle]);
+  }, [prayerData.nextPrayerDate, activeCycle, enabled]);
 
   return { countdownText, periodProgressRatio };
 };

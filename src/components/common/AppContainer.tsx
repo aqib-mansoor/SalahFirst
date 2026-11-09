@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import { SafeAreaView, Edge } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets, Edge } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 
 export interface AppContainerProps {
@@ -20,13 +19,24 @@ export const AppContainer: React.FC<AppContainerProps> = ({
   contentContainerStyle,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const edgePadding = {
+    paddingTop: edges.includes('top') ? insets.top : 0,
+    paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
+    paddingLeft: edges.includes('left') ? insets.left : 0,
+    paddingRight: edges.includes('right') ? insets.right : 0,
+  };
 
   return (
-    <SafeAreaView
-      edges={edges}
-      style={[styles.container, { backgroundColor: theme.colors.background }, style]}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background },
+        edgePadding,
+        style,
+      ]}
     >
-      <StatusBar style={theme.isDark ? 'light' : 'dark'} />
       {scrollable ? (
         <ScrollView
           contentContainerStyle={[styles.content, contentContainerStyle]}
@@ -37,7 +47,7 @@ export const AppContainer: React.FC<AppContainerProps> = ({
       ) : (
         <View style={[styles.content, contentContainerStyle]}>{children}</View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -63,7 +63,14 @@ export const addTrackerListener = (fn: () => void) => {
   };
 };
 
-export const usePrayerTracker = (userLocation?: UserLocation | null) => {
+export interface UsePrayerTrackerOptions {
+  enableCountdown?: boolean;
+}
+
+export const usePrayerTracker = (
+  userLocation?: UserLocation | null,
+  options?: UsePrayerTrackerOptions
+) => {
   const dispatch = useAppDispatch();
   const {
     calcMethod: reduxMethod,
@@ -139,7 +146,8 @@ export const usePrayerTracker = (userLocation?: UserLocation | null) => {
         dispatch(setActiveCycle(cycle));
       });
     },
-    () => setRefreshTrigger((prev) => prev + 1)
+    () => setRefreshTrigger((prev) => prev + 1),
+    options?.enableCountdown ?? false
   );
 
   const handlePostCompletionAlerts = async (

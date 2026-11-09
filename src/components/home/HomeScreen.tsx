@@ -40,7 +40,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     periodProgressRatio,
     streakCount,
     togglePrayer,
-  } = usePrayerTracker(location);
+  } = usePrayerTracker(location, { enableCountdown: true });
 
   const currentObligatoryName = prayerData.currentPeriod?.obligatorySalahName;
   const currentPrayerItem = currentObligatoryName
