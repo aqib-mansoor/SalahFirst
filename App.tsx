@@ -183,6 +183,7 @@ function AppContent() {
             progressSubTab={progressSubTab}
             setProgressSubTab={setProgressSubTab}
             onOpenSettings={() => setCurrentStep('settings')}
+            onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
             onStartPrayerFocus={handleStartFocusImmediately}
             onOpenFocusSettings={handleOpenFocusConfigFromHome}
             onOpenWallpaper={handleOpenWallpaper}
