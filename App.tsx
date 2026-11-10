@@ -31,7 +31,7 @@ import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar
 import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
-import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
+import { getActiveFocusSession, clearActiveFocusSession, FocusSession } from '@/utils/focusSession';
 import { checkAndActivateCurrentAutoFocus } from '@/utils/prayerFocusOffsets';
 import { registerSingleNotificationPolicy } from '@/utils/notificationCleanup';
 
@@ -87,11 +87,16 @@ function AppContent() {
         }
 
         if (savedSession && savedSession.status === 'active') {
-          setActiveSession(savedSession);
-          setFocusPrayerName(savedSession.prayerName);
-          setFocusDuration(savedSession.durationMinutes);
-          setCurrentStep('focus-active');
-          return;
+          // Guard: if the session window has already expired, clear it and do NOT show focus
+          if (savedSession.targetEndTimestamp <= Date.now()) {
+            await clearActiveFocusSession();
+          } else {
+            setActiveSession(savedSession);
+            setFocusPrayerName(savedSession.prayerName);
+            setFocusDuration(savedSession.durationMinutes);
+            setCurrentStep('focus-active');
+            return;
+          }
         }
 
         setCurrentStep('main');

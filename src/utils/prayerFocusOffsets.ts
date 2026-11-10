@@ -1,6 +1,11 @@
 import { storage } from './storage';
 import { FocusDuration } from '@/types';
-import { FocusSession, createFocusSession, saveActiveFocusSession } from './focusSession';
+import {
+  FocusSession,
+  createFocusSession,
+  saveActiveFocusSession,
+  isFocusCompletedToday,
+} from './focusSession';
 
 export interface PrayerFocusOffsets {
   fajr: number; // default +30 mins after Azan
@@ -116,11 +121,7 @@ export const checkAndActivateCurrentAutoFocus = async (
 
     const now = Date.now();
     const prayers: ('fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha')[] = [
-      'fajr',
-      'dhuhr',
-      'asr',
-      'maghrib',
-      'isha',
+      'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
     ];
 
     for (const prayer of prayers) {
@@ -129,18 +130,25 @@ export const checkAndActivateCurrentAutoFocus = async (
 
       const delayMinutes = offsets[prayer] ?? 20;
       const prayerDuration = durations[prayer] ?? prefs.defaultDuration ?? 15;
-      const startMs = azanDate.getTime() + delayMinutes * 60 * 1000;
-      const endMs = startMs + prayerDuration * 60 * 1000;
+      const windowStartMs = azanDate.getTime() + delayMinutes * 60 * 1000;
+      const windowEndMs = windowStartMs + prayerDuration * 60 * 1000;
 
-      // If current time is strictly within the active namaz focus window
-      if (now >= startMs && now < endMs) {
-        const prayerName = prayer.charAt(0).toUpperCase() + prayer.slice(1);
-        const session = createFocusSession(prayerName, prayerDuration);
-        session.startTimestamp = startMs;
-        session.targetEndTimestamp = endMs;
-        await saveActiveFocusSession(session);
-        return session;
-      }
+      // Window must still be active and not already completed today
+      if (now < windowStartMs || now >= windowEndMs) continue;
+      const prayerName = prayer.charAt(0).toUpperCase() + prayer.slice(1);
+      if (await isFocusCompletedToday(prayerName)) continue;
+
+      // Restore actual window — do NOT use createFocusSession (which resets start to now)
+      const session: FocusSession = {
+        prayerName,
+        durationMinutes: prayerDuration,
+        startTimestamp: windowStartMs,
+        targetEndTimestamp: windowEndMs,
+        status: 'active',
+        breachCount: 0,
+      };
+      await saveActiveFocusSession(session);
+      return session;
     }
   } catch {}
 

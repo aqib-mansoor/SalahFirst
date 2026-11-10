@@ -18,6 +18,7 @@ import {
   saveActiveFocusSession,
   clearActiveFocusSession,
   calculateRemainingSeconds,
+  markFocusCompleted,
 } from '@/utils/focusSession';
 import {
   startFocusNotifications,
@@ -74,7 +75,11 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const tick = useCallback(() => {
     const left = calculateRemainingSeconds(sessionRef.current);
     setRemainingSeconds(left);
-    if (left <= 0) setIsCompleted(true);
+    if (left <= 0) {
+      setIsCompleted(true);
+      // Persist completion immediately so app-reopen doesn't re-show focus
+      markFocusCompleted(sessionRef.current.prayerName);
+    }
   }, []);
 
   useEffect(() => {
@@ -128,6 +133,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
+    await markFocusCompleted(sessionRef.current.prayerName);
     afterAction?.();
     onExit();
   };
