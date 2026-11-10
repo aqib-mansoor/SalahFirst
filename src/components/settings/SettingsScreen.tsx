@@ -34,6 +34,7 @@ export interface SettingsScreenProps {
   onOpenFocusConfig?: () => void;
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
+  onOpenPermissionsHub?: () => void;
 }
 
 const CALC_LABELS: Record<CalculationMethodName, string> = {

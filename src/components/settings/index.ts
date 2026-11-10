@@ -5,5 +5,6 @@ export * from './AppearanceSettingsGroup';
 export * from './InspirationSettingsGroup';
 export * from './ReengagementSettingsGroup';
 export * from './GeneralSettingsGroup';
+export * from './PermissionsHubScreen';
 export * from './SettingsScreen';
 
