@@ -1,11 +1,12 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-export const PRAYER_CHANNEL_MAKKAH = 'salahfirst-prayer-makkah-v1';
-export const PRAYER_CHANNEL_MADINAH = 'salahfirst-prayer-madinah-v1';
-export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v1';
-export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v1';
+export const PRAYER_CHANNEL_MAKKAH = 'salahfirst-prayer-makkah-v2';
+export const PRAYER_CHANNEL_MADINAH = 'salahfirst-prayer-madinah-v2';
+export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v2';
+export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v2';
 export const PRAYER_CHANNEL_ID = PRAYER_CHANNEL_MAKKAH;
+export const PRAYER_CATEGORY_ID = 'salahfirst-prayer-actions';
 
 export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
 export const MISSED_CHANNEL_ID = 'salahfirst-missed-reminders';
@@ -32,61 +33,60 @@ export const getPrayerChannelForModeAndReciter = (
 };
 
 export const setupNotificationChannels = async (): Promise<void> => {
+  await Notifications.setNotificationCategoryAsync(PRAYER_CATEGORY_ID, [
+    {
+      identifier: 'START_FOCUS',
+      buttonTitle: 'Start Salah Focus',
+      options: { opensAppToForeground: true },
+    },
+    {
+      identifier: 'DISMISS_AZAN',
+      buttonTitle: 'Dismiss',
+      options: { isDestructive: false, opensAppToForeground: false },
+    },
+  ]).catch(() => {});
+
   if (Platform.OS !== 'android') return;
 
-  // Clean up legacy channels to prevent stale audio mappings
-  await Notifications.deleteNotificationChannelAsync('salahfirst-prayer-alerts').catch(() => {});
-  await Notifications.deleteNotificationChannelAsync('salahfirst-prayer-alerts-v2').catch(() => {});
+  const legacyIds = [
+    'salahfirst-prayer-alerts',
+    'salahfirst-prayer-alerts-v2',
+    'salahfirst-prayer-makkah-v1',
+    'salahfirst-prayer-madinah-v1',
+    'salahfirst-prayer-alaqsa-v1',
+    'salahfirst-prayer-vibrate-v1',
+  ];
+  for (const id of legacyIds) {
+    await Notifications.deleteNotificationChannelAsync(id).catch(() => {});
+  }
 
-  // 1. Makkah Azan Channel
-  await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_MAKKAH, {
-    name: 'Prayer Azan (Makkah)',
-    importance: Notifications.AndroidImportance.MAX,
-    vibrationPattern: [0, 500, 250, 500],
-    lightColor: '#0E7449',
-    enableLights: true,
-    enableVibrate: true,
-    sound: 'azan_makkah.mp3',
-    audioAttributes: {
-      usage: Notifications.AndroidAudioUsage.ALARM,
-      contentType: Notifications.AndroidAudioContentType.SONIFICATION,
-    },
-  });
+  const reciterChannels = [
+    { id: PRAYER_CHANNEL_MAKKAH, name: 'Prayer Azan (Makkah)', sound: 'azan_makkah.mp3' },
+    { id: PRAYER_CHANNEL_MADINAH, name: 'Prayer Azan (Madinah)', sound: 'azan_madinah.mp3' },
+    { id: PRAYER_CHANNEL_ALAQSA, name: 'Prayer Azan (Al-Aqsa)', sound: 'azan_alaqsa.mp3' },
+  ];
 
-  // 2. Madinah Azan Channel
-  await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_MADINAH, {
-    name: 'Prayer Azan (Madinah)',
-    importance: Notifications.AndroidImportance.MAX,
-    vibrationPattern: [0, 500, 250, 500],
-    lightColor: '#0E7449',
-    enableLights: true,
-    enableVibrate: true,
-    sound: 'azan_madinah.mp3',
-    audioAttributes: {
-      usage: Notifications.AndroidAudioUsage.ALARM,
-      contentType: Notifications.AndroidAudioContentType.SONIFICATION,
-    },
-  });
+  for (const ch of reciterChannels) {
+    await Notifications.setNotificationChannelAsync(ch.id, {
+      name: ch.name,
+      importance: Notifications.AndroidImportance.MAX,
+      bypassDnd: false,
+      vibrationPattern: [0, 500, 250, 500],
+      lightColor: '#0E7449',
+      enableLights: true,
+      enableVibrate: true,
+      sound: ch.sound,
+      audioAttributes: {
+        usage: Notifications.AndroidAudioUsage.NOTIFICATION_RINGTONE,
+        contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      },
+    });
+  }
 
-  // 3. Al-Aqsa Azan Channel
-  await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_ALAQSA, {
-    name: 'Prayer Azan (Al-Aqsa)',
-    importance: Notifications.AndroidImportance.MAX,
-    vibrationPattern: [0, 500, 250, 500],
-    lightColor: '#0E7449',
-    enableLights: true,
-    enableVibrate: true,
-    sound: 'azan_alaqsa.mp3',
-    audioAttributes: {
-      usage: Notifications.AndroidAudioUsage.ALARM,
-      contentType: Notifications.AndroidAudioContentType.SONIFICATION,
-    },
-  });
-
-  // 4. Vibrate-Only Prayer Channel (Explicitly zero sound)
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_VIBRATE, {
     name: 'Prayer Alert (Vibrate Only)',
     importance: Notifications.AndroidImportance.HIGH,
+    bypassDnd: false,
     vibrationPattern: [0, 600, 300, 600],
     lightColor: '#CCA15F',
     enableLights: true,

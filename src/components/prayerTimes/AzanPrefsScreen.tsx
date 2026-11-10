@@ -16,7 +16,6 @@ import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
 import { MasterAlarmCard } from './MasterAlarmCard';
-import { BatteryOptimizationCard } from './BatteryOptimizationCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
 
 export interface AzanPrefsScreenProps {
@@ -128,9 +127,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           totalCount={PRAYERS_LIST.length}
           onToggle={toggleExactAlarms}
         />
-
-        {/* OEM Battery Optimization Guidance Card for Android */}
-        <BatteryOptimizationCard />
 
         {/* Smart Reminders & Quiet Hours Preferences */}
         <NotificationPreferencesCard
