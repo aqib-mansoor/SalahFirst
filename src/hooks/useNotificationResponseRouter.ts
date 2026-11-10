@@ -9,6 +9,7 @@ import {
   createFocusSession,
   saveActiveFocusSession,
 } from '@/utils/focusSession';
+import { stopAzanAudio } from '@/utils/azanAudio';
 
 export interface UseNotificationResponseRouterParams {
   setCurrentStep: (step: AppStep) => void;
@@ -35,6 +36,23 @@ export const useNotificationResponseRouter = ({
       } | null;
 
       if (!data) return;
+
+      if (response.actionIdentifier === 'DISMISS_AZAN') {
+        stopAzanAudio();
+        return;
+      }
+
+      if (response.actionIdentifier === 'START_FOCUS' && data.prayerName) {
+        stopAzanAudio();
+        const prayer = String(data.prayerName);
+        const session = createFocusSession(prayer, 15);
+        saveActiveFocusSession(session);
+        setActiveSession(session);
+        setFocusPrayerName(prayer);
+        setFocusDuration(15);
+        setCurrentStep('focus-active');
+        return;
+      }
 
       if (data.type === 'focus-breach' || data.type === 'focus-active') {
         getActiveFocusSession().then((session) => {

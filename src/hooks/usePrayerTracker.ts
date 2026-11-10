@@ -8,7 +8,7 @@ import {
   FormattedPrayerTimes,
 } from '@/utils/prayerTimes';
 import { storage } from '@/utils/storage';
-import { UserLocation, CalculationMethodName, JuristicMethod, PrayerAlertConfig, ObligatorySalah } from '@/types';
+import { UserLocation, PrayerAlertConfig, ObligatorySalah } from '@/types';
 import { calculateCurrentStreak } from '@/utils/trackerStatistics';
 import { cancelMissedPrayerNotification, triggerStreakNotification } from '@/utils/notifications';
 import { getLocalDateComponents } from '@/utils/timezone';
@@ -48,8 +48,9 @@ const EMPTY_COMPLETED: Record<string, boolean> = {
 export const getTodayDateKey = (timezone?: string): string =>
   getLocalDateComponents(new Date(), timezone).dateKey;
 
-export const calculateStreakFromHistory = (history: Record<string, Record<string, boolean>>): number =>
-  calculateCurrentStreak(history);
+export const calculateStreakFromHistory = (
+  history: Record<string, Record<string, boolean>>
+): number => calculateCurrentStreak(history);
 
 const trackerPrefListeners = new Set<() => void>();
 export const notifyTrackerPreferencesChanged = () => {
@@ -61,6 +62,22 @@ export const addTrackerListener = (fn: () => void) => {
   return () => {
     trackerPrefListeners.delete(fn);
   };
+};
+
+const handlePostCompletionAlerts = async (
+  prayerName: string,
+  isNowCompleted: boolean,
+  updatedDay: Record<string, boolean>,
+  dateKey: string
+) => {
+  if (!isNowCompleted) return;
+  await cancelMissedPrayerNotification(prayerName, dateKey);
+  if (Object.values(updatedDay).filter(Boolean).length === 5) {
+    const alerts = await storage.get<PrayerAlertConfig | null>('@salahfirst_alerts', null);
+    if (alerts?.streakEncouragementEnabled !== false) {
+      await triggerStreakNotification();
+    }
+  }
 };
 
 export interface UsePrayerTrackerOptions {
@@ -84,11 +101,12 @@ export const usePrayerTracker = (
   const calcMethod = reduxMethod || getDefaultMethodForCountry(userLocation?.country);
   const juristic = reduxJuristic || getDefaultMadhabForCountry(userLocation?.country);
 
-  const todayKey = getTodayDateKey(userLocation?.timezone);
-  const completedMap = historyMap[todayKey] || EMPTY_COMPLETED;
+  const activeDateKey = activeCycle
+    ? getLocalDateComponents(new Date(activeCycle.cycleStartUtc), userLocation?.timezone).dateKey
+    : getTodayDateKey(userLocation?.timezone);
+  const completedMap = historyMap[activeDateKey] || EMPTY_COMPLETED;
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
-  // Centralized Prayer Cycle synchronization
   useEffect(() => {
     reconcilePrayerCycle(userLocation || null, calcMethod, juristic).then(({ cycle }) => {
       dispatch(setActiveCycle(cycle));
@@ -127,16 +145,18 @@ export const usePrayerTracker = (
     return () => sub.remove();
   }, [userLocation, calcMethod, juristic, dispatch]);
 
-  const prayerData: FormattedPrayerTimes = useMemo(() => {
-    return getPrayerTimes(
-      userLocation?.latitude,
-      userLocation?.longitude,
-      new Date(),
-      calcMethod,
-      juristic,
-      userLocation?.timezone
-    );
-  }, [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, refreshTrigger]);
+  const prayerData: FormattedPrayerTimes = useMemo(
+    () =>
+      getPrayerTimes(
+        userLocation?.latitude,
+        userLocation?.longitude,
+        new Date(),
+        calcMethod,
+        juristic,
+        userLocation?.timezone
+      ),
+    [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, refreshTrigger]
+  );
 
   const { countdownText, periodProgressRatio } = useTrackerCountdown(
     prayerData,
@@ -150,65 +170,51 @@ export const usePrayerTracker = (
     options?.enableCountdown ?? false
   );
 
-  const handlePostCompletionAlerts = async (
-    prayerName: string,
-    isNowCompleted: boolean,
-    updatedDay: Record<string, boolean>,
-    dateKey: string
-  ) => {
-    if (!isNowCompleted) return;
-    await cancelMissedPrayerNotification(prayerName, dateKey);
-    const count = Object.values(updatedDay).filter(Boolean).length;
-    if (count === 5) {
-      const alerts = await storage.get<PrayerAlertConfig | null>('@salahfirst_alerts', null);
-      if (alerts?.streakEncouragementEnabled !== false) {
-        await triggerStreakNotification();
-      }
-    }
-  };
-
   const setPrayerCompleted = useCallback(
     async (prayerName: string, completed: boolean = true) => {
-      const currentTodayKey = getTodayDateKey(userLocation?.timezone);
       if (cycleCompletions[prayerName as ObligatorySalah] === completed) return;
 
-      if (completed) {
+      const nowMs = Date.now();
+      const isBeforeFajr = prayerData.raw?.fajr ? nowMs < prayerData.raw.fajr.getTime() : false;
+
+      if (completed && !isBeforeFajr) {
         const lower = prayerName.toLowerCase() as keyof typeof prayerData.raw;
         const rawDate = prayerData.raw?.[lower];
-        if (rawDate && Date.now() < rawDate.getTime()) return;
+        if (rawDate && nowMs < rawDate.getTime()) return;
+      }
 
-        if (activeCycle) {
-          const { event } = await recordPrayerCompletion({
-            prayerKey: prayerName as ObligatorySalah,
-            cycleId: activeCycle.cycleId,
-            timezone: userLocation?.timezone,
-            latitude: userLocation?.latitude,
-            longitude: userLocation?.longitude,
-            source: 'manual',
-          });
-          dispatch(recordLedgerEvent(event));
-        }
-      } else if (activeCycle) {
+      if (completed && activeCycle) {
+        const { event } = await recordPrayerCompletion({
+          prayerKey: prayerName as ObligatorySalah,
+          cycleId: activeCycle.cycleId,
+          timezone: userLocation?.timezone,
+          latitude: userLocation?.latitude,
+          longitude: userLocation?.longitude,
+          source: 'manual',
+        });
+        dispatch(recordLedgerEvent(event));
+      } else if (!completed && activeCycle) {
         await removePrayerCompletion(activeCycle.cycleId, prayerName as ObligatorySalah);
         dispatch(
           removeLedgerEvent({
             cycleId: activeCycle.cycleId,
             prayerKey: prayerName as ObligatorySalah,
-            localDate: currentTodayKey,
+            localDate: activeDateKey,
           })
         );
       }
 
-      dispatch(setPrayerCompletedAction({ dateKey: currentTodayKey, prayerName, completed }));
+      dispatch(setPrayerCompletedAction({ dateKey: activeDateKey, prayerName, completed }));
       const updatedToday = { ...cycleCompletions, [prayerName]: completed };
-      await handlePostCompletionAlerts(prayerName, completed, updatedToday, currentTodayKey);
+      await handlePostCompletionAlerts(prayerName, completed, updatedToday, activeDateKey);
       notifyTrackerPreferencesChanged();
     },
-    [cycleCompletions, activeCycle, userLocation, prayerData.raw, dispatch]
+    [cycleCompletions, activeCycle, activeDateKey, userLocation, prayerData.raw, dispatch]
   );
 
   const togglePrayer = useCallback(
-    (prayerName: string) => setPrayerCompleted(prayerName, !cycleCompletions[prayerName as ObligatorySalah]),
+    (prayerName: string) =>
+      setPrayerCompleted(prayerName, !cycleCompletions[prayerName as ObligatorySalah]),
     [cycleCompletions, setPrayerCompleted]
   );
 
@@ -229,23 +235,25 @@ export const usePrayerTracker = (
   const prayersList: PrayerStatus[] = useMemo(() => {
     const names = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
     const nowMs = Date.now();
+    const isBeforeFajr = prayerData.raw?.fajr ? nowMs < prayerData.raw.fajr.getTime() : false;
     const currentObligatory = prayerData.currentPeriod?.obligatorySalahName;
 
     return names.map((name) => {
       const lower = name.toLowerCase() as keyof typeof prayerData.raw;
       const rawDate = prayerData.raw?.[lower];
-      const hasStarted = rawDate ? nowMs >= rawDate.getTime() : false;
-      const isCurrent = currentObligatory ? currentObligatory === name : false;
+      const hasStarted = isBeforeFajr ? true : rawDate ? nowMs >= rawDate.getTime() : false;
 
       return {
         name,
         time: (prayerData as any)[lower] || '--:--',
         completed: !!cycleCompletions[name],
         isNext: prayerData.nextPrayerName === name,
-        isCurrent,
+        isCurrent: currentObligatory ? currentObligatory === name : false,
         hasStarted,
         remainingTimeText:
-          prayerData.nextPrayerName === name ? formatRemainingTime(prayerData.nextPrayerDate) : undefined,
+          prayerData.nextPrayerName === name
+            ? formatRemainingTime(prayerData.nextPrayerDate)
+            : undefined,
       };
     });
   }, [prayerData, cycleCompletions]);
