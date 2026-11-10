@@ -26,6 +26,7 @@ import {
   scheduleDailyReflectionAlert,
 } from './notificationFollowups';
 import { AzanReciterKey } from './azanAudio';
+import { scheduleNativeAzan, cancelAllNativeAzans } from '@/native/AzanServiceModule';
 import i18n from '@/i18n';
 
 export {
@@ -131,6 +132,7 @@ export const scheduleAllPrayerAlerts = async (
         await Notifications.cancelScheduledNotificationAsync(notif.identifier).catch(() => {});
       }
     }
+    await cancelAllNativeAzans();
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
     const [history, focusOffsets, focusDurations, focusPrefs, reciterKey] = await Promise.all([
@@ -201,6 +203,10 @@ export const scheduleAllPrayerAlerts = async (
             },
           });
           scheduledCount++;
+          // Also schedule native AlarmManager — plays full Azan even when app is killed
+          if (mode === 'AZAN' || mode === 'TONE') {
+            await scheduleNativeAzan(prayer.name, prayer.key, reciterKey, prayerDate, dayOffset);
+          }
         }
 
         // Secondary reminders (Pre-Prayer, Auto-Focus, Missed) for immediate 3 days

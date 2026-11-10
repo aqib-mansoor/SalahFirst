@@ -7,6 +7,7 @@ import { getRawPrayerTimes } from '@/utils/prayerTimes';
 import { getLocalDateComponents } from '@/utils/timezone';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
+import { stopNativeAzan } from '@/native/AzanServiceModule';
 
 const PRAYERS: ('fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha')[] = [
   'fajr',
@@ -46,6 +47,7 @@ export const useAzanAutoReciter = ({
 
   const stopRecitation = useCallback(async () => {
     await stopAzanAudio();
+    await stopNativeAzan();
     setIsReciting(false);
     setRecitingPrayer(null);
   }, []);
