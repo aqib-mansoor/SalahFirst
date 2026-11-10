@@ -55,7 +55,7 @@ export interface PrayerAlertConfig {
   quietHoursEnd?: string;   // HH:mm format, e.g. '05:00'
 }
 
-export type FocusDuration = 10 | 15 | 20 | 30;
+export type FocusDuration = number;
 
 export interface FocusSettings {
   duration: FocusDuration;

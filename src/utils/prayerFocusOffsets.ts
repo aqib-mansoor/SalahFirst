@@ -10,6 +10,14 @@ export interface PrayerFocusOffsets {
   isha: number; // default +20 mins after Azan
 }
 
+export interface PrayerFocusDurations {
+  fajr: FocusDuration;
+  dhuhr: FocusDuration;
+  asr: FocusDuration;
+  maghrib: FocusDuration;
+  isha: FocusDuration;
+}
+
 export interface FocusPreferences {
   autoStartOnAzan: boolean;
   defaultDuration: FocusDuration;
@@ -28,6 +36,14 @@ export const DEFAULT_FOCUS_OFFSETS: PrayerFocusOffsets = {
   isha: 20,
 };
 
+export const DEFAULT_FOCUS_DURATIONS: PrayerFocusDurations = {
+  fajr: 15,
+  dhuhr: 15,
+  asr: 15,
+  maghrib: 15,
+  isha: 20,
+};
+
 export const DEFAULT_FOCUS_PREFERENCES: FocusPreferences = {
   autoStartOnAzan: true,
   defaultDuration: 15,
@@ -39,6 +55,7 @@ export const DEFAULT_FOCUS_PREFERENCES: FocusPreferences = {
 };
 
 const STORAGE_KEY = '@salahfirst_focus_offsets';
+const DURATIONS_STORAGE_KEY = '@salahfirst_focus_durations';
 const PREFS_STORAGE_KEY = '@salahfirst_focus_preferences';
 
 export const loadFocusOffsets = async (): Promise<PrayerFocusOffsets> => {
@@ -53,6 +70,20 @@ export const loadFocusOffsets = async (): Promise<PrayerFocusOffsets> => {
 
 export const saveFocusOffsets = async (offsets: PrayerFocusOffsets): Promise<void> => {
   await storage.set(STORAGE_KEY, offsets);
+};
+
+export const loadFocusDurations = async (): Promise<PrayerFocusDurations> => {
+  try {
+    const saved = await storage.get<PrayerFocusDurations | null>(DURATIONS_STORAGE_KEY, null);
+    if (saved && typeof saved === 'object') {
+      return { ...DEFAULT_FOCUS_DURATIONS, ...saved };
+    }
+  } catch {}
+  return DEFAULT_FOCUS_DURATIONS;
+};
+
+export const saveFocusDurations = async (durations: PrayerFocusDurations): Promise<void> => {
+  await storage.set(DURATIONS_STORAGE_KEY, durations);
 };
 
 export const loadFocusPreferences = async (): Promise<FocusPreferences> => {
@@ -75,8 +106,9 @@ export const checkAndActivateCurrentAutoFocus = async (
   if (!rawPrayerDates) return null;
 
   try {
-    const [offsets, prefs] = await Promise.all([
+    const [offsets, durations, prefs] = await Promise.all([
       loadFocusOffsets(),
+      loadFocusDurations(),
       loadFocusPreferences(),
     ]);
 
@@ -96,13 +128,14 @@ export const checkAndActivateCurrentAutoFocus = async (
       if (!azanDate || isNaN(azanDate.getTime())) continue;
 
       const delayMinutes = offsets[prayer] ?? 20;
+      const prayerDuration = durations[prayer] ?? prefs.defaultDuration ?? 15;
       const startMs = azanDate.getTime() + delayMinutes * 60 * 1000;
-      const endMs = startMs + prefs.defaultDuration * 60 * 1000;
+      const endMs = startMs + prayerDuration * 60 * 1000;
 
       // If current time is strictly within the active namaz focus window
       if (now >= startMs && now < endMs) {
         const prayerName = prayer.charAt(0).toUpperCase() + prayer.slice(1);
-        const session = createFocusSession(prayerName, prefs.defaultDuration);
+        const session = createFocusSession(prayerName, prayerDuration);
         session.startTimestamp = startMs;
         session.targetEndTimestamp = endMs;
         await saveActiveFocusSession(session);
@@ -164,4 +197,3 @@ export const calculateFocusReadiness = (
     minutesRemaining: Math.ceil(diffMs / 60000),
   };
 };
-

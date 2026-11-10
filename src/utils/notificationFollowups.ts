@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { PrayerAlertConfig, NotificationMode } from '@/types';
-import { PrayerFocusOffsets, FocusPreferences } from './prayerFocusOffsets';
+import { PrayerFocusOffsets, PrayerFocusDurations, FocusPreferences } from './prayerFocusOffsets';
 import { isWithinQuietHours } from './notificationQuietHours';
 import {
   REMINDER_CHANNEL_ID,
@@ -25,6 +25,7 @@ export interface SecondaryReminderContext {
   alerts?: PrayerAlertConfig;
   focusPrefs: FocusPreferences;
   focusOffsets: PrayerFocusOffsets;
+  focusDurations?: PrayerFocusDurations;
   isCompleted: boolean;
 }
 
@@ -45,6 +46,7 @@ export const scheduleSecondaryPrayerReminders = async (
     alerts,
     focusPrefs,
     focusOffsets,
+    focusDurations,
     isCompleted,
   } = ctx;
 
@@ -78,8 +80,8 @@ export const scheduleSecondaryPrayerReminders = async (
   if (focusPrefs.autoStartOnAzan !== false) {
     const congregationDelay = focusOffsets[prayerKey as keyof PrayerFocusOffsets] ?? 20;
     const focusStartDate = new Date(prayerDate.getTime() + congregationDelay * 60000);
-    const focusDurationMins = focusPrefs.defaultDuration ?? 15;
-    const focusEndDate = new Date(focusStartDate.getTime() + focusDurationMins * 60000);
+    const prayerDuration = focusDurations?.[prayerKey as keyof PrayerFocusDurations] ?? focusPrefs.defaultDuration ?? 15;
+    const focusEndDate = new Date(focusStartDate.getTime() + prayerDuration * 60000);
 
     if (focusStartDate > now) {
       await Notifications.scheduleNotificationAsync({
@@ -91,7 +93,7 @@ export const scheduleSecondaryPrayerReminders = async (
           data: {
             type: 'auto-focus-start',
             prayerName,
-            duration: focusDurationMins,
+            duration: prayerDuration,
             targetEndTimestamp: focusEndDate.getTime(),
           },
         },
