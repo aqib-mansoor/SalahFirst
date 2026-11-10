@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-export const PRAYER_CHANNEL_ID = 'salahfirst-prayer-alerts';
+export const PRAYER_CHANNEL_ID = 'salahfirst-prayer-alerts-v2';
 export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
 export const MISSED_CHANNEL_ID = 'salahfirst-missed-reminders';
 export const REFLECTION_CHANNEL_ID = 'salahfirst-reflection';
@@ -13,14 +13,21 @@ export const FOCUS_BREACH_CHANNEL_ID = 'salahfirst-focus-breach';
 export const setupNotificationChannels = async (): Promise<void> => {
   if (Platform.OS !== 'android') return;
 
+  // Clean up legacy v1 channel to ensure fresh channel creation with custom Azan sound
+  await Notifications.deleteNotificationChannelAsync('salahfirst-prayer-alerts').catch(() => {});
+
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_ID, {
     name: 'Prayer Call & Azan',
     importance: Notifications.AndroidImportance.MAX,
-    vibrationPattern: [0, 300, 200, 300],
+    vibrationPattern: [0, 500, 250, 500],
     lightColor: '#0E7449',
     enableLights: true,
     enableVibrate: true,
-    sound: 'default',
+    sound: 'azan.mp3',
+    audioAttributes: {
+      usage: Notifications.AndroidAudioUsage.ALARM,
+      contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+    },
   });
 
   await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {

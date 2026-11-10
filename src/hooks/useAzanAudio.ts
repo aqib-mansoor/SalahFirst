@@ -7,6 +7,8 @@ import {
   AZAN_PRESET_URLS,
   AzanReciterKey,
 } from '@/utils/azanAudio';
+import { storage } from '@/utils/storage';
+import { APP_CONFIG } from '@/constants/config';
 
 export const useAzanAudio = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -16,6 +18,12 @@ export const useAzanAudio = () => {
   const [currentReciter, setCurrentReciter] = useState<AzanReciterKey>('makkah');
 
   useEffect(() => {
+    storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah').then((saved) => {
+      if (saved && saved in AZAN_PRESET_URLS) {
+        setCurrentReciter(saved);
+      }
+    });
+
     return () => {
       stopAzanAudio();
     };
@@ -79,6 +87,7 @@ export const useAzanAudio = () => {
 
   const selectReciter = useCallback(async (key: AzanReciterKey) => {
     setCurrentReciter(key);
+    await storage.set(APP_CONFIG.storageKeys.azanReciter, key);
     if (isPlaying) {
       await stop();
       await play(key);

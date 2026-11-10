@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as Notifications from 'expo-notifications';
 import { PrayerAlertConfig, UserLocation, CalculationMethodName, JuristicMethod } from '@/types';
-import { playAzanAudio, stopAzanAudio, AzanReciterKey } from '@/utils/azanAudio';
+import { playAzanAudio, stopAzanAudio, AzanReciterKey, AZAN_PRESET_URLS } from '@/utils/azanAudio';
 import { getRawPrayerTimes } from '@/utils/prayerTimes';
 import { getLocalDateComponents } from '@/utils/timezone';
+import { storage } from '@/utils/storage';
+import { APP_CONFIG } from '@/constants/config';
 
 const PRAYERS: ('fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha')[] = [
   'fajr',
@@ -26,11 +28,20 @@ export const useAzanAutoReciter = ({
   alerts,
   calculationMethod = 'Karachi',
   juristicMethod = 'Hanafi',
-  reciterKey = 'makkah',
+  reciterKey: defaultReciterKey = 'makkah',
 }: UseAzanAutoReciterParams) => {
   const [isReciting, setIsReciting] = useState(false);
   const [recitingPrayer, setRecitingPrayer] = useState<string | null>(null);
+  const [activeReciter, setActiveReciter] = useState<AzanReciterKey>(defaultReciterKey);
   const playedKeysRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, defaultReciterKey).then((saved) => {
+      if (saved && saved in AZAN_PRESET_URLS) {
+        setActiveReciter(saved);
+      }
+    });
+  }, [defaultReciterKey]);
 
   const stopRecitation = useCallback(async () => {
     await stopAzanAudio();
@@ -48,14 +59,14 @@ export const useAzanAutoReciter = ({
         if (finished) {
           setRecitingPrayer(null);
         }
-      }, reciterKey);
+      }, activeReciter);
 
       if (!success) {
         setIsReciting(false);
         setRecitingPrayer(null);
       }
     },
-    [reciterKey]
+    [activeReciter]
   );
 
   // 1. Listen for scheduled local prayer alarm triggers
@@ -64,8 +75,9 @@ export const useAzanAutoReciter = ({
       const data = notification.request.content.data;
       if (data?.type === 'prayer-alarm') {
         const prayerName = String(data.prayerName || '').toLowerCase() as typeof PRAYERS[number];
-        const mode = alerts ? alerts[prayerName] : 'AZAN';
-        if (mode === 'AZAN' && alerts?.exactAlarmsEnabled !== false) {
+        const mode = alerts ? alerts[prayerName] : 'TONE';
+        const isAzanMode = mode === 'AZAN' || mode === 'TONE';
+        if (isAzanMode && alerts?.exactAlarmsEnabled !== false) {
           triggerRecitation(data.prayerName as string);
         }
       }
@@ -93,17 +105,18 @@ export const useAzanAutoReciter = ({
       );
 
       for (const prayer of PRAYERS) {
-        const mode = alerts ? alerts[prayer] : 'AZAN';
-        if (mode !== 'AZAN') continue;
+        const mode = alerts ? alerts[prayer] : 'TONE';
+        const isAzanMode = mode === 'AZAN' || mode === 'TONE';
+        if (!isAzanMode) continue;
 
         const prayerDate = raw[prayer] as Date | undefined;
         if (!prayerDate) continue;
 
-        // Check if within 45 seconds of prayer start and not already played today
-        const diffSeconds = Math.abs((now.getTime() - prayerDate.getTime()) / 1000);
+        // Check if within 60 seconds after prayer start and not already played today
+        const diffSeconds = (now.getTime() - prayerDate.getTime()) / 1000;
         const playedKey = `${dateKey}_${prayer}`;
 
-        if (diffSeconds <= 45 && !playedKeysRef.current.has(playedKey)) {
+        if (diffSeconds >= 0 && diffSeconds <= 60 && !playedKeysRef.current.has(playedKey)) {
           playedKeysRef.current.add(playedKey);
           const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
           triggerRecitation(capitalized);
@@ -123,4 +136,3 @@ export const useAzanAutoReciter = ({
     stopRecitation,
   };
 };
-

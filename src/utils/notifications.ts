@@ -190,7 +190,7 @@ export const scheduleAllPrayerAlerts = async (
             content: {
               title: (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
               body: (i18n.t(alarmBodyKey as any) as string) || `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
-              sound: mode === 'VIBRATE' ? undefined : 'default',
+              sound: mode === 'VIBRATE' ? undefined : 'azan.mp3',
               data: { prayerName: prayer.name, type: 'prayer-alarm' },
             },
             trigger: {

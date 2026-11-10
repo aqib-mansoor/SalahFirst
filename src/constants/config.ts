@@ -23,6 +23,7 @@ export const APP_CONFIG = {
     calculationMethod: '@salahfirst_calc_method',
     juristicMethod: '@salahfirst_juristic_method',
     hijriAdjustment: '@salahfirst_hijri_adjustment',
+    azanReciter: '@salahfirst_azan_reciter',
   },
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',
