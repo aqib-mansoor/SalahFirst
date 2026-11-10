@@ -160,3 +160,4 @@ const styles = StyleSheet.create({
   btnText: { fontWeight: '700', fontSize: 16, lineHeight: 18 },
   valueText: { minWidth: 38, textAlign: 'center', fontWeight: '700', fontSize: 12 },
 });
+
