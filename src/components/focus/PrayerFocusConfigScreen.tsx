@@ -4,9 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppButton, ScreenHeader } from '@/components/common';
-import { FocusPrayerSelector, FocusPrayerSelection } from './FocusPrayerSelector';
-import { FocusCongregationDelayCard } from './FocusCongregationDelayCard';
-import { FocusDurationCard } from './FocusDurationCard';
+import { FocusPrayerScheduleCard } from './FocusPrayerScheduleCard';
 import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
@@ -14,9 +12,13 @@ import { FormattedPrayerTimes } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
 import {
   PrayerFocusOffsets,
+  PrayerFocusDurations,
   DEFAULT_FOCUS_OFFSETS,
+  DEFAULT_FOCUS_DURATIONS,
   loadFocusOffsets,
   saveFocusOffsets,
+  loadFocusDurations,
+  saveFocusDurations,
   loadFocusPreferences,
   saveFocusPreferences,
 } from '@/utils/prayerFocusOffsets';
@@ -30,8 +32,6 @@ export interface PrayerFocusConfigScreenProps {
 }
 
 export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = ({
-  initialPrayer = 'Fajr',
-  prayerTimesMap,
   rawPrayerDates,
   onBack,
 }) => {
@@ -39,11 +39,8 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
-  const [selectedPrayer, setSelectedPrayer] = useState<FocusPrayerSelection>(
-    (initialPrayer as FocusPrayerSelection) || 'Fajr'
-  );
   const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
-  const [duration, setDuration] = useState<FocusDuration>(15);
+  const [durations, setDurations] = useState<PrayerFocusDurations>(DEFAULT_FOCUS_DURATIONS);
   const [blockSocial, setBlockSocial] = useState(true);
   const [blockShortVideos, setBlockShortVideos] = useState(true);
   const [blockGames, setBlockGames] = useState(false);
@@ -53,10 +50,14 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadFocusOffsets(), loadFocusPreferences()]).then(([loadedOffsets, loadedPrefs]) => {
+    Promise.all([
+      loadFocusOffsets(),
+      loadFocusDurations(),
+      loadFocusPreferences(),
+    ]).then(([loadedOffsets, loadedDurations, loadedPrefs]) => {
       setOffsets(loadedOffsets);
+      setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
-      setDuration(loadedPrefs.defaultDuration);
       setPlayAzan(loadedPrefs.playAzanBefore);
       setBlockSocial(loadedPrefs.blockSocial);
       setBlockShortVideos(loadedPrefs.blockShortVideos);
@@ -65,29 +66,22 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
     });
   }, []);
 
-  const currentPrayerKey =
-    selectedPrayer === 'All' ? 'dhuhr' : (selectedPrayer.toLowerCase() as keyof PrayerFocusOffsets);
-  const currentDelay = offsets[currentPrayerKey] ?? 20;
-  const targetAzan = prayerTimesMap && selectedPrayer !== 'All' ? (prayerTimesMap as Record<string, any>)[currentPrayerKey] : undefined;
-  const targetRawDate = rawPrayerDates && selectedPrayer !== 'All' ? rawPrayerDates[currentPrayerKey] : undefined;
+  const handleUpdateDelay = (prayer: keyof PrayerFocusOffsets, mins: number) => {
+    setOffsets((prev) => ({ ...prev, [prayer]: mins }));
+  };
 
-  const handleUpdateDelay = (mins: number) => {
-    let updated: PrayerFocusOffsets;
-    if (selectedPrayer === 'All') {
-      updated = { fajr: mins, dhuhr: mins, asr: mins, maghrib: mins, isha: mins };
-    } else {
-      updated = { ...offsets, [currentPrayerKey]: mins };
-    }
-    setOffsets(updated);
+  const handleUpdateDuration = (prayer: keyof PrayerFocusDurations, mins: FocusDuration) => {
+    setDurations((prev) => ({ ...prev, [prayer]: mins }));
   };
 
   const handleSaveAndReturn = async () => {
     setIsSaving(true);
     await Promise.all([
       saveFocusOffsets(offsets),
+      saveFocusDurations(durations),
       saveFocusPreferences({
         autoStartOnAzan: autoStart,
-        defaultDuration: duration,
+        defaultDuration: durations.fajr || 15,
         playAzanBefore: playAzan,
         blockSocial,
         blockShortVideos,
@@ -119,25 +113,16 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           showsVerticalScrollIndicator={false}
           bounces={true}
         >
-          {/* 1. Prayer Selector */}
-          <FocusPrayerSelector
-            selectedPrayer={selectedPrayer}
-            targetAzanTime={targetAzan}
-            onSelectPrayer={setSelectedPrayer}
+          {/* 1. Combined Per-Prayer Schedule Card (Delay + Duration Steppers) */}
+          <FocusPrayerScheduleCard
+            offsets={offsets}
+            durations={durations}
+            rawPrayerDates={rawPrayerDates}
+            onUpdateDelay={handleUpdateDelay}
+            onUpdateDuration={handleUpdateDuration}
           />
 
-          {/* 2. Congregation Delay Offset Card */}
-          <FocusCongregationDelayCard
-            prayerName={selectedPrayer}
-            selectedDelayMinutes={currentDelay}
-            rawAzanDate={targetRawDate}
-            onSelectDelay={handleUpdateDelay}
-          />
-
-          {/* 3. Duration Card */}
-          <FocusDurationCard selectedDuration={duration} onSelectDuration={setDuration} />
-
-          {/* 4. Distraction Shield Card */}
+          {/* 2. Distraction Shield Card */}
           <FocusDistractionCard
             blockSocial={blockSocial}
             blockShortVideos={blockShortVideos}
@@ -149,7 +134,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             onToggleNews={() => setBlockNews((p) => !p)}
           />
 
-          {/* 5. Automation Settings */}
+          {/* 3. Automation Settings */}
           <FocusSettingsCard
             autoStartOnAzan={autoStart}
             playAzanBefore={playAzan}
@@ -184,12 +169,8 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 };
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-  },
-  scrollWrapper: {
-    flex: 1,
-  },
+  screenContainer: { flex: 1 },
+  scrollWrapper: { flex: 1 },
   scroll: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.xs,
