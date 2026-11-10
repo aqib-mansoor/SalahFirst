@@ -41,7 +41,10 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
 
     // Strict future prayer rule: cannot log future prayer until Azan starts
     if (!item.hasStarted) {
-      const localizedName = (t(item.name.toLowerCase() as any) as string) || item.name;
+      const isFridayDhuhr = new Date().getDay() === 5 && item.name === 'Dhuhr';
+      const localizedName = isFridayDhuhr
+        ? (t('jumuah' as any) as string)
+        : (t(item.name.toLowerCase() as any) as string) || item.name;
       setNoticeMessage(
         `${localizedName} starts at ${item.time}. You can log it once its time arrives.`
       );
@@ -97,15 +100,22 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
 
       {/* 5 Prayer Cards Grid */}
       <View style={styles.cardsRow} accessibilityRole="toolbar" accessibilityLabel="Daily Prayers Tracker">
-        {prayers.map((item) => (
-          <HomePrayerCardItem
-            key={item.name}
-            item={item}
-            theme={theme}
-            onPress={handlePrayerPress}
-            localizedName={(t(item.name.toLowerCase() as any) as string) || item.name}
-          />
-        ))}
+        {prayers.map((item) => {
+          const isFridayDhuhr = new Date().getDay() === 5 && item.name === 'Dhuhr';
+          return (
+            <HomePrayerCardItem
+              key={item.name}
+              item={item}
+              theme={theme}
+              onPress={handlePrayerPress}
+              localizedName={
+                isFridayDhuhr
+                  ? (t('jumuah' as any) as string)
+                  : (t(item.name.toLowerCase() as any) as string) || item.name
+              }
+            />
+          );
+        })}
       </View>
 
       {/* Islamic Honesty Prayer Confirmation Modal */}

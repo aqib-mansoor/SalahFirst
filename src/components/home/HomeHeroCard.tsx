@@ -46,12 +46,16 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const localizedCurrentPrayer =
-    (t(currentPrayerName as any) as string) ||
-    (t(currentPrayerName.toLowerCase() as any) as string) ||
-    currentPrayerName;
-  const localizedNextPrayer =
-    (t(nextPrayerName.toLowerCase() as any) as string) || nextPrayerName;
+  const isFriday = new Date().getDay() === 5;
+  const resolvePrayerLabel = (name: string) => {
+    if (isFriday && name.toLowerCase() === 'dhuhr') {
+      return (t('jumuah' as any) as string) || "Jumu'ah";
+    }
+    return (t(name as any) as string) || (t(name.toLowerCase() as any) as string) || name;
+  };
+
+  const localizedCurrentPrayer = resolvePrayerLabel(currentPrayerName);
+  const localizedNextPrayer = resolvePrayerLabel(nextPrayerName);
 
   const defaultObligatory = {
     text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
@@ -79,7 +83,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       : undefined;
 
   const localizedFocusPrayer = targetObligatory
-    ? (t(targetObligatory.toLowerCase() as any) as string) || targetObligatory
+    ? resolvePrayerLabel(targetObligatory)
     : undefined;
 
   const showStatusPill =
