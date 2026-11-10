@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Vibration } from 'react-native';
+import { Vibration, AppState, AppStateStatus } from 'react-native';
 import { Magnetometer } from 'expo-sensors';
 import {
   calculateQiblaBearing,
@@ -71,8 +71,18 @@ export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
 
     setupMagnetometer();
 
+    const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') {
+        if (!subscription) setupMagnetometer();
+      } else if (subscription) {
+        subscription.remove();
+        subscription = null;
+      }
+    });
+
     return () => {
       isMounted = false;
+      appStateSub.remove();
       if (subscription) subscription.remove();
     };
   }, []);

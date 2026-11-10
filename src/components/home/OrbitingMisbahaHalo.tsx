@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { StyleSheet, View, Pressable, Animated } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, View, Pressable, Animated, Vibration } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { Theme } from '@/constants/theme';
 import { AppText } from '@/components/common';
@@ -47,6 +47,14 @@ export const OrbitingMisbahaHalo: React.FC<OrbitingMisbahaHaloProps> = ({
       tension: 40,
       useNativeDriver: true,
     }).start();
+
+    try {
+      if (count + 1 >= target) {
+        Vibration.vibrate([0, 35, 50, 35]);
+      } else {
+        Vibration.vibrate(12);
+      }
+    } catch {}
 
     onPress();
   };

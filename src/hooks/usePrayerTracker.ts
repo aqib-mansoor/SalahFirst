@@ -53,10 +53,7 @@ export const calculateStreakFromHistory = (
 ): number => calculateCurrentStreak(history);
 
 const trackerPrefListeners = new Set<() => void>();
-export const notifyTrackerPreferencesChanged = () => {
-  trackerPrefListeners.forEach((fn) => fn());
-};
-
+export const notifyTrackerPreferencesChanged = () => trackerPrefListeners.forEach((fn) => fn());
 export const addTrackerListener = (fn: () => void) => {
   trackerPrefListeners.add(fn);
   return () => {
@@ -74,9 +71,7 @@ const handlePostCompletionAlerts = async (
   await cancelMissedPrayerNotification(prayerName, dateKey);
   if (Object.values(updatedDay).filter(Boolean).length === 5) {
     const alerts = await storage.get<PrayerAlertConfig | null>('@salahfirst_alerts', null);
-    if (alerts?.streakEncouragementEnabled !== false) {
-      await triggerStreakNotification();
-    }
+    if (alerts?.streakEncouragementEnabled !== false) await triggerStreakNotification();
   }
 };
 
@@ -89,14 +84,8 @@ export const usePrayerTracker = (
   options?: UsePrayerTrackerOptions
 ) => {
   const dispatch = useAppDispatch();
-  const {
-    calcMethod: reduxMethod,
-    juristic: reduxJuristic,
-    historyMap,
-    ledgerEvents,
-    activeCycle,
-    streakCount,
-  } = useAppSelector((state) => state.prayer);
+  const { calcMethod: reduxMethod, juristic: reduxJuristic, historyMap, ledgerEvents, activeCycle, streakCount } =
+    useAppSelector((state) => state.prayer);
 
   const calcMethod = reduxMethod || getDefaultMethodForCountry(userLocation?.country);
   const juristic = reduxJuristic || getDefaultMadhabForCountry(userLocation?.country);
@@ -107,21 +96,25 @@ export const usePrayerTracker = (
   const completedMap = historyMap[activeDateKey] || EMPTY_COMPLETED;
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
-  useEffect(() => {
+  const syncCycle = useCallback(() => {
     reconcilePrayerCycle(userLocation || null, calcMethod, juristic).then(({ cycle }) => {
       dispatch(setActiveCycle(cycle));
     });
-  }, [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, dispatch]);
+  }, [userLocation, calcMethod, juristic, dispatch]);
+
+  useEffect(() => {
+    syncCycle();
+  }, [syncCycle]);
 
   const cycleCompletions = useMemo(() => {
     if (!activeCycle) return completedMap;
-    const ledgerStatus = getCycleCompletionStatus(activeCycle.cycleId, ledgerEvents);
+    const s = getCycleCompletionStatus(activeCycle.cycleId, ledgerEvents);
     return {
-      Fajr: ledgerStatus.Fajr || !!completedMap.Fajr,
-      Dhuhr: ledgerStatus.Dhuhr || !!completedMap.Dhuhr,
-      Asr: ledgerStatus.Asr || !!completedMap.Asr,
-      Maghrib: ledgerStatus.Maghrib || !!completedMap.Maghrib,
-      Isha: ledgerStatus.Isha || !!completedMap.Isha,
+      Fajr: s.Fajr || !!completedMap.Fajr,
+      Dhuhr: s.Dhuhr || !!completedMap.Dhuhr,
+      Asr: s.Asr || !!completedMap.Asr,
+      Maghrib: s.Maghrib || !!completedMap.Maghrib,
+      Isha: s.Isha || !!completedMap.Isha,
     };
   }, [activeCycle, ledgerEvents, completedMap]);
 
@@ -136,36 +129,22 @@ export const usePrayerTracker = (
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
-        reconcilePrayerCycle(userLocation || null, calcMethod, juristic).then(({ cycle }) => {
-          dispatch(setActiveCycle(cycle));
-          setRefreshTrigger((prev) => prev + 1);
-        });
+        syncCycle();
+        setRefreshTrigger((prev) => prev + 1);
       }
     });
     return () => sub.remove();
-  }, [userLocation, calcMethod, juristic, dispatch]);
+  }, [syncCycle]);
 
   const prayerData: FormattedPrayerTimes = useMemo(
-    () =>
-      getPrayerTimes(
-        userLocation?.latitude,
-        userLocation?.longitude,
-        new Date(),
-        calcMethod,
-        juristic,
-        userLocation?.timezone
-      ),
+    () => getPrayerTimes(userLocation?.latitude, userLocation?.longitude, new Date(), calcMethod, juristic, userLocation?.timezone),
     [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, refreshTrigger]
   );
 
   const { countdownText, periodProgressRatio } = useTrackerCountdown(
     prayerData,
     activeCycle,
-    () => {
-      reconcilePrayerCycle(userLocation || null, calcMethod, juristic).then(({ cycle }) => {
-        dispatch(setActiveCycle(cycle));
-      });
-    },
+    syncCycle,
     () => setRefreshTrigger((prev) => prev + 1),
     options?.enableCountdown ?? false
   );
@@ -195,13 +174,7 @@ export const usePrayerTracker = (
         dispatch(recordLedgerEvent(event));
       } else if (!completed && activeCycle) {
         await removePrayerCompletion(activeCycle.cycleId, prayerName as ObligatorySalah);
-        dispatch(
-          removeLedgerEvent({
-            cycleId: activeCycle.cycleId,
-            prayerKey: prayerName as ObligatorySalah,
-            localDate: activeDateKey,
-          })
-        );
+        dispatch(removeLedgerEvent({ cycleId: activeCycle.cycleId, prayerKey: prayerName as ObligatorySalah, localDate: activeDateKey }));
       }
 
       dispatch(setPrayerCompletedAction({ dateKey: activeDateKey, prayerName, completed }));
@@ -213,8 +186,7 @@ export const usePrayerTracker = (
   );
 
   const togglePrayer = useCallback(
-    (prayerName: string) =>
-      setPrayerCompleted(prayerName, !cycleCompletions[prayerName as ObligatorySalah]),
+    (prayerName: string) => setPrayerCompleted(prayerName, !cycleCompletions[prayerName as ObligatorySalah]),
     [cycleCompletions, setPrayerCompleted]
   );
 
@@ -223,8 +195,7 @@ export const usePrayerTracker = (
       const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
       const nextStatus = !dayRecord[prayerName];
       dispatch(setPrayerCompletedAction({ dateKey, prayerName, completed: nextStatus }));
-      const updatedDay = { ...dayRecord, [prayerName]: nextStatus };
-      await handlePostCompletionAlerts(prayerName, nextStatus, updatedDay, dateKey);
+      await handlePostCompletionAlerts(prayerName, nextStatus, { ...dayRecord, [prayerName]: nextStatus }, dateKey);
       notifyTrackerPreferencesChanged();
     },
     [historyMap, dispatch]
@@ -241,19 +212,14 @@ export const usePrayerTracker = (
     return names.map((name) => {
       const lower = name.toLowerCase() as keyof typeof prayerData.raw;
       const rawDate = prayerData.raw?.[lower];
-      const hasStarted = isBeforeFajr ? true : rawDate ? nowMs >= rawDate.getTime() : false;
-
       return {
         name,
         time: (prayerData as any)[lower] || '--:--',
         completed: !!cycleCompletions[name],
         isNext: prayerData.nextPrayerName === name,
         isCurrent: currentObligatory ? currentObligatory === name : false,
-        hasStarted,
-        remainingTimeText:
-          prayerData.nextPrayerName === name
-            ? formatRemainingTime(prayerData.nextPrayerDate)
-            : undefined,
+        hasStarted: isBeforeFajr ? true : rawDate ? nowMs >= rawDate.getTime() : false,
+        remainingTimeText: prayerData.nextPrayerName === name ? formatRemainingTime(prayerData.nextPrayerDate) : undefined,
       };
     });
   }, [prayerData, cycleCompletions]);

@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { PrayerAlertConfig, NotificationMode } from '@/types';
-import { PrayerFocusOffsets, PrayerFocusPreferences } from './prayerFocusOffsets';
+import { PrayerFocusOffsets, FocusPreferences } from './prayerFocusOffsets';
 import { isWithinQuietHours } from './notificationQuietHours';
 import {
   REMINDER_CHANNEL_ID,
@@ -22,7 +22,7 @@ export interface SecondaryReminderContext {
   qStart: string;
   qEnd: string;
   alerts?: PrayerAlertConfig;
-  focusPrefs: PrayerFocusPreferences;
+  focusPrefs: FocusPreferences;
   focusOffsets: PrayerFocusOffsets;
   isCompleted: boolean;
 }
@@ -167,3 +167,4 @@ export const scheduleDailyReflectionAlert = async (
   }
   return 0;
 };
+

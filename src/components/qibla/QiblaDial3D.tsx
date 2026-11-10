@@ -109,34 +109,16 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             ))}
           </Svg>
 
-          <AppText
-            variant="caption"
-            color={theme.colors.accent}
-            style={[styles.cardinalText, styles.cardinalN]}
-          >
-            N
-          </AppText>
-          <AppText
-            variant="caption"
-            color={theme.colors.textMuted}
-            style={[styles.cardinalText, styles.cardinalE]}
-          >
-            E
-          </AppText>
-          <AppText
-            variant="caption"
-            color={theme.colors.textMuted}
-            style={[styles.cardinalText, styles.cardinalS]}
-          >
-            S
-          </AppText>
-          <AppText
-            variant="caption"
-            color={theme.colors.textMuted}
-            style={[styles.cardinalText, styles.cardinalW]}
-          >
-            W
-          </AppText>
+          {[
+            { label: 'N', style: styles.cardinalN, color: theme.colors.accent },
+            { label: 'E', style: styles.cardinalE, color: theme.colors.textMuted },
+            { label: 'S', style: styles.cardinalS, color: theme.colors.textMuted },
+            { label: 'W', style: styles.cardinalW, color: theme.colors.textMuted },
+          ].map((c) => (
+            <AppText key={c.label} variant="caption" color={c.color} style={[styles.cardinalText, c.style]}>
+              {c.label}
+            </AppText>
+          ))}
         </View>
 
         {/* 12 O'CLOCK TARGET: Kaaba Emblem sits stationary on the compass rim */}
@@ -145,48 +127,15 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
         </View>
 
         {/* ROTATING NEEDLE: Dual-Tone Islamic Arrow pointing toward Kaaba target */}
-        <View
-          style={[
-            styles.needleLayer,
-            { transform: [{ rotate: `${relativePointerAngle}deg` }] },
-          ]}
-        >
+        <View style={[styles.needleLayer, { transform: [{ rotate: `${relativePointerAngle}deg` }] }]}>
           <Svg width={24} height={180} viewBox="0 0 24 180" style={styles.needleSvg}>
-            {/* North-facing arrowhead pointing toward Kaaba */}
-            <Polygon
-              points="12,4 20,44 14,38 14,90 10,90 10,38 4,44"
-              fill={needleColor}
-            />
-            {/* Counterweight tail */}
-            <Polygon
-              points="12,176 18,142 14,146 14,90 10,90 10,146 6,142"
-              fill={needleTailColor}
-            />
-            {/* Center diamond pivot marker */}
-            <Polygon
-              points="12,78 18,90 12,102 6,90"
-              fill={theme.colors.surface}
-              stroke={needleColor}
-              strokeWidth="2"
-            />
+            <Polygon points="12,4 20,44 14,38 14,90 10,90 10,38 4,44" fill={needleColor} />
+            <Polygon points="12,176 18,142 14,146 14,90 10,90 10,146 6,142" fill={needleTailColor} />
+            <Polygon points="12,78 18,90 12,102 6,90" fill={theme.colors.surface} stroke={needleColor} strokeWidth="2" />
           </Svg>
 
-          {/* Tactile Center Pivot Point */}
-          <View
-            style={[
-              styles.centerPivotOuter,
-              {
-                backgroundColor: theme.colors.surface,
-                borderColor: needleColor,
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.centerPivotInner,
-                { backgroundColor: needleColor },
-              ]}
-            />
+          <View style={[styles.centerPivotOuter, { backgroundColor: theme.colors.surface, borderColor: needleColor }]}>
+            <View style={[styles.centerPivotInner, { backgroundColor: needleColor }]} />
           </View>
         </View>
       </View>

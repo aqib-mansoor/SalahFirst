@@ -53,13 +53,8 @@ function AppContent() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const {
-    prayersList,
-    setPrayerCompleted,
-    prayerData,
-    calcMethod,
-    juristic,
-  } = usePrayerTracker(location, { enableCountdown: false });
+  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic } =
+    usePrayerTracker(location, { enableCountdown: false });
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
 
@@ -75,7 +70,6 @@ function AppContent() {
     forceLightButtons: currentStep === 'welcome' || currentStep === 'wallpaper',
   });
 
-  // Check setup status and restore any active focus session on startup
   useEffect(() => {
     const initApp = async () => {
       try {
@@ -100,7 +94,6 @@ function AppContent() {
         }
 
         setCurrentStep('main');
-
         if (cachedLoc?.latitude != null) {
           const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
           if (autoSession) {
@@ -118,7 +111,6 @@ function AppContent() {
     initApp();
   }, [prayerData.raw]);
 
-  // Route user interactions on notifications (prayer alerts, focus breach, inspiration)
   useNotificationResponseRouter({
     setCurrentStep,
     setActiveTab,
@@ -126,18 +118,8 @@ function AppContent() {
     setFocusPrayerName,
     setFocusDuration,
   });
-
-  // Enforce single active alert in notification shade
   useEffect(() => registerSingleNotificationPolicy(), []);
-
-  // Handle Android hardware back button
-  useAppBackHandler({
-    currentStep,
-    setCurrentStep,
-    activeTab,
-    setActiveTab,
-    focusConfigOrigin,
-  });
+  useAppBackHandler({ currentStep, setCurrentStep, activeTab, setActiveTab, focusConfigOrigin });
 
   const handleContinueToSetup = () => setCurrentStep('setup');
   const handleCompleteSetup = async () => {
@@ -226,10 +208,7 @@ function AppContent() {
           duration={focusDuration}
           prayerName={focusPrayerName}
           existingSession={activeSession}
-          onExit={() => {
-            setActiveSession(null);
-            setCurrentStep('main');
-          }}
+          onExit={() => { setActiveSession(null); setCurrentStep('main'); }}
           onCompletePrayer={handleCompletePrayerFocus}
         />
       )}
@@ -239,11 +218,7 @@ function AppContent() {
           onClose={() => setCurrentStep('main')}
         />
       )}
-      <FloatingAzanBanner
-        visible={isReciting}
-        prayerName={recitingPrayer}
-        onStop={stopRecitation}
-      />
+      <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
     </View>
   );
 }

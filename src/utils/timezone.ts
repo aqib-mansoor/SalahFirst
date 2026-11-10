@@ -1,4 +1,5 @@
 import tzLookup from 'tz-lookup';
+import { COUNTRY_TIMEZONE_MAP } from '@/data/countryTimezones';
 
 /**
  * Production-ready Offline Timezone Resolver & Formatting Utilities
@@ -16,48 +17,6 @@ export interface LocalDateComponents {
 
 // In-memory cache to guarantee zero overhead on repeated lookups
 const timezoneCache = new Map<string, string>();
-
-// Country to primary IANA Timezone fallback (used only if coordinate lookup fails)
-const COUNTRY_TIMEZONE_MAP: Record<string, string> = {
-  pakistan: 'Asia/Karachi',
-  'saudi arabia': 'Asia/Riyadh',
-  'united arab emirates': 'Asia/Dubai',
-  uae: 'Asia/Dubai',
-  qatar: 'Asia/Qatar',
-  kuwait: 'Asia/Kuwait',
-  bahrain: 'Asia/Bahrain',
-  oman: 'Asia/Muscat',
-  turkey: 'Europe/Istanbul',
-  türkiye: 'Europe/Istanbul',
-  egypt: 'Africa/Cairo',
-  'united kingdom': 'Europe/London',
-  uk: 'Europe/London',
-  france: 'Europe/Paris',
-  germany: 'Europe/Berlin',
-  sweden: 'Europe/Stockholm',
-  norway: 'Europe/Oslo',
-  japan: 'Asia/Tokyo',
-  india: 'Asia/Kolkata',
-  bangladesh: 'Asia/Dhaka',
-  singapore: 'Asia/Singapore',
-  malaysia: 'Asia/Kuala_Lumpur',
-  indonesia: 'Asia/Jakarta',
-  jordan: 'Asia/Amman',
-  palestine: 'Asia/Gaza',
-  lebanon: 'Asia/Beirut',
-  iraq: 'Asia/Baghdad',
-  iran: 'Asia/Tehran',
-  morocco: 'Africa/Casablanca',
-  algeria: 'Africa/Algiers',
-  tunisia: 'Africa/Tunis',
-  libya: 'Africa/Tripoli',
-  sudan: 'Africa/Khartoum',
-  nigeria: 'Africa/Lagos',
-  somalia: 'Africa/Mogadishu',
-  kenya: 'Africa/Nairobi',
-  southafrica: 'Africa/Johannesburg',
-  'south africa': 'Africa/Johannesburg',
-};
 
 export const resolveTimezone = (
   latitude: number,
