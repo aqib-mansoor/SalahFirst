@@ -31,11 +31,13 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
   onNavigateTab?: (tab: HomeTab) => void;
+  onOpenAzanPrefs?: () => void;
 }
 
 export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   onNavigateHome,
   onNavigateTab,
+  onOpenAzanPrefs,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -116,7 +118,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       <View style={styles.container}>
         <PrayerTimesHeader
           countryName={location?.country}
-          onOpenAzanPrefs={() => setShowAzanPrefs(true)}
+          onOpenAzanPrefs={onOpenAzanPrefs || (() => setShowAzanPrefs(true))}
         />
 
         <PrayerTimesDateSwitcher
@@ -168,6 +170,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
                   isCurrent={p.isCurrent}
                   remainingTimeText={p.remainingTimeText}
                   onCycleNotification={() => cyclePrayerMode(key)}
+                  onPressRow={onOpenAzanPrefs || (() => setShowAzanPrefs(true))}
                 />
               );
             })}

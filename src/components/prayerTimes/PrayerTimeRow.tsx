@@ -16,6 +16,7 @@ export interface PrayerTimeRowProps {
   isCurrent?: boolean;
   remainingTimeText?: string;
   onCycleNotification?: () => void;
+  onPressRow?: () => void;
 }
 
 const DEFAULT_ARABIC_NAMES: Record<string, string> = {
@@ -35,6 +36,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   isCurrent = false,
   remainingTimeText,
   onCycleNotification,
+  onPressRow,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -73,13 +75,17 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   }
 
   return (
-    <View
-      style={[
+    <Pressable
+      onPress={onPressRow}
+      accessibilityRole="button"
+      accessibilityLabel={`${name} prayer row. Tap to open Azan preferences.`}
+      style={({ pressed }) => [
         styles.card,
         {
           backgroundColor: cardBg,
           borderColor,
           borderWidth: isCurrent || isNext ? 1.5 : 1,
+          opacity: pressed && onPressRow ? 0.92 : 1,
         },
       ]}
     >
@@ -144,7 +150,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
           <NotificationModeIcon mode={notification} color={bellColor} size={18} />
         </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

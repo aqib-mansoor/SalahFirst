@@ -15,6 +15,7 @@ export interface MainTabShellProps {
   progressSubTab: ProgressSubTab;
   setProgressSubTab: (subTab: ProgressSubTab) => void;
   onOpenSettings: () => void;
+  onOpenAzanPrefs?: () => void;
   onStartPrayerFocus: () => void;
   onOpenFocusSettings?: () => void;
   onOpenWallpaper: (hadith?: HadithItem) => void;
@@ -30,6 +31,7 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
   progressSubTab,
   setProgressSubTab,
   onOpenSettings,
+  onOpenAzanPrefs,
   onStartPrayerFocus,
   onOpenFocusSettings,
   onOpenWallpaper,
@@ -85,6 +87,7 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
         <PrayerTimesScreen
           onNavigateHome={() => setActiveTab('home')}
           onNavigateTab={setActiveTab}
+          onOpenAzanPrefs={onOpenAzanPrefs}
         />
       </Animated.View>
 
