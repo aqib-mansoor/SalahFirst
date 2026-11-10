@@ -138,7 +138,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             selectedPackages={blockedPackages}
             onTogglePackage={handleTogglePackage}
             hasAccessibility={hasAccessibility}
-            onOpenPermissionSetup={openAccessibilitySettings}
+            onOpenPermissionSetup={() => openPermissionSettingsByKey('accessibility')}
           />
 
           <FocusSettingsCard
