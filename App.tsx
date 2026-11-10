@@ -8,6 +8,7 @@ import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { MainTabShell } from '@/components/home';
+import { ScreenTransitionView } from '@/components/common';
 import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
@@ -184,40 +185,44 @@ function AppContent() {
         </View>
       )}
 
-      {currentStep === 'settings' && (
-        <SettingsScreen
-          onBack={() => setCurrentStep('main')}
-          onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
-          onOpenFocusConfig={handleOpenFocusConfigFromSettings}
-          onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
-          onOpenTerms={() => setCurrentStep('terms')}
-        />
-      )}
-      {currentStep === 'privacy-policy' && <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />}
-      {currentStep === 'terms' && <TermsScreen onBack={() => setCurrentStep('settings')} />}
-      {currentStep === 'azan-prefs' && <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />}
-      {currentStep === 'focus-config' && (
-        <PrayerFocusConfigScreen
-          initialPrayer={focusPrayerName}
-          prayerTimesMap={prayerData}
-          rawPrayerDates={prayerData.raw}
-          onBack={() => setCurrentStep(focusConfigOrigin)}
-        />
-      )}
-      {currentStep === 'focus-active' && (
-        <ActiveFocusScreen
-          duration={focusDuration}
-          prayerName={focusPrayerName}
-          existingSession={activeSession}
-          onExit={() => { setActiveSession(null); setCurrentStep('main'); }}
-          onCompletePrayer={handleCompletePrayerFocus}
-        />
-      )}
-      {currentStep === 'wallpaper' && (
-        <HadithWallpaperScreen
-          hadith={wallpaperHadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
-          onClose={() => setCurrentStep('main')}
-        />
+      {currentStep !== 'main' && currentStep !== 'welcome' && currentStep !== 'setup' && (
+        <ScreenTransitionView key={currentStep}>
+          {currentStep === 'settings' && (
+            <SettingsScreen
+              onBack={() => setCurrentStep('main')}
+              onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
+              onOpenFocusConfig={handleOpenFocusConfigFromSettings}
+              onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
+              onOpenTerms={() => setCurrentStep('terms')}
+            />
+          )}
+          {currentStep === 'privacy-policy' && <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />}
+          {currentStep === 'terms' && <TermsScreen onBack={() => setCurrentStep('settings')} />}
+          {currentStep === 'azan-prefs' && <AzanPrefsScreen onBack={() => setCurrentStep('settings')} />}
+          {currentStep === 'focus-config' && (
+            <PrayerFocusConfigScreen
+              initialPrayer={focusPrayerName}
+              prayerTimesMap={prayerData}
+              rawPrayerDates={prayerData.raw}
+              onBack={() => setCurrentStep(focusConfigOrigin)}
+            />
+          )}
+          {currentStep === 'focus-active' && (
+            <ActiveFocusScreen
+              duration={focusDuration}
+              prayerName={focusPrayerName}
+              existingSession={activeSession}
+              onExit={() => { setActiveSession(null); setCurrentStep('main'); }}
+              onCompletePrayer={handleCompletePrayerFocus}
+            />
+          )}
+          {currentStep === 'wallpaper' && (
+            <HadithWallpaperScreen
+              hadith={wallpaperHadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]}
+              onClose={() => setCurrentStep('main')}
+            />
+          )}
+        </ScreenTransitionView>
       )}
       <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
     </View>
@@ -229,9 +234,7 @@ export default function App() {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <Provider store={store}>
         <ThemeProvider>
-          <LocalizationProvider>
-            <AppContent />
-          </LocalizationProvider>
+          <LocalizationProvider><AppContent /></LocalizationProvider>
         </ThemeProvider>
       </Provider>
     </SafeAreaProvider>

@@ -17,9 +17,10 @@ import { QiblaCalibrationTip } from './QiblaCalibrationTip';
 
 export interface QiblaScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
+  isActive?: boolean;
 }
 
-export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
+export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActive = true }) => {
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab }) => {
     turnDegrees,
     hasSensor,
     needsCalibration,
-  } = useQiblaCompass(location?.latitude, location?.longitude);
+  } = useQiblaCompass(location?.latitude, location?.longitude, isActive);
 
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({

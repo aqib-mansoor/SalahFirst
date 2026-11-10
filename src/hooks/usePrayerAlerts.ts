@@ -1,24 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { PrayerAlertConfig, NotificationMode, ReminderOffset } from '@/types';
-import { storage } from '@/utils/storage';
-
-const STORAGE_KEY = '@salahfirst_alerts';
-
-const DEFAULT_ALERTS: PrayerAlertConfig = {
-  fajr: 'TONE',
-  dhuhr: 'TONE',
-  asr: 'TONE',
-  maghrib: 'TONE',
-  isha: 'VIBRATE',
-  reminderOffset: '15m',
-  exactAlarmsEnabled: true,
-  missedPrayerRemindersEnabled: true,
-  dailyReflectionEnabled: true,
-  streakEncouragementEnabled: true,
-  quietHoursEnabled: true,
-  quietHoursStart: '22:00',
-  quietHoursEnd: '05:00',
-};
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setPrayerAlerts } from '@/store/slices/preferencesSlice';
 
 const prayerAlertListeners = new Set<() => void>();
 export const notifyPrayerAlertsChanged = () => {
@@ -26,37 +9,22 @@ export const notifyPrayerAlertsChanged = () => {
 };
 
 export const usePrayerAlerts = () => {
-  const [alerts, setAlerts] = useState<PrayerAlertConfig>(DEFAULT_ALERTS);
-  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const dispatch = useAppDispatch();
+  const alerts = useAppSelector((state) => state.preferences.alerts);
 
-  useEffect(() => {
-    const loadAlerts = async () => {
-      const stored = await storage.get<Partial<PrayerAlertConfig> | null>(STORAGE_KEY, null);
-      if (stored) {
-        setAlerts({ ...DEFAULT_ALERTS, ...stored });
-      }
-    };
-    loadAlerts();
-
-    const handleChange = () => setReloadTrigger((prev) => prev + 1);
-    prayerAlertListeners.add(handleChange);
-    return () => {
-      prayerAlertListeners.delete(handleChange);
-    };
-  }, [reloadTrigger]);
-
-  const saveAlerts = async (updated: PrayerAlertConfig) => {
-    setAlerts(updated);
-    await storage.set(STORAGE_KEY, updated);
-    notifyPrayerAlertsChanged();
-  };
+  const saveAlerts = useCallback(
+    (updated: PrayerAlertConfig) => {
+      dispatch(setPrayerAlerts(updated));
+      notifyPrayerAlertsChanged();
+    },
+    [dispatch]
+  );
 
   const setPrayerMode = useCallback(
     (prayer: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha', mode: NotificationMode) => {
-      const updated = { ...alerts, [prayer]: mode };
-      saveAlerts(updated);
+      saveAlerts({ ...alerts, [prayer]: mode });
     },
-    [alerts]
+    [alerts, saveAlerts]
   );
 
   const cyclePrayerMode = useCallback(
@@ -64,44 +32,43 @@ export const usePrayerAlerts = () => {
       const modes: NotificationMode[] = ['TONE', 'VIBRATE', 'SILENT'];
       const currentIndex = modes.indexOf(alerts[prayer]);
       const nextMode = modes[(currentIndex + 1) % modes.length];
-      const updated = { ...alerts, [prayer]: nextMode };
-      saveAlerts(updated);
+      saveAlerts({ ...alerts, [prayer]: nextMode });
     },
-    [alerts]
+    [alerts, saveAlerts]
   );
 
   const setReminder = useCallback(
     (offset: ReminderOffset) => {
-      const updated = { ...alerts, reminderOffset: offset };
-      saveAlerts(updated);
+      saveAlerts({ ...alerts, reminderOffset: offset });
     },
-    [alerts]
+    [alerts, saveAlerts]
   );
 
   const toggleExactAlarms = useCallback(() => {
-    const updated = { ...alerts, exactAlarmsEnabled: !alerts.exactAlarmsEnabled };
-    saveAlerts(updated);
-  }, [alerts]);
+    saveAlerts({ ...alerts, exactAlarmsEnabled: !alerts.exactAlarmsEnabled });
+  }, [alerts, saveAlerts]);
 
   const toggleMissedPrayerReminders = useCallback(() => {
-    const updated = { ...alerts, missedPrayerRemindersEnabled: !alerts.missedPrayerRemindersEnabled };
-    saveAlerts(updated);
-  }, [alerts]);
+    saveAlerts({
+      ...alerts,
+      missedPrayerRemindersEnabled: !alerts.missedPrayerRemindersEnabled,
+    });
+  }, [alerts, saveAlerts]);
 
   const toggleDailyReflection = useCallback(() => {
-    const updated = { ...alerts, dailyReflectionEnabled: !alerts.dailyReflectionEnabled };
-    saveAlerts(updated);
-  }, [alerts]);
+    saveAlerts({ ...alerts, dailyReflectionEnabled: !alerts.dailyReflectionEnabled });
+  }, [alerts, saveAlerts]);
 
   const toggleStreakEncouragement = useCallback(() => {
-    const updated = { ...alerts, streakEncouragementEnabled: !alerts.streakEncouragementEnabled };
-    saveAlerts(updated);
-  }, [alerts]);
+    saveAlerts({
+      ...alerts,
+      streakEncouragementEnabled: !alerts.streakEncouragementEnabled,
+    });
+  }, [alerts, saveAlerts]);
 
   const toggleQuietHours = useCallback(() => {
-    const updated = { ...alerts, quietHoursEnabled: !alerts.quietHoursEnabled };
-    saveAlerts(updated);
-  }, [alerts]);
+    saveAlerts({ ...alerts, quietHoursEnabled: !alerts.quietHoursEnabled });
+  }, [alerts, saveAlerts]);
 
   return {
     alerts,

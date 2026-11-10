@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -50,6 +50,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const isCurrentCompleted = currentPrayerItem ? currentPrayerItem.completed : false;
   const allCompleted = completedCount === 5;
 
+  const handleSelectCity = useCallback(() => {
+    onNavigateTab?.('prayers');
+  }, [onNavigateTab]);
+
+  const handleReadFullHadith = useCallback(() => {
+    onNavigateTab?.('hadith');
+  }, [onNavigateTab]);
+
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
@@ -63,7 +71,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}
           onOpenStreaks={onOpenStreaks}
-          onSelectCity={() => onNavigateTab && onNavigateTab('prayers')}
+          onSelectCity={handleSelectCity}
         />
 
         {/* Scrollable Dashboard Body */}
@@ -100,7 +108,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Mature Daily Hadith Section with Arabic, Urdu & English */}
           <HomeDailyHadith
-            onReadFull={() => onNavigateTab && onNavigateTab('hadith')}
+            onReadFull={handleReadFullHadith}
             onOpenWallpaper={onOpenWallpaper}
           />
         </ScrollView>

@@ -15,7 +15,7 @@ export interface HomeSalahTrackerProps {
   onTogglePrayer: (name: string) => void;
 }
 
-export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
+export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
   prayers,
   completedCount,
   onTogglePrayer,
@@ -127,7 +127,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = ({
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

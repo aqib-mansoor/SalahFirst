@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, View, Animated, Easing } from 'react-native';
 import { HomeScreen } from './HomeScreen';
 import { PrayerTimesScreen } from '@/components/prayerTimes';
 import { QiblaScreen } from '@/components/qibla';
@@ -21,8 +21,8 @@ export interface MainTabShellProps {
 }
 
 /**
- * Persistent Zero-Unmount Tab Shell.
- * Keeps tab screens mounted to avoid re-renders while toggling visibility.
+ * Persistent Zero-Unmount Tab Shell with 60fps Native-Driver Tab Transitions.
+ * Keeps tab screens mounted to avoid re-renders while animating active tab entrance.
  */
 export const MainTabShell: React.FC<MainTabShellProps> = ({
   activeTab,
@@ -35,10 +35,39 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
   onOpenWallpaper,
 }) => {
   const theme = useTheme();
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    fadeAnim.setValue(0.86);
+    slideAnim.setValue(6);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 160,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 160,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [activeTab, fadeAnim, slideAnim]);
+
+  const getTabStyle = (tab: HomeTab) =>
+    activeTab === tab
+      ? [
+          styles.tabContent,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+        ]
+      : [styles.tabContent, styles.hiddenTab];
 
   return (
     <View style={[styles.mainContainer, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.tabContent, activeTab !== 'home' && styles.hiddenTab]}>
+      <Animated.View style={getTabStyle('home')}>
         <HomeScreen
           onOpenSettings={onOpenSettings}
           onNavigateTab={setActiveTab}
@@ -50,27 +79,27 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
           }}
           onOpenWallpaper={onOpenWallpaper}
         />
-      </View>
+      </Animated.View>
 
-      <View style={[styles.tabContent, activeTab !== 'prayers' && styles.hiddenTab]}>
+      <Animated.View style={getTabStyle('prayers')}>
         <PrayerTimesScreen
           onNavigateHome={() => setActiveTab('home')}
           onNavigateTab={setActiveTab}
         />
-      </View>
+      </Animated.View>
 
-      <View style={[styles.tabContent, activeTab !== 'qibla' && styles.hiddenTab]}>
-        <QiblaScreen onNavigateTab={setActiveTab} />
-      </View>
+      <Animated.View style={getTabStyle('qibla')}>
+        <QiblaScreen onNavigateTab={setActiveTab} isActive={activeTab === 'qibla'} />
+      </Animated.View>
 
-      <View style={[styles.tabContent, activeTab !== 'hadith' && styles.hiddenTab]}>
+      <Animated.View style={getTabStyle('hadith')}>
         <HadithScreen
           onNavigateTab={setActiveTab}
           onOpenWallpaper={onOpenWallpaper}
         />
-      </View>
+      </Animated.View>
 
-      <View style={[styles.tabContent, activeTab !== 'progress' && styles.hiddenTab]}>
+      <Animated.View style={getTabStyle('progress')}>
         <ProgressScreen
           initialSubTab={progressSubTab}
           onNavigateTab={(tab) => {
@@ -78,7 +107,7 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
             if (tab === 'progress') setProgressSubTab('tracker');
           }}
         />
-      </View>
+      </Animated.View>
 
       {/* Single Persistent Floating Navigation Bar */}
       <HomeBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
@@ -97,4 +126,3 @@ const styles = StyleSheet.create({
     display: 'none',
   },
 });
-

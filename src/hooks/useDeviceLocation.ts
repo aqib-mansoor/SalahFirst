@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Linking } from 'react-native';
 import * as Location from 'expo-location';
 import { UserLocation } from '@/types';
@@ -7,36 +7,32 @@ import { APP_CONFIG } from '@/constants/config';
 import { reverseGeocodeCoordinates } from '@/utils/geocoding';
 import { reconcilePrayerCycle } from '@/utils/prayerCycleManager';
 import { unregisterBackgroundLocation } from '@/services/backgroundLocationTask';
-
-const locationListeners = new Set<(loc: UserLocation) => void>();
-let globalCurrentLocation: UserLocation | null = null;
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setUserLocation } from '@/store/slices/preferencesSlice';
+import { setActiveCycle } from '@/store/slices/prayerSlice';
 
 export const initDeviceLocationCache = async (): Promise<UserLocation | null> => {
-  if (globalCurrentLocation) return globalCurrentLocation;
   unregisterBackgroundLocation().catch(() => {});
-  const cached = await storage.get<UserLocation | null>(
-    APP_CONFIG.storageKeys.userLocation,
-    null
-  );
-  if (cached) {
-    globalCurrentLocation = cached;
-    locationListeners.forEach((fn) => fn(cached));
-  }
-  return cached;
+  return storage.get<UserLocation | null>(APP_CONFIG.storageKeys.userLocation, null);
 };
 
 export const useDeviceLocation = () => {
-  const [location, setLocation] = useState<UserLocation | null>(globalCurrentLocation);
+  const dispatch = useAppDispatch();
+  const location = useAppSelector((state) => state.preferences.userLocation);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [needsCitySelection, setNeedsCitySelection] = useState<boolean>(false);
 
-  const notifyAll = (newLoc: UserLocation) => {
-    globalCurrentLocation = newLoc;
-    locationListeners.forEach((listener) => listener(newLoc));
-    reconcilePrayerCycle(newLoc).catch(() => {});
-  };
+  const commitLocation = useCallback(
+    (newLoc: UserLocation) => {
+      dispatch(setUserLocation(newLoc));
+      reconcilePrayerCycle(newLoc)
+        .then(({ cycle }) => dispatch(setActiveCycle(cycle)))
+        .catch(() => {});
+    },
+    [dispatch]
+  );
 
   const fetchCurrentGps = useCallback(async () => {
     try {
@@ -46,9 +42,7 @@ export const useDeviceLocation = () => {
       const servicesEnabled = await Location.hasServicesEnabledAsync().catch(() => false);
       if (!servicesEnabled) {
         setErrorMessage('Location services are disabled on your device.');
-        if (!globalCurrentLocation) {
-          setNeedsCitySelection(true);
-        }
+        if (!location) setNeedsCitySelection(true);
         setIsLoading(false);
         return;
       }
@@ -56,9 +50,7 @@ export const useDeviceLocation = () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setPermissionDenied(true);
-        if (!globalCurrentLocation) {
-          setNeedsCitySelection(true);
-        }
+        if (!location) setNeedsCitySelection(true);
         setErrorMessage('Location permission required. Please enable in Settings or select a city manually.');
         setIsLoading(false);
         return;
@@ -88,56 +80,35 @@ export const useDeviceLocation = () => {
         source: 'gps',
       };
 
-      setLocation(freshLocation);
-      notifyAll(freshLocation);
-      await storage.set(APP_CONFIG.storageKeys.userLocation, freshLocation);
+      commitLocation(freshLocation);
     } catch {
       setErrorMessage('Unable to lock GPS. Please select your city manually.');
-      if (!globalCurrentLocation) {
-        setNeedsCitySelection(true);
-      }
+      if (!location) setNeedsCitySelection(true);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [location, commitLocation]);
 
   const openSettings = useCallback(() => {
     Linking.openSettings();
   }, []);
 
-  const updateLocation = useCallback(async (newLoc: UserLocation) => {
-    const confirmed: UserLocation = {
-      ...newLoc,
-      isConfirmed: true,
-      isStale: false,
-      lastUpdated: Date.now(),
-      source: newLoc.isGps ? 'gps' : 'manual',
-    };
-    setLocation(confirmed);
-    notifyAll(confirmed);
-    setNeedsCitySelection(false);
-    setPermissionDenied(false);
-    setErrorMessage(null);
-    await storage.set(APP_CONFIG.storageKeys.userLocation, confirmed);
-  }, []);
-
-  useEffect(() => {
-    locationListeners.add(setLocation);
-
-    if (!globalCurrentLocation) {
-      initDeviceLocationCache().then((cached) => {
-        if (cached) setLocation(cached);
-        setIsLoading(false);
-      });
-    } else {
-      setLocation(globalCurrentLocation);
-      setIsLoading(false);
-    }
-
-    return () => {
-      locationListeners.delete(setLocation);
-    };
-  }, []);
+  const updateLocation = useCallback(
+    async (newLoc: UserLocation) => {
+      const confirmed: UserLocation = {
+        ...newLoc,
+        isConfirmed: true,
+        isStale: false,
+        lastUpdated: Date.now(),
+        source: newLoc.isGps ? 'gps' : 'manual',
+      };
+      commitLocation(confirmed);
+      setNeedsCitySelection(false);
+      setPermissionDenied(false);
+      setErrorMessage(null);
+    },
+    [commitLocation]
+  );
 
   return {
     location,

@@ -11,7 +11,7 @@ export interface HomeDailyHadithProps {
   onOpenWallpaper?: (hadith?: HadithItem) => void;
 }
 
-export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) => {
+export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onReadFull }) => {
   const theme = useTheme();
   const [language, setLanguage] = useState<'en' | 'ur'>('en');
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
@@ -166,7 +166,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = ({ onReadFull }) 
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: { gap: SPACING.sm },

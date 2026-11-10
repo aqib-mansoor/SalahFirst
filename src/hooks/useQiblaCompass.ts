@@ -9,7 +9,11 @@ import {
 
 export type TurnDirection = 'left' | 'right' | 'aligned';
 
-export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
+export const useQiblaCompass = (
+  lat?: number | null,
+  lng?: number | null,
+  isActive: boolean = true
+) => {
   const [heading, setHeading] = useState<number>(0);
   const [hasSensor, setHasSensor] = useState<boolean>(true);
   const [needsCalibration, setNeedsCalibration] = useState<boolean>(false);
@@ -28,6 +32,8 @@ export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
   const cardinal = useMemo(() => getCardinalDirection(qiblaBearing), [qiblaBearing]);
 
   useEffect(() => {
+    if (!isActive) return;
+
     let subscription: { remove: () => void } | null = null;
     let isMounted = true;
 
@@ -85,20 +91,21 @@ export const useQiblaCompass = (lat?: number | null, lng?: number | null) => {
       appStateSub.remove();
       if (subscription) subscription.remove();
     };
-  }, []);
+  }, [isActive]);
 
   const relativePointerAngle = (qiblaBearing - heading + 360) % 360;
   const isAligned = relativePointerAngle <= 4 || relativePointerAngle >= 356;
 
-  // Tactile haptic pulse on exact alignment
+  // Tactile haptic pulse on exact alignment (only when tab is active)
   useEffect(() => {
+    if (!isActive) return;
     if (isAligned && !wasAlignedRef.current) {
       try {
         Vibration.vibrate(40);
       } catch {}
     }
     wasAlignedRef.current = isAligned;
-  }, [isAligned]);
+  }, [isAligned, isActive]);
 
   const turnDirection: TurnDirection = isAligned
     ? 'aligned'

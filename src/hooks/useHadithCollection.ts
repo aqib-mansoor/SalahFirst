@@ -1,35 +1,26 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Share } from 'react-native';
 import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
-import { storage } from '@/utils/storage';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  setHadithTranslationMode,
+  setHadithBookmarks,
+  HadithTranslationMode,
+} from '@/store/slices/preferencesSlice';
 import i18n from '@/i18n';
 
-export type HadithTranslationMode = 'en' | 'ur' | 'both';
-
-const STORAGE_KEYS = {
-  translationMode: 'hadith_translation_mode',
-  savedIds: 'saved_hadith_bookmarks',
-};
+export type { HadithTranslationMode };
 
 export const useHadithCollection = () => {
+  const dispatch = useAppDispatch();
+  const translationMode = useAppSelector((state) => state.preferences.hadithTranslationMode);
+  const savedIds = useAppSelector((state) => state.preferences.hadithBookmarks);
+
   const [currentIndex, setCurrentIndex] = useState<number>(getDayOfYearHadithIndex());
-  const [translationMode, setTranslationModeState] = useState<HadithTranslationMode>('both');
-  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const loadPreferences = async () => {
-      const storedMode = await storage.get<HadithTranslationMode>(
-        STORAGE_KEYS.translationMode,
-        'both'
-      );
-      const storedBookmarks = await storage.get<string[]>(STORAGE_KEYS.savedIds, []);
-      setTranslationModeState(storedMode);
-      setSavedIds(storedBookmarks);
-    };
-    loadPreferences();
-
     return () => {
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
@@ -48,10 +39,12 @@ export const useHadithCollection = () => {
     setToastMessage(null);
   }, []);
 
-  const setTranslationMode = useCallback(async (mode: HadithTranslationMode) => {
-    setTranslationModeState(mode);
-    await storage.set(STORAGE_KEYS.translationMode, mode);
-  }, []);
+  const setTranslationMode = useCallback(
+    async (mode: HadithTranslationMode) => {
+      dispatch(setHadithTranslationMode(mode));
+    },
+    [dispatch]
+  );
 
   const currentHadith: HadithItem = VERIFIED_HADITHS[currentIndex] || VERIFIED_HADITHS[0];
   const isSaved = savedIds.includes(currentHadith.id);
@@ -61,20 +54,22 @@ export const useHadithCollection = () => {
     [savedIds]
   );
 
-  const toggleSaveById = useCallback(async (targetId?: string) => {
-    const idToToggle = targetId || currentHadith.id;
-    const currentlySaved = savedIds.includes(idToToggle);
-    let updated: string[];
-    if (currentlySaved) {
-      updated = savedIds.filter((id) => id !== idToToggle);
-      triggerToast((i18n.t('removedFromBookmarks') as string) || 'Removed from Bookmarks');
-    } else {
-      updated = [...savedIds, idToToggle];
-      triggerToast((i18n.t('savedToBookmarks') as string) || 'Saved to Bookmarks');
-    }
-    setSavedIds(updated);
-    await storage.set(STORAGE_KEYS.savedIds, updated);
-  }, [savedIds, currentHadith.id, triggerToast]);
+  const toggleSaveById = useCallback(
+    async (targetId?: string) => {
+      const idToToggle = targetId || currentHadith.id;
+      const currentlySaved = savedIds.includes(idToToggle);
+      let updated: string[];
+      if (currentlySaved) {
+        updated = savedIds.filter((id) => id !== idToToggle);
+        triggerToast((i18n.t('removedFromBookmarks') as string) || 'Removed from Bookmarks');
+      } else {
+        updated = [...savedIds, idToToggle];
+        triggerToast((i18n.t('savedToBookmarks') as string) || 'Saved to Bookmarks');
+      }
+      dispatch(setHadithBookmarks(updated));
+    },
+    [savedIds, currentHadith.id, triggerToast, dispatch]
+  );
 
   const toggleSave = useCallback(() => toggleSaveById(), [toggleSaveById]);
 

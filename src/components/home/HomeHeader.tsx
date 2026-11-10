@@ -16,7 +16,7 @@ export interface HomeHeaderProps {
   onSelectCity?: () => void;
 }
 
-export const HomeHeader: React.FC<HomeHeaderProps> = ({
+export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
   cityName,
   countryName,
   streakCount,
@@ -152,7 +152,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

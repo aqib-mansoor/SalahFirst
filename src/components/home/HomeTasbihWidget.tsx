@@ -10,7 +10,7 @@ import { TasbihResetModal } from './TasbihResetModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { incrementTasbih, resetAllTasbih } from '@/store/slices/tasbihSlice';
 
-export const HomeTasbihWidget: React.FC = () => {
+export const HomeTasbihWidget: React.FC = React.memo(() => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { count, phaseIndex, totalCycles } = useAppSelector((state) => state.tasbih);
@@ -116,7 +116,7 @@ export const HomeTasbihWidget: React.FC = () => {
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: { gap: SPACING.xs + 2 },
