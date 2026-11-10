@@ -58,6 +58,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onOpenFocusConfig,
   onOpenPrivacyPolicy,
   onOpenTerms,
+  onOpenPermissionsHub,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
@@ -188,6 +189,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <GeneralSettingsGroup
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
+            onOpenPermissionsHub={onOpenPermissionsHub}
           />
         </ScrollView>
 

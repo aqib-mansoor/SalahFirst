@@ -3,7 +3,7 @@ import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import { SPACING, PALETTE } from '@/constants/theme';
-import { AppContainer, AppText } from '@/components/common';
+import { AppContainer, AppText, PermissionGuideBottomSheet } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusHeader } from './ActiveFocusHeader';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
@@ -31,8 +31,7 @@ import {
   startFocusBlocker,
   stopFocusBlocker,
   DISTRACTING_APPS_CATALOG,
-  checkAccessibilityPermission,
-  openAccessibilitySettings,
+  fetchPermissionsStatus,
 } from '@/native/FocusBlockerBridge';
 
 export interface ActiveFocusScreenProps {
@@ -64,6 +63,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showAccessSheet, setShowAccessSheet] = useState(false);
   const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
   useEffect(() => {
@@ -75,17 +75,8 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         : DISTRACTING_APPS_CATALOG.filter((a) => a.defaultSelected).map((a) => a.package);
       startFocusBlocker(pkgs);
 
-      checkAccessibilityPermission().then((granted) => {
-        if (!granted) {
-          Alert.alert(
-            'Enable App Blocker',
-            'To automatically intercept distracting apps during prayer, allow SalahFirst in Accessibility Settings.',
-            [
-              { text: 'Not Now', style: 'cancel' },
-              { text: 'Open Settings', onPress: openAccessibilitySettings },
-            ]
-          );
-        }
+      fetchPermissionsStatus().then((s) => {
+        if (!s.accessibility) setShowAccessSheet(true);
       });
     });
 

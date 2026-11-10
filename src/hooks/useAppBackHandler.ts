@@ -8,6 +8,7 @@ export type AppStep =
   | 'main'
   | 'settings'
   | 'azan-prefs'
+  | 'permissions-hub'
   | 'focus-config'
   | 'focus-active'
   | 'wallpaper'
@@ -41,6 +42,7 @@ export const useAppBackHandler = ({
       }
       if (
         currentStep === 'azan-prefs' ||
+        currentStep === 'permissions-hub' ||
         currentStep === 'privacy-policy' ||
         currentStep === 'terms'
       ) {

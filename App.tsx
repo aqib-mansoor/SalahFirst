@@ -11,7 +11,7 @@ import { MainTabShell } from '@/components/home';
 import { ScreenTransitionView } from '@/components/common';
 import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
-import { SettingsScreen } from '@/components/settings';
+import { SettingsScreen, PermissionsHubScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
 import { HadithWallpaperScreen } from '@/components/wallpaper';
 import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
@@ -199,7 +199,11 @@ function AppContent() {
               onOpenFocusConfig={handleOpenFocusConfigFromSettings}
               onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
               onOpenTerms={() => setCurrentStep('terms')}
+              onOpenPermissionsHub={() => setCurrentStep('permissions-hub')}
             />
+          )}
+          {currentStep === 'permissions-hub' && (
+            <PermissionsHubScreen onBack={() => setCurrentStep('settings')} />
           )}
           {currentStep === 'privacy-policy' && <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />}
           {currentStep === 'terms' && <TermsScreen onBack={() => setCurrentStep('settings')} />}
