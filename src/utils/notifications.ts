@@ -6,7 +6,7 @@ import { APP_CONFIG } from '@/constants/config';
 import { formatDateKey } from './trackerStatistics';
 import { isWithinQuietHours } from './notificationQuietHours';
 import { getLocalDateComponents } from './timezone';
-import { loadFocusOffsets, loadFocusPreferences } from './prayerFocusOffsets';
+import { loadFocusOffsets, loadFocusDurations, loadFocusPreferences } from './prayerFocusOffsets';
 import { dismissDeliveredByPrayer } from './notificationCleanup';
 import {
   PRAYER_CHANNEL_ID,
@@ -133,9 +133,10 @@ export const scheduleAllPrayerAlerts = async (
     }
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
-    const [history, focusOffsets, focusPrefs, reciterKey] = await Promise.all([
+    const [history, focusOffsets, focusDurations, focusPrefs, reciterKey] = await Promise.all([
       storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
       loadFocusOffsets(),
+      loadFocusDurations(),
       loadFocusPreferences(),
       storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah'),
     ]);
@@ -218,6 +219,7 @@ export const scheduleAllPrayerAlerts = async (
             alerts,
             focusPrefs,
             focusOffsets,
+            focusDurations,
             isCompleted: !!history[dateKey]?.[prayer.name],
           });
         }
