@@ -31,6 +31,7 @@ export interface FocusPreferences {
   blockShortVideos: boolean;
   blockGames: boolean;
   blockNews: boolean;
+  blockedAppPackages?: string[];
 }
 
 export const DEFAULT_FOCUS_OFFSETS: PrayerFocusOffsets = {
