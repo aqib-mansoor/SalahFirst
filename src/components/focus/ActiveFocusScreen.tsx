@@ -223,6 +223,12 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         onStayFocused={() => setShowExitModal(false)}
         onConfirmExit={() => { setShowExitModal(false); handleCleanExit(); }}
       />
+
+      <PermissionGuideBottomSheet
+        visible={showAccessSheet}
+        permissionKey="accessibility"
+        onClose={() => setShowAccessSheet(false)}
+      />
     </AppContainer>
   );
 };

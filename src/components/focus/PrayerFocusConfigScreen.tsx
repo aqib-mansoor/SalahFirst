@@ -24,8 +24,8 @@ import {
 } from '@/utils/prayerFocusOffsets';
 import {
   DISTRACTING_APPS_CATALOG,
-  checkAccessibilityPermission,
-  openAccessibilitySettings,
+  fetchPermissionsStatus,
+  openPermissionSettingsByKey,
 } from '@/native/FocusBlockerBridge';
 
 export interface PrayerFocusConfigScreenProps {
@@ -59,13 +59,13 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       loadFocusOffsets(),
       loadFocusDurations(),
       loadFocusPreferences(),
-      checkAccessibilityPermission(),
-    ]).then(([loadedOffsets, loadedDurations, loadedPrefs, accessGranted]) => {
+      fetchPermissionsStatus(),
+    ]).then(([loadedOffsets, loadedDurations, loadedPrefs, perms]) => {
       setOffsets(loadedOffsets);
       setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
       setPlayAzan(loadedPrefs.playAzanBefore);
-      setHasAccessibility(accessGranted);
+      setHasAccessibility(perms.accessibility);
       if (loadedPrefs.blockedAppPackages && loadedPrefs.blockedAppPackages.length > 0) {
         setBlockedPackages(loadedPrefs.blockedAppPackages);
       }
