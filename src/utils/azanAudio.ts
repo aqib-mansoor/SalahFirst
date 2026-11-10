@@ -28,7 +28,7 @@ let currentSubscription: { remove: () => void } | null = null;
 export const configureAudioMode = async (): Promise<void> => {
   try {
     await setAudioModeAsync({
-      playsInSilentMode: true,
+      playsInSilentMode: false,
       shouldPlayInBackground: true,
       interruptionMode: 'duckOthers',
     });
