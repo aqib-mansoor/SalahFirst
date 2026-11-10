@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Vibration } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { PrayerAlertConfig, UserLocation, CalculationMethodName, JuristicMethod } from '@/types';
 import { playAzanAudio, stopAzanAudio, AzanReciterKey, AZAN_PRESET_URLS } from '@/utils/azanAudio';
@@ -54,12 +55,17 @@ export const useAzanAutoReciter = ({
       setRecitingPrayer(prayerName);
       setIsReciting(true);
 
+      const latestReciter = await storage.get<AzanReciterKey>(
+        APP_CONFIG.storageKeys.azanReciter,
+        activeReciter
+      );
+
       const success = await playAzanAudio((playing, finished) => {
         setIsReciting(playing && !finished);
         if (finished) {
           setRecitingPrayer(null);
         }
-      }, activeReciter);
+      }, latestReciter);
 
       if (!success) {
         setIsReciting(false);
@@ -76,8 +82,17 @@ export const useAzanAutoReciter = ({
       if (data?.type === 'prayer-alarm') {
         const prayerName = String(data.prayerName || '').toLowerCase() as typeof PRAYERS[number];
         const mode = alerts ? alerts[prayerName] : 'TONE';
-        const isAzanMode = mode === 'AZAN' || mode === 'TONE';
-        if (isAzanMode && alerts?.exactAlarmsEnabled !== false) {
+
+        if (mode === 'SILENT') {
+          return;
+        }
+
+        if (mode === 'VIBRATE') {
+          Vibration.vibrate([0, 500, 250, 500]);
+          return;
+        }
+
+        if ((mode === 'AZAN' || mode === 'TONE') && alerts?.exactAlarmsEnabled !== false) {
           triggerRecitation(data.prayerName as string);
         }
       }
@@ -106,8 +121,7 @@ export const useAzanAutoReciter = ({
 
       for (const prayer of PRAYERS) {
         const mode = alerts ? alerts[prayer] : 'TONE';
-        const isAzanMode = mode === 'AZAN' || mode === 'TONE';
-        if (!isAzanMode) continue;
+        if (mode === 'SILENT') continue;
 
         const prayerDate = raw[prayer] as Date | undefined;
         if (!prayerDate) continue;
@@ -118,8 +132,12 @@ export const useAzanAutoReciter = ({
 
         if (diffSeconds >= 0 && diffSeconds <= 60 && !playedKeysRef.current.has(playedKey)) {
           playedKeysRef.current.add(playedKey);
-          const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
-          triggerRecitation(capitalized);
+          if (mode === 'VIBRATE') {
+            Vibration.vibrate([0, 500, 250, 500]);
+          } else if (mode === 'AZAN' || mode === 'TONE') {
+            const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
+            triggerRecitation(capitalized);
+          }
           break;
         }
       }

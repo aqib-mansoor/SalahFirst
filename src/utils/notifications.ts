@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { PrayerAlertConfig, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
+import { PrayerAlertConfig, NotificationMode, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
 import { getRawPrayerTimes } from './prayerTimes';
 import { storage } from './storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -16,10 +16,12 @@ import {
   INSPIRATION_CHANNEL_ID,
   REENGAGEMENT_CHANNEL_ID,
   FOCUS_CHANNEL_ID,
+  getPrayerChannelForModeAndReciter,
   setupNotificationChannels,
   checkNotificationPermissions,
   requestNotificationPermission,
 } from './notificationChannels';
+import { AzanReciterKey } from './azanAudio';
 import i18n from '@/i18n';
 
 export {
@@ -44,14 +46,8 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const getOffsetMinutes = (offset: ReminderOffset): number => {
-  switch (offset) {
-    case '10m': return 10;
-    case '15m': return 15;
-    case '30m': return 30;
-    default: return 0;
-  }
-};
+const getOffsetMinutes = (offset: ReminderOffset): number =>
+  offset === '10m' ? 10 : offset === '15m' ? 15 : offset === '30m' ? 30 : 0;
 
 export interface SchedulePrayerParams {
   latitude?: number;
@@ -62,7 +58,7 @@ export interface SchedulePrayerParams {
   juristicMethod?: JuristicMethod;
 }
 
-const PRAYERS_LIST: { key: keyof PrayerAlertConfig; name: string }[] = [
+const PRAYERS_LIST: { key: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha'; name: string }[] = [
   { key: 'fajr', name: 'Fajr' },
   { key: 'dhuhr', name: 'Dhuhr' },
   { key: 'asr', name: 'Asr' },
@@ -75,8 +71,7 @@ export const cancelMissedPrayerNotification = async (
   dateKey: string = formatDateKey(new Date())
 ): Promise<void> => {
   try {
-    const identifier = `salahfirst-missed-${prayerName.toLowerCase()}-${dateKey}`;
-    await Notifications.cancelScheduledNotificationAsync(identifier);
+    await Notifications.cancelScheduledNotificationAsync(`salahfirst-missed-${prayerName.toLowerCase()}-${dateKey}`);
     await dismissDeliveredByPrayer(prayerName);
   } catch {}
 };
@@ -119,13 +114,7 @@ export const scheduleAllPrayerAlerts = async (
 
     const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     for (const notif of scheduled) {
-      if (
-        notif.identifier.startsWith('salahfirst-alarm-') ||
-        notif.identifier.startsWith('salahfirst-prayer-') ||
-        notif.identifier.startsWith('salahfirst-pre-') ||
-        notif.identifier.startsWith('salahfirst-missed-') ||
-        notif.identifier.startsWith('salahfirst-autofocus-')
-      ) {
+      if (/^salahfirst-(alarm|prayer|pre|missed|autofocus)-/.test(notif.identifier)) {
         await Notifications.cancelScheduledNotificationAsync(notif.identifier).catch(() => {});
       }
     }
@@ -143,6 +132,7 @@ export const scheduleAllPrayerAlerts = async (
     const qEnabled = alerts?.quietHoursEnabled ?? true;
     const qStart = alerts?.quietHoursStart ?? '22:00';
     const qEnd = alerts?.quietHoursEnd ?? '05:00';
+    const reciterKey = await storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah');
 
     for (let dayOffset = 0; dayOffset < 3; dayOffset++) {
       const targetDate = new Date(now.getTime() + dayOffset * 86400000);
@@ -150,7 +140,7 @@ export const scheduleAllPrayerAlerts = async (
       const raw = getRawPrayerTimes(latitude, longitude, targetDate, calculationMethod, juristicMethod, timezone);
 
       for (const prayer of PRAYERS_LIST) {
-        const mode = alerts ? alerts[prayer.key] : 'TONE';
+        const mode: NotificationMode = (alerts && alerts[prayer.key]) ? alerts[prayer.key] : 'TONE';
         if (mode === 'SILENT') continue;
 
         const prayerDate = raw[prayer.name.toLowerCase() as keyof typeof raw] as Date;
@@ -185,18 +175,23 @@ export const scheduleAllPrayerAlerts = async (
         if (prayerDate > now && !alarmInQuiet) {
           const alarmTitleKey = `notifPrayerTitle${prayer.name}`;
           const alarmBodyKey = `notifPrayerBody${prayer.name}`;
+          const { channelId: prayerChannel, soundName } = getPrayerChannelForModeAndReciter(
+            mode,
+            reciterKey
+          );
+
           await Notifications.scheduleNotificationAsync({
             identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
             content: {
               title: (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
               body: (i18n.t(alarmBodyKey as any) as string) || `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
-              sound: mode === 'VIBRATE' ? undefined : 'azan.mp3',
+              sound: mode === 'VIBRATE' ? undefined : soundName,
               data: { prayerName: prayer.name, type: 'prayer-alarm' },
             },
             trigger: {
               type: Notifications.SchedulableTriggerInputTypes.DATE,
               date: prayerDate,
-              channelId: PRAYER_CHANNEL_ID,
+              channelId: prayerChannel,
             },
           });
           scheduledCount++;

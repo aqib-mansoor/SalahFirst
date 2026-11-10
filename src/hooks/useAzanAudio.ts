@@ -9,6 +9,7 @@ import {
 } from '@/utils/azanAudio';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
+import { notifyPrayerAlertsChanged } from './usePrayerAlerts';
 
 export const useAzanAudio = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -88,6 +89,7 @@ export const useAzanAudio = () => {
   const selectReciter = useCallback(async (key: AzanReciterKey) => {
     setCurrentReciter(key);
     await storage.set(APP_CONFIG.storageKeys.azanReciter, key);
+    notifyPrayerAlertsChanged();
     if (isPlaying) {
       await stop();
       await play(key);
