@@ -7,6 +7,7 @@ export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v2';
 export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v2';
 export const PRAYER_CHANNEL_ID = PRAYER_CHANNEL_MAKKAH;
 export const PRAYER_CATEGORY_ID = 'salahfirst-prayer-actions';
+export const MISSED_CATEGORY_ID = 'salahfirst-missed-actions';
 
 export const REMINDER_CHANNEL_ID = 'salahfirst-pre-reminders';
 export const MISSED_CHANNEL_ID = 'salahfirst-missed-reminders';
@@ -43,6 +44,14 @@ export const setupNotificationChannels = async (): Promise<void> => {
       identifier: 'DISMISS_AZAN',
       buttonTitle: 'Dismiss',
       options: { isDestructive: false, opensAppToForeground: false },
+    },
+  ]).catch(() => {});
+
+  await Notifications.setNotificationCategoryAsync(MISSED_CATEGORY_ID, [
+    {
+      identifier: 'MARK_PRAYED',
+      buttonTitle: 'I Have Prayed',
+      options: { opensAppToForeground: true },
     },
   ]).catch(() => {});
 

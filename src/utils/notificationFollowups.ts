@@ -5,6 +5,7 @@ import { isWithinQuietHours } from './notificationQuietHours';
 import {
   REMINDER_CHANNEL_ID,
   MISSED_CHANNEL_ID,
+  MISSED_CATEGORY_ID,
   REFLECTION_CHANNEL_ID,
   FOCUS_CHANNEL_ID,
 } from './notificationChannels';
@@ -48,6 +49,7 @@ export const scheduleSecondaryPrayerReminders = async (
   } = ctx;
 
   let count = 0;
+  const displayPrayer = prayerDate.getDay() === 5 && prayerKey === 'dhuhr' ? "Jumu'ah" : prayerName;
 
   // 1. Pre-Prayer Reminder
   if (offsetMins > 0) {
@@ -57,8 +59,8 @@ export const scheduleSecondaryPrayerReminders = async (
       await Notifications.scheduleNotificationAsync({
         identifier: `salahfirst-pre-${prayerKey}-${dateKey}`,
         content: {
-          title: i18n.t('notifPreTitle', { minutes: offsetMins, prayer: prayerName }),
-          body: i18n.t('notifPreBody', { prayer: prayerName }),
+          title: i18n.t('notifPreTitle', { minutes: offsetMins, prayer: displayPrayer }),
+          body: i18n.t('notifPreBody', { prayer: displayPrayer }),
           sound: mode === 'VIBRATE' ? undefined : 'default',
           data: { prayerName, type: 'pre-reminder' },
         },
@@ -83,8 +85,8 @@ export const scheduleSecondaryPrayerReminders = async (
       await Notifications.scheduleNotificationAsync({
         identifier: `salahfirst-autofocus-${prayerKey}-${dateKey}`,
         content: {
-          title: `${prayerName} Focus • Time for Salah`,
-          body: `Salah first, scroll later. Put distractions aside and stand before your Lord for ${prayerName}.`,
+          title: `${displayPrayer} Focus • Time for Salah`,
+          body: `Salah first, scroll later. Put distractions aside and stand before your Lord for ${displayPrayer}.`,
           sound: 'default',
           data: {
             type: 'auto-focus-start',
@@ -114,11 +116,15 @@ export const scheduleSecondaryPrayerReminders = async (
       await Notifications.scheduleNotificationAsync({
         identifier: `salahfirst-missed-${prayerKey}-${dateKey}`,
         content: {
-          title: (i18n.t(missedTitleKey as any) as string) || `${prayerName} • Unmarked Prayer`,
+          title:
+            displayPrayer === "Jumu'ah"
+              ? "Jumu'ah • Unmarked Prayer"
+              : (i18n.t(missedTitleKey as any) as string) || `${displayPrayer} • Unmarked Prayer`,
           body:
             (i18n.t(missedBodyKey as any) as string) ||
-            `Take a peaceful moment to complete and log your ${prayerName}.`,
+            `Take a peaceful moment to complete and log your ${displayPrayer}.`,
           sound: 'default',
+          categoryIdentifier: MISSED_CATEGORY_ID,
           data: { prayerName, type: 'missed-followup' },
         },
         trigger: {

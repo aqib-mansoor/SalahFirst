@@ -117,6 +117,7 @@ function AppContent() {
     setActiveSession,
     setFocusPrayerName,
     setFocusDuration,
+    onMarkPrayerCompleted: (name) => setPrayerCompleted(name, true),
   });
   useEffect(() => registerSingleNotificationPolicy(), []);
   useAppBackHandler({ currentStep, setCurrentStep, activeTab, setActiveTab, focusConfigOrigin });

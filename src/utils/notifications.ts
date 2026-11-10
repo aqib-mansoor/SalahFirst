@@ -41,9 +41,9 @@ export {
 };
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
+  handleNotification: async (notification) => ({
     shouldShowAlert: true,
-    shouldPlaySound: true,
+    shouldPlaySound: notification.request.content.data?.type !== 'prayer-alarm',
     shouldSetBadge: true,
     shouldShowBanner: true,
     shouldShowList: true,
@@ -171,6 +171,7 @@ export const scheduleAllPrayerAlerts = async (
         const isFajr = prayer.key === 'fajr';
         const alarmInQuiet = qEnabled && !isFajr && isWithinQuietHours(prayerDate, qStart, qEnd);
         if (prayerDate > now && !alarmInQuiet) {
+          const isJumuah = prayerDate.getDay() === 5 && prayer.key === 'dhuhr';
           const alarmTitleKey = `notifPrayerTitle${prayer.name}`;
           const alarmBodyKey = `notifPrayerBody${prayer.name}`;
           const { channelId: prayerChannel, soundName } = getPrayerChannelForModeAndReciter(
@@ -181,10 +182,13 @@ export const scheduleAllPrayerAlerts = async (
           await Notifications.scheduleNotificationAsync({
             identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
             content: {
-              title: (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
-              body:
-                (i18n.t(alarmBodyKey as any) as string) ||
-                `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
+              title: isJumuah
+                ? "Jumu'ah • Friday Prayer Call"
+                : (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
+              body: isJumuah
+                ? "Hayya 'alas-Salah — It is time for Jumu'ah prayer."
+                : (i18n.t(alarmBodyKey as any) as string) ||
+                  `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
               sound: mode === 'VIBRATE' ? undefined : soundName,
               categoryIdentifier: PRAYER_CATEGORY_ID,
               data: { prayerName: prayer.name, type: 'prayer-alarm' },

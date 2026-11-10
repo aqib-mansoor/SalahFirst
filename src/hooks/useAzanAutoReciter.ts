@@ -75,17 +75,19 @@ export const useAzanAutoReciter = ({
     [activeReciter]
   );
 
-  // 1. Listen for scheduled local prayer alarm triggers
+  // 1. Listen for scheduled local prayer alarm triggers (deduplicated with playedKeysRef)
   useEffect(() => {
     const sub = Notifications.addNotificationReceivedListener((notification) => {
       const data = notification.request.content.data;
       if (data?.type === 'prayer-alarm') {
         const prayerName = String(data.prayerName || '').toLowerCase() as typeof PRAYERS[number];
-        const mode = alerts ? alerts[prayerName] : 'TONE';
+        const { dateKey } = getLocalDateComponents(new Date(), location?.timezone);
+        const playedKey = `${dateKey}_${prayerName}`;
+        if (playedKeysRef.current.has(playedKey)) return;
+        playedKeysRef.current.add(playedKey);
 
-        if (mode === 'SILENT') {
-          return;
-        }
+        const mode = alerts ? alerts[prayerName] : 'TONE';
+        if (mode === 'SILENT') return;
 
         if (mode === 'VIBRATE') {
           Vibration.vibrate([0, 500, 250, 500]);
@@ -99,7 +101,7 @@ export const useAzanAutoReciter = ({
     });
 
     return () => sub.remove();
-  }, [alerts, triggerRecitation]);
+  }, [alerts, location?.timezone, triggerRecitation]);
 
   // 2. Active in-app minute matcher for exact prayer boundary arrival
   useEffect(() => {

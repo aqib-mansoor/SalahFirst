@@ -17,6 +17,7 @@ export interface UseNotificationResponseRouterParams {
   setActiveSession: (session: FocusSession | null) => void;
   setFocusPrayerName: (name: string) => void;
   setFocusDuration: (duration: FocusDuration) => void;
+  onMarkPrayerCompleted?: (prayerName: string) => void;
 }
 
 export const useNotificationResponseRouter = ({
@@ -25,6 +26,7 @@ export const useNotificationResponseRouter = ({
   setActiveSession,
   setFocusPrayerName,
   setFocusDuration,
+  onMarkPrayerCompleted,
 }: UseNotificationResponseRouterParams) => {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -39,6 +41,13 @@ export const useNotificationResponseRouter = ({
 
       if (response.actionIdentifier === 'DISMISS_AZAN') {
         stopAzanAudio();
+        return;
+      }
+
+      if (response.actionIdentifier === 'MARK_PRAYED' && data.prayerName) {
+        onMarkPrayerCompleted?.(String(data.prayerName));
+        setCurrentStep('main');
+        setActiveTab('home');
         return;
       }
 
@@ -90,6 +99,6 @@ export const useNotificationResponseRouter = ({
     });
 
     return () => subscription.remove();
-  }, [setCurrentStep, setActiveTab, setActiveSession, setFocusPrayerName, setFocusDuration]);
+  }, [setCurrentStep, setActiveTab, setActiveSession, setFocusPrayerName, setFocusDuration, onMarkPrayerCompleted]);
 };
 

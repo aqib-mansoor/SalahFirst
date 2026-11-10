@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import {
   playAzanAudio,
   stopAzanAudio,
@@ -17,6 +18,7 @@ export const useAzanAudio = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentReciter, setCurrentReciter] = useState<AzanReciterKey>('makkah');
+  const isPreviewActiveRef = useRef<boolean>(false);
 
   useEffect(() => {
     storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah').then((saved) => {
@@ -25,8 +27,21 @@ export const useAzanAudio = () => {
       }
     });
 
+    const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state !== 'active' && isPreviewActiveRef.current) {
+        isPreviewActiveRef.current = false;
+        stopAzanAudio();
+        setIsPlaying(false);
+        setIsPaused(false);
+      }
+    });
+
     return () => {
-      stopAzanAudio();
+      appStateSub.remove();
+      if (isPreviewActiveRef.current) {
+        isPreviewActiveRef.current = false;
+        stopAzanAudio();
+      }
     };
   }, []);
 
@@ -34,10 +49,12 @@ export const useAzanAudio = () => {
     const key = reciterKey || currentReciter;
     setError(null);
     setIsLoading(true);
+    isPreviewActiveRef.current = true;
 
     const success = await playAzanAudio((playing, finished) => {
       setIsPlaying(playing && !finished);
       if (finished) {
+        isPreviewActiveRef.current = false;
         setIsLoading(false);
         setIsPaused(false);
       }
@@ -47,6 +64,7 @@ export const useAzanAudio = () => {
     setIsPlaying(success);
     setIsPaused(false);
     if (!success) {
+      isPreviewActiveRef.current = false;
       setError('Audio stream unavailable. Check internet connection.');
     }
     return success;
@@ -69,6 +87,7 @@ export const useAzanAudio = () => {
   }, []);
 
   const stop = useCallback(async () => {
+    isPreviewActiveRef.current = false;
     await stopAzanAudio();
     setIsPlaying(false);
     setIsPaused(false);
