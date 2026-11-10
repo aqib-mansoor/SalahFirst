@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -22,6 +22,11 @@ import {
   loadFocusPreferences,
   saveFocusPreferences,
 } from '@/utils/prayerFocusOffsets';
+import {
+  DISTRACTING_APPS_CATALOG,
+  checkAccessibilityPermission,
+  openAccessibilitySettings,
+} from '@/native/FocusBlockerBridge';
 
 export interface PrayerFocusConfigScreenProps {
   initialPrayer?: string;
@@ -41,10 +46,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
   const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const [durations, setDurations] = useState<PrayerFocusDurations>(DEFAULT_FOCUS_DURATIONS);
-  const [blockSocial, setBlockSocial] = useState(true);
-  const [blockShortVideos, setBlockShortVideos] = useState(true);
-  const [blockGames, setBlockGames] = useState(false);
-  const [blockNews, setBlockNews] = useState(false);
+  const [blockedPackages, setBlockedPackages] = useState<string[]>(() =>
+    DISTRACTING_APPS_CATALOG.filter((a) => a.defaultSelected).map((a) => a.package)
+  );
+  const [hasAccessibility, setHasAccessibility] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
   const [playAzan, setPlayAzan] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -54,16 +59,23 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       loadFocusOffsets(),
       loadFocusDurations(),
       loadFocusPreferences(),
-    ]).then(([loadedOffsets, loadedDurations, loadedPrefs]) => {
+      checkAccessibilityPermission(),
+    ]).then(([loadedOffsets, loadedDurations, loadedPrefs, accessGranted]) => {
       setOffsets(loadedOffsets);
       setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
       setPlayAzan(loadedPrefs.playAzanBefore);
-      setBlockSocial(loadedPrefs.blockSocial);
-      setBlockShortVideos(loadedPrefs.blockShortVideos);
-      setBlockGames(loadedPrefs.blockGames);
-      setBlockNews(loadedPrefs.blockNews);
+      setHasAccessibility(accessGranted);
+      if (loadedPrefs.blockedAppPackages && loadedPrefs.blockedAppPackages.length > 0) {
+        setBlockedPackages(loadedPrefs.blockedAppPackages);
+      }
     });
+  }, []);
+
+  const handleTogglePackage = useCallback((pkg: string) => {
+    setBlockedPackages((prev) =>
+      prev.includes(pkg) ? prev.filter((p) => p !== pkg) : [...prev, pkg]
+    );
   }, []);
 
   const handleUpdateDelay = (prayer: keyof PrayerFocusOffsets, mins: number) => {
@@ -83,10 +95,11 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         autoStartOnAzan: autoStart,
         defaultDuration: durations.fajr || 15,
         playAzanBefore: playAzan,
-        blockSocial,
-        blockShortVideos,
-        blockGames,
-        blockNews,
+        blockSocial: true,
+        blockShortVideos: true,
+        blockGames: false,
+        blockNews: false,
+        blockedAppPackages: blockedPackages,
       }),
     ]);
     setIsSaving(false);
@@ -101,8 +114,8 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
     >
       <View style={styles.screenContainer}>
         <ScreenHeader
-          title={t('timeToReconnect') as string}
-          subtitle={t('focusSub') as string}
+          title={(t('timeToReconnect') as string) || 'Prayer Focus'}
+          subtitle={(t('focusSub') as string) || 'Configure your peaceful prayer sanctuary'}
           onBack={onBack}
           backAccessibilityLabel="Back to Home"
         />
@@ -113,7 +126,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           showsVerticalScrollIndicator={false}
           bounces={true}
         >
-          {/* 1. Combined Per-Prayer Schedule Card (Delay + Duration Steppers) */}
           <FocusPrayerScheduleCard
             offsets={offsets}
             durations={durations}
@@ -122,19 +134,13 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             onUpdateDuration={handleUpdateDuration}
           />
 
-          {/* 2. Distraction Shield Card */}
           <FocusDistractionCard
-            blockSocial={blockSocial}
-            blockShortVideos={blockShortVideos}
-            blockGames={blockGames}
-            blockNews={blockNews}
-            onToggleSocial={() => setBlockSocial((p) => !p)}
-            onToggleShortVideos={() => setBlockShortVideos((p) => !p)}
-            onToggleGames={() => setBlockGames((p) => !p)}
-            onToggleNews={() => setBlockNews((p) => !p)}
+            selectedPackages={blockedPackages}
+            onTogglePackage={handleTogglePackage}
+            hasAccessibility={hasAccessibility}
+            onOpenPermissionSetup={openAccessibilitySettings}
           />
 
-          {/* 3. Automation Settings */}
           <FocusSettingsCard
             autoStartOnAzan={autoStart}
             playAzanBefore={playAzan}
@@ -143,7 +149,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           />
         </ScrollView>
 
-        {/* Docked Floating Footer with Phone Navbar Safe Area */}
         <View
           style={[
             styles.dockedFooter,

@@ -27,6 +27,13 @@ import {
   dismissFocusBreachNotification,
 } from '@/utils/focusNotification';
 import { loadFocusPreferences } from '@/utils/prayerFocusOffsets';
+import {
+  startFocusBlocker,
+  stopFocusBlocker,
+  DISTRACTING_APPS_CATALOG,
+  checkAccessibilityPermission,
+  openAccessibilitySettings,
+} from '@/native/FocusBlockerBridge';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
@@ -63,13 +70,28 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     saveActiveFocusSession(sessionRef.current);
     startFocusNotifications(sessionRef.current.prayerName, sessionRef.current.durationMinutes);
     loadFocusPreferences().then((prefs) => {
-      const list: string[] = [];
-      if (prefs.blockSocial) list.push('Instagram, FB, X');
-      if (prefs.blockShortVideos) list.push('TikTok & Reels');
-      if (prefs.blockGames) list.push('Games');
-      if (prefs.blockNews) list.push('Browsers');
-      blockedSummaryRef.current = list.join(', ');
+      const pkgs = prefs.blockedAppPackages && prefs.blockedAppPackages.length > 0
+        ? prefs.blockedAppPackages
+        : DISTRACTING_APPS_CATALOG.filter((a) => a.defaultSelected).map((a) => a.package);
+      startFocusBlocker(pkgs);
+
+      checkAccessibilityPermission().then((granted) => {
+        if (!granted) {
+          Alert.alert(
+            'Enable App Blocker',
+            'To automatically intercept distracting apps during prayer, allow SalahFirst in Accessibility Settings.',
+            [
+              { text: 'Not Now', style: 'cancel' },
+              { text: 'Open Settings', onPress: openAccessibilitySettings },
+            ]
+          );
+        }
+      });
     });
+
+    return () => {
+      stopFocusBlocker();
+    };
   }, []);
 
   const tick = useCallback(() => {
@@ -130,6 +152,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   }, [isCompleted, tick]);
 
   const handleCleanExit = async (afterAction?: () => void) => {
+    await stopFocusBlocker();
     await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();

@@ -65,3 +65,4 @@ export const openOverlaySettings = async (): Promise<void> => {
     await FocusBlockerModule.openOverlaySettings();
   } catch {}
 };
+
