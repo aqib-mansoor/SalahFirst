@@ -10,3 +10,4 @@ export * from './useTransparentNavigationBar';
 export * from './useAzanAudio';
 export * from './useAzanAutoReciter';
 export * from './useTrackerCountdown';
+export * from './useNotificationResponseRouter';

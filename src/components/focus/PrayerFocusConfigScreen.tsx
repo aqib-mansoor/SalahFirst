@@ -10,6 +10,7 @@ import { FocusDurationCard } from './FocusDurationCard';
 import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
+import { FormattedPrayerTimes } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
 import {
   PrayerFocusOffsets,
@@ -22,7 +23,7 @@ import {
 
 export interface PrayerFocusConfigScreenProps {
   initialPrayer?: string;
-  prayerTimesMap?: Record<string, string>;
+  prayerTimesMap?: Record<string, string> | FormattedPrayerTimes;
   rawPrayerDates?: Record<string, Date>;
   onBack: () => void;
   onBeginFocus?: (duration: FocusDuration, prayerName: string) => void;
@@ -67,7 +68,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const currentPrayerKey =
     selectedPrayer === 'All' ? 'dhuhr' : (selectedPrayer.toLowerCase() as keyof PrayerFocusOffsets);
   const currentDelay = offsets[currentPrayerKey] ?? 20;
-  const targetAzan = prayerTimesMap && selectedPrayer !== 'All' ? prayerTimesMap[currentPrayerKey] : undefined;
+  const targetAzan = prayerTimesMap && selectedPrayer !== 'All' ? (prayerTimesMap as Record<string, any>)[currentPrayerKey] : undefined;
   const targetRawDate = rawPrayerDates && selectedPrayer !== 'All' ? rawPrayerDates[currentPrayerKey] : undefined;
 
   const handleUpdateDelay = (mins: number) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 import { Provider } from 'react-redux';
 import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
@@ -20,24 +20,28 @@ import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { FocusDuration } from '@/types';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
-import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { useDeviceLocation, initDeviceLocationCache } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
+import { useNotificationResponseRouter } from '@/hooks/useNotificationResponseRouter';
 import { useAzanAutoReciter } from '@/hooks/useAzanAutoReciter';
 import { useTheme } from '@/hooks/useTheme';
 import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
 import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
-import { getActiveFocusSession, FocusSession, createFocusSession, saveActiveFocusSession } from '@/utils/focusSession';
+import { getActiveFocusSession, FocusSession } from '@/utils/focusSession';
 import { checkAndActivateCurrentAutoFocus } from '@/utils/prayerFocusOffsets';
 import { registerSingleNotificationPolicy } from '@/utils/notificationCleanup';
 
 export type { AppStep };
 
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 function AppContent() {
   const theme = useTheme();
   const { language } = useTranslation();
+  const [isAppReady, setIsAppReady] = useState(false);
   const [currentStep, setCurrentStep] = useState<AppStep>('main');
   const [activeTab, setActiveTab] = useState<HomeTab>('home');
   const [progressSubTab, setProgressSubTab] = useState<ProgressSubTab>('tracker');
@@ -74,86 +78,54 @@ function AppContent() {
   // Check setup status and restore any active focus session on startup
   useEffect(() => {
     const initApp = async () => {
-      await hydrateAllStore(store.dispatch);
+      try {
+        const [_, cachedLoc, hasCompleted, savedSession] = await Promise.all([
+          hydrateAllStore(store.dispatch),
+          initDeviceLocationCache(),
+          storage.get<boolean>(APP_CONFIG.storageKeys.hasCompletedSetup, false),
+          getActiveFocusSession(),
+        ]);
 
-      const hasCompleted = await storage.get<boolean>(
-        APP_CONFIG.storageKeys.hasCompletedSetup,
-        false
-      );
-      if (!hasCompleted) {
-        setCurrentStep('welcome');
-        return;
-      }
-
-      const savedSession = await getActiveFocusSession();
-      if (savedSession && savedSession.status === 'active') {
-        setActiveSession(savedSession);
-        setFocusPrayerName(savedSession.prayerName);
-        setFocusDuration(savedSession.durationMinutes);
-        setCurrentStep('focus-active');
-        return;
-      }
-
-      if (location?.latitude != null) {
-        const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
-        if (autoSession) {
-          setActiveSession(autoSession);
-          setFocusPrayerName(autoSession.prayerName);
-          setFocusDuration(autoSession.durationMinutes);
-          setCurrentStep('focus-active');
+        if (!hasCompleted) {
+          setCurrentStep('welcome');
+          return;
         }
+
+        if (savedSession && savedSession.status === 'active') {
+          setActiveSession(savedSession);
+          setFocusPrayerName(savedSession.prayerName);
+          setFocusDuration(savedSession.durationMinutes);
+          setCurrentStep('focus-active');
+          return;
+        }
+
+        setCurrentStep('main');
+
+        if (cachedLoc?.latitude != null) {
+          const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
+          if (autoSession) {
+            setActiveSession(autoSession);
+            setFocusPrayerName(autoSession.prayerName);
+            setFocusDuration(autoSession.durationMinutes);
+            setCurrentStep('focus-active');
+          }
+        }
+      } finally {
+        setIsAppReady(true);
+        await SplashScreen.hideAsync().catch(() => {});
       }
     };
     initApp();
-  }, [location?.latitude, prayerData.raw]);
+  }, [prayerData.raw]);
 
-  // Listen for user tapping a scheduled prayer alert or inspiration notification
-  useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data as {
-        type?: string;
-        prayerName?: string;
-        duration?: FocusDuration;
-        targetEndTimestamp?: number;
-      } | null;
-
-      if (data && (data.type === 'focus-breach' || data.type === 'focus-active')) {
-        getActiveFocusSession().then((session) => {
-          if (session) {
-            setActiveSession(session);
-            setFocusPrayerName(session.prayerName);
-            setFocusDuration(session.durationMinutes);
-          } else if (data.prayerName) {
-            setFocusPrayerName(String(data.prayerName));
-          }
-          setCurrentStep('focus-active');
-        });
-      } else if (data && data.type === 'auto-focus-start' && data.prayerName) {
-        const prayer = String(data.prayerName);
-        const duration = (Number(data.duration) || 15) as FocusDuration;
-        const session = createFocusSession(prayer, duration);
-        if (data.targetEndTimestamp) {
-          session.targetEndTimestamp = Number(data.targetEndTimestamp);
-        }
-        saveActiveFocusSession(session);
-        setActiveSession(session);
-        setFocusPrayerName(prayer);
-        setFocusDuration(duration);
-        setCurrentStep('focus-active');
-      } else if (data && data.prayerName) {
-        setFocusPrayerName(String(data.prayerName));
-        setCurrentStep('focus-config');
-      } else if (data && data.type === 'daily-inspiration') {
-        setCurrentStep('main');
-        setActiveTab('hadith');
-      } else if (data && data.type === 'reengagement') {
-        setCurrentStep('main');
-        setActiveTab('home');
-      }
-    });
-
-    return () => subscription.remove();
-  }, []);
+  // Route user interactions on notifications (prayer alerts, focus breach, inspiration)
+  useNotificationResponseRouter({
+    setCurrentStep,
+    setActiveTab,
+    setActiveSession,
+    setFocusPrayerName,
+    setFocusDuration,
+  });
 
   // Enforce single active alert in notification shade
   useEffect(() => registerSingleNotificationPolicy(), []);
@@ -199,6 +171,14 @@ function AppContent() {
 
   const handleCompletePrayerFocus = () => setPrayerCompleted(focusPrayerName, true);
 
+  if (!isAppReady) {
+    return (
+      <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
+        <StatusBar style={theme.isDark ? 'light' : 'dark'} />
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={currentStep === 'welcome' ? 'light' : theme.isDark ? 'light' : 'dark'} />
@@ -236,13 +216,7 @@ function AppContent() {
       {currentStep === 'focus-config' && (
         <PrayerFocusConfigScreen
           initialPrayer={focusPrayerName}
-          prayerTimesMap={{
-            fajr: prayerData.fajr,
-            dhuhr: prayerData.dhuhr,
-            asr: prayerData.asr,
-            maghrib: prayerData.maghrib,
-            isha: prayerData.isha,
-          }}
+          prayerTimesMap={prayerData}
           rawPrayerDates={prayerData.raw}
           onBack={() => setCurrentStep(focusConfigOrigin)}
         />

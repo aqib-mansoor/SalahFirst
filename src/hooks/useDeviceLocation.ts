@@ -11,6 +11,20 @@ import { unregisterBackgroundLocation } from '@/services/backgroundLocationTask'
 const locationListeners = new Set<(loc: UserLocation) => void>();
 let globalCurrentLocation: UserLocation | null = null;
 
+export const initDeviceLocationCache = async (): Promise<UserLocation | null> => {
+  if (globalCurrentLocation) return globalCurrentLocation;
+  unregisterBackgroundLocation().catch(() => {});
+  const cached = await storage.get<UserLocation | null>(
+    APP_CONFIG.storageKeys.userLocation,
+    null
+  );
+  if (cached) {
+    globalCurrentLocation = cached;
+    locationListeners.forEach((fn) => fn(cached));
+  }
+  return cached;
+};
+
 export const useDeviceLocation = () => {
   const [location, setLocation] = useState<UserLocation | null>(globalCurrentLocation);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -110,24 +124,11 @@ export const useDeviceLocation = () => {
   useEffect(() => {
     locationListeners.add(setLocation);
 
-    const initializeLocation = async () => {
-      // Unregister any legacy background polling tasks
-      unregisterBackgroundLocation().catch(() => {});
-
-      const cached = await storage.get<UserLocation | null>(
-        APP_CONFIG.storageKeys.userLocation,
-        null
-      );
-
-      if (cached) {
-        globalCurrentLocation = cached;
-        setLocation(cached);
-      }
-      setIsLoading(false);
-    };
-
     if (!globalCurrentLocation) {
-      initializeLocation();
+      initDeviceLocationCache().then((cached) => {
+        if (cached) setLocation(cached);
+        setIsLoading(false);
+      });
     } else {
       setLocation(globalCurrentLocation);
       setIsLoading(false);
