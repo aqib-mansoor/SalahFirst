@@ -25,10 +25,14 @@ export const AZAN_START_OFFSETS: Record<AzanReciterKey, number> = {
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
 
-export const configureAudioMode = async (): Promise<void> => {
+/**
+ * respectSilentMode = true  -> automatic prayer-time Azan stays muted on Silent/Vibrate/DND.
+ * respectSilentMode = false -> user-initiated preview always plays.
+ */
+export const configureAudioMode = async (respectSilentMode: boolean = false): Promise<void> => {
   try {
     await setAudioModeAsync({
-      playsInSilentMode: false,
+      playsInSilentMode: !respectSilentMode,
       shouldPlayInBackground: true,
       interruptionMode: 'duckOthers',
     });
@@ -37,11 +41,12 @@ export const configureAudioMode = async (): Promise<void> => {
 
 export const playAzanAudio = async (
   onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void,
-  reciterOrUri?: AzanReciterKey | string
+  reciterOrUri?: AzanReciterKey | string,
+  respectSilentMode: boolean = false
 ): Promise<boolean> => {
   try {
     await stopAzanAudio();
-    await configureAudioMode();
+    await configureAudioMode(respectSilentMode);
 
     const isReciterKey = reciterOrUri && reciterOrUri in AZAN_PRESET_URLS;
     const reciterKey: AzanReciterKey = isReciterKey ? (reciterOrUri as AzanReciterKey) : 'makkah';

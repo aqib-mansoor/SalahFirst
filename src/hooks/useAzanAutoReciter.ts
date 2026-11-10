@@ -60,12 +60,17 @@ export const useAzanAutoReciter = ({
         activeReciter
       );
 
-      const success = await playAzanAudio((playing, finished) => {
-        setIsReciting(playing && !finished);
-        if (finished) {
-          setRecitingPrayer(null);
-        }
-      }, latestReciter);
+      // Automatic prayer-time Azan respects Silent / Vibrate / DND
+      const success = await playAzanAudio(
+        (playing, finished) => {
+          setIsReciting(playing && !finished);
+          if (finished) {
+            setRecitingPrayer(null);
+          }
+        },
+        latestReciter,
+        true
+      );
 
       if (!success) {
         setIsReciting(false);
