@@ -70,3 +70,4 @@ export const formatScriptureNotification = (
     body: body.trim(),
   };
 };
+
