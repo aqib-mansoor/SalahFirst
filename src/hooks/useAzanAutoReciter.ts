@@ -62,7 +62,7 @@ export const useAzanAutoReciter = ({
         activeReciter
       );
 
-      // Automatic prayer-time Azan respects Silent / Vibrate / DND
+      // Prayer-time Azan recites reliably using high-priority audio player
       const success = await playAzanAudio(
         (playing, finished) => {
           setIsReciting(playing && !finished);
@@ -71,7 +71,7 @@ export const useAzanAutoReciter = ({
           }
         },
         latestReciter,
-        true
+        false
       );
 
       if (!success) {

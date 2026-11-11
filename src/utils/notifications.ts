@@ -44,7 +44,7 @@ export {
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => ({
     shouldShowAlert: true,
-    shouldPlaySound: notification.request.content.data?.type !== 'prayer-alarm',
+    shouldPlaySound: true,
     shouldSetBadge: true,
     shouldShowBanner: true,
     shouldShowList: true,

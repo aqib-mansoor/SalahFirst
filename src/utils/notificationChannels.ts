@@ -86,8 +86,12 @@ export const setupNotificationChannels = async (): Promise<void> => {
       enableVibrate: true,
       sound: ch.sound,
       audioAttributes: {
-        usage: Notifications.AndroidAudioUsage.NOTIFICATION_RINGTONE,
+        usage: Notifications.AndroidAudioUsage.ALARM,
         contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+        flags: {
+          enforceAudibility: true,
+          requestHardwareAudioVideoSynchronization: false,
+        },
       },
     });
   }
