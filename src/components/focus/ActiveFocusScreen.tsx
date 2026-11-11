@@ -21,8 +21,7 @@ import {
   markFocusCompleted,
 } from '@/utils/focusSession';
 import {
-  startFocusNotifications,
-  updateFocusNotificationProgress,
+  syncLiveFocusNotification,
   cancelFocusNotifications,
 } from '@/utils/focusNotification';
 import {
@@ -46,7 +45,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   onCompletePrayer,
 }) => {
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const sessionRef = useRef<FocusSession>(
     existingSession || createFocusSession(prayerName, duration)
   );
@@ -60,31 +59,47 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const [showExitModal, setShowExitModal] = useState(false);
   const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
-  const lastNotifiedMinuteRef = useRef<number>(-1);
+  const lastRotationEpochRef = useRef<number>(Date.now());
 
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
     const initialMins = Math.ceil(calculateRemainingSeconds(sessionRef.current) / 60);
-    startFocusNotifications(
+    syncLiveFocusNotification(
       sessionRef.current.prayerName,
+      sessionRef.current.targetEndTimestamp,
       sessionRef.current.durationMinutes,
-      initialMins
+      initialMins,
+      language,
+      true
     );
     silenceDeviceForFocus();
     return () => {
       restoreDeviceSoundAfterFocus();
       cancelFocusNotifications();
     };
-  }, []);
+  }, [language]);
 
   const tick = useCallback(() => {
     const left = calculateRemainingSeconds(sessionRef.current);
     setRemainingSeconds(left);
 
+    const now = Date.now();
+    // Rotate scripture every 90 seconds (1.5 minutes) smoothly and update progress
+    const shouldRotateVerse = now - lastRotationEpochRef.current >= 90000;
+    if (shouldRotateVerse) {
+      lastRotationEpochRef.current = now;
+    }
+
     const minsLeft = Math.ceil(left / 60);
-    if (minsLeft !== lastNotifiedMinuteRef.current && left > 0) {
-      lastNotifiedMinuteRef.current = minsLeft;
-      updateFocusNotificationProgress(sessionRef.current.prayerName, minsLeft);
+    if ((shouldRotateVerse || left % 60 === 0) && left > 0) {
+      syncLiveFocusNotification(
+        sessionRef.current.prayerName,
+        sessionRef.current.targetEndTimestamp,
+        sessionRef.current.durationMinutes,
+        minsLeft,
+        language,
+        shouldRotateVerse
+      );
     }
 
     if (left <= 0) {
@@ -93,7 +108,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
       cancelFocusNotifications();
       markFocusCompleted(sessionRef.current.prayerName);
     }
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     if (isCompleted) return;

@@ -1,52 +1,63 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { FOCUS_CHANNEL_ID } from './notificationChannels';
-import { pruneDeliveredNotifications } from './notificationCleanup';
-import { FocusScripture, getRandomFocusScripture } from '@/data/focusScriptures';
+import {
+  FocusScripture,
+  getNextFocusScripture,
+  formatScriptureForLanguage,
+} from '@/data/focusScriptures';
+import {
+  showLiveFocusNotification,
+  dismissLiveFocusNotification,
+} from '@/native/FocusSilencerBridge';
 
 export const FOCUS_ACTIVE_NOTIF_ID = 'salahfirst_focus_active';
 export const FOCUS_DONE_NOTIF_ID = 'salahfirst_focus_done';
 
-let activeScripture: FocusScripture | null = null;
+let currentSessionScripture: FocusScripture | null = null;
 
-export const getActiveFocusScripture = (): FocusScripture => {
-  if (!activeScripture) {
-    activeScripture = getRandomFocusScripture();
+export const cycleFocusScripture = (): FocusScripture => {
+  currentSessionScripture = getNextFocusScripture();
+  return currentSessionScripture;
+};
+
+export const getCurrentFocusScripture = (): FocusScripture => {
+  if (!currentSessionScripture) {
+    currentSessionScripture = getNextFocusScripture();
   }
-  return activeScripture;
+  return currentSessionScripture;
 };
 
 /**
- * Starts persistent lockscreen and notification drawer focus notification
- * displaying Quran Ayat / Hadith and remaining time
+ * Starts or updates persistent lockscreen focus notification with native chronometer countdown,
+ * live progress bar, and rotating verified Quran / Hadith text.
  */
-export const startFocusNotifications = async (
+export const syncLiveFocusNotification = async (
   prayerName: string,
-  durationMinutes: number,
-  remainingMinutes?: number
+  targetEndEpochMs: number,
+  totalDurationMinutes: number,
+  remainingMinutes: number,
+  language: string = 'en',
+  rotateVerse: boolean = false
 ): Promise<void> => {
   try {
-    await pruneDeliveredNotifications(FOCUS_ACTIVE_NOTIF_ID);
-    const scripture = getActiveFocusScripture();
-    const minsLeft = remainingMinutes !== undefined ? remainingMinutes : durationMinutes;
-    const timeLabel = minsLeft > 0 ? `${minsLeft}m left` : 'Completing...';
+    const scripture = rotateVerse ? cycleFocusScripture() : getCurrentFocusScripture();
+    const formatted = formatScriptureForLanguage(scripture, language);
 
-    const title = `${prayerName} Focus • ${timeLabel} • Phone Silenced`;
-    const body = `${scripture.arabic}\n${scripture.english}\n— ${scripture.reference}`;
+    // 1. First trigger the native Android notification with live chronometer & progress bar
+    if (Platform.OS === 'android') {
+      await showLiveFocusNotification(
+        prayerName,
+        targetEndEpochMs,
+        totalDurationMinutes,
+        remainingMinutes,
+        formatted.titleBadge,
+        formatted.textBody
+      );
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      identifier: FOCUS_ACTIVE_NOTIF_ID,
-      content: {
-        title,
-        body,
-        data: { type: 'focus-active', prayerName },
-        sticky: true,
-        autoDismiss: false,
-        ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
-      },
-      trigger: null,
-    });
-
+    // 2. Schedule completion notification when focus session ends
+    const minsLeft = Math.max(1, remainingMinutes);
     const triggerDate = new Date(Date.now() + minsLeft * 60 * 1000);
     await Notifications.scheduleNotificationAsync({
       identifier: FOCUS_DONE_NOTIF_ID,
@@ -65,39 +76,12 @@ export const startFocusNotifications = async (
 };
 
 /**
- * Updates the remaining minutes in the persistent focus notification
- */
-export const updateFocusNotificationProgress = async (
-  prayerName: string,
-  remainingMinutes: number
-): Promise<void> => {
-  try {
-    const scripture = getActiveFocusScripture();
-    const timeLabel = remainingMinutes > 0 ? `${remainingMinutes}m left` : 'Completing...';
-    const title = `${prayerName} Focus • ${timeLabel} • Phone Silenced`;
-    const body = `${scripture.arabic}\n${scripture.english}\n— ${scripture.reference}`;
-
-    await Notifications.scheduleNotificationAsync({
-      identifier: FOCUS_ACTIVE_NOTIF_ID,
-      content: {
-        title,
-        body,
-        data: { type: 'focus-active', prayerName },
-        sticky: true,
-        autoDismiss: false,
-        ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
-      },
-      trigger: null,
-    });
-  } catch {}
-};
-
-/**
  * Cancels and cleans up all active focus notifications
  */
 export const cancelFocusNotifications = async (): Promise<void> => {
   try {
-    activeScripture = null;
+    currentSessionScripture = null;
+    await dismissLiveFocusNotification();
     await Notifications.dismissNotificationAsync(FOCUS_ACTIVE_NOTIF_ID);
     await Notifications.cancelScheduledNotificationAsync(FOCUS_ACTIVE_NOTIF_ID);
     await Notifications.cancelScheduledNotificationAsync(FOCUS_DONE_NOTIF_ID);

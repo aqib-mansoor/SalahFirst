@@ -23,12 +23,51 @@ export const silenceDeviceForFocus = async (): Promise<boolean> => {
 };
 
 /**
- * Restores the previous ringer mode when focus session ends
+ * Restores the previous ringer mode and cancels live focus notification
  */
 export const restoreDeviceSoundAfterFocus = async (): Promise<boolean> => {
   if (!isAndroid || !FocusSilencerModule) return true;
   try {
     return await FocusSilencerModule.restoreFocusSilence();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Updates or displays the live native notification with chronometer countdown,
+ * progress bar, and formatted Quran / Hadith text.
+ */
+export const showLiveFocusNotification = async (
+  prayerName: string,
+  targetEndEpochMs: number,
+  totalDurationMinutes: number,
+  remainingMinutes: number,
+  titleBadge: string,
+  bodyText: string
+): Promise<boolean> => {
+  if (!isAndroid || !FocusSilencerModule) return false;
+  try {
+    return await FocusSilencerModule.showLiveFocusNotification(
+      prayerName,
+      targetEndEpochMs,
+      totalDurationMinutes,
+      remainingMinutes,
+      titleBadge,
+      bodyText
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Dismisses the live focus notification explicitly
+ */
+export const dismissLiveFocusNotification = async (): Promise<boolean> => {
+  if (!isAndroid || !FocusSilencerModule) return false;
+  try {
+    return await FocusSilencerModule.dismissLiveFocusNotification();
   } catch {
     return false;
   }
@@ -47,4 +86,3 @@ export const getDeviceRingerMode = async (): Promise<RingerModeStatus> => {
     return { mode: 2, isVibrate: false, isSilent: false, isNormal: true };
   }
 };
-
