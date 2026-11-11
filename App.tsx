@@ -72,6 +72,7 @@ function AppContent() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const initApp = async () => {
       try {
         const [_, cachedLoc, hasCompleted, savedSession] = await Promise.all([
@@ -80,6 +81,8 @@ function AppContent() {
           storage.get<boolean>(APP_CONFIG.storageKeys.hasCompletedSetup, false),
           getActiveFocusSession(),
         ]);
+
+        if (!isMounted) return;
 
         if (!hasCompleted) {
           setCurrentStep('welcome');
@@ -102,7 +105,7 @@ function AppContent() {
         setCurrentStep('main');
         if (cachedLoc?.latitude != null) {
           const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
-          if (autoSession) {
+          if (autoSession && isMounted) {
             setActiveSession(autoSession);
             setFocusPrayerName(autoSession.prayerName);
             setFocusDuration(autoSession.durationMinutes);
@@ -110,12 +113,17 @@ function AppContent() {
           }
         }
       } finally {
-        setIsAppReady(true);
-        await SplashScreen.hideAsync().catch(() => {});
+        if (isMounted) {
+          setIsAppReady(true);
+          await SplashScreen.hideAsync().catch(() => {});
+        }
       }
     };
     initApp();
-  }, [prayerData.raw]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useNotificationResponseRouter({
     setCurrentStep,
