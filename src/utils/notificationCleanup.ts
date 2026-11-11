@@ -41,6 +41,7 @@ export const dismissAllDeliveredNotifications = async (): Promise<void> => {
 
 /**
  * Registers a listener that guarantees at most 1 active SalahFirst notification in the shade.
+ * When any new notification arrives, older ones are immediately dismissed.
  */
 export const registerSingleNotificationPolicy = (): (() => void) => {
   const subscription = Notifications.addNotificationReceivedListener((notification) => {

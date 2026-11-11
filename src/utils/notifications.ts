@@ -182,30 +182,32 @@ export const scheduleAllPrayerAlerts = async (
             reciterKey
           );
 
-          await Notifications.scheduleNotificationAsync({
-            identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
-            content: {
-              title: isJumuah
-                ? "Jumu'ah • Friday Prayer Call"
-                : (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
-              body: isJumuah
-                ? "Hayya 'alas-Salah — It is time for Jumu'ah prayer."
-                : (i18n.t(alarmBodyKey as any) as string) ||
-                  `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
-              sound: mode === 'VIBRATE' ? undefined : soundName,
-              categoryIdentifier: PRAYER_CATEGORY_ID,
-              data: { prayerName: prayer.name, type: 'prayer-alarm' },
-            },
-            trigger: {
-              type: Notifications.SchedulableTriggerInputTypes.DATE,
-              date: prayerDate,
-              channelId: prayerChannel,
-            },
-          });
-          scheduledCount++;
-          // Also schedule native AlarmManager — plays full Azan even when app is killed
-          if (mode === 'AZAN' || mode === 'TONE') {
+          // If mode is AZAN, native AlarmManager handles the exact alarm with unified notification banner
+          if (mode === 'AZAN') {
             await scheduleNativeAzan(prayer.name, prayer.key, reciterKey, prayerDate, dayOffset);
+            scheduledCount++;
+          } else {
+            await Notifications.scheduleNotificationAsync({
+              identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
+              content: {
+                title: isJumuah
+                  ? "Jumu'ah • Friday Prayer Call"
+                  : (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
+                body: isJumuah
+                  ? "Hayya 'alas-Salah — It is time for Jumu'ah prayer."
+                  : (i18n.t(alarmBodyKey as any) as string) ||
+                    `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
+                sound: mode === 'VIBRATE' ? undefined : soundName,
+                categoryIdentifier: PRAYER_CATEGORY_ID,
+                data: { prayerName: prayer.name, type: 'prayer-alarm' },
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: prayerDate,
+                channelId: prayerChannel,
+              },
+            });
+            scheduledCount++;
           }
         }
 
