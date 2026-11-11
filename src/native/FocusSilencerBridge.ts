@@ -47,3 +47,4 @@ export const getDeviceRingerMode = async (): Promise<RingerModeStatus> => {
     return { mode: 2, isVibrate: false, isSilent: false, isNormal: true };
   }
 };
+

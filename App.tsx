@@ -51,7 +51,6 @@ function AppContent() {
   const [focusConfigOrigin, setFocusConfigOrigin] = useState<'main' | 'settings'>('main');
   const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
   const [wallpaperHadith, setWallpaperHadith] = useState<HadithItem | null>(null);
-  const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
@@ -147,18 +146,7 @@ function AppContent() {
     const pending = prayersList.find((p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed);
     return pending ? pending.name : (prayerData.nextPrayerName || 'Fajr');
   };
-  const handleStartFocusImmediately = async () => {
-    const status = await checkBlockerPermissions();
-    if (!status.isReady) {
-      setShowPermissionModal(true);
-      return;
-    }
-    setFocusPrayerName(getSuggestedPrayerName());
-    setActiveSession(null);
-    setCurrentStep('focus-active');
-  };
-  const handleProceedAfterPermissions = () => {
-    setShowPermissionModal(false);
+  const handleStartFocusImmediately = () => {
     setFocusPrayerName(getSuggestedPrayerName());
     setActiveSession(null);
     setCurrentStep('focus-active');
@@ -251,11 +239,6 @@ function AppContent() {
         </ScreenTransitionView>
       )}
       <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
-      <FocusPermissionModal
-        visible={showPermissionModal}
-        onDismiss={() => setShowPermissionModal(false)}
-        onAllGranted={handleProceedAfterPermissions}
-      />
     </View>
   );
 }

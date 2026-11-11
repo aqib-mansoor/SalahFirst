@@ -60,3 +60,4 @@ export const getRandomFocusScripture = (): FocusScripture => {
   const index = Math.floor(Math.random() * FOCUS_SCRIPTURES.length);
   return FOCUS_SCRIPTURES[index];
 };
+
