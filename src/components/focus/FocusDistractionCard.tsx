@@ -4,22 +4,36 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { DISTRACTING_APPS_CATALOG } from '@/native/FocusBlockerBridge';
 
 export interface FocusDistractionCardProps {
-  selectedPackages: string[];
-  onTogglePackage: (pkg: string) => void;
-  onOpenPermissionSetup?: () => void;
-  hasAccessibility?: boolean;
+  blockSocial: boolean;
+  blockShortVideos: boolean;
+  blockGames: boolean;
+  blockNews: boolean;
+  onToggleSocial: () => void;
+  onToggleShortVideos: () => void;
+  onToggleGames: () => void;
+  onToggleNews: () => void;
 }
 
 export const FocusDistractionCard: React.FC<FocusDistractionCardProps> = ({
-  selectedPackages,
-  onTogglePackage,
-  onOpenPermissionSetup,
-  hasAccessibility = false,
+  blockSocial,
+  blockShortVideos,
+  blockGames,
+  blockNews,
+  onToggleSocial,
+  onToggleShortVideos,
+  onToggleGames,
+  onToggleNews,
 }) => {
   const theme = useTheme();
+
+  const categories = [
+    { id: 'social', title: 'Social Feeds', apps: 'Insta, FB, X', active: blockSocial, onToggle: onToggleSocial },
+    { id: 'videos', title: 'Short Videos', apps: 'TikTok, Reels', active: blockShortVideos, onToggle: onToggleShortVideos },
+    { id: 'games', title: 'Mobile Games', apps: 'All Games', active: blockGames, onToggle: onToggleGames },
+    { id: 'news', title: 'News & Web', apps: 'Browsers', active: blockNews, onToggle: onToggleNews },
+  ];
 
   return (
     <View
@@ -29,87 +43,63 @@ export const FocusDistractionCard: React.FC<FocusDistractionCardProps> = ({
       ]}
     >
       <View style={styles.titleRow}>
-        <View style={styles.titleWithIcon}>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-            App Distraction Shield
-          </AppText>
-        </View>
-        <View
-          style={[
-            styles.badge,
-            { backgroundColor: hasAccessibility ? theme.colors.mintTint : theme.colors.surfaceSubtle },
-          ]}
-        >
-          <AppText
-            variant="caption"
-            color={hasAccessibility ? theme.colors.primary : theme.colors.textMuted}
-            style={styles.badgeText}
-          >
-            {hasAccessibility ? 'Shield Active' : 'Setup Required'}
+        <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
+          Distraction Commitment
+        </AppText>
+        <View style={[styles.badge, { backgroundColor: theme.colors.mintTint }]}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
+            Mindful Shield
           </AppText>
         </View>
       </View>
 
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.description}>
-        Select apps to automatically intercept and redirect back to Salah during your focus session.
+        Step away from digital noise during prayer. Emergency calls and essential access remain available.
       </AppText>
 
-      {!hasAccessibility && onOpenPermissionSetup && (
-        <Pressable
-          onPress={onOpenPermissionSetup}
-          style={[styles.permNotice, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}
-        >
-          <AppText variant="caption" color={theme.colors.primary} style={styles.permText}>
-            Tap to enable App Blocker in Android Accessibility Settings →
-          </AppText>
-        </Pressable>
-      )}
-
       <View style={styles.grid}>
-        {DISTRACTING_APPS_CATALOG.map((item) => {
-          const isSelected = selectedPackages.includes(item.package);
-          return (
-            <Pressable
-              key={item.id}
-              onPress={() => onTogglePackage(item.package)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: isSelected }}
-              style={({ pressed }) => [
-                styles.chip,
+        {categories.map((item) => (
+          <Pressable
+            key={item.id}
+            onPress={item.onToggle}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: item.active }}
+            accessibilityLabel={`${item.title}, ${item.apps}`}
+            style={({ pressed }) => [
+              styles.chip,
+              {
+                backgroundColor: item.active ? theme.colors.mintTint : theme.colors.surfaceSubtle,
+                borderColor: item.active ? theme.colors.primary : theme.colors.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <View style={styles.chipTextColumn}>
+              <AppText variant="bodySmall" color={theme.colors.text} style={styles.chipTitle}>
+                {item.title}
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textMuted} style={styles.chipApps}>
+                {item.apps}
+              </AppText>
+            </View>
+
+            <View
+              style={[
+                styles.checkbox,
                 {
-                  backgroundColor: isSelected ? theme.colors.mintTint : theme.colors.surfaceSubtle,
-                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  opacity: pressed ? 0.8 : 1,
+                  backgroundColor: item.active ? theme.colors.primary : 'transparent',
+                  borderColor: item.active ? theme.colors.primary : theme.colors.border,
                 },
               ]}
             >
-              <View style={styles.chipTextColumn}>
-                <AppText variant="bodySmall" color={theme.colors.text} style={styles.chipTitle}>
-                  {item.name}
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted} style={styles.chipSub}>
-                  {item.id === 'whatsapp' ? 'Messages only' : 'Distraction feed'}
-                </AppText>
-              </View>
-
-              <View
-                style={[
-                  styles.checkbox,
-                  {
-                    backgroundColor: isSelected ? theme.colors.primary : 'transparent',
-                    borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  },
-                ]}
-              >
-                {isSelected && (
-                  <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                    <Path d="M20 6L9 17L4 12" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
-                )}
-              </View>
-            </Pressable>
-          );
-        })}
+              {item.active && (
+                <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                  <Path d="M20 6L9 17L4 12" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+              )}
+            </View>
+          </Pressable>
+        ))}
       </View>
     </View>
   );
@@ -127,11 +117,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  titleWithIcon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
   title: {
     fontWeight: '700',
     fontSize: 14,
@@ -148,15 +133,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     lineHeight: 16,
-  },
-  permNotice: {
-    padding: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-  },
-  permText: {
-    fontWeight: '600',
-    fontSize: 11.5,
   },
   grid: {
     flexDirection: 'row',
@@ -181,8 +157,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 12.5,
   },
-  chipSub: {
-    fontSize: 10,
+  chipApps: {
+    fontSize: 10.5,
   },
   checkbox: {
     width: 20,

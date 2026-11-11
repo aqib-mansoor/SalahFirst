@@ -3,7 +3,7 @@ import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import { SPACING, PALETTE } from '@/constants/theme';
-import { AppContainer, AppText, PermissionGuideBottomSheet } from '@/components/common';
+import { AppContainer, AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusHeader } from './ActiveFocusHeader';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
@@ -23,16 +23,8 @@ import {
 import {
   startFocusNotifications,
   cancelFocusNotifications,
-  triggerFocusBreachNotification,
   dismissFocusBreachNotification,
 } from '@/utils/focusNotification';
-import { loadFocusPreferences } from '@/utils/prayerFocusOffsets';
-import {
-  startFocusBlocker,
-  stopFocusBlocker,
-  DISTRACTING_APPS_CATALOG,
-  fetchPermissionsStatus,
-} from '@/native/FocusBlockerBridge';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
@@ -54,7 +46,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const sessionRef = useRef<FocusSession>(
     existingSession || createFocusSession(prayerName, duration)
   );
-  const blockedSummaryRef = useRef<string>('');
 
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
     calculateRemainingSeconds(sessionRef.current)
@@ -63,26 +54,11 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
   const [showExitModal, setShowExitModal] = useState(false);
-  const [showAccessSheet, setShowAccessSheet] = useState(false);
   const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
     startFocusNotifications(sessionRef.current.prayerName, sessionRef.current.durationMinutes);
-    loadFocusPreferences().then((prefs) => {
-      const pkgs = prefs.blockedAppPackages && prefs.blockedAppPackages.length > 0
-        ? prefs.blockedAppPackages
-        : DISTRACTING_APPS_CATALOG.filter((a) => a.defaultSelected).map((a) => a.package);
-      startFocusBlocker(pkgs);
-
-      fetchPermissionsStatus().then((s) => {
-        if (!s.accessibility) setShowAccessSheet(true);
-      });
-    });
-
-    return () => {
-      stopFocusBlocker();
-    };
   }, []);
 
   const tick = useCallback(() => {
@@ -90,7 +66,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     setRemainingSeconds(left);
     if (left <= 0) {
       setIsCompleted(true);
-      // Persist completion immediately so app-reopen doesn't re-show focus
       markFocusCompleted(sessionRef.current.prayerName);
     }
   }, []);
@@ -101,49 +76,27 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     return () => clearInterval(interval);
   }, [isCompleted, tick]);
 
-  // Aggressive Heads-Up Interceptor: repeatedly drops alerts while user is on other apps
   useEffect(() => {
-    let breachInterval: ReturnType<typeof setInterval> | null = null;
-
-    const fireBreach = () => {
-      triggerFocusBreachNotification(
-        sessionRef.current.prayerName,
-        blockedSummaryRef.current || undefined
-      );
-    };
-
     const sub = AppState.addEventListener('change', (nextState: AppStateStatus) => {
       if (nextState === 'background' || nextState === 'inactive') {
         if (!isCompleted) {
-          fireBreach();
           setBreachCount((prev) => {
             const next = prev + 1;
             sessionRef.current.breachCount = next;
             saveActiveFocusSession(sessionRef.current);
             return next;
           });
-
-          if (breachInterval) clearInterval(breachInterval);
-          breachInterval = setInterval(fireBreach, 12000);
         }
       } else if (nextState === 'active') {
-        if (breachInterval) {
-          clearInterval(breachInterval);
-          breachInterval = null;
-        }
         dismissFocusBreachNotification();
         tick();
       }
     });
 
-    return () => {
-      if (breachInterval) clearInterval(breachInterval);
-      sub.remove();
-    };
+    return () => sub.remove();
   }, [isCompleted, tick]);
 
   const handleCleanExit = async (afterAction?: () => void) => {
-    await stopFocusBlocker();
     await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
@@ -222,12 +175,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         remainingSeconds={remainingSeconds}
         onStayFocused={() => setShowExitModal(false)}
         onConfirmExit={() => { setShowExitModal(false); handleCleanExit(); }}
-      />
-
-      <PermissionGuideBottomSheet
-        visible={showAccessSheet}
-        permissionKey="accessibility"
-        onClose={() => setShowAccessSheet(false)}
       />
     </AppContainer>
   );

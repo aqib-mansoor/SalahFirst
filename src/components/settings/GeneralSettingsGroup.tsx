@@ -9,13 +9,11 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface GeneralSettingsGroupProps {
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
-  onOpenPermissionsHub?: () => void;
 }
 
 export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   onOpenPrivacyPolicy,
   onOpenTerms,
-  onOpenPermissionsHub,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -22,11 +22,6 @@ import {
   loadFocusPreferences,
   saveFocusPreferences,
 } from '@/utils/prayerFocusOffsets';
-import {
-  DISTRACTING_APPS_CATALOG,
-  fetchPermissionsStatus,
-  openPermissionSettingsByKey,
-} from '@/native/FocusBlockerBridge';
 
 export interface PrayerFocusConfigScreenProps {
   initialPrayer?: string;
@@ -46,10 +41,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
   const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const [durations, setDurations] = useState<PrayerFocusDurations>(DEFAULT_FOCUS_DURATIONS);
-  const [blockedPackages, setBlockedPackages] = useState<string[]>(() =>
-    DISTRACTING_APPS_CATALOG.filter((a) => a.defaultSelected).map((a) => a.package)
-  );
-  const [hasAccessibility, setHasAccessibility] = useState(false);
+  const [blockSocial, setBlockSocial] = useState(true);
+  const [blockShortVideos, setBlockShortVideos] = useState(true);
+  const [blockGames, setBlockGames] = useState(false);
+  const [blockNews, setBlockNews] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
   const [playAzan, setPlayAzan] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,23 +54,16 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       loadFocusOffsets(),
       loadFocusDurations(),
       loadFocusPreferences(),
-      fetchPermissionsStatus(),
-    ]).then(([loadedOffsets, loadedDurations, loadedPrefs, perms]) => {
+    ]).then(([loadedOffsets, loadedDurations, loadedPrefs]) => {
       setOffsets(loadedOffsets);
       setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
       setPlayAzan(loadedPrefs.playAzanBefore);
-      setHasAccessibility(perms.accessibility);
-      if (loadedPrefs.blockedAppPackages && loadedPrefs.blockedAppPackages.length > 0) {
-        setBlockedPackages(loadedPrefs.blockedAppPackages);
-      }
+      setBlockSocial(loadedPrefs.blockSocial);
+      setBlockShortVideos(loadedPrefs.blockShortVideos);
+      setBlockGames(loadedPrefs.blockGames);
+      setBlockNews(loadedPrefs.blockNews);
     });
-  }, []);
-
-  const handleTogglePackage = useCallback((pkg: string) => {
-    setBlockedPackages((prev) =>
-      prev.includes(pkg) ? prev.filter((p) => p !== pkg) : [...prev, pkg]
-    );
   }, []);
 
   const handleUpdateDelay = (prayer: keyof PrayerFocusOffsets, mins: number) => {
@@ -95,11 +83,10 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
         autoStartOnAzan: autoStart,
         defaultDuration: durations.fajr || 15,
         playAzanBefore: playAzan,
-        blockSocial: true,
-        blockShortVideos: true,
-        blockGames: false,
-        blockNews: false,
-        blockedAppPackages: blockedPackages,
+        blockSocial,
+        blockShortVideos,
+        blockGames,
+        blockNews,
       }),
     ]);
     setIsSaving(false);
@@ -135,10 +122,14 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
           />
 
           <FocusDistractionCard
-            selectedPackages={blockedPackages}
-            onTogglePackage={handleTogglePackage}
-            hasAccessibility={hasAccessibility}
-            onOpenPermissionSetup={() => openPermissionSettingsByKey('accessibility')}
+            blockSocial={blockSocial}
+            blockShortVideos={blockShortVideos}
+            blockGames={blockGames}
+            blockNews={blockNews}
+            onToggleSocial={() => setBlockSocial((p) => !p)}
+            onToggleShortVideos={() => setBlockShortVideos((p) => !p)}
+            onToggleGames={() => setBlockGames((p) => !p)}
+            onToggleNews={() => setBlockNews((p) => !p)}
           />
 
           <FocusSettingsCard
