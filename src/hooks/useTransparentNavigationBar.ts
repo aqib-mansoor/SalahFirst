@@ -1,29 +1,42 @@
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
-import { NavigationBar, NavigationBarStyle } from 'expo-navigation-bar';
+import { Platform, NativeModules } from 'react-native';
+import { NavigationBar } from 'expo-navigation-bar';
+import { salahFirstColors } from '@/constants/theme';
 
-export interface UseTransparentNavigationBarOptions {
+const { SystemNavModule } = NativeModules;
+
+export interface UseAdaptiveNavigationBarOptions {
   isDark: boolean;
   forceLightButtons?: boolean;
 }
 
 /**
- * Custom hook to enforce edge-to-edge transparent Android Navigation Bar.
- * Ensures the system navigation bar is never white and stays 100% transparent overlay.
+ * Custom hook to enforce matching Android System Navigation Bar colors.
+ * Light mode: #F8FAF8 background with dark contrast button icons.
+ * Dark mode: #071812 background with light contrast button icons.
+ * Welcome / Wallpaper screens: #075E3A (Primary Hero) background with light buttons.
  */
 export const useTransparentNavigationBar = ({
   isDark,
   forceLightButtons = false,
-}: UseTransparentNavigationBarOptions) => {
+}: UseAdaptiveNavigationBarOptions) => {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
 
     try {
-      // In expo-navigation-bar:
-      // 'dark' = dark bar background with light content (light icons/buttons)
-      // 'light' = light bar background with dark content (dark icons/buttons)
-      const style: NavigationBarStyle = forceLightButtons || isDark ? 'dark' : 'light';
-      NavigationBar.setStyle(style);
+      const bgColor = forceLightButtons
+        ? salahFirstColors.light.primaryHero
+        : isDark
+        ? salahFirstColors.dark.background
+        : salahFirstColors.light.background;
+
+      const isDarkMode = forceLightButtons || isDark;
+
+      if (SystemNavModule?.setNavigationBarTheme) {
+        SystemNavModule.setNavigationBarTheme(isDarkMode, bgColor);
+      } else {
+        NavigationBar.setStyle(isDarkMode ? 'dark' : 'light');
+      }
     } catch {}
   }, [isDark, forceLightButtons]);
 };

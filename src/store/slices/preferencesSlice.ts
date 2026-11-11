@@ -10,18 +10,18 @@ export const HADITH_MODE_STORAGE_KEY = 'hadith_translation_mode';
 export const HADITH_BOOKMARKS_STORAGE_KEY = 'saved_hadith_bookmarks';
 
 export const DEFAULT_PRAYER_ALERTS: PrayerAlertConfig = {
-  fajr: 'TONE',
-  dhuhr: 'TONE',
-  asr: 'TONE',
-  maghrib: 'TONE',
-  isha: 'VIBRATE',
+  fajr: 'AZAN',
+  dhuhr: 'AZAN',
+  asr: 'AZAN',
+  maghrib: 'AZAN',
+  isha: 'AZAN',
   reminderOffset: '15m',
   exactAlarmsEnabled: true,
   missedPrayerRemindersEnabled: true,
   dailyReflectionEnabled: true,
   streakEncouragementEnabled: true,
-  quietHoursEnabled: true,
-  quietHoursStart: '22:00',
+  quietHoursEnabled: false,
+  quietHoursStart: '23:00',
   quietHoursEnd: '05:00',
 };
 
