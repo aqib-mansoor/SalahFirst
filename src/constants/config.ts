@@ -10,7 +10,7 @@ export const APP_CONFIG = {
   tagline: 'Make time for what matters.',
   continueButton: 'Continue to Setup',
   privacyBadge: '100% Private • Offline-First • No Account Required',
-  version: '1.0.1',
+  version: '1.0.2',
   storageKeys: {
     theme: '@salahfirst_theme',
     hasCompletedSetup: '@salahfirst_has_completed_setup',
