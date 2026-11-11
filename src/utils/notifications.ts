@@ -146,8 +146,8 @@ export const scheduleAllPrayerAlerts = async (
     const now = new Date();
     let scheduledCount = 0;
     const offsetMins = alerts ? getOffsetMinutes(alerts.reminderOffset) : 0;
-    const qEnabled = alerts?.quietHoursEnabled ?? true;
-    const qStart = alerts?.quietHoursStart ?? '22:00';
+    const qEnabled = alerts?.quietHoursEnabled ?? false;
+    const qStart = alerts?.quietHoursStart ?? '23:00';
     const qEnd = alerts?.quietHoursEnd ?? '05:00';
 
     // 7-day rolling schedule window for exact prayer Azan alarms (35 alarms max)
