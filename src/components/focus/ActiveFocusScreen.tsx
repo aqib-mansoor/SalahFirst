@@ -25,6 +25,7 @@ import {
   cancelFocusNotifications,
   dismissFocusBreachNotification,
 } from '@/utils/focusNotification';
+import { startFocusBlocker, stopFocusBlocker } from '@/native/FocusBlockerBridge';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
@@ -59,6 +60,10 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
     startFocusNotifications(sessionRef.current.prayerName, sessionRef.current.durationMinutes);
+    startFocusBlocker(sessionRef.current.prayerName, sessionRef.current.targetEndTimestamp);
+    return () => {
+      stopFocusBlocker();
+    };
   }, []);
 
   const tick = useCallback(() => {
@@ -97,6 +102,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   }, [isCompleted, tick]);
 
   const handleCleanExit = async (afterAction?: () => void) => {
+    await stopFocusBlocker();
     await dismissFocusBreachNotification();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
