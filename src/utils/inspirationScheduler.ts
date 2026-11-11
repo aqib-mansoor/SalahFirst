@@ -15,6 +15,7 @@ import {
   InspirationItem,
   getInspirationById,
 } from '@/data/inspiration';
+import { formatScriptureNotification } from './scriptureNotificationFormatter';
 
 export const DEFAULT_INSPIRATION_CONFIG: InspirationConfig = {
   enabled: true,
@@ -134,11 +135,12 @@ export const scheduleDailyInspirationNotification = async (params: {
     // Single delivery policy: if targeting today and time is now, fire immediately and record
     const isToday = targetDateKey === todayKey;
     if (isToday && deliveryDate.getTime() <= now.getTime()) {
+      const formatted = formatScriptureNotification(item, lang);
       await Notifications.scheduleNotificationAsync({
         identifier: `salahfirst-inspiration-${todayKey}`,
         content: {
-          title: item.title[lang] || item.title.en,
-          body: item.body[lang] || item.body.en,
+          title: formatted.title,
+          body: formatted.body,
           sound: 'default',
           data: { type: 'daily-inspiration', contentId: item.id, dateKey: todayKey },
         },
@@ -151,11 +153,12 @@ export const scheduleDailyInspirationNotification = async (params: {
       const nextItem = await selectNextInspiration(tomorrowLocal.dateKey);
       if (nextItem) {
         const nextDelivery = calculateRandomInspirationDate(targetDate, params.timezone);
+        const nextFormatted = formatScriptureNotification(nextItem, lang);
         await Notifications.scheduleNotificationAsync({
           identifier: `salahfirst-inspiration-${tomorrowLocal.dateKey}`,
           content: {
-            title: nextItem.title[lang] || nextItem.title.en,
-            body: nextItem.body[lang] || nextItem.body.en,
+            title: nextFormatted.title,
+            body: nextFormatted.body,
             sound: 'default',
             data: { type: 'daily-inspiration', contentId: nextItem.id, dateKey: tomorrowLocal.dateKey },
           },
@@ -169,11 +172,12 @@ export const scheduleDailyInspirationNotification = async (params: {
       return true;
     }
 
+    const scheduledFormatted = formatScriptureNotification(item, lang);
     await Notifications.scheduleNotificationAsync({
       identifier: `salahfirst-inspiration-${targetDateKey}`,
       content: {
-        title: item.title[lang] || item.title.en,
-        body: item.body[lang] || item.body.en,
+        title: scheduledFormatted.title,
+        body: scheduledFormatted.body,
         sound: 'default',
         data: { type: 'daily-inspiration', contentId: item.id, dateKey: targetDateKey },
       },
@@ -202,11 +206,12 @@ export const updatePendingInspirationLanguage = async (
         if (data?.contentId) {
           const item = getInspirationById(data.contentId);
           if (item && notif.trigger && 'date' in notif.trigger) {
+            const formatted = formatScriptureNotification(item, lang);
             await Notifications.scheduleNotificationAsync({
               identifier: notif.identifier,
               content: {
-                title: item.title[lang] || item.title.en,
-                body: item.body[lang] || item.body.en,
+                title: formatted.title,
+                body: formatted.body,
                 sound: notif.content.sound || 'default',
                 data: notif.content.data,
               },
