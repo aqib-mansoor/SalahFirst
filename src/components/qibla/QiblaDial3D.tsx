@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Rect, G, Line, Polygon } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING } from '@/constants/theme';
 import { AppText } from '@/components/common';
 import { TurnDirection } from '@/hooks/useQiblaCompass';
 import { KaabaEmblem3D } from './KaabaEmblem3D';
@@ -27,7 +27,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
   const theme = useTheme();
 
   const needleColor = isAligned ? theme.colors.accent : theme.colors.primary;
-  const needleTailColor = theme.colors.textMuted;
 
   return (
     <View style={styles.container}>
@@ -99,9 +98,9 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
               <G key={deg} transform={`rotate(${deg} ${RADIUS_VAL} ${RADIUS_VAL})`}>
                 <Line
                   x1={RADIUS_VAL}
-                  y1={deg === 0 ? 32 : 12}
+                  y1={deg === 0 ? 10 : 12}
                   x2={RADIUS_VAL}
-                  y2={deg === 0 ? 36 : deg % 90 === 0 ? 20 : 16}
+                  y2={deg === 0 ? 24 : deg % 90 === 0 ? 20 : 16}
                   stroke={deg === 0 ? theme.colors.accent : theme.colors.textMuted}
                   strokeWidth={deg % 90 === 0 ? '2' : '1'}
                 />
@@ -121,19 +120,22 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           ))}
         </View>
 
-        {/* 12 O'CLOCK TARGET: Kaaba Emblem sits stationary on the compass rim */}
-        <View style={styles.topTargetAnchor}>
-          <KaabaEmblem3D isAligned={isAligned} />
-        </View>
-
-        {/* ROTATING NEEDLE: Dual-Tone Islamic Arrow pointing toward Kaaba target */}
+        {/* ROTATING 1-WAY ARROW WITH KAABA AT TIP */}
         <View style={[styles.needleLayer, { transform: [{ rotate: `${relativePointerAngle}deg` }] }]}>
-          <Svg width={24} height={180} viewBox="0 0 24 180" style={styles.needleSvg}>
-            <Polygon points="12,4 20,44 14,38 14,90 10,90 10,38 4,44" fill={needleColor} />
-            <Polygon points="12,176 18,142 14,146 14,90 10,90 10,146 6,142" fill={needleTailColor} />
-            <Polygon points="12,78 18,90 12,102 6,90" fill={theme.colors.surface} stroke={needleColor} strokeWidth="2" />
+          {/* Kaaba Emblem mounted directly at the arrow's pointing tip */}
+          <View style={styles.arrowTipKaaba}>
+            <KaabaEmblem3D isAligned={isAligned} />
+          </View>
+
+          {/* Sleek 1-Way Islamic Arrow: Tapered shaft extending from center to Kaaba tip */}
+          <Svg width={32} height={140} viewBox="0 0 32 140" style={styles.oneWayArrowSvg}>
+            {/* Arrow Head pointing upward toward Kaaba */}
+            <Polygon points="16,8 28,42 19,38 19,136 13,136 13,38 4,42" fill={needleColor} />
+            {/* Center spine highlight */}
+            <Line x1="16" y1="12" x2="16" y2="136" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.4" />
           </Svg>
 
+          {/* Center Pivot Hub */}
           <View style={[styles.centerPivotOuter, { backgroundColor: theme.colors.surface, borderColor: needleColor }]}>
             <View style={[styles.centerPivotInner, { backgroundColor: needleColor }]} />
           </View>
@@ -174,19 +176,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topTargetAnchor: {
-    position: 'absolute',
-    top: 6,
-    zIndex: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   cardinalText: {
     position: 'absolute',
     fontWeight: '800',
     fontSize: 12,
   },
-  cardinalN: { top: 38 },
+  cardinalN: { top: 26 },
   cardinalS: { bottom: 24 },
   cardinalE: { right: 24 },
   cardinalW: { left: 24 },
@@ -195,21 +190,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  needleSvg: {
+  arrowTipKaaba: {
     position: 'absolute',
+    top: 14,
+    zIndex: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  oneWayArrowSvg: {
+    position: 'absolute',
+    top: 36,
   },
   centerPivotOuter: {
     width: 22,
     height: 22,
-    borderRadius: RADIUS.full,
+    borderRadius: 11,
     borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 30,
+    zIndex: 20,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   centerPivotInner: {
     width: 8,
     height: 8,
-    borderRadius: RADIUS.full,
+    borderRadius: 4,
   },
 });
