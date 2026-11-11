@@ -11,8 +11,6 @@ import { MainTabShell } from '@/components/home';
 import { ScreenTransitionView } from '@/components/common';
 import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
-import { FocusPermissionModal } from '@/components/focus/FocusPermissionModal';
-import { checkBlockerPermissions } from '@/native/FocusBlockerBridge';
 import { SettingsScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
 import { HadithWallpaperScreen } from '@/components/wallpaper';

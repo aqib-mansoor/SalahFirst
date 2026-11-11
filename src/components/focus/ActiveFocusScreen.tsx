@@ -22,10 +22,13 @@ import {
 } from '@/utils/focusSession';
 import {
   startFocusNotifications,
+  updateFocusNotificationProgress,
   cancelFocusNotifications,
-  dismissFocusBreachNotification,
 } from '@/utils/focusNotification';
-import { startFocusBlocker, stopFocusBlocker } from '@/native/FocusBlockerBridge';
+import {
+  silenceDeviceForFocus,
+  restoreDeviceSoundAfterFocus,
+} from '@/native/FocusSilencerBridge';
 
 export interface ActiveFocusScreenProps {
   duration?: FocusDuration;
@@ -57,20 +60,37 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const [showExitModal, setShowExitModal] = useState(false);
   const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
+  const lastNotifiedMinuteRef = useRef<number>(-1);
+
   useEffect(() => {
     saveActiveFocusSession(sessionRef.current);
-    startFocusNotifications(sessionRef.current.prayerName, sessionRef.current.durationMinutes);
-    startFocusBlocker(sessionRef.current.prayerName, sessionRef.current.targetEndTimestamp);
+    const initialMins = Math.ceil(calculateRemainingSeconds(sessionRef.current) / 60);
+    startFocusNotifications(
+      sessionRef.current.prayerName,
+      sessionRef.current.durationMinutes,
+      initialMins
+    );
+    silenceDeviceForFocus();
     return () => {
-      stopFocusBlocker();
+      restoreDeviceSoundAfterFocus();
+      cancelFocusNotifications();
     };
   }, []);
 
   const tick = useCallback(() => {
     const left = calculateRemainingSeconds(sessionRef.current);
     setRemainingSeconds(left);
+
+    const minsLeft = Math.ceil(left / 60);
+    if (minsLeft !== lastNotifiedMinuteRef.current && left > 0) {
+      lastNotifiedMinuteRef.current = minsLeft;
+      updateFocusNotificationProgress(sessionRef.current.prayerName, minsLeft);
+    }
+
     if (left <= 0) {
       setIsCompleted(true);
+      restoreDeviceSoundAfterFocus();
+      cancelFocusNotifications();
       markFocusCompleted(sessionRef.current.prayerName);
     }
   }, []);
@@ -93,7 +113,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
           });
         }
       } else if (nextState === 'active') {
-        dismissFocusBreachNotification();
         tick();
       }
     });
@@ -102,8 +121,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   }, [isCompleted, tick]);
 
   const handleCleanExit = async (afterAction?: () => void) => {
-    await stopFocusBlocker();
-    await dismissFocusBreachNotification();
+    await restoreDeviceSoundAfterFocus();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
     await markFocusCompleted(sessionRef.current.prayerName);
