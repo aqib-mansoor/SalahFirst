@@ -76,6 +76,8 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
         >
           {/* Central Compass Dial with Fixed Ring & Dynamic Rotating Qibla Needle */}
           <QiblaDial3D
+            heading={heading}
+            qiblaBearing={qiblaBearing}
             relativePointerAngle={relativePointerAngle}
             isAligned={isAligned}
             turnDirection={turnDirection}

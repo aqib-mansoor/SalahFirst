@@ -23,7 +23,6 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* 3-Metric Unified Telemetry Track */}
       <View
         style={[
           styles.metricsRow,
@@ -37,7 +36,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
             {t('liveHeading')}
           </AppText>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.text} style={styles.metricValue}>
             {heading}°
           </AppText>
         </View>
@@ -48,7 +47,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
             {t('qiblaAngle')}
           </AppText>
-          <AppText variant="titleSmall" color={theme.colors.primary} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.primary} style={styles.metricValue}>
             {qiblaBearing}° {cardinal}
           </AppText>
         </View>
@@ -59,7 +58,7 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
             {t('distance')}
           </AppText>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.text} style={styles.metricValue}>
             {distanceKm.toLocaleString()} km
           </AppText>
         </View>
@@ -75,28 +74,35 @@ const styles = StyleSheet.create({
   },
   metricsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
   },
   metricItem: {
     flex: 1,
     alignItems: 'center',
-    gap: 2,
+    gap: 3,
+  },
+  metricDivider: {
+    width: 1,
+    height: 32,
   },
   metricLabel: {
     fontSize: 11,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   metricValue: {
     fontWeight: '800',
-    fontSize: 14,
-  },
-  metricDivider: {
-    width: 1,
-    height: 28,
+    fontSize: 15,
   },
 });
