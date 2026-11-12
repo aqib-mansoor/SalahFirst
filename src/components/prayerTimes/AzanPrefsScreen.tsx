@@ -15,7 +15,6 @@ import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
-import { DeveloperAzanTestCard } from './DeveloperAzanTestCard';
 import { MasterAlarmCard } from './MasterAlarmCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
 
@@ -150,14 +149,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onSelectReciter={selectReciter}
           onToggle={toggleAudio}
         />
-
-        {/* Developer-Only Adhan Testing Suite (__DEV__ only) */}
-        {__DEV__ && (
-          <DeveloperAzanTestCard
-            currentReciter={currentReciter}
-            onSelectReciter={selectReciter}
-          />
-        )}
 
         {/* Pre-Prayer Gentle Reminder Card */}
         <PrePrayerReminderCard
