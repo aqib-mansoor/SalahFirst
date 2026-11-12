@@ -32,7 +32,6 @@ import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, clearActiveFocusSession, FocusSession } from '@/utils/focusSession';
-import { checkAndActivateCurrentAutoFocus } from '@/utils/prayerFocusOffsets';
 import { registerSingleNotificationPolicy } from '@/utils/notificationCleanup';
 
 export type { AppStep };
@@ -103,15 +102,6 @@ function AppContent() {
         }
 
         setCurrentStep('main');
-        if (cachedLoc?.latitude != null) {
-          const autoSession = await checkAndActivateCurrentAutoFocus(prayerData.raw);
-          if (autoSession && isMounted) {
-            setActiveSession(autoSession);
-            setFocusPrayerName(autoSession.prayerName);
-            setFocusDuration(autoSession.durationMinutes);
-            setCurrentStep('focus-active');
-          }
-        }
       } finally {
         if (isMounted) {
           setIsAppReady(true);
