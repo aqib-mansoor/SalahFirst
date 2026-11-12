@@ -159,13 +159,14 @@ export const formatScriptureForLanguage = (
 ): { titleBadge: string; textBody: string } => {
   const badge = scripture.type === 'quran' ? 'QURAN' : 'HADITH';
 
-  let body = `${scripture.arabic}\n\n`;
+  let body = `${scripture.arabic}\n`;
 
   if (lang === 'ar') {
     body += `${scripture.english}\n— ${scripture.reference}`;
+  } else if (lang === 'ur') {
+    body += `${scripture.urdu}\n— ${scripture.reference}`;
   } else {
-    // English or Urdu selected: show both for deep spiritual engagement
-    body += `${scripture.english}\n\n${scripture.urdu}\n— ${scripture.reference}`;
+    body += `${scripture.english}\n${scripture.urdu}\n— ${scripture.reference}`;
   }
 
   return {
