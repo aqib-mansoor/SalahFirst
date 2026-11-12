@@ -70,10 +70,10 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
             >
               <View style={styles.topInfo}>
                 <View style={styles.prayerTitleRow}>
-                  <PrayerTimeIcon prayer={p.name} size={16} />
                   <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
                     {p.name}
                   </AppText>
+                  <PrayerTimeIcon prayer={p.name} size={16} />
                 </View>
                 <AppText variant="caption" color={theme.colors.primary} style={styles.previewText}>
                   {preview}

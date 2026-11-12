@@ -89,7 +89,6 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
       )}
 
       <View style={styles.nameIconRow}>
-        <PrayerTimeIcon prayer={item.name} size={14} />
         <AppText
           variant="bodySmall"
           color={isCurrentActive ? theme.colors.primary : theme.colors.textPrimary}
@@ -98,6 +97,7 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
         >
           {localizedName}
         </AppText>
+        <PrayerTimeIcon prayer={item.name} size={14} muted={isFuture} />
       </View>
 
       <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1} style={styles.prayerTime}>

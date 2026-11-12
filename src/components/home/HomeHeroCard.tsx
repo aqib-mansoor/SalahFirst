@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, IslamicMihrabCanvas } from '@/components/common';
+import { AppText, IslamicMihrabCanvas, PrayerTimeIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import type { PrayerPeriodCategory } from '@/types';
 import { HeroFocusButton } from './HeroFocusButton';
@@ -126,9 +126,12 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       {/* Center Row: Next Prayer Countdown & Azan Time */}
       <View style={styles.centerRow}>
         <View style={styles.leftCountdown}>
-          <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel} numberOfLines={1}>
-            {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
-          </AppText>
+          <View style={styles.nextPrayerHeaderRow}>
+            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel} numberOfLines={1}>
+              {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
+            </AppText>
+            <PrayerTimeIcon prayer={nextPrayerName} size={15} />
+          </View>
           <View style={styles.countdownRow}>
             <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
               {countdownText}
@@ -214,6 +217,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   leftCountdown: { gap: 2 },
+  nextPrayerHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
   nextPrayerBold: { fontWeight: '700', fontSize: 13 },
   countdownRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },

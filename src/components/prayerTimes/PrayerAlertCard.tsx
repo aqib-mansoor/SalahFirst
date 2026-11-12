@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { NotificationMode } from '@/types';
 import { NotificationModeIcon } from './NotificationModeIcons';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -48,9 +48,15 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
     >
       {/* Header Row */}
       <View style={styles.header}>
-        <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
-          {t(name.toLowerCase() as any) || name} ({time})
-        </AppText>
+        <View style={styles.titleRow}>
+          <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
+            {t(name.toLowerCase() as any) || name}
+          </AppText>
+          <PrayerTimeIcon prayer={name} size={16} />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeSub}>
+            ({time})
+          </AppText>
+        </View>
         <View style={[styles.activeTag, { backgroundColor: theme.colors.secondaryTint }]}>
           <AppText variant="caption" color={theme.colors.primary} style={styles.tagText}>
             {getDisplayModeName()}
@@ -121,9 +127,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
   boldText: {
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 13.5,
+  },
+  timeSub: {
+    fontWeight: '600',
+    fontSize: 12,
   },
   activeTag: {
     paddingHorizontal: 8,

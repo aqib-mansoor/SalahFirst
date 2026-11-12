@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS, PALETTE } from '@/constants/theme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 
 export interface ActiveFocusHeaderProps {
   prayerName: string;
@@ -17,7 +17,7 @@ export const ActiveFocusHeader: React.FC<ActiveFocusHeaderProps> = ({
   return (
     <View style={styles.header}>
       <View style={styles.headerBadge}>
-        <View style={styles.headerDot} />
+        <PrayerTimeIcon prayer={prayerName} size={15} />
         <AppText variant="caption" color={PALETTE.white} style={styles.headerTitle}>
           {prayerName} Focus • {durationMinutes}m
         </AppText>

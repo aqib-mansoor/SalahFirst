@@ -89,10 +89,8 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         },
       ]}
     >
-      {/* Left Column: Prayer Celestial Icon + Prayer Names */}
+      {/* Left Column: Prayer Names + Celestial Icon */}
       <View style={styles.leftSection}>
-        <PrayerTimeIcon prayer={name} size={19} muted={isPast} />
-
         <View style={styles.namesRow}>
           <AppText
             variant="titleSmall"
@@ -101,6 +99,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
           >
             {t(name.toLowerCase() as any) || name}
           </AppText>
+          <PrayerTimeIcon prayer={name} size={18} muted={isPast} />
           <AppText
             variant="titleSmall"
             color={theme.colors.textMuted}
@@ -177,8 +176,8 @@ const styles = StyleSheet.create({
   },
   namesRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: SPACING.xs + 3,
+    alignItems: 'center',
+    gap: 6,
   },
   prayerTitle: {
     fontWeight: '700',
