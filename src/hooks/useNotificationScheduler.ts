@@ -13,6 +13,7 @@ import {
 } from '@/utils/reengagementScheduler';
 import { recordAppActive } from '@/utils/reengagementManager';
 import { addTrackerListener } from './usePrayerTracker';
+import { addPrayerAlertsListener } from './usePrayerAlerts';
 
 export const useNotificationScheduler = (
   location?: UserLocation | null,
@@ -68,11 +69,18 @@ export const useNotificationScheduler = (
     }
   }, [language]);
 
-  // Re-synchronize alarms when prayer tracker completions or preferences change
+  // Re-synchronize alarms when prayer tracker completions or reciter/alert preferences change
   useEffect(() => {
-    return addTrackerListener(() => {
+    const unsubTracker = addTrackerListener(() => {
       syncAlarms();
     });
+    const unsubAlerts = addPrayerAlertsListener(() => {
+      syncAlarms();
+    });
+    return () => {
+      unsubTracker();
+      unsubAlerts();
+    };
   }, [syncAlarms]);
 
   // Handle AppState: active resets reengagement & syncs alarms, background queues standby reengagement

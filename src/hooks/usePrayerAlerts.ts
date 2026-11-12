@@ -7,6 +7,12 @@ const prayerAlertListeners = new Set<() => void>();
 export const notifyPrayerAlertsChanged = () => {
   prayerAlertListeners.forEach((fn) => fn());
 };
+export const addPrayerAlertsListener = (listener: () => void) => {
+  prayerAlertListeners.add(listener);
+  return () => {
+    prayerAlertListeners.delete(listener);
+  };
+};
 
 export const usePrayerAlerts = () => {
   const dispatch = useAppDispatch();
