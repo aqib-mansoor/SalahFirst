@@ -10,6 +10,7 @@ import {
   saveActiveFocusSession,
 } from '@/utils/focusSession';
 import { stopAzanAudio } from '@/utils/azanAudio';
+import { stopNativeAzan } from '@/native/AzanServiceModule';
 
 export interface UseNotificationResponseRouterParams {
   setCurrentStep: (step: AppStep) => void;
@@ -41,10 +42,12 @@ export const useNotificationResponseRouter = ({
 
       if (response.actionIdentifier === 'DISMISS_AZAN') {
         stopAzanAudio();
+        stopNativeAzan();
         return;
       }
 
       if (response.actionIdentifier === 'MARK_PRAYED' && data.prayerName) {
+        stopNativeAzan();
         onMarkPrayerCompleted?.(String(data.prayerName));
         setCurrentStep('main');
         setActiveTab('home');
@@ -53,6 +56,7 @@ export const useNotificationResponseRouter = ({
 
       if (response.actionIdentifier === 'START_FOCUS' && data.prayerName) {
         stopAzanAudio();
+        stopNativeAzan();
         const prayer = String(data.prayerName);
         const session = createFocusSession(prayer, 15);
         saveActiveFocusSession(session);
