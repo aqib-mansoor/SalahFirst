@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, G, Line, Polygon } from 'react-native-svg';
+import Svg, { Circle, G, Line } from 'react-native-svg';
 import {
   SPACING,
   QIBLA_DIAL_THEMES,
@@ -9,6 +9,12 @@ import {
 import { AppText } from '@/components/common';
 import { TurnDirection } from '@/hooks/useQiblaCompass';
 import { QiblaGuidancePill } from './QiblaGuidancePill';
+import {
+  ClassicNeedleVariant,
+  AstrolabeRoseVariant,
+  PerimeterOrbitVariant,
+  KiswahMedallionVariant,
+} from './QiblaNeedleVariants';
 
 export interface QiblaDial3DProps {
   heading: number;
@@ -25,15 +31,24 @@ const R = DIAL_SIZE / 2;
 
 export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
   heading,
+  qiblaBearing,
   relativePointerAngle,
   isAligned,
   turnDirection,
   turnDegrees,
   dialTheme = QIBLA_DIAL_THEMES.classic,
 }) => {
+  const variantProps = {
+    dialSize: DIAL_SIZE,
+    heading,
+    qiblaBearing,
+    relativePointerAngle,
+    isAligned,
+    dialTheme,
+  };
+
   return (
     <View style={styles.container}>
-      {/* Soft Luminous Halo Ring around the Compass */}
       <View
         style={[
           styles.glowHalo,
@@ -43,7 +58,6 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
           },
         ]}
       >
-        {/* Main Circular Dial Face */}
         <View
           style={[
             styles.dialCard,
@@ -53,7 +67,7 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             },
           ]}
         >
-          {/* ROTATING COMPASS RING (Oriented to True North via -heading) */}
+          {/* ROTATING COMPASS BEZEL RING (Oriented to True North via -heading) */}
           <View
             style={[
               styles.rotatingLayer,
@@ -61,67 +75,75 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             ]}
           >
             <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
-              {/* Subtle Inner Decorative Ring */}
-              <Circle
-                cx={R}
-                cy={R}
-                r={R - 46}
-                stroke={dialTheme.innerRing}
-                strokeWidth="1"
-                fill="none"
-              />
-
-              {/* Mariners 8-Point Compass Rose Star when 'rose' style is active */}
+              {/* Style-Specific Ring Architecture */}
               {dialTheme.id === 'rose' && (
-                <G opacity={0.85}>
-                  <Polygon
-                    points={`${R},44 ${R + 14},${R - 14} ${DIAL_SIZE - 44},${R} ${R + 14},${R + 14} ${R},${DIAL_SIZE - 44} ${R - 14},${R + 14} 44,${R} ${R - 14},${R - 14}`}
-                    fill={dialTheme.innerRing}
-                  />
-                  <Circle cx={R} cy={R} r={28} stroke={dialTheme.tickMinor} strokeWidth="0.8" fill="none" />
-                </G>
+                <>
+                  <Circle cx={R} cy={R} r={R - 10} stroke={dialTheme.tickMinor} strokeWidth="1.2" fill="none" />
+                  <Circle cx={R} cy={R} r={R - 26} stroke={dialTheme.tickMinor} strokeWidth="1" fill="none" />
+                </>
               )}
 
-              {/* Kiswah Gold Inner Geometric Ring when 'obsidian' style is active */}
               {dialTheme.id === 'obsidian' && (
-                <Circle
-                  cx={R}
-                  cy={R}
-                  r={R - 72}
-                  stroke={dialTheme.innerRing}
-                  strokeWidth="1.2"
-                  strokeDasharray="4 4"
-                  fill="none"
-                />
+                <>
+                  <Circle cx={R} cy={R} r={R - 8} stroke={dialTheme.tickMajor} strokeWidth="1.6" fill="none" />
+                  <Circle
+                    cx={R}
+                    cy={R}
+                    r={R - 46}
+                    stroke={dialTheme.innerRing}
+                    strokeWidth="1.4"
+                    strokeDasharray="6 4"
+                    fill="none"
+                  />
+                </>
               )}
 
-              {/* 72 Graduation Ticks (every 5 degrees) */}
-              {Array.from({ length: 72 }).map((_, i) => {
-                const deg = i * 5;
-                const isNorth = deg === 0;
-                const isCardinal = deg % 90 === 0;
-                const isMajor = deg % 30 === 0;
-                const tickLen = isCardinal ? 16 : isMajor ? 12 : 7;
-                const strokeColor = isNorth
-                  ? dialTheme.northTick
-                  : isMajor
-                  ? dialTheme.tickMajor
-                  : dialTheme.tickMinor;
+              {dialTheme.id === 'emerald' ? (
+                /* Dot-Matrix Perimeter Ring for Kaaba Orbit Style */
+                Array.from({ length: 36 }).map((_, i) => {
+                  const deg = i * 10;
+                  const isNorth = deg === 0;
+                  const isCardinal = deg % 90 === 0;
+                  return (
+                    <G key={deg} transform={`rotate(${deg} ${R} ${R})`}>
+                      <Circle
+                        cx={R}
+                        cy={14}
+                        r={isNorth ? 4 : isCardinal ? 3 : 1.6}
+                        fill={isNorth ? dialTheme.northTick : isCardinal ? dialTheme.tickMajor : dialTheme.tickMinor}
+                      />
+                    </G>
+                  );
+                })
+              ) : (
+                /* 72 Graduation Ticks for Classic, Rose & Kiswah Styles */
+                Array.from({ length: 72 }).map((_, i) => {
+                  const deg = i * 5;
+                  const isNorth = deg === 0;
+                  const isCardinal = deg % 90 === 0;
+                  const isMajor = deg % 30 === 0;
+                  const tickLen = isCardinal ? 16 : isMajor ? 11 : 6;
+                  const strokeColor = isNorth
+                    ? dialTheme.northTick
+                    : isMajor
+                    ? dialTheme.tickMajor
+                    : dialTheme.tickMinor;
 
-                return (
-                  <G key={deg} transform={`rotate(${deg} ${R} ${R})`}>
-                    <Line
-                      x1={R}
-                      y1={8}
-                      x2={R}
-                      y2={8 + tickLen}
-                      stroke={strokeColor}
-                      strokeWidth={isCardinal ? '2.4' : isMajor ? '1.8' : '1.1'}
-                      strokeLinecap="round"
-                    />
-                  </G>
-                );
-              })}
+                  return (
+                    <G key={deg} transform={`rotate(${deg} ${R} ${R})`}>
+                      <Line
+                        x1={R}
+                        y1={10}
+                        x2={R}
+                        y2={10 + tickLen}
+                        stroke={strokeColor}
+                        strokeWidth={isCardinal ? '2.4' : isMajor ? '1.6' : '1'}
+                        strokeLinecap="round"
+                      />
+                    </G>
+                  );
+                })
+              )}
             </Svg>
 
             {/* Cardinal Letters (N, E, S, W) */}
@@ -155,50 +177,14 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
             </AppText>
           </View>
 
-          {/* DYNAMIC 3D FACETED QIBLA NEEDLE LAYER (Points toward Kaaba) */}
-          <View
-            style={[
-              styles.rotatingLayer,
-              { transform: [{ rotate: `${relativePointerAngle}deg` }] },
-            ]}
-            pointerEvents="none"
-          >
-            <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
-              {/* North / Qibla Tip — Left Lit Facet */}
-              <Polygon
-                points={`${R},24 ${R},${R} ${R - 17},${R}`}
-                fill={dialTheme.needleNorthLeft}
-              />
-              {/* North / Qibla Tip — Right Shaded Facet */}
-              <Polygon
-                points={`${R},24 ${R + 17},${R} ${R},${R}`}
-                fill={dialTheme.needleNorthRight}
-              />
-              {/* South Tail — Left Lit Facet */}
-              <Polygon
-                points={`${R},${DIAL_SIZE - 24} ${R - 17},${R} ${R},${R}`}
-                fill={dialTheme.needleSouthLeft}
-              />
-              {/* South Tail — Right Shaded Facet */}
-              <Polygon
-                points={`${R},${DIAL_SIZE - 24} ${R},${R} ${R + 17},${R}`}
-                fill={dialTheme.needleSouthRight}
-              />
-              {/* Center Hub Pivot */}
-              <Circle
-                cx={R}
-                cy={R}
-                r="7"
-                fill={dialTheme.hubBg}
-                stroke={dialTheme.hubBorder}
-                strokeWidth="2.5"
-              />
-            </Svg>
-          </View>
+          {/* DISTINCT POINTER & CENTER INSTRUMENT BY STYLE */}
+          {dialTheme.id === 'classic' && <ClassicNeedleVariant {...variantProps} />}
+          {dialTheme.id === 'rose' && <AstrolabeRoseVariant {...variantProps} />}
+          {dialTheme.id === 'emerald' && <PerimeterOrbitVariant {...variantProps} />}
+          {dialTheme.id === 'obsidian' && <KiswahMedallionVariant {...variantProps} />}
         </View>
       </View>
 
-      {/* Guidance Pill Directly Below Dial */}
       <QiblaGuidancePill
         isAligned={isAligned}
         turnDirection={turnDirection}
@@ -242,7 +228,7 @@ const styles = StyleSheet.create({
   cardinalText: {
     position: 'absolute',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 15,
     letterSpacing: 0.5,
   },
   cardinalN: { top: 28 },

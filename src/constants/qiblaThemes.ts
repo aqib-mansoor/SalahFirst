@@ -49,7 +49,7 @@ export const QIBLA_DIAL_THEMES: Record<QiblaDialStyleId, QiblaDialThemeSpec> = {
   },
   emerald: {
     id: 'emerald',
-    label: 'Emerald',
+    label: 'Kaaba Orbit',
     dialBg: '#065F46',
     dialBorder: '#34D399',
     innerRing: 'rgba(255, 255, 255, 0.16)',
@@ -69,7 +69,7 @@ export const QIBLA_DIAL_THEMES: Record<QiblaDialStyleId, QiblaDialThemeSpec> = {
   },
   rose: {
     id: 'rose',
-    label: 'Compass Rose',
+    label: 'Astrolabe Rose',
     dialBg: '#FAF8F5',
     dialBorder: '#D6D3D1',
     innerRing: '#E7E5E4',
