@@ -90,6 +90,29 @@ export const PALETTE = {
   transparent: 'transparent',
 } as const;
 
+export const PRAYER_ICON_PALETTE = {
+  starLight: '#FFFDF5',
+  starMid: '#FFE082',
+  starEdge: '#F59E0B',
+  starBlue: '#93C5FD',
+  sunCore: '#FFF176',
+  sunMid: '#FFB300',
+  sunDeep: '#F57C00',
+  cloudTop: '#FFFFFF',
+  cloudMid: '#BFDBFE',
+  cloudBase: '#60A5FA',
+  cloudStroke: '#3B82F6',
+  sunsetSunTop: '#FFD54F',
+  sunsetSunBottom: '#EF6C00',
+  hillFrontLeft: '#84CC16',
+  hillFrontRight: '#15803D',
+  hillBackTop: '#7C3AED',
+  hillBackBottom: '#312E81',
+  moonLight: '#F8FAFC',
+  moonMid: '#CBD5E1',
+  moonShadow: '#94A3B8',
+} as const;
+
 export const WELCOME_THEME = {
   background: salahFirstColors.light.primaryHero,
   surface: salahFirstColors.light.primaryDark,

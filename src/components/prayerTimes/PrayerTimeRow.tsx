@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { NotificationMode } from '@/types';
 import { NotificationModeIcon } from './NotificationModeIcons';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -89,9 +89,9 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         },
       ]}
     >
-      {/* Left Column: Indicator + Prayer Names */}
+      {/* Left Column: Prayer Celestial Icon + Prayer Names */}
       <View style={styles.leftSection}>
-        <View style={[styles.dot, { backgroundColor: dotColor, opacity: isPast ? 0.55 : 1 }]} />
+        <PrayerTimeIcon prayer={name} size={19} muted={isPast} />
 
         <View style={styles.namesRow}>
           <AppText

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface NextTomorrowPrayerCardProps {
@@ -32,14 +32,7 @@ export const NextTomorrowPrayerCard: React.FC<NextTomorrowPrayerCardProps> = ({
     >
       <View style={styles.leftSection}>
         <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M12 3v3M12 18v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M3 12h3M18 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"
-              stroke={theme.colors.accent}
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </Svg>
+          <PrayerTimeIcon prayer={prayerName} size={20} />
         </View>
 
         <View style={styles.textColumn}>

@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarDayInspectorProps {
@@ -89,6 +89,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                 pressed && { opacity: 0.7 },
               ]}
             >
+              <PrayerTimeIcon prayer={name} size={13} muted={!isDone} />
               <AppText
                 variant="caption"
                 color={isDone ? theme.colors.primary : theme.colors.textMuted}

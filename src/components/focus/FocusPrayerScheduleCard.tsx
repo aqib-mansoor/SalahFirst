@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { FocusDuration } from '@/types';
 import { PrayerFocusOffsets, PrayerFocusDurations } from '@/utils/prayerFocusOffsets';
 
@@ -69,9 +69,12 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
               ]}
             >
               <View style={styles.topInfo}>
-                <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
-                  {p.name}
-                </AppText>
+                <View style={styles.prayerTitleRow}>
+                  <PrayerTimeIcon prayer={p.name} size={16} />
+                  <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
+                    {p.name}
+                  </AppText>
+                </View>
                 <AppText variant="caption" color={theme.colors.primary} style={styles.previewText}>
                   {preview}
                 </AppText>
@@ -150,6 +153,7 @@ const styles = StyleSheet.create({
   prayersList: { gap: 2 },
   prayerRow: { paddingVertical: SPACING.sm + 2, gap: 6 },
   topInfo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  prayerTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   prayerName: { fontWeight: '700', fontSize: 14 },
   previewText: { fontSize: 11, fontWeight: '600' },
   controlsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.md },

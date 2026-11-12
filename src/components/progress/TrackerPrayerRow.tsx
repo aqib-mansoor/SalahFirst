@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -67,9 +67,12 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
 
       {/* Middle Prayer Info */}
       <View style={styles.infoCol}>
-        <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
-          {t(prayer.name.toLowerCase() as any) || prayer.name}
-        </AppText>
+        <View style={styles.nameRow}>
+          <PrayerTimeIcon prayer={prayer.name} size={15} />
+          <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
+            {t(prayer.name.toLowerCase() as any) || prayer.name}
+          </AppText>
+        </View>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.scheduledTime}>
           {t('scheduledAt', { time: prayer.time })}
         </AppText>
@@ -128,6 +131,11 @@ const styles = StyleSheet.create({
   infoCol: {
     flex: 1,
     gap: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   prayerName: {
     fontWeight: '700',

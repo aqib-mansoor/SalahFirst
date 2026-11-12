@@ -3,7 +3,7 @@ import { StyleSheet, View, Modal, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, AppButton } from '@/components/common';
+import { AppText, AppButton, PrayerTimeIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface PrayerConfirmModalProps {
@@ -33,23 +33,9 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
     >
       <Pressable style={styles.overlay} onPress={onCancel}>
         <Pressable style={[styles.dialog, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          {/* Top Mosque / Crescent Icon */}
+          {/* Top Prayer Celestial Icon */}
           <View style={[styles.iconWrapper, { backgroundColor: theme.colors.secondaryTint }]}>
-            <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M12 2C8 6 6 9 6 13C6 16.31 8.69 19 12 19C15.31 19 18 16.31 18 13C18 9 16 6 12 2Z"
-                stroke={theme.colors.primary}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <Path
-                d="M12 13V19M9 19H15"
-                stroke={theme.colors.primary}
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </Svg>
+            <PrayerTimeIcon prayer={prayerName} size={28} />
           </View>
 
           {/* Title & Question */}

@@ -9,4 +9,5 @@ export * from './EmptyState3D';
 export * from './IslamicMihrabCanvas';
 export * from './CurvedHeaderContainer';
 export * from './ScreenTransitionView';
+export * from './PrayerTimeIcon';
 

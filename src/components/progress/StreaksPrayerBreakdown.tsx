@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 
 const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
@@ -97,9 +97,12 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
         {breakdown.map((item) => (
           <View key={item.name} style={styles.prayerRow}>
             <View style={styles.labelCol}>
-              <AppText variant="caption" color={theme.colors.text} style={styles.prayerName}>
-                {item.name}
-              </AppText>
+              <View style={styles.nameIconGroup}>
+                <PrayerTimeIcon prayer={item.name} size={13} />
+                <AppText variant="caption" color={theme.colors.text} style={styles.prayerName}>
+                  {item.name}
+                </AppText>
+              </View>
               <AppText variant="caption" color={theme.colors.textMuted} style={styles.percentText}>
                 {item.percentage}%
               </AppText>
@@ -176,6 +179,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  nameIconGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   prayerName: {
     fontWeight: '600',

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable, ScrollView } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export type FocusPrayerSelection = 'All' | 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -66,6 +66,13 @@ export const FocusPrayerSelector: React.FC<FocusPrayerSelectorProps> = ({
                 },
               ]}
             >
+              {name !== 'All' && (
+                <PrayerTimeIcon
+                  prayer={name}
+                  size={14}
+                  tintColor={isSelected ? theme.colors.textOnPrimary : undefined}
+                />
+              )}
               <AppText
                 variant="caption"
                 color={isSelected ? theme.colors.textOnPrimary : theme.colors.text}
@@ -107,6 +114,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   prayerPill: {
+    flexDirection: 'row',
+    gap: 5,
     paddingVertical: SPACING.xs + 2,
     paddingHorizontal: SPACING.sm + 4,
     borderRadius: RADIUS.full,
