@@ -2,7 +2,6 @@ export * from './FocusPrayerSelector';
 export * from './FocusCongregationDelayCard';
 export * from './FocusDurationCard';
 export * from './FocusPrayerScheduleCard';
-export * from './FocusDistractionCard';
 export * from './FocusSettingsCard';
 export * from './PrayerFocusConfigScreen';
 export * from './ActiveFocusTimer';

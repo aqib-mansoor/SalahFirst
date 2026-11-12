@@ -8,23 +8,15 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface NotificationPreferencesCardProps {
   missedPrayersEnabled: boolean;
   onToggleMissedPrayers: () => void;
-  dailyReflectionEnabled: boolean;
-  onToggleDailyReflection: () => void;
   streakEncouragementEnabled: boolean;
   onToggleStreakEncouragement: () => void;
-  quietHoursEnabled: boolean;
-  onToggleQuietHours: () => void;
 }
 
 export const NotificationPreferencesCard: React.FC<NotificationPreferencesCardProps> = ({
   missedPrayersEnabled,
   onToggleMissedPrayers,
-  dailyReflectionEnabled,
-  onToggleDailyReflection,
   streakEncouragementEnabled,
   onToggleStreakEncouragement,
-  quietHoursEnabled,
-  onToggleQuietHours,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -76,22 +68,10 @@ export const NotificationPreferencesCard: React.FC<NotificationPreferencesCardPr
         onToggleMissedPrayers
       )}
       {renderToggleRow(
-        t('dailyReflectionTitle'),
-        t('dailyReflectionDesc'),
-        dailyReflectionEnabled,
-        onToggleDailyReflection
-      )}
-      {renderToggleRow(
         t('streakEncouragementTitle'),
         t('streakEncouragementDesc'),
         streakEncouragementEnabled,
-        onToggleStreakEncouragement
-      )}
-      {renderToggleRow(
-        t('quietHoursTitle'),
-        t('quietHoursDesc'),
-        quietHoursEnabled,
-        onToggleQuietHours,
+        onToggleStreakEncouragement,
         true
       )}
     </View>

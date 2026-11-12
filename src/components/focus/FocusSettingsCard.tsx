@@ -6,16 +6,12 @@ import { AppText } from '@/components/common';
 
 export interface FocusSettingsCardProps {
   autoStartOnAzan: boolean;
-  playAzanBefore: boolean;
   onToggleAutoStart: () => void;
-  onTogglePlayAzan: () => void;
 }
 
 export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
   autoStartOnAzan,
-  playAzanBefore,
   onToggleAutoStart,
-  onTogglePlayAzan,
 }) => {
   const theme = useTheme();
 
@@ -26,7 +22,6 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      {/* Row 1: Auto-start at prayer / congregation time */}
       <View style={styles.row}>
         <View style={styles.textColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
@@ -40,27 +35,6 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
         <Switch
           value={autoStartOnAzan}
           onValueChange={onToggleAutoStart}
-          trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-          thumbColor={theme.colors.surface}
-        />
-      </View>
-
-      <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-      {/* Row 2: Play Azan before */}
-      <View style={styles.row}>
-        <View style={styles.textColumn}>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-            Play gentle Azan reminder
-          </AppText>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
-            Recite soft audio call before starting the countdown
-          </AppText>
-        </View>
-
-        <Switch
-          value={playAzanBefore}
-          onValueChange={onTogglePlayAzan}
           trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
           thumbColor={theme.colors.surface}
         />

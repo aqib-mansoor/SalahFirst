@@ -85,47 +85,6 @@ export const ReengagementSettingsGroup: React.FC<ReengagementSettingsGroupProps>
             thumbColor={enabled ? theme.colors.surface : theme.colors.textSubtle}
           />
         </View>
-
-        {/* Row 2: Standby & Inactivity Info */}
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-        <View style={styles.row}>
-          <View style={styles.leftRow}>
-            <View
-              style={[
-                styles.iconBox,
-                { backgroundColor: theme.colors.mintTint },
-              ]}
-            >
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                  stroke={theme.colors.primary}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
-            </View>
-
-            <View style={styles.textCol}>
-              <AppText
-                variant="titleSmall"
-                color={theme.colors.textPrimary}
-                style={styles.infoTitle}
-              >
-                {t('reengagementStandbyTitle')}
-              </AppText>
-              <AppText
-                variant="caption"
-                color={theme.colors.textSecondary}
-                style={styles.infoDesc}
-              >
-                {t('reengagementStandbyDesc')}
-              </AppText>
-            </View>
-          </View>
-        </View>
       </View>
     </View>
   );

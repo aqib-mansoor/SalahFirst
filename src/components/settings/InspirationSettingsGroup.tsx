@@ -9,13 +9,11 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface InspirationSettingsGroupProps {
   enabled: boolean;
   onToggleEnabled: (value: boolean) => void;
-  quietHoursEnabled?: boolean;
 }
 
 export const InspirationSettingsGroup: React.FC<InspirationSettingsGroupProps> = ({
   enabled,
   onToggleEnabled,
-  quietHoursEnabled = true,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -39,7 +37,6 @@ export const InspirationSettingsGroup: React.FC<InspirationSettingsGroupProps> =
           },
         ]}
       >
-        {/* Row 1: Enable/Disable Switch */}
         <View style={styles.row}>
           <View style={styles.leftRow}>
             <View
@@ -86,47 +83,6 @@ export const InspirationSettingsGroup: React.FC<InspirationSettingsGroupProps> =
             }}
             thumbColor={enabled ? theme.colors.surface : theme.colors.textSubtle}
           />
-        </View>
-
-        {/* Row 2: Quiet Hours Protection Info */}
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-
-        <View style={styles.row}>
-          <View style={styles.leftRow}>
-            <View
-              style={[
-                styles.iconBox,
-                { backgroundColor: theme.colors.mintTint },
-              ]}
-            >
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"
-                  stroke={theme.colors.primary}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
-            </View>
-
-            <View style={styles.textCol}>
-              <AppText
-                variant="titleSmall"
-                color={theme.colors.textPrimary}
-                style={styles.rowTitle}
-              >
-                {t('dailyInspirationQuietHoursTitle')}
-              </AppText>
-              <AppText
-                variant="caption"
-                color={theme.colors.textSecondary}
-                style={styles.rowDesc}
-              >
-                {t('dailyInspirationQuietHoursDesc')}
-              </AppText>
-            </View>
-          </View>
         </View>
       </View>
     </View>

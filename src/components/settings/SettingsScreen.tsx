@@ -5,6 +5,8 @@ import { useThemeState } from '@/hooks/useTheme';
 import { useTranslation } from '@/context/LocalizationContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
+import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
+import { useAzanAudio } from '@/hooks/useAzanAudio';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
@@ -61,8 +63,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
   const { calcMethod, juristic } = usePrayerTracker(location);
+  const { alerts } = usePrayerAlerts();
+  const { currentReciter } = useAzanAudio();
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
-  const { language, setLanguage } = useTranslation();
+  const { language, setLanguage, t } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
@@ -85,7 +89,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     await saveInspirationConfig({ ...cfg, enabled: val });
     if (val) {
       await scheduleDailyInspirationNotification({
+        latitude: location?.latitude,
+        longitude: location?.longitude,
         timezone: location?.timezone,
+        calculationMethod: calcMethod,
+        juristicMethod: juristic,
         language,
       });
     }
@@ -141,6 +149,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       ? 'العربية (Arabic)'
       : 'English';
 
+  const reciterName =
+    currentReciter === 'madinah'
+      ? t('reciterMadinah')
+      : currentReciter === 'alAqsa'
+      ? t('reciterAlAqsa')
+      : t('reciterMakkah');
+  const reminderLabel =
+    alerts.reminderOffset === 'off'
+      ? `${t('off')} pre-reminder`
+      : `${alerts.reminderOffset.replace('m', ' min')} pre-reminder`;
+  const azanSummaryText = `${reciterName} • ${reminderLabel}`;
+
   return (
     <AppContainer
       edges={['top', 'left', 'right', 'bottom']}
@@ -159,6 +179,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             juristicMethod={juristic}
             calculationMethodName={CALC_LABELS[calcMethod] || calcMethod}
             hijriAdjustment={hijriAdjustment}
+            azanSummaryText={azanSummaryText}
             onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
             onOpenLocation={() => setSheetVisible(true)}
             onOpenAzanPrefs={onOpenAzanPrefs}

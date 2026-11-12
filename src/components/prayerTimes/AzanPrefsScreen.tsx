@@ -42,9 +42,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     setReminder,
     toggleExactAlarms,
     toggleMissedPrayerReminders,
-    toggleDailyReflection,
     toggleStreakEncouragement,
-    toggleQuietHours,
   } = usePrayerAlerts();
 
   const insets = useSafeAreaInsets();
@@ -128,18 +126,6 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onToggle={toggleExactAlarms}
         />
 
-        {/* Smart Reminders & Quiet Hours Preferences */}
-        <NotificationPreferencesCard
-          missedPrayersEnabled={alerts.missedPrayerRemindersEnabled !== false}
-          onToggleMissedPrayers={toggleMissedPrayerReminders}
-          dailyReflectionEnabled={alerts.dailyReflectionEnabled !== false}
-          onToggleDailyReflection={toggleDailyReflection}
-          streakEncouragementEnabled={alerts.streakEncouragementEnabled !== false}
-          onToggleStreakEncouragement={toggleStreakEncouragement}
-          quietHoursEnabled={alerts.quietHoursEnabled !== false}
-          onToggleQuietHours={toggleQuietHours}
-        />
-
         {/* Audio Preview Card */}
         <AzanAudioPreviewCard
           isLoading={isLoading}
@@ -154,6 +140,14 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
         <PrePrayerReminderCard
           currentOffset={alerts.reminderOffset}
           onSelectOffset={setReminder}
+        />
+
+        {/* Smart Prayer Follow-up & Streak Reminders */}
+        <NotificationPreferencesCard
+          missedPrayersEnabled={alerts.missedPrayerRemindersEnabled !== false}
+          onToggleMissedPrayers={toggleMissedPrayerReminders}
+          streakEncouragementEnabled={alerts.streakEncouragementEnabled !== false}
+          onToggleStreakEncouragement={toggleStreakEncouragement}
         />
 
         {/* Individual Prayer Alert Cards */}

@@ -14,6 +14,7 @@ export interface PrayerSettingsGroupProps {
   juristicMethod: 'Hanafi' | 'Standard';
   calculationMethodName?: string;
   hijriAdjustment?: number;
+  azanSummaryText?: string;
   onUpdateHijriAdjustment?: (newAdjustment: number) => void;
   onOpenLocation: () => void;
   onOpenAzanPrefs: () => void;
@@ -28,6 +29,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   juristicMethod,
   calculationMethodName = 'University of Islamic Sciences, Karachi',
   hijriAdjustment = 0,
+  azanSummaryText,
   onUpdateHijriAdjustment,
   onOpenLocation,
   onOpenAzanPrefs,
@@ -160,7 +162,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
                 {t('azanAudioReminders')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                Makkah Haram • 15m pre-reminder
+                {azanSummaryText || 'Makkah • 15m pre-reminder'}
               </AppText>
             </View>
           </View>
@@ -180,7 +182,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
                     Prayer Focus & Congregation
                   </AppText>
                   <AppText variant="caption" color={theme.colors.textSecondary}>
-                    Congregation delays • Duration & distractions
+                    Congregation delays • Focus duration
                   </AppText>
                 </View>
               </View>

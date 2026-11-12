@@ -232,17 +232,6 @@ export const scheduleAllPrayerAlerts = async (
           });
         }
       }
-
-      if (dayOffset < 3 && alerts?.dailyReflectionEnabled !== false) {
-        scheduledCount += await scheduleDailyReflectionAlert(
-          targetDate,
-          dateKey,
-          now,
-          qEnabled,
-          qStart,
-          qEnd
-        );
-      }
     }
 
     return scheduledCount;

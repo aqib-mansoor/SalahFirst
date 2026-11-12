@@ -5,7 +5,6 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppButton, ScreenHeader } from '@/components/common';
 import { FocusPrayerScheduleCard } from './FocusPrayerScheduleCard';
-import { FocusDistractionCard } from './FocusDistractionCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
 import { FocusDuration } from '@/types';
 import { FormattedPrayerTimes } from '@/utils/prayerTimes';
@@ -41,12 +40,7 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
   const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const [durations, setDurations] = useState<PrayerFocusDurations>(DEFAULT_FOCUS_DURATIONS);
-  const [blockSocial, setBlockSocial] = useState(true);
-  const [blockShortVideos, setBlockShortVideos] = useState(true);
-  const [blockGames, setBlockGames] = useState(false);
-  const [blockNews, setBlockNews] = useState(false);
   const [autoStart, setAutoStart] = useState(false);
-  const [playAzan, setPlayAzan] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -58,11 +52,6 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
       setOffsets(loadedOffsets);
       setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
-      setPlayAzan(loadedPrefs.playAzanBefore);
-      setBlockSocial(loadedPrefs.blockSocial);
-      setBlockShortVideos(loadedPrefs.blockShortVideos);
-      setBlockGames(loadedPrefs.blockGames);
-      setBlockNews(loadedPrefs.blockNews);
     });
   }, []);
 
@@ -76,17 +65,14 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
 
   const handleSaveAndReturn = async () => {
     setIsSaving(true);
+    const existingPrefs = await loadFocusPreferences();
     await Promise.all([
       saveFocusOffsets(offsets),
       saveFocusDurations(durations),
       saveFocusPreferences({
+        ...existingPrefs,
         autoStartOnAzan: autoStart,
         defaultDuration: durations.fajr || 15,
-        playAzanBefore: playAzan,
-        blockSocial,
-        blockShortVideos,
-        blockGames,
-        blockNews,
       }),
     ]);
     setIsSaving(false);
@@ -121,22 +107,9 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             onUpdateDuration={handleUpdateDuration}
           />
 
-          <FocusDistractionCard
-            blockSocial={blockSocial}
-            blockShortVideos={blockShortVideos}
-            blockGames={blockGames}
-            blockNews={blockNews}
-            onToggleSocial={() => setBlockSocial((p) => !p)}
-            onToggleShortVideos={() => setBlockShortVideos((p) => !p)}
-            onToggleGames={() => setBlockGames((p) => !p)}
-            onToggleNews={() => setBlockNews((p) => !p)}
-          />
-
           <FocusSettingsCard
             autoStartOnAzan={autoStart}
-            playAzanBefore={playAzan}
             onToggleAutoStart={() => setAutoStart((p) => !p)}
-            onTogglePlayAzan={() => setPlayAzan((p) => !p)}
           />
         </ScrollView>
 
