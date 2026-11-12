@@ -122,6 +122,8 @@ export const PRAYER_ICON_PALETTE = {
   moonCrater: '#94A3B8',
 } as const;
 
+export * from './qiblaThemes';
+
 export const WELCOME_THEME = {
   background: salahFirstColors.light.primaryHero,
   surface: salahFirstColors.light.primaryDark,

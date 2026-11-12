@@ -1,11 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, G, Line } from 'react-native-svg';
-import { useTheme } from '@/hooks/useTheme';
-import { SPACING } from '@/constants/theme';
+import Svg, { Circle, G, Line, Polygon } from 'react-native-svg';
+import {
+  SPACING,
+  QIBLA_DIAL_THEMES,
+  QiblaDialThemeSpec,
+} from '@/constants/theme';
 import { AppText } from '@/components/common';
 import { TurnDirection } from '@/hooks/useQiblaCompass';
-import { KaabaEmblem3D } from './KaabaEmblem3D';
 import { QiblaGuidancePill } from './QiblaGuidancePill';
 
 export interface QiblaDial3DProps {
@@ -15,108 +17,106 @@ export interface QiblaDial3DProps {
   isAligned: boolean;
   turnDirection: TurnDirection;
   turnDegrees: number;
+  dialTheme?: QiblaDialThemeSpec;
 }
 
-const DIAL_SIZE = 290;
-const RADIUS_VAL = DIAL_SIZE / 2;
+const DIAL_SIZE = 284;
+const R = DIAL_SIZE / 2;
 
 export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
   heading,
-  qiblaBearing,
   relativePointerAngle,
   isAligned,
   turnDirection,
   turnDegrees,
+  dialTheme = QIBLA_DIAL_THEMES.classic,
 }) => {
-  const theme = useTheme();
-
-  const accentColor = isAligned ? theme.colors.accent : theme.colors.primary;
-  const needleGlow = isAligned ? 'rgba(243, 196, 64, 0.28)' : 'rgba(14, 116, 73, 0.15)';
-
   return (
     <View style={styles.container}>
-      {/* Outer Glow Halo Ring when Aligned */}
+      {/* Soft Luminous Halo Ring around the Compass */}
       <View
         style={[
           styles.glowHalo,
           {
-            borderColor: isAligned ? theme.colors.accent : 'transparent',
-            backgroundColor: isAligned ? theme.colors.accentTint : 'transparent',
+            backgroundColor: isAligned ? dialTheme.haloGlow : 'transparent',
+            borderColor: isAligned ? dialTheme.dialBorder : 'transparent',
           },
         ]}
       >
-        {/* Main Circular Dial Instrument */}
+        {/* Main Circular Dial Face */}
         <View
           style={[
             styles.dialCard,
             {
-              backgroundColor: theme.colors.surface,
-              borderColor: isAligned ? theme.colors.accent : theme.colors.border,
+              backgroundColor: dialTheme.dialBg,
+              borderColor: isAligned ? dialTheme.needleNorthLeft : dialTheme.dialBorder,
             },
           ]}
         >
-          {/* ROTATING COMPASS DIAL (Oriented to True North via heading) */}
+          {/* ROTATING COMPASS RING (Oriented to True North via -heading) */}
           <View
             style={[
-              styles.rotatingCompassRing,
+              styles.rotatingLayer,
               { transform: [{ rotate: `${-heading}deg` }] },
             ]}
           >
             <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
-              {/* Outer Outer Instrument Ring */}
+              {/* Subtle Inner Decorative Ring */}
               <Circle
-                cx={RADIUS_VAL}
-                cy={RADIUS_VAL}
-                r={RADIUS_VAL - 8}
-                stroke={theme.colors.border}
-                strokeWidth="1.5"
-                fill="none"
-              />
-
-              {/* Sub-degree Track */}
-              <Circle
-                cx={RADIUS_VAL}
-                cy={RADIUS_VAL}
-                r={RADIUS_VAL - 22}
-                stroke={theme.colors.border}
-                strokeWidth="0.8"
-                strokeDasharray="2 4"
-                fill="none"
-              />
-
-              {/* Inner Concentric Horizon Circle */}
-              <Circle
-                cx={RADIUS_VAL}
-                cy={RADIUS_VAL}
-                r={RADIUS_VAL - 58}
-                stroke={theme.colors.border}
+                cx={R}
+                cy={R}
+                r={R - 46}
+                stroke={dialTheme.innerRing}
                 strokeWidth="1"
                 fill="none"
               />
 
-              {/* 72 Compass Graduation Ticks (every 5 deg) */}
+              {/* Mariners 8-Point Compass Rose Star when 'rose' style is active */}
+              {dialTheme.id === 'rose' && (
+                <G opacity={0.85}>
+                  <Polygon
+                    points={`${R},44 ${R + 14},${R - 14} ${DIAL_SIZE - 44},${R} ${R + 14},${R + 14} ${R},${DIAL_SIZE - 44} ${R - 14},${R + 14} 44,${R} ${R - 14},${R - 14}`}
+                    fill={dialTheme.innerRing}
+                  />
+                  <Circle cx={R} cy={R} r={28} stroke={dialTheme.tickMinor} strokeWidth="0.8" fill="none" />
+                </G>
+              )}
+
+              {/* Kiswah Gold Inner Geometric Ring when 'obsidian' style is active */}
+              {dialTheme.id === 'obsidian' && (
+                <Circle
+                  cx={R}
+                  cy={R}
+                  r={R - 72}
+                  stroke={dialTheme.innerRing}
+                  strokeWidth="1.2"
+                  strokeDasharray="4 4"
+                  fill="none"
+                />
+              )}
+
+              {/* 72 Graduation Ticks (every 5 degrees) */}
               {Array.from({ length: 72 }).map((_, i) => {
                 const deg = i * 5;
-                const isMajor = deg % 30 === 0;
+                const isNorth = deg === 0;
                 const isCardinal = deg % 90 === 0;
-                const tickLen = isCardinal ? 14 : isMajor ? 10 : 5;
-                const strokeColor = isCardinal
-                  ? deg === 0
-                    ? theme.colors.accent
-                    : theme.colors.text
+                const isMajor = deg % 30 === 0;
+                const tickLen = isCardinal ? 16 : isMajor ? 12 : 7;
+                const strokeColor = isNorth
+                  ? dialTheme.northTick
                   : isMajor
-                  ? theme.colors.textSecondary
-                  : theme.colors.border;
+                  ? dialTheme.tickMajor
+                  : dialTheme.tickMinor;
 
                 return (
-                  <G key={deg} transform={`rotate(${deg} ${RADIUS_VAL} ${RADIUS_VAL})`}>
+                  <G key={deg} transform={`rotate(${deg} ${R} ${R})`}>
                     <Line
-                      x1={RADIUS_VAL}
-                      y1={10}
-                      x2={RADIUS_VAL}
-                      y2={10 + tickLen}
+                      x1={R}
+                      y1={8}
+                      x2={R}
+                      y2={8 + tickLen}
                       stroke={strokeColor}
-                      strokeWidth={isCardinal ? '2' : isMajor ? '1.4' : '0.9'}
+                      strokeWidth={isCardinal ? '2.4' : isMajor ? '1.8' : '1.1'}
                       strokeLinecap="round"
                     />
                   </G>
@@ -124,84 +124,81 @@ export const QiblaDial3D: React.FC<QiblaDial3DProps> = ({
               })}
             </Svg>
 
-            {/* Cardinal Letters (N, E, S, W) rotated with the compass dial */}
+            {/* Cardinal Letters (N, E, S, W) */}
             <AppText
-              variant="caption"
-              color={theme.colors.accent}
+              variant="titleSmall"
+              color={dialTheme.northText}
               style={[styles.cardinalText, styles.cardinalN]}
             >
               N
             </AppText>
             <AppText
-              variant="caption"
-              color={theme.colors.textMuted}
+              variant="titleSmall"
+              color={dialTheme.cardinalText}
               style={[styles.cardinalText, styles.cardinalE]}
             >
               E
             </AppText>
             <AppText
-              variant="caption"
-              color={theme.colors.textMuted}
+              variant="titleSmall"
+              color={dialTheme.cardinalText}
               style={[styles.cardinalText, styles.cardinalS]}
             >
               S
             </AppText>
             <AppText
-              variant="caption"
-              color={theme.colors.textMuted}
+              variant="titleSmall"
+              color={dialTheme.cardinalText}
               style={[styles.cardinalText, styles.cardinalW]}
             >
               W
             </AppText>
           </View>
 
-          {/* STATIONARY TOP APEX BEZEL (Device Heading Indicator) */}
-          <View style={styles.topApexIndicator}>
-            <View
-              style={[
-                styles.topApexMarker,
-                { borderTopColor: isAligned ? theme.colors.accent : theme.colors.primary },
-              ]}
-            />
-          </View>
-
-          {/* DYNAMIC QIBLA POINTER LAYER (Rotates relative to device forward axis) */}
+          {/* DYNAMIC 3D FACETED QIBLA NEEDLE LAYER (Points toward Kaaba) */}
           <View
             style={[
-              styles.qiblaPointerLayer,
+              styles.rotatingLayer,
               { transform: [{ rotate: `${relativePointerAngle}deg` }] },
             ]}
+            pointerEvents="none"
           >
-            {/* Kaaba Monument stationed at outer perimeter */}
-            <View style={styles.kaabaPerimeterAnchor}>
-              <View
-                style={[
-                  styles.kaabaHalo,
-                  { backgroundColor: needleGlow, borderColor: accentColor },
-                ]}
-              >
-                <KaabaEmblem3D isAligned={isAligned} size={32} />
-              </View>
-            </View>
-
-            {/* High-Precision Instrument Pointer Shaft */}
-            <View style={[styles.pointerStem, { backgroundColor: accentColor }]} />
-            <View style={[styles.pointerStemGlow, { backgroundColor: needleGlow }]} />
-
-            {/* Center Chrono Hub */}
-            <View
-              style={[
-                styles.centerHubOuter,
-                { backgroundColor: theme.colors.surface, borderColor: accentColor },
-              ]}
-            >
-              <View style={[styles.centerHubInner, { backgroundColor: accentColor }]} />
-            </View>
+            <Svg width={DIAL_SIZE} height={DIAL_SIZE} viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}>
+              {/* North / Qibla Tip — Left Lit Facet */}
+              <Polygon
+                points={`${R},24 ${R},${R} ${R - 17},${R}`}
+                fill={dialTheme.needleNorthLeft}
+              />
+              {/* North / Qibla Tip — Right Shaded Facet */}
+              <Polygon
+                points={`${R},24 ${R + 17},${R} ${R},${R}`}
+                fill={dialTheme.needleNorthRight}
+              />
+              {/* South Tail — Left Lit Facet */}
+              <Polygon
+                points={`${R},${DIAL_SIZE - 24} ${R - 17},${R} ${R},${R}`}
+                fill={dialTheme.needleSouthLeft}
+              />
+              {/* South Tail — Right Shaded Facet */}
+              <Polygon
+                points={`${R},${DIAL_SIZE - 24} ${R},${R} ${R + 17},${R}`}
+                fill={dialTheme.needleSouthRight}
+              />
+              {/* Center Hub Pivot */}
+              <Circle
+                cx={R}
+                cy={R}
+                r="7"
+                fill={dialTheme.hubBg}
+                stroke={dialTheme.hubBorder}
+                strokeWidth="2.5"
+              />
+            </Svg>
           </View>
         </View>
       </View>
 
-      {/* Modern Guidance Pill Directly Below Dial */}
+      {/* Guidance Pill Directly Below Dial */}
       <QiblaGuidancePill
         isAligned={isAligned}
         turnDirection={turnDirection}
@@ -215,12 +212,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: SPACING.md,
-    marginVertical: SPACING.xs,
+    gap: SPACING.sm + 2,
   },
   glowHalo: {
-    padding: 6,
-    borderRadius: (DIAL_SIZE + 12) / 2,
+    padding: 10,
+    borderRadius: (DIAL_SIZE + 20) / 2,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -229,95 +225,28 @@ const styles = StyleSheet.create({
     width: DIAL_SIZE,
     height: DIAL_SIZE,
     borderRadius: DIAL_SIZE / 2,
-    borderWidth: 2,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
   },
-  rotatingCompassRing: {
+  rotatingLayer: {
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardinalText: {
     position: 'absolute',
-    fontWeight: '800',
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
-  cardinalN: { top: 25 },
-  cardinalS: { bottom: 25 },
-  cardinalE: { right: 26 },
-  cardinalW: { left: 26 },
-  topApexIndicator: {
-    position: 'absolute',
-    top: -2,
-    zIndex: 40,
-    alignItems: 'center',
-  },
-  topApexMarker: {
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftWidth: 6,
-    borderRightWidth: 6,
-    borderTopWidth: 10,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-  },
-  qiblaPointerLayer: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 30,
-  },
-  kaabaPerimeterAnchor: {
-    position: 'absolute',
-    top: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 35,
-  },
-  kaabaHalo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pointerStem: {
-    position: 'absolute',
-    top: 68,
-    width: 3.5,
-    height: RADIUS_VAL - 74,
-    borderRadius: 2,
-    zIndex: 25,
-  },
-  pointerStemGlow: {
-    position: 'absolute',
-    top: 68,
-    width: 8,
-    height: RADIUS_VAL - 74,
-    borderRadius: 4,
-    zIndex: 24,
-  },
-  centerHubOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 30,
-  },
-  centerHubInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
+  cardinalN: { top: 28 },
+  cardinalS: { bottom: 28 },
+  cardinalE: { right: 30 },
+  cardinalW: { left: 30 },
 });

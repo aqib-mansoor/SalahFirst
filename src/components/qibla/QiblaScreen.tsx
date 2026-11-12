@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING } from '@/constants/theme';
+import { SPACING, QIBLA_DIAL_THEMES, QiblaDialStyleId } from '@/constants/theme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useQiblaCompass } from '@/hooks/useQiblaCompass';
 import { AppContainer } from '@/components/common';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { LocationBottomSheet } from '@/components/prayerTimes';
 import { PresetCity } from '@/data';
+import { storage } from '@/utils/storage';
 import { useTranslation } from '@/context/LocalizationContext';
 import { QiblaHeader } from './QiblaHeader';
+import { QiblaMapBanner } from './QiblaMapBanner';
 import { QiblaDial3D } from './QiblaDial3D';
+import { QiblaStylePicker } from './QiblaStylePicker';
 import { QiblaTelemetryCard } from './QiblaTelemetryCard';
-import { MakkahSanctuaryCard } from './MakkahSanctuaryCard';
 import { QiblaCalibrationTip } from './QiblaCalibrationTip';
+
+const QIBLA_STYLE_STORAGE_KEY = '@salahfirst_qibla_style';
 
 export interface QiblaScreenProps {
   onNavigateTab: (tab: HomeTab) => void;
@@ -25,6 +29,20 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [dialStyle, setDialStyle] = useState<QiblaDialStyleId>('classic');
+
+  useEffect(() => {
+    storage.get<QiblaDialStyleId | null>(QIBLA_STYLE_STORAGE_KEY, null).then((saved) => {
+      if (saved && QIBLA_DIAL_THEMES[saved]) {
+        setDialStyle(saved);
+      }
+    });
+  }, []);
+
+  const handleSelectStyle = (styleId: QiblaDialStyleId) => {
+    setDialStyle(styleId);
+    storage.set(QIBLA_STYLE_STORAGE_KEY, styleId);
+  };
 
   const {
     heading,
@@ -38,6 +56,8 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
     hasSensor,
     needsCalibration,
   } = useQiblaCompass(location?.latitude, location?.longitude, isActive);
+
+  const activeDialTheme = QIBLA_DIAL_THEMES[dialStyle] || QIBLA_DIAL_THEMES.classic;
 
   const handleSelectCity = (city: PresetCity) => {
     updateLocation({
@@ -74,7 +94,15 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Central Compass Dial with Fixed Ring & Dynamic Rotating Qibla Needle */}
+          {/* Geodesic Trajectory Map Banner & Kaaba Apex Marker */}
+          <QiblaMapBanner
+            qiblaBearing={qiblaBearing}
+            distanceKm={distanceKm}
+            isAligned={isAligned}
+            dialTheme={activeDialTheme}
+          />
+
+          {/* Central Multi-Style Compass Dial */}
           <QiblaDial3D
             heading={heading}
             qiblaBearing={qiblaBearing}
@@ -82,6 +110,13 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
             isAligned={isAligned}
             turnDirection={turnDirection}
             turnDegrees={turnDegrees}
+            dialTheme={activeDialTheme}
+          />
+
+          {/* Interactive 4-Style Compass Theme Picker Dock */}
+          <QiblaStylePicker
+            selectedStyle={dialStyle}
+            onSelectStyle={handleSelectStyle}
           />
 
           {/* Unified 3-Metric Telemetry Track (Heading, Qibla Bearing, Distance) */}
@@ -90,12 +125,6 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
             qiblaBearing={qiblaBearing}
             distanceKm={distanceKm}
             cardinal={cardinal}
-          />
-
-          {/* Makkah Sanctuary Live Telemetry Card */}
-          <MakkahSanctuaryCard
-            distanceKm={distanceKm}
-            qiblaBearing={qiblaBearing}
           />
 
           {/* Calibration Alert (Renders ONLY if interference is actively detected) */}
