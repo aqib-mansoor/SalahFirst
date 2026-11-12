@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle, Rect } from 'react-native-svg';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { NotificationMode } from '@/types';
 
 export interface NotificationModeIconProps {
@@ -18,17 +18,18 @@ export const NotificationModeIcon: React.FC<NotificationModeIconProps> = ({
       return (
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
           <Path
-            d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+            d="M11 5L6 9H2v6h4l5 4V5z"
             stroke={color}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <Path
-            d="M21 4a8 8 0 0 1 0 16M19 7a5 5 0 0 1 0 10"
+            d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"
             stroke={color}
-            strokeWidth="1.8"
+            strokeWidth="2"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </Svg>
       );
@@ -37,7 +38,14 @@ export const NotificationModeIcon: React.FC<NotificationModeIconProps> = ({
       return (
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
           <Path
-            d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+            d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M13.73 21a2 2 0 0 1-3.46 0"
             stroke={color}
             strokeWidth="2"
             strokeLinecap="round"
@@ -72,16 +80,16 @@ export const NotificationModeIcon: React.FC<NotificationModeIconProps> = ({
       return (
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
           <Path
-            d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+            d="M13.73 21a2 2 0 0 1-3.46 0M18.63 13A17.89 17.89 0 0 1 18 8M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14M18 8a6 6 0 0 0-9.33-5"
             stroke={color}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <Path
-            d="M3 3l18 18"
+            d="M2 2l20 20"
             stroke={color}
-            strokeWidth="2.2"
+            strokeWidth="2"
             strokeLinecap="round"
           />
         </Svg>
