@@ -2,7 +2,6 @@ export * from './QiblaHeader';
 export * from './KaabaEmblem3D';
 export * from './QiblaGuidancePill';
 export * from './QiblaMapBanner';
-export * from './QiblaNeedleVariants';
 export * from './QiblaStylePicker';
 export * from './QiblaDial3D';
 export * from './QiblaTelemetryCard';

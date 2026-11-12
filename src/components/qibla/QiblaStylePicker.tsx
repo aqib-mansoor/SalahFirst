@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Circle, G, Polygon, Line, Rect } from 'react-native-svg';
+import Svg, { Circle, Polygon, Line } from 'react-native-svg';
 import {
   RADIUS,
   SPACING,
@@ -17,63 +17,34 @@ export interface QiblaStylePickerProps {
 }
 
 const MiniDialThumb: React.FC<{ spec: QiblaDialThemeSpec }> = ({ spec }) => (
-  <Svg width={46} height={46} viewBox="0 0 46 46">
+  <Svg width={44} height={44} viewBox="0 0 44 44">
     <Circle
-      cx="23"
-      cy="23"
-      r="20.5"
+      cx="22"
+      cy="22"
+      r="20"
       fill={spec.dialBg}
       stroke={spec.dialBorder}
       strokeWidth="2"
     />
-
-    {spec.id === 'emerald' && (
-      /* Type 3 Preview: Open Center HUD + Orbiting Kaaba Dot */
-      <>
-        <Circle cx="23" cy="23" r="10" stroke={spec.innerRing} strokeWidth="1.2" strokeDasharray="2 2" fill="none" />
-        <Rect x="19.5" y="6" width="7" height="7" rx="1.5" fill="#141716" stroke={spec.northTick} strokeWidth="1" />
-        <Line x1="23" y1="13" x2="23" y2="18" stroke={spec.northTick} strokeWidth="1.5" />
-      </>
-    )}
+    {/* Cardinal ticks */}
+    <Line x1="22" y1="4" x2="22" y2="8" stroke={spec.northTick} strokeWidth="2" strokeLinecap="round" />
+    <Line x1="22" y1="36" x2="22" y2="40" stroke={spec.tickMajor} strokeWidth="1.5" strokeLinecap="round" />
+    <Line x1="4" y1="22" x2="8" y2="22" stroke={spec.tickMajor} strokeWidth="1.5" strokeLinecap="round" />
+    <Line x1="36" y1="22" x2="40" y2="22" stroke={spec.tickMajor} strokeWidth="1.5" strokeLinecap="round" />
 
     {spec.id === 'rose' && (
-      /* Type 2 Preview: 8-Point Nautical Star Compass Rose */
-      <>
-        <Polygon
-          points="23,7 26,20 39,23 26,26 23,39 20,26 7,23 20,20"
-          fill="#78716C"
-        />
-        <Polygon
-          points="23,11 25,21 35,23 25,25 23,35 21,25 11,23 21,21"
-          transform="rotate(45 23 23)"
-          fill="#A8A29E"
-        />
-        <Polygon points="23,7 26,20 20,20" fill={spec.needleNorthLeft} />
-        <Circle cx="23" cy="23" r="2.5" fill={spec.hubBg} stroke={spec.hubBorder} strokeWidth="1.2" />
-      </>
+      <Polygon
+        points="22,9 24.5,19.5 35,22 24.5,24.5 22,35 19.5,24.5 9,22 19.5,19.5"
+        fill={spec.innerRing}
+      />
     )}
 
-    {spec.id === 'classic' && (
-      /* Type 1 Preview: Classic 3D Bipyramid Emerald Needle */
-      <>
-        <Line x1="23" y1="4" x2="23" y2="7" stroke={spec.northTick} strokeWidth="2" strokeLinecap="round" />
-        <Polygon points="23,8 27,23 19,23" fill={spec.needleNorthLeft} />
-        <Polygon points="23,38 27,23 19,23" fill={spec.needleSouthLeft} />
-        <Circle cx="23" cy="23" r="2.8" fill={spec.hubBg} stroke={spec.hubBorder} strokeWidth="1.4" />
-      </>
-    )}
-
-    {spec.id === 'obsidian' && (
-      /* Type 4 Preview: Royal Kiswah Rub el Hizb (۞) Golden Medallion */
-      <>
-        <Polygon points="23,6 20,16 26,16" fill={spec.needleNorthLeft} />
-        <Rect x="16" y="16" width="14" height="14" rx="1.5" fill={spec.hubBg} stroke={spec.hubBorder} strokeWidth="1.4" />
-        <G transform="rotate(45 23 23)">
-          <Rect x="16" y="16" width="14" height="14" rx="1.5" fill={spec.hubBg} stroke={spec.hubBorder} strokeWidth="1.4" />
-        </G>
-        <Circle cx="23" cy="23" r="3" fill={spec.needleNorthLeft} />
-      </>
-    )}
+    {/* North Needle */}
+    <Polygon points="22,8 25.5,22 18.5,22" fill={spec.needleNorthLeft} />
+    {/* South Needle */}
+    <Polygon points="22,36 25.5,22 18.5,22" fill={spec.needleSouthLeft} />
+    {/* Hub */}
+    <Circle cx="22" cy="22" r="3" fill={spec.hubBg} stroke={spec.hubBorder} strokeWidth="1.5" />
   </Svg>
 );
 
@@ -174,3 +145,4 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 });
+
