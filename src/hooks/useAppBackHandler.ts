@@ -31,6 +31,10 @@ export const useAppBackHandler = ({
 }: UseAppBackHandlerProps) => {
   useEffect(() => {
     const onBackPress = () => {
+      if (currentStep === 'focus-active') {
+        // Prevent accidental back exit during active focus; ActiveFocusScreen handles its own exit modal
+        return true;
+      }
       if (currentStep === 'wallpaper' || currentStep === 'settings') {
         setCurrentStep('main');
         return true;

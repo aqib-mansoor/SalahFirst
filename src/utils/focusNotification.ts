@@ -56,22 +56,22 @@ export const syncLiveFocusNotification = async (
       );
     }
 
-    // 2. Schedule completion notification when focus session ends
-    const minsLeft = Math.max(1, remainingMinutes);
-    const triggerDate = new Date(Date.now() + minsLeft * 60 * 1000);
-    await Notifications.scheduleNotificationAsync({
-      identifier: FOCUS_DONE_NOTIF_ID,
-      content: {
-        title: `${prayerName} • Focus Complete`,
-        body: `Alhamdulillah. Tap to log your ${prayerName} prayer.`,
-        data: { type: 'focus-completed', prayerName },
-        ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: triggerDate,
-      },
-    });
+    // 2. Schedule completion notification at the exact session end timestamp
+    if (targetEndEpochMs > Date.now() + 1000) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: FOCUS_DONE_NOTIF_ID,
+        content: {
+          title: `${prayerName} • Focus Complete`,
+          body: `Alhamdulillah. Tap to log your ${prayerName} prayer.`,
+          data: { type: 'focus-completed', prayerName },
+          ...(Platform.OS === 'android' ? { channelId: FOCUS_CHANNEL_ID } : {}),
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(targetEndEpochMs),
+        },
+      });
+    }
   } catch {}
 };
 

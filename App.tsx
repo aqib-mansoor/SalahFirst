@@ -20,6 +20,7 @@ import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { FocusDuration } from '@/types';
+import { loadFocusDurations, PrayerFocusDurations } from '@/utils/prayerFocusOffsets';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation, initDeviceLocationCache } from '@/hooks/useDeviceLocation';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
@@ -136,8 +137,13 @@ function AppContent() {
     const pending = prayersList.find((p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed);
     return pending ? pending.name : (prayerData.nextPrayerName || 'Fajr');
   };
-  const handleStartFocusImmediately = () => {
-    setFocusPrayerName(getSuggestedPrayerName());
+  const handleStartFocusImmediately = async () => {
+    const targetPrayer = getSuggestedPrayerName();
+    const durations = await loadFocusDurations();
+    const key = targetPrayer.toLowerCase() as keyof PrayerFocusDurations;
+    const savedDuration = durations[key] || 15;
+    setFocusPrayerName(targetPrayer);
+    setFocusDuration(savedDuration);
     setActiveSession(null);
     setCurrentStep('focus-active');
   };

@@ -67,7 +67,11 @@ export const useNotificationResponseRouter = ({
         return;
       }
 
-      if (data.type === 'focus-breach' || data.type === 'focus-active') {
+      if (
+        data.type === 'focus-breach' ||
+        data.type === 'focus-active' ||
+        data.type === 'focus-completed'
+      ) {
         getActiveFocusSession().then((session) => {
           if (session) {
             setActiveSession(session);

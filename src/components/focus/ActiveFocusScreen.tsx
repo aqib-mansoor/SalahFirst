@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus } from 'react-native';
+import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import { SPACING, PALETTE } from '@/constants/theme';
@@ -117,6 +117,16 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   }, [isCompleted, tick]);
 
   useEffect(() => {
+    const backSub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (!isCompleted) {
+        setShowExitModal(true);
+      }
+      return true;
+    });
+    return () => backSub.remove();
+  }, [isCompleted]);
+
+  useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState: AppStateStatus) => {
       if (nextState === 'background' || nextState === 'inactive') {
         if (!isCompleted) {
@@ -135,11 +145,13 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     return () => sub.remove();
   }, [isCompleted, tick]);
 
-  const handleCleanExit = async (afterAction?: () => void) => {
+  const handleCleanExit = async (afterAction?: () => void, didCompleteSession: boolean = false) => {
     await restoreDeviceSoundAfterFocus();
     await clearActiveFocusSession();
     await cancelFocusNotifications();
-    await markFocusCompleted(sessionRef.current.prayerName);
+    if (didCompleteSession) {
+      await markFocusCompleted(sessionRef.current.prayerName);
+    }
     afterAction?.();
     onExit();
   };
@@ -204,8 +216,8 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         visible={isCompleted}
         prayerName={effectivePrayer}
         breachCount={breachCount}
-        onConfirmPrayed={() => handleCleanExit(onCompletePrayer)}
-        onNotYet={() => handleCleanExit()}
+        onConfirmPrayed={() => handleCleanExit(onCompletePrayer, true)}
+        onNotYet={() => handleCleanExit(undefined, true)}
       />
 
       <FocusExitEarlyModal
@@ -213,7 +225,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         prayerName={effectivePrayer}
         remainingSeconds={remainingSeconds}
         onStayFocused={() => setShowExitModal(false)}
-        onConfirmExit={() => { setShowExitModal(false); handleCleanExit(); }}
+        onConfirmExit={() => { setShowExitModal(false); handleCleanExit(undefined, false); }}
       />
     </AppContainer>
   );
