@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Pressable, Animated } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS, Theme } from '@/constants/theme';
-import { AppText, PrayerTimeIcon } from '@/components/common';
+import { AppText } from '@/components/common';
 import { PrayerStatus } from '@/hooks/usePrayerTracker';
 
 export interface HomePrayerCardItemProps {
@@ -88,17 +88,14 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
         </View>
       )}
 
-      <View style={styles.nameIconRow}>
-        <AppText
-          variant="bodySmall"
-          color={isCurrentActive ? theme.colors.primary : theme.colors.textPrimary}
-          numberOfLines={1}
-          style={styles.prayerName}
-        >
-          {localizedName}
-        </AppText>
-        <PrayerTimeIcon prayer={item.name} size={14} muted={isFuture} />
-      </View>
+      <AppText
+        variant="bodySmall"
+        color={isCurrentActive ? theme.colors.primary : theme.colors.textPrimary}
+        numberOfLines={1}
+        style={styles.prayerName}
+      >
+        {localizedName}
+      </AppText>
 
       <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1} style={styles.prayerTime}>
         {item.time}
@@ -163,15 +160,9 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.5,
   },
-  nameIconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-  },
   prayerName: {
     fontWeight: '700',
-    fontSize: 12.5,
+    fontSize: 13,
   },
   prayerTime: {
     fontSize: 11,

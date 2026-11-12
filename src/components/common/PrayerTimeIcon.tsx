@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle, Defs, LinearGradient, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Circle, Ellipse, Defs, LinearGradient, RadialGradient, Stop } from 'react-native-svg';
 import { PRAYER_ICON_PALETTE } from '@/constants/theme';
 
 export interface PrayerTimeIconProps {
@@ -11,170 +11,203 @@ export interface PrayerTimeIconProps {
 
 export const PrayerTimeIcon: React.FC<PrayerTimeIconProps> = ({
   prayer,
-  size = 18,
+  size = 20,
   muted = false,
 }) => {
   const key = prayer.toLowerCase();
-  const opacity = muted ? 0.58 : 1;
+  const opacity = muted ? 0.55 : 1;
 
   if (key.includes('fajr') || key.includes('subuh')) {
-    // Fajr: 3D-style dawn sparkles cluster (large top-left, medium right, small bottom dot)
+    // Fajr: Realistic 3D glossy sparkles cluster (no flat cartoon outlines)
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="fajrStarGrad" cx="50%" cy="45%" r="55%">
+          <RadialGradient id="fajrGlow" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.starGlow} stopOpacity="0.45" />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.starGlow} stopOpacity="0" />
+          </RadialGradient>
+          <RadialGradient id="fajrMainStar" cx="45%" cy="42%" r="58%">
             <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.starLight} />
-            <Stop offset="65%" stopColor={PRAYER_ICON_PALETTE.starMid} />
+            <Stop offset="45%" stopColor={PRAYER_ICON_PALETTE.starMid} />
             <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.starEdge} />
           </RadialGradient>
+          <RadialGradient id="fajrBlueStar" cx="45%" cy="45%" r="55%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.starLight} />
+            <Stop offset="55%" stopColor={PRAYER_ICON_PALETTE.starBlueLight} />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.starBlue} />
+          </RadialGradient>
         </Defs>
-        {/* Main top-left 4-point star */}
+        {/* Soft ambient glow behind main star */}
+        <Circle cx="9" cy="8.5" r="7" fill="url(#fajrGlow)" />
+        {/* Main top-left 3D 4-point star */}
         <Path
-          d="M9 2.5C9.4 6.1 10.9 7.6 14.5 8C10.9 8.4 9.4 9.9 9 13.5C8.6 9.9 7.1 8.4 3.5 8C7.1 7.6 8.6 6.1 9 2.5Z"
-          fill="url(#fajrStarGrad)"
-          stroke={PRAYER_ICON_PALETTE.starEdge}
-          strokeWidth="0.6"
-          strokeLinejoin="round"
+          d="M9 1.8C9.45 5.9 11.1 7.55 15.2 8C11.1 8.45 9.45 10.1 9 14.2C8.55 10.1 6.9 8.45 2.8 8C6.9 7.55 8.55 5.9 9 1.8Z"
+          fill="url(#fajrMainStar)"
         />
-        {/* Secondary right 4-point star */}
+        {/* Specular highlight center on main star */}
+        <Circle cx="8.8" cy="7.8" r="1.5" fill={PRAYER_ICON_PALETTE.starLight} opacity={0.9} />
+        {/* Secondary right 3D 4-point star */}
         <Path
-          d="M17.5 8C17.8 10.3 18.7 11.2 21 11.5C18.7 11.8 17.8 12.7 17.5 15C17.2 12.7 16.3 11.8 14 11.5C16.3 11.2 17.2 10.3 17.5 8Z"
-          fill="url(#fajrStarGrad)"
-          stroke={PRAYER_ICON_PALETTE.starEdge}
-          strokeWidth="0.5"
-          strokeLinejoin="round"
+          d="M17.8 7.5C18.1 10.1 19.1 11.1 21.7 11.4C19.1 11.7 18.1 12.7 17.8 15.3C17.5 12.7 16.5 11.7 13.9 11.4C16.5 11.1 17.5 10.1 17.8 7.5Z"
+          fill="url(#fajrMainStar)"
         />
-        {/* Bottom-center small dawn diamond/star */}
+        <Circle cx="17.7" cy="11.3" r="0.9" fill={PRAYER_ICON_PALETTE.starLight} opacity={0.85} />
+        {/* Bottom-center small dawn star */}
         <Path
-          d="M12.5 15.8C12.7 17.2 13.3 17.8 14.7 18C13.3 18.2 12.7 18.8 12.5 20.2C12.3 18.8 11.7 18.2 10.3 18C11.7 17.8 12.3 17.2 12.5 15.8Z"
-          fill={PRAYER_ICON_PALETTE.starBlue}
+          d="M12.2 15.4C12.45 17.3 13.2 18.05 15.1 18.3C13.2 18.55 12.45 19.3 12.2 21.2C11.95 19.3 11.2 18.55 9.3 18.3C11.2 18.05 11.95 17.3 12.2 15.4Z"
+          fill="url(#fajrBlueStar)"
         />
       </Svg>
     );
   }
 
   if (key.includes('dhuhr') || key.includes('dzuhur') || key.includes('jumu')) {
-    // Dhuhr: Radiant 3D golden midday sun with warm rays
+    // Dhuhr: Realistic 3D volumetric golden sun with corona & tapered rays
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="dhuhrSunGrad" cx="42%" cy="38%" r="58%">
-            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunCore} />
-            <Stop offset="65%" stopColor={PRAYER_ICON_PALETTE.sunMid} />
+          <RadialGradient id="dhuhrCorona" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunMid} stopOpacity="0.55" />
+            <Stop offset="70%" stopColor={PRAYER_ICON_PALETTE.sunRay} stopOpacity="0.2" />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunDeep} stopOpacity="0" />
+          </RadialGradient>
+          <RadialGradient id="dhuhrSphere" cx="36%" cy="32%" r="65%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunSpecular} />
+            <Stop offset="28%" stopColor={PRAYER_ICON_PALETTE.sunCore} />
+            <Stop offset="72%" stopColor={PRAYER_ICON_PALETTE.sunMid} />
             <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunDeep} />
           </RadialGradient>
         </Defs>
-        {/* Outer soft glow */}
-        <Circle cx="12" cy="12" r="8.2" fill={PRAYER_ICON_PALETTE.sunMid} opacity={0.22} />
-        {/* Sun rays */}
+        {/* Soft outer solar corona */}
+        <Circle cx="12" cy="12" r="10.8" fill="url(#dhuhrCorona)" />
+        {/* Sculpted sunburst rays */}
         <Path
-          d="M12 2.2V4.3M12 19.7V21.8M5.1 5.1L6.6 6.6M17.4 17.4L18.9 18.9M2.2 12H4.3M19.7 12H21.8M5.1 18.9L6.6 17.4M17.4 6.6L18.9 5.1"
-          stroke={PRAYER_ICON_PALETTE.sunDeep}
-          strokeWidth="1.9"
-          strokeLinecap="round"
+          d="M12 1.4L13.3 4.6L16.5 2.4L15.9 5.9L19.9 5.3L17.7 8.5L21.6 9.8L18.2 11.8L21.6 14.2L17.7 15.5L19.9 18.7L15.9 18.1L16.5 21.6L13.3 19.4L12 22.6L10.7 19.4L7.5 21.6L8.1 18.1L4.1 18.7L6.3 15.5L2.4 14.2L5.8 11.8L2.4 9.8L6.3 8.5L4.1 5.3L8.1 5.9L7.5 2.4L10.7 4.6L12 1.4Z"
+          fill={PRAYER_ICON_PALETTE.sunRay}
+          opacity={0.85}
         />
-        {/* Core 3D sphere */}
-        <Circle
-          cx="12"
-          cy="12"
-          r="6.2"
-          fill="url(#dhuhrSunGrad)"
-          stroke={PRAYER_ICON_PALETTE.sunDeep}
-          strokeWidth="0.7"
+        {/* 3D Spherical Sun Core */}
+        <Circle cx="12" cy="12" r="6.8" fill="url(#dhuhrSphere)" />
+        {/* Top-left glossy 3D specular reflection */}
+        <Ellipse
+          cx="10.1"
+          cy="9.6"
+          rx="2.6"
+          ry="1.6"
+          transform="rotate(-28 10.1 9.6)"
+          fill={PRAYER_ICON_PALETTE.sunSpecular}
+          opacity={0.45}
         />
       </Svg>
     );
   }
 
   if (key.includes('asr') || key.includes('ashar')) {
-    // Asr: Golden sun peeking top-left behind a soft 3D sky-blue cloud
+    // Asr: Realistic 3D golden sun behind a multi-puff volumetric 3D cloud
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="asrSunGrad" cx="40%" cy="40%" r="60%">
-            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunCore} />
-            <Stop offset="70%" stopColor={PRAYER_ICON_PALETTE.sunMid} />
+          <RadialGradient id="asrSunGlow" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunMid} stopOpacity="0.45" />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunMid} stopOpacity="0" />
+          </RadialGradient>
+          <RadialGradient id="asrSunBody" cx="38%" cy="35%" r="62%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunSpecular} />
+            <Stop offset="35%" stopColor={PRAYER_ICON_PALETTE.sunCore} />
+            <Stop offset="75%" stopColor={PRAYER_ICON_PALETTE.sunMid} />
             <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunDeep} />
           </RadialGradient>
-          <LinearGradient id="asrCloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <LinearGradient id="asrCloudBody" x1="50%" y1="0%" x2="50%" y2="100%">
             <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.cloudTop} />
-            <Stop offset="62%" stopColor={PRAYER_ICON_PALETTE.cloudMid} />
-            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.cloudBase} />
+            <Stop offset="58%" stopColor={PRAYER_ICON_PALETTE.cloudMid} />
+            <Stop offset="88%" stopColor={PRAYER_ICON_PALETTE.cloudBase} />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.cloudShadow} />
           </LinearGradient>
+          <RadialGradient id="asrCloudPuff" cx="42%" cy="35%" r="58%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.cloudTop} stopOpacity="0.95" />
+            <Stop offset="70%" stopColor={PRAYER_ICON_PALETTE.cloudMid} stopOpacity="0.35" />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.cloudBase} stopOpacity="0" />
+          </RadialGradient>
         </Defs>
-        {/* Top-left warm sun */}
-        <Circle
-          cx="8.5"
-          cy="8.5"
-          r="4.6"
-          fill="url(#asrSunGrad)"
-          stroke={PRAYER_ICON_PALETTE.sunDeep}
-          strokeWidth="0.6"
-        />
-        {/* Foreground puffy cloud */}
+        {/* Sun outer glow */}
+        <Circle cx="8.2" cy="8.4" r="6.8" fill="url(#asrSunGlow)" />
+        {/* 3D Sun sphere */}
+        <Circle cx="8.2" cy="8.4" r="4.9" fill="url(#asrSunBody)" />
+        {/* Volumetric 3D cloud base silhouette (no cartoon stroke) */}
         <Path
-          d="M17.6 19.5H8.2C5.9 19.5 4 17.8 4 15.6C4 13.6 5.5 12 7.5 11.8C8.3 9.7 10.3 8.3 12.7 8.3C15.7 8.3 18.2 10.6 18.4 13.5C20.1 13.8 21.5 15.2 21.5 17C21.5 18.5 19.8 19.5 17.6 19.5Z"
-          fill="url(#asrCloudGrad)"
-          stroke={PRAYER_ICON_PALETTE.cloudStroke}
-          strokeWidth="0.7"
-          strokeLinejoin="round"
+          d="M17.8 19.6H7.9C5.5 19.6 3.6 17.8 3.6 15.5C3.6 13.4 5.1 11.7 7.1 11.5C8 9.3 10.1 7.9 12.6 7.9C15.8 7.9 18.4 10.3 18.6 13.4C20.4 13.7 21.8 15.1 21.8 16.9C21.8 18.5 20.1 19.6 17.8 19.6Z"
+          fill="url(#asrCloudBody)"
         />
+        {/* 3D Spherical puff highlights for realistic cloud depth */}
+        <Circle cx="12.6" cy="12.4" r="4.1" fill="url(#asrCloudPuff)" />
+        <Circle cx="8.1" cy="15.1" r="3.2" fill="url(#asrCloudPuff)" />
+        <Circle cx="17.2" cy="15.8" r="2.8" fill="url(#asrCloudPuff)" />
       </Svg>
     );
   }
 
   if (key.includes('maghrib')) {
-    // Maghrib: Warm orange-gold sunset dipping behind twilight & green hills
+    // Maghrib: Realistic 3D sunset with glowing sun & faceted mountain peaks
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <LinearGradient id="maghribSunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <RadialGradient id="maghribSkyGlow" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunsetGlow} stopOpacity="0.45" />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunsetGlow} stopOpacity="0" />
+          </RadialGradient>
+          <LinearGradient id="maghribSun" x1="35%" y1="15%" x2="65%" y2="95%">
             <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.sunsetSunTop} />
+            <Stop offset="55%" stopColor={PRAYER_ICON_PALETTE.sunsetSunMid} />
             <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.sunsetSunBottom} />
           </LinearGradient>
-          <LinearGradient id="maghribBackHill" x1="0%" y1="0%" x2="100%" y2="100%">
-            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.hillBackTop} />
-            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.hillBackBottom} />
+          <LinearGradient id="maghribBackMtn" x1="20%" y1="0%" x2="85%" y2="100%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.mountainBackLit} />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.mountainBackDark} />
           </LinearGradient>
-          <LinearGradient id="maghribFrontHill" x1="0%" y1="0%" x2="100%" y2="100%">
-            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.hillFrontLeft} />
-            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.hillFrontRight} />
+          <LinearGradient id="maghribFrontMtn" x1="15%" y1="10%" x2="85%" y2="95%">
+            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.mountainFrontLit} />
+            <Stop offset="48%" stopColor={PRAYER_ICON_PALETTE.mountainFrontMid} />
+            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.mountainFrontDark} />
           </LinearGradient>
         </Defs>
-        {/* Warm setting sun */}
-        <Circle cx="10" cy="10.2" r="5" fill="url(#maghribSunGrad)" />
-        {/* Back twilight hill (right) */}
+        {/* Warm horizon glow */}
+        <Circle cx="10.2" cy="11.2" r="8.5" fill="url(#maghribSkyGlow)" />
+        {/* 3D Setting Sun */}
+        <Circle cx="10" cy="10.5" r="5.1" fill="url(#maghribSun)" />
+        {/* Distant twilight mountain range (right) */}
         <Path
-          d="M9.5 19.5C11.8 14.2 15.2 11.8 18.2 11.8C20.1 11.8 21.4 13.8 22 19.5H9.5Z"
-          fill="url(#maghribBackHill)"
+          d="M8.8 19.6L14.9 10.8C15.5 9.9 16.7 9.9 17.3 10.8L22.2 19.6H8.8Z"
+          fill="url(#maghribBackMtn)"
         />
-        {/* Front green hill (left-to-center) */}
+        {/* Foreground lush sunset-lit mountain slope (left-to-center) */}
         <Path
-          d="M2.2 19.5C4.2 14.5 7.4 13.2 10.6 13.8C13.6 14.4 16.2 16.8 18.8 19.5H2.2Z"
-          fill="url(#maghribFrontHill)"
+          d="M1.8 19.6L7.6 12C8.3 11.1 9.5 11.1 10.2 12L17.4 19.6H1.8Z"
+          fill="url(#maghribFrontMtn)"
         />
       </Svg>
     );
   }
 
-  // Isha (default): Luminous 3D silver-pearl crescent moon
+  // Isha (default): Realistic 3D sculpted crescent moon with craters & spherical shading
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
       <Defs>
-        <LinearGradient id="ishaMoonGrad" x1="15%" y1="10%" x2="85%" y2="90%">
-          <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.moonLight} />
-          <Stop offset="60%" stopColor={PRAYER_ICON_PALETTE.moonMid} />
+        <RadialGradient id="ishaMoonBody" cx="30%" cy="25%" r="75%">
+          <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.moonSpecular} />
+          <Stop offset="38%" stopColor={PRAYER_ICON_PALETTE.moonLight} />
+          <Stop offset="74%" stopColor={PRAYER_ICON_PALETTE.moonMid} />
           <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.moonShadow} />
-        </LinearGradient>
+        </RadialGradient>
       </Defs>
+      {/* Sculpted 3D crescent moon body */}
       <Path
-        d="M19.8 14.9A8.2 8.2 0 0 1 9.1 4.2a8.3 8.3 0 1 0 10.7 10.7Z"
-        fill="url(#ishaMoonGrad)"
-        stroke={PRAYER_ICON_PALETTE.moonShadow}
-        strokeWidth="0.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M20.1 14.8A8.4 8.4 0 0 1 9.2 3.9a8.5 8.5 0 1 0 10.9 10.9Z"
+        fill="url(#ishaMoonBody)"
       />
+      {/* Subtle 3D lunar surface craters */}
+      <Circle cx="9.2" cy="14.2" r="1.4" fill={PRAYER_ICON_PALETTE.moonCrater} opacity={0.28} />
+      <Circle cx="12.8" cy="17.2" r="1.0" fill={PRAYER_ICON_PALETTE.moonCrater} opacity={0.24} />
+      <Circle cx="7.3" cy="10.4" r="0.85" fill={PRAYER_ICON_PALETTE.moonCrater} opacity={0.22} />
     </Svg>
   );
 };
