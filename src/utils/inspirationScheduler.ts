@@ -15,6 +15,8 @@ import {
   InspirationItem,
   getInspirationById,
 } from '@/data/inspiration';
+import { CalculationMethodName, JuristicMethod } from '@/types';
+import { getRawPrayerTimes } from './prayerTimes';
 import { formatScriptureNotification } from './scriptureNotificationFormatter';
 
 export const DEFAULT_INSPIRATION_CONFIG: InspirationConfig = {
@@ -51,40 +53,52 @@ export const cancelInspirationNotifications = async (): Promise<void> => {
   } catch {}
 };
 
-export const calculateRandomInspirationDate = (
+export const calculateFajrToDhuhrInspirationDate = (
   baseDate: Date,
+  latitude?: number,
+  longitude?: number,
   timezone?: string,
-  minHour: number = 9,
-  maxHour: number = 20
+  calculationMethod: CalculationMethodName = 'Karachi',
+  juristicMethod: JuristicMethod = 'Hanafi'
 ): Date => {
-  const local = getLocalDateComponents(baseDate, timezone);
-  const now = new Date();
-  const todayLocal = getLocalDateComponents(now, timezone);
-  const isTargetingToday = local.dateKey === todayLocal.dateKey;
+  // Default Fajr+30m (06:00) to Dhuhr-15m (11:45) fallback if coordinates aren't provided
+  let windowStartMs = new Date(baseDate).setHours(6, 0, 0, 0);
+  let windowEndMs = new Date(baseDate).setHours(11, 45, 0, 0);
 
-  let startTotalMins = minHour * 60; // 09:00 = 540
-  const endTotalMins = maxHour * 60;  // 20:00 = 1200
-
-  if (isTargetingToday) {
-    const currentLocalMins = now.getHours() * 60 + now.getMinutes();
-    startTotalMins = Math.max(startTotalMins, currentLocalMins + 2);
+  if (latitude !== undefined && longitude !== undefined) {
+    const raw = getRawPrayerTimes(
+      latitude,
+      longitude,
+      baseDate,
+      calculationMethod,
+      juristicMethod,
+      timezone
+    );
+    if (raw.fajr && raw.dhuhr) {
+      // Buffer 20 mins after Fajr start and 15 mins before Dhuhr start
+      windowStartMs = raw.fajr.getTime() + 20 * 60 * 1000;
+      windowEndMs = raw.dhuhr.getTime() - 15 * 60 * 1000;
+    }
   }
 
-  const range = Math.max(1, endTotalMins - startTotalMins);
-  const randomMinutes = Math.floor(Math.random() * range);
-  const targetTotalMins = startTotalMins + randomMinutes;
+  const nowMs = Date.now();
+  const effectiveStartMs = Math.max(windowStartMs, nowMs + 2 * 60 * 1000);
 
-  const targetHour = Math.floor(targetTotalMins / 60);
-  const targetMin = targetTotalMins % 60;
+  if (effectiveStartMs >= windowEndMs) {
+    // Window for baseDate has passed
+    return new Date(windowEndMs);
+  }
 
-  // Accurately map local calendar components into a valid timestamp
-  const dateObj = new Date(baseDate);
-  dateObj.setHours(targetHour, targetMin, 0, 0);
-  return dateObj;
+  const randomOffsetMs = Math.floor(Math.random() * (windowEndMs - effectiveStartMs));
+  return new Date(effectiveStartMs + randomOffsetMs);
 };
 
 export const scheduleDailyInspirationNotification = async (params: {
+  latitude?: number;
+  longitude?: number;
   timezone?: string;
+  calculationMethod?: CalculationMethodName;
+  juristicMethod?: JuristicMethod;
   language?: string;
 }): Promise<boolean> => {
   try {
@@ -105,14 +119,37 @@ export const scheduleDailyInspirationNotification = async (params: {
     const existingToday = scheduledList.find((n) => n.identifier === `salahfirst-inspiration-${todayKey}`);
     const existingReengagement = scheduledList.find((n) => n.identifier === `salahfirst-reengagement-${todayKey}`);
 
-    let targetDate = new Date();
+    // Determine today's Fajr-to-Dhuhr end boundary
+    let todayDhuhrEndMs = new Date(now).setHours(11, 45, 0, 0);
+    if (params.latitude !== undefined && params.longitude !== undefined) {
+      const todayRaw = getRawPrayerTimes(
+        params.latitude,
+        params.longitude,
+        now,
+        params.calculationMethod || 'Karachi',
+        params.juristicMethod || 'Hanafi',
+        params.timezone
+      );
+      if (todayRaw.dhuhr) {
+        todayDhuhrEndMs = todayRaw.dhuhr.getTime() - 15 * 60 * 1000;
+      }
+    }
+
+    const isPastFajrDhuhrWindow = now.getTime() >= todayDhuhrEndMs - 2 * 60 * 1000;
+
+    let targetDate = new Date(now);
     let targetDateKey = todayKey;
 
-    // Check if we should target today or tomorrow (enforce strict max 1 daily notification)
-    const currentHour = now.getHours();
-    if (alreadyDeliveredToday || alreadyDeliveredReengagement || existingToday || existingReengagement || currentHour >= 20) {
-      // Advance to tomorrow
-      targetDate.setDate(now.getDate() + 1);
+    // Strictly 1 daily notification between Fajr and Dhuhr only.
+    // If already scheduled/delivered today OR if past Dhuhr today, schedule for tomorrow's Fajr-to-Dhuhr window.
+    if (
+      alreadyDeliveredToday ||
+      alreadyDeliveredReengagement ||
+      existingToday ||
+      existingReengagement ||
+      isPastFajrDhuhrWindow
+    ) {
+      targetDate = new Date(now.getTime() + 86400000);
       const tomorrowLocal = getLocalDateComponents(targetDate, params.timezone);
       targetDateKey = tomorrowLocal.dateKey;
     }
@@ -125,52 +162,14 @@ export const scheduleDailyInspirationNotification = async (params: {
     const item = await selectNextInspiration(targetDateKey);
     if (!item) return false;
 
-    const deliveryDate = calculateRandomInspirationDate(targetDate, params.timezone);
-
-    // Respect quiet hours if configured
-    if (config.quietHoursEnabled && isWithinQuietHours(deliveryDate, config.quietHoursStart, config.quietHoursEnd)) {
-      deliveryDate.setHours(10, 0, 0, 0);
-    }
-
-    // Single delivery policy: if targeting today and time is now, fire immediately and record
-    const isToday = targetDateKey === todayKey;
-    if (isToday && deliveryDate.getTime() <= now.getTime()) {
-      const formatted = formatScriptureNotification(item, lang);
-      await Notifications.scheduleNotificationAsync({
-        identifier: `salahfirst-inspiration-${todayKey}`,
-        content: {
-          title: formatted.title,
-          body: formatted.body,
-          sound: 'default',
-          data: { type: 'daily-inspiration', contentId: item.id, dateKey: todayKey },
-        },
-        trigger: null, // immediate delivery
-      });
-      await recordInspirationDelivery(item.id, todayKey, item.category);
-      // Immediately schedule tomorrow's in advance
-      targetDate.setDate(now.getDate() + 1);
-      const tomorrowLocal = getLocalDateComponents(targetDate, params.timezone);
-      const nextItem = await selectNextInspiration(tomorrowLocal.dateKey);
-      if (nextItem) {
-        const nextDelivery = calculateRandomInspirationDate(targetDate, params.timezone);
-        const nextFormatted = formatScriptureNotification(nextItem, lang);
-        await Notifications.scheduleNotificationAsync({
-          identifier: `salahfirst-inspiration-${tomorrowLocal.dateKey}`,
-          content: {
-            title: nextFormatted.title,
-            body: nextFormatted.body,
-            sound: 'default',
-            data: { type: 'daily-inspiration', contentId: nextItem.id, dateKey: tomorrowLocal.dateKey },
-          },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: nextDelivery,
-            channelId: INSPIRATION_CHANNEL_ID,
-          },
-        });
-      }
-      return true;
-    }
+    const deliveryDate = calculateFajrToDhuhrInspirationDate(
+      targetDate,
+      params.latitude,
+      params.longitude,
+      params.timezone,
+      params.calculationMethod,
+      params.juristicMethod
+    );
 
     const scheduledFormatted = formatScriptureNotification(item, lang);
     await Notifications.scheduleNotificationAsync({
@@ -187,6 +186,10 @@ export const scheduleDailyInspirationNotification = async (params: {
         channelId: INSPIRATION_CHANNEL_ID,
       },
     });
+
+    // Record immediately when scheduled so re-opening the app on the same day after delivery
+    // never schedules a 2nd notification for the same dateKey
+    await recordInspirationDelivery(item.id, targetDateKey, item.category);
 
     return true;
   } catch {

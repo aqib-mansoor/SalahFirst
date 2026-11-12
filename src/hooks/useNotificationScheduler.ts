@@ -34,7 +34,11 @@ export const useNotificationScheduler = (
       juristicMethod,
     });
     await scheduleDailyInspirationNotification({
+      latitude: location?.latitude,
+      longitude: location?.longitude,
       timezone: location?.timezone,
+      calculationMethod,
+      juristicMethod,
       language,
     });
   }, [location?.latitude, location?.longitude, location?.timezone, alerts, calculationMethod, juristicMethod, language]);
