@@ -106,3 +106,49 @@ export const getDeviceSoundMode = async (): Promise<DeviceSoundModeState> => {
     };
   }
 };
+
+/**
+ * DEVELOPER TESTING: Trigger immediate native playback via AzanService.
+ */
+export const playNativeAzanImmediate = async (
+  reciterKey: string = 'makkah',
+  testLabel: string = '[TEST] Immediate Azan'
+): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.playNativeAzanImmediate) return false;
+  try {
+    await AzanModule.playNativeAzanImmediate(reciterKey, testLabel);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * DEVELOPER TESTING: Schedule a native test alarm (default 30s) using the production AlarmManager path.
+ * Uses isolated test alarm ID 9999 so it never interferes with real prayer times.
+ */
+export const scheduleTestAzan = async (
+  reciterKey: string = 'makkah',
+  delaySeconds: number = 30
+): Promise<number | null> => {
+  if (!isAndroid || !AzanModule?.scheduleTestAzan) return null;
+  try {
+    const triggerMs = await AzanModule.scheduleTestAzan(reciterKey, delaySeconds);
+    return triggerMs;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * DEVELOPER TESTING: Cancel only the scheduled test alarm (ID 9999).
+ */
+export const cancelTestAzan = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.cancelTestAzan) return false;
+  try {
+    await AzanModule.cancelTestAzan();
+    return true;
+  } catch {
+    return false;
+  }
+};
