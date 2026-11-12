@@ -1,4 +1,5 @@
 import { createAudioPlayer, setAudioModeAsync, AudioPlayer, AudioStatus } from 'expo-audio';
+import { getDeviceSoundMode } from '@/native/AzanServiceModule';
 
 export const AZAN_PRESET_URLS = {
   makkah: 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
@@ -15,60 +16,93 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
   alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
 };
 
-// Exact seconds offset to eliminate pre-recitation silence/delay (bundled offline assets are trimmed to start immediately at 0s)
-export const AZAN_START_OFFSETS: Record<AzanReciterKey, number> = {
-  makkah: 0,
-  madinah: 0,
-  alAqsa: 0,
-};
-
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
+let activeSessionId = 0;
 
 /**
- * respectSilentMode = true  -> automatic prayer-time Azan stays muted on Silent/Vibrate/DND.
- * respectSilentMode = false -> user-initiated preview always plays.
+ * Configure audio mode to respect system ringer and DND constraints.
  */
-export const configureAudioMode = async (respectSilentMode: boolean = false): Promise<void> => {
+export const configureAudioMode = async (respectSilentMode: boolean = true): Promise<void> => {
   try {
     await setAudioModeAsync({
       playsInSilentMode: !respectSilentMode,
-      shouldPlayInBackground: true,
+      shouldPlayInBackground: false,
       interruptionMode: 'duckOthers',
     });
   } catch {}
 };
 
+/**
+ * Stop and completely release any active audio player.
+ */
+export const stopAzanAudio = async (): Promise<void> => {
+  activeSessionId++;
+  if (currentSubscription) {
+    try {
+      currentSubscription.remove();
+    } catch {}
+    currentSubscription = null;
+  }
+
+  if (currentPlayer) {
+    try {
+      currentPlayer.pause();
+      currentPlayer.remove();
+    } catch {}
+    currentPlayer = null;
+  }
+};
+
+export interface PlayAzanAudioOptions {
+  onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void;
+  reciterOrUri?: AzanReciterKey | string;
+  respectSilentMode?: boolean;
+}
+
+/**
+ * Play selected Azan audio file with safe single-instance player lifecycle.
+ */
 export const playAzanAudio = async (
   onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void,
   reciterOrUri?: AzanReciterKey | string,
-  respectSilentMode: boolean = false
+  respectSilentMode: boolean = true
 ): Promise<boolean> => {
+  // Always stop previous player instance cleanly first
+  await stopAzanAudio();
+
+  const thisSessionId = ++activeSessionId;
+
+  // Inspect Android sound mode before initiating playback
+  if (respectSilentMode) {
+    const soundState = await getDeviceSoundMode();
+    if (!soundState.canPlayAudibleSound) {
+      onStatusUpdate?.(false, true);
+      return false;
+    }
+  }
+
   try {
-    await stopAzanAudio();
     await configureAudioMode(respectSilentMode);
 
-    const isReciterKey = reciterOrUri && reciterOrUri in AZAN_PRESET_URLS;
+    const isReciterKey = reciterOrUri && reciterOrUri in AZAN_LOCAL_ASSETS;
     const reciterKey: AzanReciterKey = isReciterKey ? (reciterOrUri as AzanReciterKey) : 'makkah';
 
-    // Prioritize bundled local offline asset first, fallback to remote CDN
-    const source = isReciterKey
-      ? (AZAN_LOCAL_ASSETS[reciterKey] || AZAN_PRESET_URLS[reciterKey])
-      : (reciterOrUri || AZAN_LOCAL_ASSETS.makkah);
-
+    // Strictly prioritize bundled offline asset
+    const source = AZAN_LOCAL_ASSETS[reciterKey] || AZAN_LOCAL_ASSETS.makkah;
     const player = createAudioPlayer(source);
 
-    // Apply start offset to skip intro silence (e.g. 3.8s for Makkah) so Azan recites immediately
-    const startOffset = isReciterKey ? (AZAN_START_OFFSETS[reciterKey] || 0) : 0;
-    if (startOffset > 0) {
-      try {
-        await player.seekTo(startOffset);
-      } catch {}
+    if (thisSessionId !== activeSessionId) {
+      player.remove();
+      return false;
     }
 
     currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
+      if (thisSessionId !== activeSessionId) return;
+
       if ((status as any).error) {
         onStatusUpdate?.(false, true);
+        stopAzanAudio();
         return;
       }
 
@@ -84,26 +118,11 @@ export const playAzanAudio = async (
     currentPlayer = player;
     return true;
   } catch {
-    onStatusUpdate?.(false, true);
+    if (thisSessionId === activeSessionId) {
+      onStatusUpdate?.(false, true);
+      await stopAzanAudio();
+    }
     return false;
-  }
-};
-
-export const stopAzanAudio = async (): Promise<void> => {
-  try {
-    if (currentSubscription) {
-      currentSubscription.remove();
-      currentSubscription = null;
-    }
-    if (currentPlayer) {
-      currentPlayer.pause();
-      currentPlayer.seekTo(0);
-      currentPlayer.remove();
-      currentPlayer = null;
-    }
-  } catch {
-    currentPlayer = null;
-    currentSubscription = null;
   }
 };
 

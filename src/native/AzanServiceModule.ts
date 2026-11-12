@@ -5,6 +5,13 @@ const isAndroid = Platform.OS === 'android';
 
 const PRAYER_KEYS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 
+export interface DeviceSoundModeState {
+  ringerMode: number;
+  isDndActive: boolean;
+  canPlayAudibleSound: boolean;
+  suppressionReason?: string | null;
+}
+
 /**
  * Stable alarm ID: dayOffset(0-6) * 10 + prayerIndex(0-4) → 0–64
  */
@@ -73,5 +80,29 @@ export const stopNativeAzan = async (): Promise<boolean> => {
     return true;
   } catch {
     return false;
+  }
+};
+
+/**
+ * Inspect live device sound mode (Ringer mode & DND interruption filter).
+ */
+export const getDeviceSoundMode = async (): Promise<DeviceSoundModeState> => {
+  if (!isAndroid || !AzanModule?.getDeviceSoundMode) {
+    return {
+      ringerMode: 2, // Normal
+      isDndActive: false,
+      canPlayAudibleSound: true,
+      suppressionReason: null,
+    };
+  }
+  try {
+    return await AzanModule.getDeviceSoundMode();
+  } catch {
+    return {
+      ringerMode: 2,
+      isDndActive: false,
+      canPlayAudibleSound: true,
+      suppressionReason: null,
+    };
   }
 };
