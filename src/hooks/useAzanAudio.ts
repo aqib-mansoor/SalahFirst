@@ -13,11 +13,13 @@ import { APP_CONFIG } from '@/constants/config';
 import { notifyPrayerAlertsChanged } from './usePrayerAlerts';
 import { getDeviceSoundMode } from '@/native/AzanServiceModule';
 
+export type AzanPreviewError = 'muted' | 'failed';
+
 export const useAzanAudio = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AzanPreviewError | null>(null);
   const [currentReciter, setCurrentReciter] = useState<AzanReciterKey>('makkah');
   const isPreviewActiveRef = useRef<boolean>(false);
   const activePlayIdRef = useRef<number>(0);
@@ -72,23 +74,24 @@ export const useAzanAudio = () => {
           setIsLoading(false);
           setIsPlaying(false);
           isPreviewActiveRef.current = false;
-          setError(soundState.suppressionReason || 'Phone is in Silent/Vibrate mode.');
+          setError('muted');
         }
         return false;
       }
 
       const success = await playAzanAudio(
-        (playing, finished) => {
+        (playing, finished, hadError) => {
           if (playId !== activePlayIdRef.current) return;
           setIsPlaying(playing && !finished);
           if (finished) {
             isPreviewActiveRef.current = false;
             setIsLoading(false);
             setIsPaused(false);
+            if (hadError) setError('failed');
           }
         },
         key,
-        true // Respect Silent / DND modes
+        false // Sound mode already checked above; avoid a duplicate async check
       );
 
       if (playId === activePlayIdRef.current) {
@@ -97,7 +100,7 @@ export const useAzanAudio = () => {
         setIsPaused(false);
         if (!success) {
           isPreviewActiveRef.current = false;
-          setError('Unable to play audio. Check device sound profile.');
+          setError('failed');
         }
       }
       return success;
@@ -137,6 +140,7 @@ export const useAzanAudio = () => {
   const selectReciter = useCallback(
     async (key: AzanReciterKey) => {
       setCurrentReciter(key);
+      setError(null);
       await storage.set(APP_CONFIG.storageKeys.azanReciter, key);
       notifyPrayerAlertsChanged();
 

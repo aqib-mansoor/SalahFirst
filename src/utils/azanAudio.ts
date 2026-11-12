@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync, AudioPlayer, AudioStatus } from 'expo-audio';
 import { getDeviceSoundMode } from '@/native/AzanServiceModule';
 
@@ -15,6 +16,17 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
   madinah: require('../../assets/audio/azan_madinah.mp3'),
   alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
 };
+
+// Android res/raw names (same files used by native AzanService). A bare name makes
+// expo-audio load the raw resource directly, independent of the Metro dev server.
+const ANDROID_RAW_NAMES: Record<AzanReciterKey, string> = {
+  makkah: 'azan_makkah',
+  madinah: 'azan_madinah',
+  alAqsa: 'azan_alaqsa',
+};
+
+const getAzanSource = (key: AzanReciterKey) =>
+  Platform.OS === 'android' ? { uri: ANDROID_RAW_NAMES[key] } : AZAN_LOCAL_ASSETS[key];
 
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
@@ -55,7 +67,7 @@ export const stopAzanAudio = async (): Promise<void> => {
 };
 
 export interface PlayAzanAudioOptions {
-  onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void;
+  onStatusUpdate?: AzanStatusCallback;
   reciterOrUri?: AzanReciterKey | string;
   respectSilentMode?: boolean;
 }
@@ -63,8 +75,10 @@ export interface PlayAzanAudioOptions {
 /**
  * Play selected Azan audio file with safe single-instance player lifecycle.
  */
+export type AzanStatusCallback = (isPlaying: boolean, isFinished: boolean, hadError?: boolean) => void;
+
 export const playAzanAudio = async (
-  onStatusUpdate?: (isPlaying: boolean, isFinished: boolean) => void,
+  onStatusUpdate?: AzanStatusCallback,
   reciterOrUri?: AzanReciterKey | string,
   respectSilentMode: boolean = true
 ): Promise<boolean> => {
@@ -89,8 +103,7 @@ export const playAzanAudio = async (
     const reciterKey: AzanReciterKey = isReciterKey ? (reciterOrUri as AzanReciterKey) : 'makkah';
 
     // Strictly prioritize bundled offline asset
-    const source = AZAN_LOCAL_ASSETS[reciterKey] || AZAN_LOCAL_ASSETS.makkah;
-    const player = createAudioPlayer(source);
+    const player = createAudioPlayer(getAzanSource(reciterKey));
 
     if (thisSessionId !== activeSessionId) {
       player.remove();
@@ -100,8 +113,9 @@ export const playAzanAudio = async (
     currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
       if (thisSessionId !== activeSessionId) return;
 
-      if ((status as any).error) {
-        onStatusUpdate?.(false, true);
+      if (status.error) {
+        if (__DEV__) console.warn('[azanAudio] playback error:', status.error);
+        onStatusUpdate?.(false, true, true);
         stopAzanAudio();
         return;
       }
@@ -117,9 +131,10 @@ export const playAzanAudio = async (
     player.play();
     currentPlayer = player;
     return true;
-  } catch {
+  } catch (e) {
+    if (__DEV__) console.warn('[azanAudio] failed to start playback:', e);
     if (thisSessionId === activeSessionId) {
-      onStatusUpdate?.(false, true);
+      onStatusUpdate?.(false, true, true);
       await stopAzanAudio();
     }
     return false;

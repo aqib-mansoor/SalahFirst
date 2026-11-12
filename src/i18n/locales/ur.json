@@ -392,9 +392,10 @@
   "reciterMakkah": "مکہ مکرمہ",
   "reciterMadinah": "مدینہ منورہ",
   "reciterAlAqsa": "مسجد اقصیٰ",
-  "connectingToStream": "آڈیو اسٹریم سے رابطہ ہو رہا ہے...",
+  "connectingToStream": "آڈیو لوڈ ہو رہی ہے...",
   "playingAzan": "{{reciter}} اذان چل رہی ہے",
-  "audioStreamError": "آڈیو اسٹریم دستیاب نہیں ہے۔ انٹرنیٹ کنکشن چیک کریں۔",
+  "audioStreamError": "پریویو نہیں چل سکا۔ دوبارہ Play دبائیں۔",
+  "previewMutedBySoundMode": "فون Silent، Vibrate یا DND پر ہے۔ پریویو کے لیے آواز آن کریں۔",
   "batteryOptTitle": "بروقت اور درست اذان",
   "batteryOptDesc": "بیٹری آپٹیمائزیشن کو غیر فعال کریں تاکہ آپ کا آلہ اذان کے الرٹ کو نہ روکے۔",
   "batteryOptButton": "بیٹری ترتیبات"

@@ -6,12 +6,13 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { AzanReciterKey } from '@/utils/azanAudio';
+import { AzanPreviewError } from '@/hooks/useAzanAudio';
 
 export interface AzanAudioPreviewCardProps {
   isLoading: boolean;
   isPlaying: boolean;
   currentReciter: AzanReciterKey;
-  error?: string | null;
+  error?: AzanPreviewError | null;
   onSelectReciter: (key: AzanReciterKey) => void;
   onToggle: () => void;
 }
@@ -42,7 +43,7 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
   } else if (isPlaying) {
     statusText = t('playingAzan', { reciter: activeLabel });
   } else if (error) {
-    statusText = t('audioStreamError');
+    statusText = t(error === 'muted' ? 'previewMutedBySoundMode' : 'audioStreamError');
   }
 
   return (

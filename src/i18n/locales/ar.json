@@ -393,9 +393,10 @@
   "reciterMakkah": "مكة المكرمة",
   "reciterMadinah": "المدينة المنورة",
   "reciterAlAqsa": "المسجد الأقصى",
-  "connectingToStream": "جارٍ الاتصال بالبث الصوتي...",
+  "connectingToStream": "جارٍ تحميل الصوت...",
   "playingAzan": "تشغيل أذان {{reciter}}",
-  "audioStreamError": "البث الصوتي غير متاح. يرجى التحقق من الاتصال بالإنترنت.",
+  "audioStreamError": "تعذّر تشغيل المعاينة. اضغط تشغيل للمحاولة مجددًا.",
+  "previewMutedBySoundMode": "الهاتف في وضع الصامت أو الاهتزاز أو عدم الإزعاج. شغّل الصوت للمعاينة.",
   "batteryOptTitle": "أذان دقيق وموثوق",
   "batteryOptDesc": "اسمح للتطبيق بالعمل دون قيود تحسين البطارية لضمان عدم تأخير الأذان.",
   "batteryOptButton": "إعدادات البطارية"

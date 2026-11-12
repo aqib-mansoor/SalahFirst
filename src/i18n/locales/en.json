@@ -392,9 +392,10 @@
   "reciterMakkah": "Makkah",
   "reciterMadinah": "Madinah",
   "reciterAlAqsa": "Al-Aqsa",
-  "connectingToStream": "Connecting to audio stream...",
+  "connectingToStream": "Loading audio...",
   "playingAzan": "Playing {{reciter}} Azan",
-  "audioStreamError": "Audio stream unavailable. Check internet connection.",
+  "audioStreamError": "Preview could not play. Tap Play to try again.",
+  "previewMutedBySoundMode": "Phone is on Silent, Vibrate or DND. Turn sound on to preview.",
   "batteryOptTitle": "Reliable Azan on Android",
   "batteryOptDesc": "Allow SalahFirst to run without battery restrictions so alarms are never silenced by your device.",
   "batteryOptButton": "Check Battery Settings"
