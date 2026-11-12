@@ -60,10 +60,14 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   let bellBg = theme.colors.surfaceElevated;
   let notifLabel = t('notificationModeSilent');
 
-  if (notification === 'AZAN' || notification === 'TONE') {
+  if (notification === 'AZAN') {
     bellColor = theme.colors.primary;
     bellBg = theme.colors.secondaryTint;
     notifLabel = t('notificationModeAzan');
+  } else if (notification === 'TONE') {
+    bellColor = theme.colors.primary;
+    bellBg = theme.colors.surfaceElevated;
+    notifLabel = t('notificationModeTone');
   } else if (notification === 'VIBRATE') {
     bellColor = theme.colors.accent;
     bellBg = theme.colors.accentTint;

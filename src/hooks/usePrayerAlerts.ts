@@ -29,7 +29,7 @@ export const usePrayerAlerts = () => {
 
   const cyclePrayerMode = useCallback(
     (prayer: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha') => {
-      const modes: NotificationMode[] = ['TONE', 'VIBRATE', 'SILENT'];
+      const modes: NotificationMode[] = ['AZAN', 'TONE', 'VIBRATE', 'SILENT'];
       const currentIndex = modes.indexOf(alerts[prayer]);
       const nextMode = modes[(currentIndex + 1) % modes.length];
       saveAlerts({ ...alerts, [prayer]: nextMode });

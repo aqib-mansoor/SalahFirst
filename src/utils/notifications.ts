@@ -164,7 +164,7 @@ export const scheduleAllPrayerAlerts = async (
       );
 
       for (const prayer of PRAYERS_LIST) {
-        const mode: NotificationMode = alerts && alerts[prayer.key] ? alerts[prayer.key] : 'TONE';
+        const mode: NotificationMode = alerts && alerts[prayer.key] ? alerts[prayer.key] : 'AZAN';
         if (mode === 'SILENT') continue;
 
         const prayerDate = raw[prayer.name.toLowerCase() as keyof typeof raw] as Date;

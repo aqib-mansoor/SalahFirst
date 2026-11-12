@@ -15,7 +15,8 @@ export interface PrayerAlertCardProps {
 }
 
 const ALERT_MODES: { id: NotificationMode; labelKey: string }[] = [
-  { id: 'TONE', labelKey: 'notificationModeAzan' },
+  { id: 'AZAN', labelKey: 'notificationModeAzan' },
+  { id: 'TONE', labelKey: 'notificationModeTone' },
   { id: 'VIBRATE', labelKey: 'notificationModeVibrate' },
   { id: 'SILENT', labelKey: 'notificationModeSilent' },
 ];
@@ -29,17 +30,13 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const isModeActive = (modeId: NotificationMode) => {
-    if (modeId === 'TONE') {
-      return currentMode === 'TONE' || currentMode === 'AZAN';
-    }
-    return currentMode === modeId;
-  };
+  const isModeActive = (modeId: NotificationMode) => currentMode === modeId;
 
   const getDisplayModeName = () => {
+    if (currentMode === 'AZAN') return t('notificationModeAzan');
+    if (currentMode === 'TONE') return t('notificationModeTone');
     if (currentMode === 'VIBRATE') return t('notificationModeVibrate');
-    if (currentMode === 'SILENT') return t('notificationModeSilent');
-    return t('notificationModeAzan');
+    return t('notificationModeSilent');
   };
 
   return (

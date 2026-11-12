@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 export const PRAYER_CHANNEL_MAKKAH = 'salahfirst-prayer-makkah-v2';
 export const PRAYER_CHANNEL_MADINAH = 'salahfirst-prayer-madinah-v2';
 export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v2';
+export const PRAYER_CHANNEL_TONE = 'salahfirst-prayer-tone-v2';
 export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v2';
 export const PRAYER_CHANNEL_ID = PRAYER_CHANNEL_MAKKAH;
 export const PRAYER_CATEGORY_ID = 'salahfirst-prayer-actions';
@@ -23,6 +24,9 @@ export const getPrayerChannelForModeAndReciter = (
 ): { channelId: string; soundName?: string } => {
   if (mode === 'VIBRATE') {
     return { channelId: PRAYER_CHANNEL_VIBRATE, soundName: undefined };
+  }
+  if (mode === 'TONE') {
+    return { channelId: PRAYER_CHANNEL_TONE, soundName: 'default' };
   }
   if (reciterKey === 'madinah') {
     return { channelId: PRAYER_CHANNEL_MADINAH, soundName: 'azan_madinah.mp3' };
@@ -95,6 +99,17 @@ export const setupNotificationChannels = async (): Promise<void> => {
       },
     });
   }
+
+  await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_TONE, {
+    name: 'Prayer Alert (Standard Tone)',
+    importance: Notifications.AndroidImportance.HIGH,
+    bypassDnd: false,
+    vibrationPattern: [0, 400, 200, 400],
+    lightColor: '#0E7449',
+    enableLights: true,
+    enableVibrate: true,
+    sound: 'default',
+  });
 
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_VIBRATE, {
     name: 'Prayer Alert (Vibrate Only)',
