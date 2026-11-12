@@ -14,6 +14,7 @@ export interface PrayerTimeRowProps {
   notification: NotificationMode;
   isNext?: boolean;
   isCurrent?: boolean;
+  hasStarted?: boolean;
   remainingTimeText?: string;
   onCycleNotification?: () => void;
   onPressRow?: () => void;
@@ -33,7 +34,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   time,
   notification,
   isNext = false,
-  isCurrent = false,
+  hasStarted = false,
   remainingTimeText,
   onCycleNotification,
   onPressRow,
@@ -41,19 +42,14 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  // Dynamic styling based on current / next / normal state
-  let cardBg = theme.colors.surface;
-  let borderColor = theme.colors.border;
-  let dotColor = theme.colors.border;
-
-  if (isCurrent) {
-    cardBg = theme.colors.secondaryTint;
-    borderColor = theme.colors.primary;
-    dotColor = theme.colors.primary;
-  } else if (isNext) {
-    borderColor = theme.colors.accent;
-    dotColor = theme.colors.accent;
-  }
+  const isPast = hasStarted && !isNext;
+  const cardBg = isNext ? theme.colors.secondaryTint : theme.colors.surface;
+  const borderColor = isNext ? theme.colors.primary : theme.colors.border;
+  const dotColor = isNext
+    ? theme.colors.primary
+    : isPast
+    ? theme.colors.border
+    : theme.colors.textMuted;
 
   // Bell button mode styles
   let bellColor = theme.colors.textMuted;
@@ -62,7 +58,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
 
   if (notification === 'AZAN') {
     bellColor = theme.colors.primary;
-    bellBg = theme.colors.secondaryTint;
+    bellBg = isNext ? theme.colors.surface : theme.colors.secondaryTint;
     notifLabel = t('notificationModeAzan');
   } else if (notification === 'TONE') {
     bellColor = theme.colors.primary;
@@ -88,51 +84,49 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
         {
           backgroundColor: cardBg,
           borderColor,
-          borderWidth: isCurrent || isNext ? 1.5 : 1,
+          borderWidth: isNext ? 1.5 : 1,
           opacity: pressed && onPressRow ? 0.92 : 1,
         },
       ]}
     >
-      {/* Left Column: Indicator + Prayer Names + Localized notification mode */}
+      {/* Left Column: Indicator + Prayer Names */}
       <View style={styles.leftSection}>
-        <View style={[styles.dot, { backgroundColor: dotColor }]} />
+        <View style={[styles.dot, { backgroundColor: dotColor, opacity: isPast ? 0.55 : 1 }]} />
 
-        <View style={styles.nameColumn}>
-          <View style={styles.namesRow}>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.prayerTitle}>
-              {t(name.toLowerCase() as any) || name}
-            </AppText>
-            <AppText variant="titleSmall" color={theme.colors.textMuted} style={styles.arabicTitle}>
-              {arabicName}
-            </AppText>
-          </View>
-
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.notifLabel}>
-            {notifLabel}
+        <View style={styles.namesRow}>
+          <AppText
+            variant="titleSmall"
+            color={isPast ? theme.colors.textMuted : theme.colors.text}
+            style={styles.prayerTitle}
+          >
+            {t(name.toLowerCase() as any) || name}
+          </AppText>
+          <AppText
+            variant="titleSmall"
+            color={theme.colors.textMuted}
+            style={[styles.arabicTitle, isPast && { opacity: 0.65 }]}
+          >
+            {arabicName}
           </AppText>
         </View>
       </View>
 
-      {/* Center Status Badge: Current (NOW) or Next (COUNTDOWN) */}
-      {isCurrent && !isNext && (
+      {/* Center Status Badge: Only NEXT upcoming prayer */}
+      {isNext && (
         <View style={[styles.statusBadge, { backgroundColor: theme.colors.primary }]}>
           <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.badgeText}>
-            {t('nowActive')}
-          </AppText>
-        </View>
-      )}
-
-      {isNext && (
-        <View style={[styles.statusBadge, { backgroundColor: theme.colors.accent }]}>
-          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.badgeText}>
-            NEXT • {remainingTimeText || 'SOON'}
+            NEXT{remainingTimeText ? ` • ${remainingTimeText}` : ''}
           </AppText>
         </View>
       )}
 
       {/* Right Column: Time + Mode Icon Button */}
       <View style={styles.rightSection}>
-        <AppText variant="titleMedium" color={theme.colors.text} style={styles.timeText}>
+        <AppText
+          variant="titleMedium"
+          color={isPast ? theme.colors.textMuted : theme.colors.text}
+          style={styles.timeText}
+        >
           {time}
         </AppText>
 
@@ -146,7 +140,7 @@ export const PrayerTimeRow: React.FC<PrayerTimeRowProps> = ({
             styles.modeButton,
             {
               backgroundColor: bellBg,
-              borderColor: theme.colors.border,
+              borderColor: isNext ? theme.colors.primary : theme.colors.border,
               transform: [{ scale: pressed ? 0.94 : 1 }],
             },
           ]}
@@ -164,8 +158,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md - 2,
-    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.sm + 3,
+    borderRadius: RADIUS.lg,
     marginHorizontal: SPACING.lg,
     marginVertical: 4,
     gap: SPACING.sm,
@@ -173,32 +167,27 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
     flex: 1,
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: RADIUS.full,
-  },
-  nameColumn: {
-    gap: 2,
   },
   namesRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs + 2,
+    alignItems: 'baseline',
+    gap: SPACING.xs + 3,
   },
   prayerTitle: {
     fontWeight: '700',
+    fontSize: 15,
   },
   arabicTitle: {
     fontWeight: '600',
-    opacity: 0.85,
-  },
-  notifLabel: {
-    fontSize: 11,
-    letterSpacing: 0.2,
+    fontSize: 14,
+    opacity: 0.8,
   },
   statusBadge: {
     paddingHorizontal: SPACING.sm + 2,
@@ -215,15 +204,16 @@ const styles = StyleSheet.create({
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
   },
   timeText: {
-    fontWeight: '800',
+    fontWeight: '700',
+    fontSize: 15,
     letterSpacing: 0.2,
   },
   modeButton: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.md,
     borderWidth: 1,
     alignItems: 'center',

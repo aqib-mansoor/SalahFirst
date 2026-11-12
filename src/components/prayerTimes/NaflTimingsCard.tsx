@@ -70,11 +70,6 @@ export const NaflTimingsCard: React.FC<NaflTimingsCardProps> = ({
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.headerTitle}>
             {t('naflAndProhibitedTimes')}
           </AppText>
-          <View style={[styles.naflTag, { backgroundColor: theme.colors.secondaryTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.tagText}>
-              {t('nafl')}
-            </AppText>
-          </View>
         </View>
 
         <Svg

@@ -168,6 +168,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
                   notification={alerts[key]}
                   isNext={p.isNext}
                   isCurrent={p.isCurrent}
+                  hasStarted={p.hasStarted}
                   remainingTimeText={p.remainingTimeText}
                   onCycleNotification={() => cyclePrayerMode(key)}
                   onPressRow={onOpenAzanPrefs || (() => setShowAzanPrefs(true))}

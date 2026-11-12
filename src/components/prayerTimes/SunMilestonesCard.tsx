@@ -76,11 +76,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.xs + 4,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     marginHorizontal: SPACING.lg,
-    marginVertical: SPACING.xs,
+    marginVertical: 4,
   },
   milestone: {
     flex: 1,
@@ -90,18 +90,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xs,
   },
   iconPill: {
-    width: 34,
-    height: 34,
+    width: 32,
+    height: 32,
     borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   textCol: {
-    gap: 1,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '600',
   },
   time: {
     fontWeight: '700',
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     width: 1,
-    height: 28,
+    height: 22,
   },
 });
 

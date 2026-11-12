@@ -24,11 +24,6 @@ export const PrayerTimesHeader: React.FC<PrayerTimesHeaderProps> = ({
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.title}>
           {t('prayerTimes')}
         </AppText>
-        {countryName ? (
-          <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1}>
-            {countryName}
-          </AppText>
-        ) : null}
       </View>
 
       <Pressable
@@ -65,8 +60,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    minHeight: 56,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.xs,
+    minHeight: 48,
   },
   titleColumn: {
     flex: 1,

@@ -36,119 +36,91 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-      {/* Top Header Row: Icon + Location Title + GPS/Preset Status Badge */}
-      <View style={styles.topRow}>
-        <View style={styles.titleGroup}>
-          <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
-                stroke={theme.colors.primary}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.primary} strokeWidth="2" />
-            </Svg>
-          </View>
-          <View style={styles.locationInfo}>
-            <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.cityTitle}>
-              {locationLabel}
-            </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1} style={styles.methodSubtitle}>
-              {methodName} • {juristicLabel}
-            </AppText>
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.badge,
-            {
-              backgroundColor: isGps ? theme.colors.secondaryTint : theme.colors.surfaceElevated,
-              borderColor: isGps ? theme.colors.primary : theme.colors.border,
-            },
-          ]}
-        >
-          <AppText variant="caption" color={isGps ? theme.colors.primary : theme.colors.textMuted} style={styles.badgeText}>
-            {isGps ? t('gpsActive') : t('presetCity')}
-          </AppText>
-        </View>
-      </View>
-
-      {/* Bottom Side-by-Side Quick Actions */}
-      <View style={styles.actionRow}>
-        <Pressable
-          onPress={onOpenLocationSheet}
-          hitSlop={6}
-          accessibilityRole="button"
-          accessibilityLabel="Change city selection"
-          style={({ pressed }) => [
-            styles.actionBtn,
-            {
-              backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surface,
-              borderColor: theme.colors.border,
-            },
-          ]}
-        >
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+      <Pressable
+        onPress={onOpenLocationSheet}
+        hitSlop={6}
+        accessibilityRole="button"
+        accessibilityLabel="Change city selection"
+        style={({ pressed }) => [styles.titleGroup, { opacity: pressed ? 0.78 : 1 }]}
+      >
+        <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+          <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
-              stroke={theme.colors.text}
+              stroke={theme.colors.primary}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.text} strokeWidth="2" />
+            <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.primary} strokeWidth="2" />
           </Svg>
-          <AppText variant="caption" color={theme.colors.text} style={styles.btnText}>
-            {t('changeCity')}
-          </AppText>
-        </Pressable>
+        </View>
 
-        <Pressable
-          onPress={onUseGps}
-          hitSlop={6}
-          accessibilityRole="button"
-          accessibilityLabel="Detect current location via device GPS"
-          style={({ pressed }) => [
-            styles.actionBtn,
-            {
-              backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.secondaryTint,
-              borderColor: isGps ? theme.colors.primary : theme.colors.border,
-            },
-          ]}
-        >
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M12 2v3M12 19v3M2 12h3M19 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
-              stroke={theme.colors.primary}
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </Svg>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.btnText}>
-            {t('gpsAutoDetect')}
+        <View style={styles.locationInfo}>
+          <View style={styles.cityRow}>
+            <AppText variant="titleSmall" color={theme.colors.text} numberOfLines={1} style={styles.cityTitle}>
+              {locationLabel}
+            </AppText>
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M6 9l6 6 6-6"
+                stroke={theme.colors.textMuted}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </View>
+          <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1} style={styles.methodSubtitle}>
+            {methodName} • {juristicLabel}
           </AppText>
-        </Pressable>
-      </View>
+        </View>
+      </Pressable>
+
+      <Pressable
+        onPress={onUseGps}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="Detect current location via device GPS"
+        style={({ pressed }) => [
+          styles.gpsBtn,
+          {
+            backgroundColor: pressed
+              ? theme.colors.surfaceElevated
+              : isGps
+              ? theme.colors.secondaryTint
+              : theme.colors.surfaceElevated,
+            borderColor: isGps ? theme.colors.primary : theme.colors.border,
+          },
+        ]}
+      >
+        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M12 2v3M12 19v3M2 12h3M19 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+            stroke={theme.colors.primary}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </Svg>
+        <AppText variant="caption" color={theme.colors.primary} style={styles.gpsBtnText}>
+          GPS
+        </AppText>
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    padding: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    marginHorizontal: SPACING.lg,
-    marginVertical: SPACING.xs,
-    gap: SPACING.sm + 2,
-  },
-  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    marginHorizontal: SPACING.lg,
+    marginVertical: 4,
     gap: SPACING.sm,
   },
   titleGroup: {
@@ -158,8 +130,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconBox: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -168,39 +140,32 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 1,
   },
+  cityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   cityTitle: {
     fontWeight: '700',
     fontSize: 14,
+    flexShrink: 1,
   },
   methodSubtitle: {
     fontSize: 11,
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-  },
-  actionBtn: {
-    flex: 1,
+  gpsBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingVertical: SPACING.xs + 2,
-    borderRadius: RADIUS.lg,
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
   },
-  btnText: {
+  gpsBtnText: {
     fontWeight: '700',
     fontSize: 11,
+    letterSpacing: 0.2,
   },
 });
