@@ -73,50 +73,39 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
       >
         <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} />
 
-        {/* 3-Step Dhikr Phase Selector Strip */}
-        <View style={styles.phaseStrip}>
-          {DHIKR_PHASES.map((phase, idx) => {
-            const isActive = idx === phaseIndex;
-            const isCompletedStep = idx < phaseIndex;
-            return (
-              <Pressable
-                key={phase.transliteration}
-                onPress={() => dispatch(selectTasbihPhase(idx))}
-                style={[
-                  styles.phasePill,
-                  isActive
-                    ? {
-                        backgroundColor: 'rgba(243, 196, 64, 0.22)',
-                        borderColor: theme.colors.accent,
-                      }
-                    : isCompletedStep
-                    ? {
-                        backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                        borderColor: 'rgba(255, 255, 255, 0.30)',
-                      }
-                    : {
-                        backgroundColor: 'rgba(0, 0, 0, 0.18)',
-                        borderColor: 'rgba(255, 255, 255, 0.12)',
-                      },
-                ]}
-              >
-                <AppText
-                  variant="caption"
-                  color={isActive ? theme.colors.accentLight : 'rgba(255,255,255,0.82)'}
-                  style={styles.phasePillText}
-                  numberOfLines={1}
-                >
-                  {isCompletedStep ? '✓ ' : ''}
-                  {phase.transliteration} ({phase.target})
-                </AppText>
-              </Pressable>
-            );
-          })}
-        </View>
-
         <View style={styles.cardInner}>
-          {/* Left: Dhikr Info & Progress */}
+          {/* Left: Dhikr Info, Progress & Minimal Step Dots */}
           <View style={styles.leftCol}>
+            {/* Step Indicator + Dots Row */}
+            <View style={styles.stepHeaderRow}>
+              <AppText variant="caption" color={theme.colors.accentLight} style={styles.stepLabel}>
+                DHIKR {phaseIndex + 1} OF {DHIKR_PHASES.length}
+              </AppText>
+              <View style={styles.dotsRow}>
+                {DHIKR_PHASES.map((phase, idx) => {
+                  const isActive = idx === phaseIndex;
+                  const isDone = idx < phaseIndex;
+                  return (
+                    <Pressable
+                      key={phase.transliteration}
+                      onPress={() => dispatch(selectTasbihPhase(idx))}
+                      hitSlop={6}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Switch to ${phase.transliteration}`}
+                      style={[
+                        styles.stepDot,
+                        isActive
+                          ? { width: 16, backgroundColor: theme.colors.accent }
+                          : isDone
+                          ? { width: 6, backgroundColor: 'rgba(243, 196, 64, 0.65)' }
+                          : { width: 6, backgroundColor: 'rgba(255, 255, 255, 0.22)' },
+                      ]}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+
             <AppText variant="titleMedium" color="#FFFFFF" style={styles.arabicDhikr}>
               {currentPhase.arabic}
             </AppText>
@@ -172,31 +161,32 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.xl, borderWidth: 1.2, overflow: 'hidden', position: 'relative',
     shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.22, shadowRadius: 14, elevation: 4,
   },
-  phaseStrip: {
-    flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.sm + 4,
-    zIndex: 2,
-  },
-  phasePill: {
-    flex: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phasePillText: {
-    fontSize: 9.5,
-    fontWeight: '800',
-  },
   cardInner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md, zIndex: 2,
   },
   leftCol: { flex: 1, gap: 4 },
+  stepHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 1,
+  },
+  stepLabel: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.7,
+    opacity: 0.9,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  stepDot: {
+    height: 5,
+    borderRadius: 2.5,
+  },
   arabicDhikr: { fontSize: 20, fontWeight: '700', lineHeight: 28 },
   translitText: { fontSize: 12.5, fontWeight: '700' },
   meaningText: { fontWeight: '400' },
