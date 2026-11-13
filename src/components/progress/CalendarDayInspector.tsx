@@ -11,7 +11,7 @@ export interface CalendarDayInspectorProps {
   hasRecord?: boolean;
   isFuture?: boolean;
   prayersCompleted: boolean[];
-  onPressStatus?: () => void;
+  onTogglePrayerChip?: (prayerName: string, currentlyCompleted: boolean) => void;
 }
 
 export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
@@ -19,7 +19,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   hasRecord = false,
   isFuture = false,
   prayersCompleted,
-  onPressStatus,
+  onTogglePrayerChip,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -44,14 +44,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
           </AppText>
           <AppText
             variant="caption"
-            color={isFuture ? theme.colors.textMuted : hasRecord ? theme.colors.primary : theme.colors.textMuted}
+            color={isFuture ? theme.colors.textMuted : completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
             style={styles.statusSubtitle}
           >
             {isFuture
-              ? 'Upcoming date'
-              : hasRecord
-              ? `${completedCount} of 5 prayers completed`
-              : t('noRecordYet')}
+              ? 'Upcoming date • Cannot log early'
+              : hasRecord || completedCount > 0
+              ? `${completedCount} of 5 prayers completed • Tap to update`
+              : `${t('noRecordYet')} • Tap a prayer to log`}
           </AppText>
         </View>
 
@@ -60,14 +60,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             style={[
               styles.summaryBadge,
               {
-                backgroundColor: completedCount === 5 ? theme.colors.secondaryTint : theme.colors.surfaceElevated,
-                borderColor: completedCount === 5 ? theme.colors.primary : theme.colors.border,
+                backgroundColor: completedCount === 5 ? theme.colors.primary : theme.colors.secondaryTint,
+                borderColor: theme.colors.primary,
               },
             ]}
           >
             <AppText
               variant="caption"
-              color={completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
+              color={completedCount === 5 ? theme.colors.textOnPrimary : theme.colors.primary}
               style={styles.tipText}
             >
               {completedCount}/5
@@ -76,15 +76,21 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
         )}
       </View>
 
-      {/* 5 Prayer Status Chips */}
+      {/* 5 Interactive Prayer Chips */}
       <View style={styles.chipsRow}>
         {prayerNames.map((name, idx) => {
           const isDone = !isFuture && !!prayersCompleted[idx];
 
           return (
-            <View
+            <Pressable
               key={name}
-              style={[
+              onPress={() => onTogglePrayerChip?.(name, isDone)}
+              disabled={isFuture}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: isDone, disabled: isFuture }}
+              accessibilityLabel={`${name} on ${dateLabel}`}
+              hitSlop={6}
+              style={({ pressed }) => [
                 styles.prayerChip,
                 isDone
                   ? {
@@ -96,22 +102,23 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                       borderColor: theme.colors.border,
                     },
                 isFuture && styles.chipDisabled,
+                pressed && !isFuture && { transform: [{ scale: 0.96 }] },
               ]}
             >
               <View style={styles.chipTopRow}>
                 <AppText
                   variant="caption"
-                  color={isDone ? theme.colors.primary : theme.colors.textMuted}
+                  color={isDone ? theme.colors.primary : theme.colors.text}
                   style={styles.chipName}
                 >
                   {t(name.toLowerCase() as any) || name}
                 </AppText>
-                <PrayerTimeIcon prayer={name} size={12} muted={!isDone} />
+                <PrayerTimeIcon prayer={name} size={13} muted={!isDone} />
               </View>
 
               {isDone ? (
                 <View style={[styles.iconCircleDone, { backgroundColor: theme.colors.primary }]}>
-                  <Svg width={9} height={9} viewBox="0 0 24 24" fill="none">
+                  <Svg width={10} height={10} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M20 6L9 17L4 12"
                       stroke={theme.colors.textOnPrimary}
@@ -122,11 +129,9 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                   </Svg>
                 </View>
               ) : (
-                <AppText variant="caption" color={theme.colors.textMuted} style={styles.dashText}>
-                  –
-                </AppText>
+                <View style={[styles.emptyCheckCircle, { borderColor: theme.colors.border }]} />
               )}
-            </View>
+            </Pressable>
           );
         })}
       </View>
@@ -137,11 +142,11 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.2,
-    gap: SPACING.sm,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    gap: SPACING.sm + 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -149,16 +154,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleCol: {
-    gap: 1,
+    gap: 2,
     flex: 1,
   },
   title: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 14,
   },
   statusSubtitle: {
     fontWeight: '600',
-    fontSize: 10.5,
+    fontSize: 11,
   },
   summaryBadge: {
     paddingHorizontal: 10,
@@ -172,41 +177,42 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 6,
     justifyContent: 'space-between',
   },
   prayerChip: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 2,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
+    paddingVertical: 9,
+    paddingHorizontal: 3,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.2,
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   chipTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
+    gap: 3,
   },
   chipDisabled: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
   chipName: {
     fontWeight: '700',
-    fontSize: 10,
+    fontSize: 10.5,
   },
   iconCircleDone: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dashText: {
-    fontSize: 11,
-    fontWeight: '700',
-    lineHeight: 14,
+  emptyCheckCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.4,
   },
 });

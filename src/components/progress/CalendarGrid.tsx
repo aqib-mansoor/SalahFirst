@@ -1,25 +1,41 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { CalendarDayCell } from '@/utils/calendarUtils';
-import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarGridProps {
+  monthName: string;
+  hijriMonth: string;
+  isCurrentMonth: boolean;
   leadingEmptyCount: number;
   cells: CalendarDayCell[];
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
+  onJumpToday: () => void;
   onSelectDay: (day: number) => void;
 }
 
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const RING_SIZE = 36;
+const RING_STROKE = 2.5;
+const RING_R = (RING_SIZE - RING_STROKE) / 2;
+const RING_CIRCUM = 2 * Math.PI * RING_R;
+
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
+  monthName,
+  hijriMonth,
+  isCurrentMonth,
   leadingEmptyCount,
   cells,
+  onPrevMonth,
+  onNextMonth,
+  onJumpToday,
   onSelectDay,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
-  const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   return (
     <View
@@ -31,125 +47,220 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         },
       ]}
     >
-      {/* Weekday Header */}
-      <View style={styles.weekdaysRow}>
-        {weekdays.map((w, i) => (
-          <AppText
-            key={i}
-            variant="caption"
-            color={theme.colors.textMuted}
-            style={styles.weekdayText}
-          >
-            {w}
+      {/* Integrated Month & Hijri Header */}
+      <View style={styles.headerRow}>
+        <View style={styles.titleCol}>
+          <AppText variant="titleMedium" color={theme.colors.text} style={styles.monthTitle}>
+            {monthName}
           </AppText>
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.hijriTitle}>
+            {hijriMonth}
+          </AppText>
+        </View>
+
+        <View style={styles.navGroup}>
+          {!isCurrentMonth && (
+            <Pressable
+              onPress={onJumpToday}
+              hitSlop={6}
+              accessibilityRole="button"
+              accessibilityLabel="Jump to Today"
+              style={({ pressed }) => [
+                styles.todayPill,
+                {
+                  backgroundColor: theme.colors.secondaryTint,
+                  borderColor: theme.colors.primary,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+            >
+              <AppText variant="caption" color={theme.colors.primary} style={styles.todayPillText}>
+                Today
+              </AppText>
+            </Pressable>
+          )}
+
+          <Pressable
+            onPress={onPrevMonth}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Previous Month"
+            style={({ pressed }) => [
+              styles.navBtn,
+              { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border },
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path d="M15 18L9 12L15 6" stroke={theme.colors.text} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+
+          <Pressable
+            onPress={onNextMonth}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Next Month"
+            style={({ pressed }) => [
+              styles.navBtn,
+              { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border },
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path d="M9 18L15 12L9 6" stroke={theme.colors.text} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Weekday Labels */}
+      <View style={styles.weekdaysRow}>
+        {WEEKDAYS.map((w) => (
+          <View key={w} style={styles.weekdayCell}>
+            <AppText variant="caption" color={theme.colors.textMuted} style={styles.weekdayText}>
+              {w}
+            </AppText>
+          </View>
         ))}
       </View>
 
-      {/* Days Grid */}
+      {/* Breathing Circular Heatmap / Ring Grid */}
       <View style={styles.gridContainer}>
-        {/* Leading empty cells for correct weekday offset */}
         {Array.from({ length: leadingEmptyCount }).map((_, i) => (
-          <View key={`empty-${i}`} style={styles.emptyCell} />
+          <View key={`empty-${i}`} style={styles.cellSlot} />
         ))}
 
-        {/* Real calendar cells */}
         {cells.map((cell) => {
           const isSelected = cell.isSelected;
           const isToday = cell.isToday;
-          const isFull = cell.completedCount === 5;
           const isFuture = !!cell.isFuture;
+          const count = cell.completedCount;
+          const isFull = count === 5;
+          const isPartial = count > 0 && count < 5;
+          const dashOffset = RING_CIRCUM * (1 - count / 5);
+
+          const circleBg = isFull
+            ? theme.colors.primary
+            : isPartial
+            ? theme.colors.secondaryTint
+            : isToday
+            ? theme.colors.surfaceElevated
+            : 'transparent';
+
+          const numColor = isFull
+            ? theme.colors.textOnPrimary
+            : isPartial || isToday
+            ? theme.colors.primary
+            : isFuture
+            ? theme.colors.textMuted
+            : theme.colors.text;
 
           return (
             <Pressable
               key={cell.dateKey}
               onPress={() => onSelectDay(cell.dayNumber)}
               accessibilityRole="button"
-              accessibilityLabel={`Day ${cell.dayNumber}, ${
-                cell.hasRecord
-                  ? `${cell.completedCount} ${t('of')} 5 ${t('completedSuffix')}`
-                  : isFuture
-                  ? 'Future date'
-                  : t('unrecorded')
-              }`}
               accessibilityState={{ selected: isSelected }}
-              hitSlop={4}
-              style={[
-                styles.dayCell,
-                isSelected
-                  ? {
-                      backgroundColor: theme.colors.primary,
-                    }
-                  : {
-                      backgroundColor: theme.colors.surfaceElevated,
-                      borderColor: isToday
-                        ? theme.colors.primary
-                        : 'transparent',
-                      borderWidth: isToday ? 1.2 : 0,
-                    },
-                isFuture && styles.futureCell,
-              ]}
+              accessibilityLabel={`Day ${cell.dayNumber}, ${count} of 5 prayers completed`}
+              style={styles.cellSlot}
             >
-              <AppText
-                variant="bodySmall"
-                color={
-                  isSelected
-                    ? theme.colors.textInverse
-                    : isToday
-                    ? theme.colors.primary
-                    : isFuture
-                    ? theme.colors.textMuted
-                    : theme.colors.text
-                }
+              <View
                 style={[
-                  styles.dayNumber,
-                  (isSelected || isToday) && styles.todayNumber,
+                  styles.dayBadge,
+                  { backgroundColor: circleBg },
+                  isSelected && {
+                    borderWidth: 2,
+                    borderColor: isFull ? theme.colors.accent : theme.colors.primary,
+                  },
+                  !isSelected && isToday && !isFull && !isPartial && {
+                    borderWidth: 1.5,
+                    borderColor: theme.colors.primary,
+                  },
+                  isFuture && styles.futureCell,
                 ]}
               >
-                {cell.dayNumber}
-              </AppText>
-
-              {/* 5 Constellation Dots beneath */}
-              <View style={styles.dotsRow}>
-                {cell.hasRecord ? (
-                  cell.completedPrayers.map((done, dotIdx) => (
-                    <View
-                      key={dotIdx}
-                      style={[
-                        styles.dot,
-                        done
-                          ? {
-                              backgroundColor: isSelected
-                                ? theme.colors.accent
-                                : isFull
-                                ? theme.colors.accent
-                                : theme.colors.primary,
-                            }
-                          : {
-                              backgroundColor: isSelected
-                                ? 'rgba(255,255,255,0.2)'
-                                : theme.colors.border,
-                            },
-                      ]}
+                {/* Proportional Progress Ring for Partial Days (1-4/5) */}
+                {isPartial && !isSelected && (
+                  <Svg width={RING_SIZE} height={RING_SIZE} style={styles.ringSvg}>
+                    <Circle
+                      cx={RING_SIZE / 2}
+                      cy={RING_SIZE / 2}
+                      r={RING_R}
+                      stroke={theme.colors.border}
+                      strokeWidth={RING_STROKE}
+                      fill="none"
                     />
-                  ))
-                ) : (
-                  <View
-                    style={[
-                      styles.unrecordedDot,
-                      {
-                        backgroundColor: isSelected
-                          ? 'rgba(255,255,255,0.2)'
-                          : isFuture
-                          ? 'transparent'
-                          : theme.colors.border,
-                      },
-                    ]}
-                  />
+                    <Circle
+                      cx={RING_SIZE / 2}
+                      cy={RING_SIZE / 2}
+                      r={RING_R}
+                      stroke={theme.colors.primary}
+                      strokeWidth={RING_STROKE}
+                      strokeDasharray={`${RING_CIRCUM} ${RING_CIRCUM}`}
+                      strokeDashoffset={dashOffset}
+                      strokeLinecap="round"
+                      fill="none"
+                      rotation="-90"
+                      origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}
+                    />
+                  </Svg>
                 )}
+
+                <AppText
+                  variant="bodySmall"
+                  color={numColor}
+                  style={[
+                    styles.dayNumber,
+                    (isSelected || isToday || isFull) && styles.boldDayNumber,
+                  ]}
+                >
+                  {cell.dayNumber}
+                </AppText>
               </View>
             </Pressable>
           );
         })}
+      </View>
+
+      {/* Compact Heatmap Legend Footer */}
+      <View style={[styles.legendRow, { borderTopColor: theme.colors.border }]}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendSwatch, { backgroundColor: theme.colors.primary }]} />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
+            5/5 Complete
+          </AppText>
+        </View>
+        <View style={styles.legendItem}>
+          <View
+            style={[
+              styles.legendSwatch,
+              {
+                backgroundColor: theme.colors.secondaryTint,
+                borderWidth: 1.5,
+                borderColor: theme.colors.primary,
+              },
+            ]}
+          />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
+            1–4 Partial
+          </AppText>
+        </View>
+        <View style={styles.legendItem}>
+          <View
+            style={[
+              styles.legendSwatch,
+              {
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderColor: theme.colors.primary,
+              },
+            ]}
+          />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
+            Today / Selected
+          </AppText>
+        </View>
       </View>
     </View>
   );
@@ -158,64 +269,97 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.2,
-    gap: SPACING.xs,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    gap: SPACING.sm,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingBottom: 4,
+  },
+  titleCol: { gap: 1 },
+  monthTitle: { fontWeight: '800', fontSize: 16, lineHeight: 21 },
+  hijriTitle: { fontWeight: '600', fontSize: 11 },
+  navGroup: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  todayPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  todayPillText: { fontWeight: '800', fontSize: 11 },
+  navBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   weekdaysRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     paddingBottom: 2,
+  },
+  weekdayCell: {
+    width: '14.28%',
+    alignItems: 'center',
   },
   weekdayText: {
     fontWeight: '700',
-    fontSize: 10,
-    width: 34,
-    textAlign: 'center',
+    fontSize: 10.5,
   },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    rowGap: 6,
   },
-  emptyCell: {
+  cellSlot: {
     width: '14.28%',
     height: 40,
-  },
-  dayCell: {
-    width: '14.28%',
-    height: 40,
-    borderRadius: RADIUS.sm + 2,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 2,
-    gap: 2,
   },
-  futureCell: {
-    opacity: 0.45,
-  },
-  dayNumber: {
-    fontWeight: '600',
-    fontSize: 11,
-  },
-  todayNumber: {
-    fontWeight: '800',
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    gap: 1.5,
+  dayBadge: {
+    width: RING_SIZE,
+    height: RING_SIZE,
+    borderRadius: RING_SIZE / 2,
     alignItems: 'center',
-    height: 4,
+    justifyContent: 'center',
+    position: 'relative',
   },
-  dot: {
-    width: 2.8,
-    height: 2.8,
-    borderRadius: 1.4,
+  ringSvg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
-  unrecordedDot: {
-    width: 2.2,
-    height: 2.2,
-    borderRadius: 1.1,
+  futureCell: { opacity: 0.38 },
+  dayNumber: { fontWeight: '600', fontSize: 12.5 },
+  boldDayNumber: { fontWeight: '800' },
+  legendRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: SPACING.sm,
+    marginTop: 2,
+    borderTopWidth: 1,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  legendSwatch: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendText: {
+    fontSize: 10.5,
+    fontWeight: '600',
   },
 });

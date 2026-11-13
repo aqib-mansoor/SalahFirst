@@ -20,7 +20,6 @@ import { StreaksMetricsRow } from './StreaksMetricsRow';
 import { StreaksWeeklyChart } from './StreaksWeeklyChart';
 import { StreaksPrayerBreakdown } from './StreaksPrayerBreakdown';
 import { StreaksMilestones } from './StreaksMilestones';
-import { CalendarMonthHeader } from './CalendarMonthHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarDayInspector } from './CalendarDayInspector';
 import { CalendarMonthSummaryCard } from './CalendarMonthSummaryCard';
@@ -44,13 +43,14 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   const insets = useSafeAreaInsets();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
   const [guidanceToast, setGuidanceToast] = useState<string | null>(null);
-  const [confirmPrayer, setConfirmPrayer] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<{ prayerName: string; dateKey?: string } | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth());
   const [selectedDay, setSelectedDay] = useState<number>(now.getDate());
+  const isCurrentMonth = selectedYear === now.getFullYear() && selectedMonth === now.getMonth();
 
   const { location } = useDeviceLocation();
   const {
@@ -59,6 +59,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     streakCount,
     historyMap,
     togglePrayer,
+    toggleHistoricalPrayer,
   } = usePrayerTracker(location);
 
   const showToast = useCallback((msg: string) => {
@@ -79,10 +80,17 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
         showToast(`${prayerName} starts at ${time}. You can log it once its time arrives.`);
         return;
       }
-      setConfirmPrayer(prayerName);
+      setConfirmTarget({ prayerName });
     },
     [togglePrayer, showToast]
   );
+
+  const handleJumpToday = useCallback(() => {
+    const today = new Date();
+    setSelectedYear(today.getFullYear());
+    setSelectedMonth(today.getMonth());
+    setSelectedDay(today.getDate());
+  }, []);
 
   // Derived statistics
   const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
@@ -184,15 +192,15 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
           {activeSubTab === 'calendar' && (
             <>
-              <CalendarMonthHeader
+              <CalendarGrid
                 monthName={monthData.monthName}
                 hijriMonth={monthData.hijriMonth}
-                onPrevMonth={handlePrevMonth}
-                onNextMonth={handleNextMonth}
-              />
-              <CalendarGrid
+                isCurrentMonth={isCurrentMonth}
                 leadingEmptyCount={monthData.leadingEmptyCount}
                 cells={monthData.cells}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+                onJumpToday={handleJumpToday}
                 onSelectDay={setSelectedDay}
               />
               <CalendarDayInspector
@@ -200,6 +208,19 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 hasRecord={selectedCell?.hasRecord || false}
                 isFuture={selectedCell?.isFuture || false}
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
+                onTogglePrayerChip={(prayerName, isDone) => {
+                  if (!selectedCell || selectedCell.isFuture) return;
+                  if (selectedCell.isToday) {
+                    const pItem = prayersList.find((p) => p.name === prayerName);
+                    if (pItem) {
+                      handleToggleTrackerPrayer(pItem.name, pItem.hasStarted, pItem.completed, pItem.time);
+                    }
+                  } else if (isDone) {
+                    toggleHistoricalPrayer(selectedCell.dateKey, prayerName);
+                  } else {
+                    setConfirmTarget({ prayerName, dateKey: selectedCell.dateKey });
+                  }
+                }}
               />
               <CalendarMonthSummaryCard
                 monthName={monthData.monthName}
@@ -211,15 +232,19 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
         </ScrollView>
 
         <PrayerConfirmModal
-          visible={confirmPrayer !== null}
-          prayerName={confirmPrayer || ''}
+          visible={confirmTarget !== null}
+          prayerName={confirmTarget?.prayerName || ''}
           onConfirm={() => {
-            if (confirmPrayer) {
-              togglePrayer(confirmPrayer);
-              setConfirmPrayer(null);
+            if (confirmTarget) {
+              if (confirmTarget.dateKey) {
+                toggleHistoricalPrayer(confirmTarget.dateKey, confirmTarget.prayerName);
+              } else {
+                togglePrayer(confirmTarget.prayerName);
+              }
+              setConfirmTarget(null);
             }
           }}
-          onCancel={() => setConfirmPrayer(null)}
+          onCancel={() => setConfirmTarget(null)}
         />
 
         {guidanceToast && (
