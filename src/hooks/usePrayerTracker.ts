@@ -192,13 +192,21 @@ export const usePrayerTracker = (
 
   const toggleHistoricalPrayer = useCallback(
     async (dateKey: string, prayerName: string) => {
+      const now = new Date();
+      const todayKey = getLocalDateComponents(now, userLocation?.timezone).dateKey;
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const yesterdayKey = getLocalDateComponents(yesterday, userLocation?.timezone).dateKey;
+      if (dateKey !== todayKey && dateKey !== yesterdayKey) {
+        return;
+      }
+
       const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
       const nextStatus = !dayRecord[prayerName];
       dispatch(setPrayerCompletedAction({ dateKey, prayerName, completed: nextStatus }));
       await handlePostCompletionAlerts(prayerName, nextStatus, { ...dayRecord, [prayerName]: nextStatus }, dateKey);
       notifyTrackerPreferencesChanged();
     },
-    [historyMap, dispatch]
+    [historyMap, userLocation?.timezone, dispatch]
   );
 
   const completedCount = Object.values(cycleCompletions).filter(Boolean).length;

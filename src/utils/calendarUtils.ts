@@ -4,6 +4,7 @@ export interface CalendarDayCell {
   dayNumber: number;
   dateKey: string;
   isToday: boolean;
+  isEditable: boolean;
   isSelected: boolean;
   isFuture: boolean;
   hasRecord: boolean;
@@ -33,6 +34,8 @@ export const generateCalendarMonth = (
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const firstWeekday = new Date(year, monthIndex, 1).getDay(); // 0 = Sun
   const todayKey = formatDateKey(today);
+  const yesterdayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+  const yesterdayKey = formatDateKey(yesterdayDate);
 
   const monthName = new Date(year, monthIndex, 1).toLocaleString('en-US', {
     month: 'long',
@@ -58,6 +61,7 @@ export const generateCalendarMonth = (
       dayNumber: d,
       dateKey,
       isToday: dateKey === todayKey,
+      isEditable: dateKey === todayKey || dateKey === yesterdayKey,
       isSelected: d === selectedDay,
       isFuture: dateKey > todayKey,
       hasRecord,
