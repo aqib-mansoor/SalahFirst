@@ -71,7 +71,9 @@ function AppContent() {
     isUpdateVisible,
     updateInfo,
     dismissUpdate,
+    openChangelog,
     currentVersion,
+    currentVersionCode,
   } = useAppUpdateChecker();
 
   useTransparentNavigationBar({
@@ -215,6 +217,7 @@ function AppContent() {
               onOpenFocusConfig={handleOpenFocusConfigFromSettings}
               onOpenPrivacyPolicy={() => setCurrentStep('privacy-policy')}
               onOpenTerms={() => setCurrentStep('terms')}
+              onOpenChangelog={openChangelog}
             />
           )}
           {currentStep === 'privacy-policy' && <PrivacyPolicyScreen onBack={() => setCurrentStep('settings')} />}
@@ -256,6 +259,10 @@ function AppContent() {
         visible={isUpdateVisible}
         updateInfo={updateInfo}
         currentVersion={currentVersion}
+        isChangelogOnly={
+          !!updateInfo &&
+          updateInfo.latestVersionCode <= currentVersionCode
+        }
         onDismiss={dismissUpdate}
       />
     </View>

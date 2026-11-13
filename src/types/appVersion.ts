@@ -1,3 +1,8 @@
+export interface ReleaseFeatureItem {
+  tag: string; // e.g. "NEW", "IMPROVED", "FIX"
+  description: string;
+}
+
 export interface AppVersionInfo {
   latestVersion: string;
   latestVersionCode: number;
@@ -5,7 +10,9 @@ export interface AppVersionInfo {
   forceUpdate?: boolean;
   title?: string;
   releaseNotes?: string;
+  highlights?: (string | ReleaseFeatureItem)[];
   playStoreUrl?: string;
   webUrl?: string;
 }
+
 

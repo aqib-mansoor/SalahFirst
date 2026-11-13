@@ -36,6 +36,7 @@ export interface SettingsScreenProps {
   onOpenFocusConfig?: () => void;
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
+  onOpenChangelog?: () => void;
 }
 
 const CALC_LABELS: Record<CalculationMethodName, string> = {
@@ -59,6 +60,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onOpenFocusConfig,
   onOpenPrivacyPolicy,
   onOpenTerms,
+  onOpenChangelog,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
@@ -208,6 +210,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <GeneralSettingsGroup
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
+            onOpenChangelog={onOpenChangelog}
           />
         </ScrollView>
 

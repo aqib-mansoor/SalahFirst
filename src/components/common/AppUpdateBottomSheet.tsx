@@ -6,6 +6,7 @@ import {
   Pressable,
   Linking,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,6 +14,7 @@ import { AppText } from '@/components/common';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { AppVersionInfo } from '@/types/appVersion';
 import { APP_CONFIG } from '@/constants/config';
+import { ReleaseHighlightRow } from './ReleaseHighlightRow';
 import Svg, { Path } from 'react-native-svg';
 
 export interface AppUpdateBottomSheetProps {
@@ -20,6 +22,7 @@ export interface AppUpdateBottomSheetProps {
   updateInfo: AppVersionInfo | null;
   currentVersion: string;
   onDismiss: () => void;
+  isChangelogOnly?: boolean;
 }
 
 export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
@@ -27,6 +30,7 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
   updateInfo,
   currentVersion,
   onDismiss,
+  isChangelogOnly = false,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -34,9 +38,10 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
   if (!visible || !updateInfo) return null;
 
   const isForced =
-    updateInfo.forceUpdate === true ||
-    (updateInfo.minSupportedVersionCode &&
-      4 < updateInfo.minSupportedVersionCode);
+    !isChangelogOnly &&
+    (updateInfo.forceUpdate === true ||
+      (updateInfo.minSupportedVersionCode &&
+        4 < updateInfo.minSupportedVersionCode));
 
   const handleUpdate = async () => {
     const playStoreUrl =
@@ -59,6 +64,8 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
       await Linking.openURL(webFallbackUrl);
     }
   };
+
+  const highlights = updateInfo.highlights || [];
 
   return (
     <Modal
@@ -101,7 +108,7 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
               },
             ]}
           >
-            <Svg width={32} height={32} viewBox="0 0 24 24" fill="none">
+            <Svg width={30} height={30} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M12 3v13m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
                 stroke={theme.colors.primary}
@@ -115,7 +122,9 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
           {/* Title and Version Tag */}
           <View style={styles.titleRow}>
             <AppText variant="titleMedium" color={theme.colors.text} align="center">
-              {updateInfo.title || 'New Update Available'}
+              {isChangelogOnly
+                ? "What's New in SalahFirst"
+                : updateInfo.title || 'New Update Available'}
             </AppText>
             <View
               style={[
@@ -124,12 +133,14 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
               ]}
             >
               <AppText variant="caption" color={theme.colors.textMuted}>
-                v{currentVersion} → v{updateInfo.latestVersion}
+                {isChangelogOnly
+                  ? `Installed Version: v${currentVersion}`
+                  : `v${currentVersion} → v${updateInfo.latestVersion}`}
               </AppText>
             </View>
           </View>
 
-          {/* Release Notes */}
+          {/* Release Highlights / What's New Box */}
           <View
             style={[
               styles.releaseNotesBox,
@@ -140,42 +151,74 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
             ]}
           >
             <AppText variant="caption" color={theme.colors.primary} style={styles.notesHeader}>
-              WHAT'S NEW
+              RELEASE HIGHLIGHTS
             </AppText>
-            <AppText variant="bodySmall" color={theme.colors.textSecondary} style={styles.notesText}>
-              {updateInfo.releaseNotes ||
-                'A new version of SalahFirst is ready with performance improvements and bug fixes.'}
-            </AppText>
+
+            {highlights.length > 0 ? (
+              <ScrollView
+                style={styles.highlightsScroll}
+                contentContainerStyle={styles.highlightsContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {highlights.map((item, idx) => (
+                  <ReleaseHighlightRow key={idx} item={item} />
+                ))}
+              </ScrollView>
+            ) : (
+              <AppText variant="bodySmall" color={theme.colors.textSecondary} style={styles.notesText}>
+                {updateInfo.releaseNotes ||
+                  'SalahFirst is updated with fresh performance boosts and enhancements.'}
+              </AppText>
+            )}
           </View>
 
           {/* Action Buttons */}
           <View style={styles.actionColumn}>
-            <Pressable
-              onPress={handleUpdate}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                {
-                  backgroundColor: theme.colors.primary,
-                  opacity: pressed ? 0.9 : 1,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                },
-              ]}
-            >
-              <AppText variant="bodyMedium" color="#FFFFFF" style={styles.btnLabel}>
-                Update Now via Play Store
-              </AppText>
-            </Pressable>
-
-            {!isForced && (
+            {isChangelogOnly ? (
               <Pressable
                 onPress={onDismiss}
-                hitSlop={10}
-                style={styles.cancelBtn}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  {
+                    backgroundColor: theme.colors.primary,
+                    opacity: pressed ? 0.9 : 1,
+                  },
+                ]}
               >
-                <AppText variant="bodySmall" color={theme.colors.textMuted}>
-                  Later (Continue with v{currentVersion})
+                <AppText variant="bodyMedium" color="#FFFFFF" style={styles.btnLabel}>
+                  Got It
                 </AppText>
               </Pressable>
+            ) : (
+              <>
+                <Pressable
+                  onPress={handleUpdate}
+                  style={({ pressed }) => [
+                    styles.primaryBtn,
+                    {
+                      backgroundColor: theme.colors.primary,
+                      opacity: pressed ? 0.9 : 1,
+                      transform: [{ scale: pressed ? 0.98 : 1 }],
+                    },
+                  ]}
+                >
+                  <AppText variant="bodyMedium" color="#FFFFFF" style={styles.btnLabel}>
+                    Update Now via Play Store
+                  </AppText>
+                </Pressable>
+
+                {!isForced && (
+                  <Pressable
+                    onPress={onDismiss}
+                    hitSlop={10}
+                    style={styles.cancelBtn}
+                  >
+                    <AppText variant="bodySmall" color={theme.colors.textMuted}>
+                      Later (Continue with v{currentVersion})
+                    </AppText>
+                  </Pressable>
+                )}
+              </>
             )}
           </View>
         </View>
@@ -197,6 +240,7 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.md,
     paddingHorizontal: SPACING.xl,
     alignItems: 'center',
+    maxHeight: '80%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.25,
@@ -210,9 +254,9 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   iconWrapper: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -220,7 +264,7 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     alignItems: 'center',
-    gap: SPACING.xs,
+    gap: 4,
     marginBottom: SPACING.md,
   },
   versionBadge: {
@@ -235,7 +279,14 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     marginBottom: SPACING.lg,
-    gap: 4,
+    gap: SPACING.sm,
+    maxHeight: 220,
+  },
+  highlightsScroll: {
+    maxHeight: 160,
+  },
+  highlightsContent: {
+    gap: SPACING.sm,
   },
   notesHeader: {
     fontWeight: '800',
@@ -252,7 +303,7 @@ const styles = StyleSheet.create({
   },
   primaryBtn: {
     width: '100%',
-    height: 50,
+    height: 48,
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
@@ -265,4 +316,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
   },
 });
-

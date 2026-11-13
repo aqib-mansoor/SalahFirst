@@ -63,10 +63,28 @@ export const useAppUpdateChecker = () => {
     await storage.set(APP_CONFIG.storageKeys.updateDismissedAt, Date.now());
   }, []);
 
+  const openChangelog = useCallback(async () => {
+    if (!updateInfo) {
+      try {
+        const response = await fetch(APP_CONFIG.updates.checkUrl, {
+          headers: { 'Cache-Control': 'no-cache' },
+        });
+        if (response.ok) {
+          const remoteConfig: AppVersionInfo = await response.json();
+          setUpdateInfo(remoteConfig);
+        }
+      } catch {
+        // use fallback
+      }
+    }
+    setIsUpdateVisible(true);
+  }, [updateInfo]);
+
   return {
     isUpdateVisible,
     updateInfo,
     dismissUpdate,
+    openChangelog,
     currentVersion: CURRENT_VERSION_NAME,
     currentVersionCode: CURRENT_VERSION_CODE,
   };

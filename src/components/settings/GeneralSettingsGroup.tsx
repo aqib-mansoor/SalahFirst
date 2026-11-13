@@ -10,11 +10,13 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface GeneralSettingsGroupProps {
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
+  onOpenChangelog?: () => void;
 }
 
 export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   onOpenPrivacyPolicy,
   onOpenTerms,
+  onOpenChangelog,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -87,8 +89,13 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 3: App Version & Offline-First Badge */}
-        <View style={styles.infoRow}>
+        {/* Row 3: App Version & What's New Tap */}
+        <Pressable
+          onPress={onOpenChangelog}
+          accessibilityRole="button"
+          accessibilityLabel="View release notes and version"
+          style={styles.infoRow}
+        >
           <View style={styles.leftRow}>
             <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
@@ -99,17 +106,13 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {APP_CONFIG.name} v{APP_CONFIG.version}
               </AppText>
-              <AppText variant="caption" color={theme.colors.textSecondary}>
-                {t('appOfflineNotice')}
+              <AppText variant="caption" color={theme.colors.primary}>
+                What's New in this update • Tap to view
               </AppText>
             </View>
           </View>
-          <View style={[styles.pillBadge, { backgroundColor: theme.colors.accentTint }]}>
-            <AppText variant="caption" color={theme.colors.accent} style={styles.pillText}>
-              100% Offline
-            </AppText>
-          </View>
-        </View>
+          {ChevronRight}
+        </Pressable>
       </View>
     </View>
   );
