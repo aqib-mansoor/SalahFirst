@@ -235,6 +235,11 @@ function AppContent() {
               onClose={() => setCurrentStep('main')}
             />
           )}
+          {isReciting && (
+            <View style={styles.secondaryAzanDock}>
+              <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
+            </View>
+          )}
         </ScreenTransitionView>
       )}
     </View>
@@ -257,4 +262,5 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   mainShell: { flex: 1 },
   hiddenScreen: { display: 'none' },
+  secondaryAzanDock: { position: 'absolute', bottom: 28, left: 0, right: 0, zIndex: 999 },
 });

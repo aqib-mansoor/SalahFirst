@@ -44,8 +44,6 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpe
   return (
     <AppContainer edges={['top', 'left', 'right']}>
       <View style={styles.screenWrapper}>
-        <HadithToast message={toastMessage} onDismiss={dismissToast} />
-
         {/* Stable Flow Header */}
         <HadithHeader savedCount={savedIds.length} />
 
@@ -92,6 +90,12 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpe
           onRemoveBookmark={toggleSaveById}
           onClose={() => setShowBookmarksSheet(false)}
         />
+
+        {toastMessage && (
+          <View style={[styles.toastFloating, { bottom: Math.max(insets.bottom, 16) + 65 }]}>
+            <HadithToast message={toastMessage} onDismiss={dismissToast} />
+          </View>
+        )}
       </View>
     </AppContainer>
   );
@@ -104,5 +108,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: SPACING.xs,
     gap: SPACING.lg,
+  },
+  toastFloating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 99,
   },
 });
