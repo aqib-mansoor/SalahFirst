@@ -8,7 +8,7 @@ import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 import { TasbihResetModal } from './TasbihResetModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { incrementTasbih, resetAllTasbih } from '@/store/slices/tasbihSlice';
+import { incrementTasbih, resetAllTasbih, selectTasbihPhase } from '@/store/slices/tasbihSlice';
 
 export const HomeTasbihWidget: React.FC = React.memo(() => {
   const theme = useTheme();
@@ -44,7 +44,7 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
           {totalCycles > 0 && (
             <View style={[styles.cyclesBadge, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
               <AppText variant="caption" color={theme.colors.textPrimary} style={styles.cyclesText}>
-                {totalCycles} {totalCycles === 1 ? 'cycle' : 'cycles'}
+                📿 {totalCycles} {totalCycles === 1 ? 'cycle' : 'cycles'}
               </AppText>
             </View>
           )}
@@ -72,6 +72,47 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
         ]}
       >
         <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} />
+
+        {/* 3-Step Dhikr Phase Selector Strip */}
+        <View style={styles.phaseStrip}>
+          {DHIKR_PHASES.map((phase, idx) => {
+            const isActive = idx === phaseIndex;
+            const isCompletedStep = idx < phaseIndex;
+            return (
+              <Pressable
+                key={phase.transliteration}
+                onPress={() => dispatch(selectTasbihPhase(idx))}
+                style={[
+                  styles.phasePill,
+                  isActive
+                    ? {
+                        backgroundColor: 'rgba(243, 196, 64, 0.22)',
+                        borderColor: theme.colors.accent,
+                      }
+                    : isCompletedStep
+                    ? {
+                        backgroundColor: 'rgba(255, 255, 255, 0.14)',
+                        borderColor: 'rgba(255, 255, 255, 0.30)',
+                      }
+                    : {
+                        backgroundColor: 'rgba(0, 0, 0, 0.18)',
+                        borderColor: 'rgba(255, 255, 255, 0.12)',
+                      },
+                ]}
+              >
+                <AppText
+                  variant="caption"
+                  color={isActive ? theme.colors.accentLight : 'rgba(255,255,255,0.82)'}
+                  style={styles.phasePillText}
+                  numberOfLines={1}
+                >
+                  {isCompletedStep ? '✓ ' : ''}
+                  {phase.transliteration} ({phase.target})
+                </AppText>
+              </Pressable>
+            );
+          })}
+        </View>
 
         <View style={styles.cardInner}>
           {/* Left: Dhikr Info & Progress */}
@@ -131,9 +172,29 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.xl, borderWidth: 1.2, overflow: 'hidden', position: 'relative',
     shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.22, shadowRadius: 14, elevation: 4,
   },
+  phaseStrip: {
+    flexDirection: 'row',
+    gap: 6,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.sm + 4,
+    zIndex: 2,
+  },
+  phasePill: {
+    flex: 1,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  phasePillText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
   cardInner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md,
+    padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md, zIndex: 2,
   },
   leftCol: { flex: 1, gap: 4 },
   arabicDhikr: { fontSize: 20, fontWeight: '700', lineHeight: 28 },

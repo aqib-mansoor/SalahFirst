@@ -73,6 +73,15 @@ export const tasbihSlice = createSlice({
       state.phaseIndex = 0;
       persistTasbih(state);
     },
+
+    selectTasbihPhase: (state, action: PayloadAction<number>) => {
+      const nextIndex = action.payload;
+      if (nextIndex >= 0 && nextIndex < DHIKR_PHASES.length && nextIndex !== state.phaseIndex) {
+        state.phaseIndex = nextIndex;
+        state.count = 0;
+        persistTasbih(state);
+      }
+    },
   },
 });
 
@@ -81,6 +90,7 @@ export const {
   incrementTasbih,
   resetTasbihPhase,
   resetAllTasbih,
+  selectTasbihPhase,
 } = tasbihSlice.actions;
 
 export default tasbihSlice.reducer;

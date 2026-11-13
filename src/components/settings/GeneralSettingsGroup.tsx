@@ -39,9 +39,11 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
           style={styles.row}
         >
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('privacyPolicyMenuTitle')}
@@ -64,10 +66,12 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
           style={styles.row}
         >
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('termsMenuTitle')}
@@ -85,9 +89,11 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
         {/* Row 3: App Version & Offline-First Badge */}
         <View style={styles.infoRow}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 SalahFirst v1.0.0
@@ -97,9 +103,9 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
               </AppText>
             </View>
           </View>
-          <View style={[styles.pillBadge, { backgroundColor: theme.colors.surfaceSubtle }]}>
+          <View style={[styles.pillBadge, { backgroundColor: theme.colors.accentTint }]}>
             <AppText variant="caption" color={theme.colors.accent} style={styles.pillText}>
-              Offline
+              100% Offline
             </AppText>
           </View>
         </View>
@@ -126,22 +132,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
   },
   leftRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: SPACING.sm + 4,
     flex: 1,
     paddingRight: SPACING.sm,
+  },
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textCol: {
     flex: 1,
@@ -159,7 +172,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   divider: {
-    height: 1,
-    width: '100%',
+    height: StyleSheet.hairlineWidth,
+    marginLeft: 60,
   },
 });

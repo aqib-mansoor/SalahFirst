@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, PrayerTimeIcon } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { getLocalDateComponents } from '@/utils/timezone';
 
@@ -13,12 +13,13 @@ interface SunnahItem {
   id: string;
   name: string;
   description: string;
+  iconPrayer: string;
 }
 
 const SUNNAH_PRAYERS: SunnahItem[] = [
-  { id: 'duha', name: 'Duha', description: 'Forenoon' },
-  { id: 'witr', name: 'Witr', description: 'Night' },
-  { id: 'tahajjud', name: 'Tahajjud', description: 'Qiyam' },
+  { id: 'duha', name: 'Duha', description: 'Forenoon', iconPrayer: 'Dhuhr' },
+  { id: 'witr', name: 'Witr', description: 'Night', iconPrayer: 'Isha' },
+  { id: 'tahajjud', name: 'Tahajjud', description: 'Qiyam', iconPrayer: 'Fajr' },
 ];
 
 export const TrackerSunnahCard: React.FC = () => {
@@ -70,13 +71,21 @@ export const TrackerSunnahCard: React.FC = () => {
           </AppText>
         </View>
 
-        <View style={[styles.countBadge, { backgroundColor: theme.colors.surfaceElevated }]}>
+        <View
+          style={[
+            styles.countBadge,
+            {
+              backgroundColor: completedCount === SUNNAH_PRAYERS.length ? theme.colors.primary : theme.colors.secondaryTint,
+              borderColor: theme.colors.primary,
+            },
+          ]}
+        >
           <AppText
             variant="caption"
-            color={completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
+            color={completedCount === SUNNAH_PRAYERS.length ? theme.colors.textOnPrimary : theme.colors.primary}
             style={styles.countText}
           >
-            {completedCount} / {SUNNAH_PRAYERS.length}
+            {completedCount}/{SUNNAH_PRAYERS.length}
           </AppText>
         </View>
       </View>
@@ -99,30 +108,33 @@ export const TrackerSunnahCard: React.FC = () => {
                 styles.chip,
                 isDone
                   ? {
-                      backgroundColor: theme.colors.mintTint,
-                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.secondaryTint,
+                      borderColor: theme.colors.primary,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
                       borderColor: theme.colors.border,
                     },
-                pressed && { opacity: 0.8 },
+                pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 },
               ]}
             >
               <View style={styles.chipHeader}>
-                <AppText
-                  variant="caption"
-                  color={isDone ? theme.colors.primary : theme.colors.text}
-                  style={styles.chipTitle}
-                >
-                  {item.name}
-                </AppText>
+                <View style={styles.nameWithIcon}>
+                  <PrayerTimeIcon prayer={item.iconPrayer} size={14} />
+                  <AppText
+                    variant="caption"
+                    color={isDone ? theme.colors.primary : theme.colors.text}
+                    style={styles.chipTitle}
+                  >
+                    {item.name}
+                  </AppText>
+                </View>
                 {isDone ? (
                   <View style={[styles.checkCircle, { backgroundColor: theme.colors.primary }]}>
                     <Svg width={9} height={9} viewBox="0 0 24 24" fill="none">
                       <Path
                         d="M20 6L9 17L4 12"
-                        stroke={theme.colors.textInverse}
+                        stroke={theme.colors.textOnPrimary}
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -148,11 +160,11 @@ export const TrackerSunnahCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     borderWidth: 1.2,
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -164,17 +176,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 13.5,
   },
   subtitle: {
     fontWeight: '500',
-    fontSize: 10.5,
+    fontSize: 11,
   },
   countBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2.5,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderRadius: RADIUS.full,
+    borderWidth: 1,
   },
   countText: {
     fontWeight: '800',
@@ -182,42 +195,46 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
     justifyContent: 'space-between',
   },
   chip: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: RADIUS.md,
+    paddingVertical: 10,
+    paddingHorizontal: 9,
+    borderRadius: RADIUS.lg,
     borderWidth: 1.2,
-    gap: 2,
+    gap: 4,
   },
   chipHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  nameWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
   chipTitle: {
-    fontWeight: '700',
-    fontSize: 11.5,
+    fontWeight: '800',
+    fontSize: 12,
   },
   chipSub: {
-    fontSize: 9.5,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '600',
   },
   checkCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 1,
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    borderWidth: 1.2,
   },
 });
-

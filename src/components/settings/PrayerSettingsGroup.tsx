@@ -58,10 +58,12 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         {/* Row 1: Location */}
         <Pressable onPress={onOpenLocation} style={styles.row}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <Circle cx="12" cy="10" r="3" stroke={theme.colors.primary} strokeWidth="2" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <Circle cx="12" cy="10" r="3" stroke={theme.colors.primary} strokeWidth="2" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('locationAndCalculation')}
@@ -79,10 +81,12 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         {/* Row 2: Calculation Method */}
         <Pressable onPress={onCycleCalculationMethod} style={styles.row}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Circle cx="12" cy="12" r="10" stroke={theme.colors.primary} strokeWidth="2" />
-              <Path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Circle cx="12" cy="12" r="10" stroke={theme.colors.primary} strokeWidth="2" />
+                <Path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('calculationMethod')}
@@ -104,10 +108,12 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         {/* Row 3: Asr Juristic Preference */}
         <Pressable onPress={onToggleJuristic} style={styles.row}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Circle cx="12" cy="12" r="5" stroke={theme.colors.primary} strokeWidth="2" />
-              <Path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Circle cx="12" cy="12" r="5" stroke={theme.colors.accent} strokeWidth="2" />
+                <Path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('asrJuristicPreference')}
@@ -129,9 +135,11 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         {/* Row 4: Hijri Date Adjustment Stepper */}
         <View style={styles.row}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('hijriDateAdjustment')}
@@ -153,10 +161,12 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
         {/* Row 5: Azan Sounds & Notifications */}
         <Pressable onPress={onOpenAzanPrefs} style={styles.row}>
           <View style={styles.leftRow}>
-            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-              <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <Path d="M13.73 21a2 2 0 0 1-3.46 0" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M13.73 21a2 2 0 0 1-3.46 0" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('azanAudioReminders')}
@@ -174,9 +184,11 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
             <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
             <Pressable onPress={onOpenFocusConfig} style={styles.row}>
               <View style={styles.leftRow}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+                  <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                    <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                </View>
                 <View style={styles.textCol}>
                   <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                     Prayer Focus & Congregation
@@ -213,15 +225,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
   },
   leftRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: SPACING.sm + 4,
     flex: 1,
     paddingRight: SPACING.sm,
+  },
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textCol: {
     flex: 1,
@@ -239,7 +258,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   divider: {
-    height: 1,
-    width: '100%',
+    height: StyleSheet.hairlineWidth,
+    marginLeft: 60,
   },
 });

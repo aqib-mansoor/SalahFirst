@@ -64,56 +64,52 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
 
           return (
             <View
-              key={idx}
+              key={item.dateKey || idx}
               style={[
                 styles.dayPill,
                 item.isToday
                   ? {
                       backgroundColor: theme.colors.primary,
                       borderColor: theme.colors.accent,
+                      borderWidth: 1.4,
+                    }
+                  : isFull
+                  ? {
+                      backgroundColor: theme.colors.secondaryTint,
+                      borderColor: theme.colors.primary,
                       borderWidth: 1.2,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
-                      borderColor: isFull
-                        ? 'rgba(243, 196, 64, 0.4)'
-                        : 'transparent',
+                      borderColor: theme.colors.border,
                       borderWidth: 1,
                     },
               ]}
             >
               <AppText
                 variant="caption"
-                color={item.isToday ? theme.colors.textInverse : theme.colors.textMuted}
+                color={item.isToday ? theme.colors.textInverse : isFull ? theme.colors.primary : theme.colors.textMuted}
                 style={styles.dayLetter}
               >
                 {item.dayLabel}
               </AppText>
 
-              <AppText
-                variant="caption"
-                color={
-                  item.isToday
-                    ? theme.colors.textInverse
-                    : isFull
-                    ? theme.colors.primary
-                    : item.hasRecord
-                    ? theme.colors.text
-                    : theme.colors.textMuted
-                }
-                style={[styles.scoreText, isFull && styles.scoreFullText]}
-              >
-                {item.hasRecord || item.isToday ? `${item.completed}/${item.total}` : '—'}
-              </AppText>
-
-              {/* Gold star indicator for perfect 5/5 day */}
-              {isFull && !item.isToday && (
-                <View
-                  style={[
-                    styles.fullGoldDot,
-                    { backgroundColor: theme.colors.accent },
-                  ]}
-                />
+              {isFull ? (
+                <AppText style={styles.flameEmoji}>🔥</AppText>
+              ) : (
+                <AppText
+                  variant="caption"
+                  color={
+                    item.isToday
+                      ? theme.colors.textInverse
+                      : item.hasRecord
+                      ? theme.colors.text
+                      : theme.colors.textMuted
+                  }
+                  style={styles.scoreText}
+                >
+                  {item.hasRecord || item.isToday ? `${item.completed}/${item.total}` : '–'}
+                </AppText>
               )}
             </View>
           );
@@ -126,11 +122,11 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     borderWidth: 1.2,
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -138,40 +134,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 13.5,
   },
   linkText: {
     fontWeight: '700',
-    fontSize: 11,
+    fontSize: 11.5,
   },
   daysRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 5,
+    gap: 6,
   },
   dayPill: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignItems: 'center',
-    borderRadius: RADIUS.sm + 2,
-    gap: 1.5,
+    justifyContent: 'center',
+    borderRadius: RADIUS.lg,
+    gap: 3,
+    minHeight: 46,
   },
   dayLetter: {
+    fontWeight: '800',
+    fontSize: 10.5,
+  },
+  scoreText: {
     fontWeight: '700',
     fontSize: 10,
   },
-  scoreText: {
-    fontWeight: '600',
-    fontSize: 9.5,
-  },
-  scoreFullText: {
-    fontWeight: '800',
-  },
-  fullGoldDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    marginTop: 1,
+  flameEmoji: {
+    fontSize: 12.5,
+    lineHeight: 16,
   },
 });
