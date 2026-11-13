@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
+import { APP_CONFIG } from '@/constants/config';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -96,7 +97,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
             </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                SalahFirst v1.0.0
+                {APP_CONFIG.name} v{APP_CONFIG.version}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary}>
                 {t('appOfflineNotice')}
