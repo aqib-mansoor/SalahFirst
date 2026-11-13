@@ -10,4 +10,5 @@ export * from './IslamicMihrabCanvas';
 export * from './CurvedHeaderContainer';
 export * from './ScreenTransitionView';
 export * from './PrayerTimeIcon';
+export * from './AppUpdateBottomSheet';
 

@@ -8,7 +8,7 @@ import { store, hydrateAllStore } from '@/store';
 import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { MainTabShell } from '@/components/home';
-import { ScreenTransitionView } from '@/components/common';
+import { ScreenTransitionView, AppUpdateBottomSheet } from '@/components/common';
 import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
@@ -30,6 +30,7 @@ import { useAzanAutoReciter } from '@/hooks/useAzanAutoReciter';
 import { useTheme } from '@/hooks/useTheme';
 import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
 import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
+import { useAppUpdateChecker } from '@/hooks/useAppUpdateChecker';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
 import { getActiveFocusSession, clearActiveFocusSession, FocusSession } from '@/utils/focusSession';
@@ -65,6 +66,13 @@ function AppContent() {
     calculationMethod: calcMethod,
     juristicMethod: juristic,
   });
+
+  const {
+    isUpdateVisible,
+    updateInfo,
+    dismissUpdate,
+    currentVersion,
+  } = useAppUpdateChecker();
 
   useTransparentNavigationBar({
     isDark: theme.isDark,
@@ -242,6 +250,14 @@ function AppContent() {
           )}
         </ScreenTransitionView>
       )}
+
+      {/* Global In-App Update Bottom Sheet */}
+      <AppUpdateBottomSheet
+        visible={isUpdateVisible}
+        updateInfo={updateInfo}
+        currentVersion={currentVersion}
+        onDismiss={dismissUpdate}
+      />
     </View>
   );
 }

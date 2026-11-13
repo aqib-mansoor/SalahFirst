@@ -24,6 +24,12 @@ export const APP_CONFIG = {
     juristicMethod: '@salahfirst_juristic_method',
     hijriAdjustment: '@salahfirst_hijri_adjustment',
     azanReciter: '@salahfirst_azan_reciter',
+    updateDismissedAt: '@salahfirst_update_dismissed_at',
+  },
+  updates: {
+    checkUrl: 'https://raw.githubusercontent.com/aqib-mansoor/SalahFirst/main/app-version.json',
+    snoozeHours: 24,
+    playStorePackage: 'com.salahfirst.app',
   },
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',

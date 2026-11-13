@@ -1,0 +1,11 @@
+{
+  "latestVersion": "1.0.3",
+  "latestVersionCode": 4,
+  "minSupportedVersionCode": 1,
+  "forceUpdate": false,
+  "title": "Update Available",
+  "releaseNotes": "Enhanced wallpaper saving to device gallery and direct wallpaper setting with full Android support.",
+  "playStoreUrl": "market://details?id=com.salahfirst.app",
+  "webUrl": "https://play.google.com/store/apps/details?id=com.salahfirst.app"
+}
+
