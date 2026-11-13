@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, PrayerTimeIcon } from '@/components/common';
+import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarDayInspectorProps {
@@ -48,10 +48,10 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             style={styles.statusSubtitle}
           >
             {isFuture
-              ? 'Upcoming date • Cannot log early'
+              ? 'Upcoming date'
               : hasRecord || completedCount > 0
-              ? `${completedCount} of 5 prayers completed • Tap to update`
-              : `${t('noRecordYet')} • Tap a prayer to log`}
+              ? `${completedCount} of 5 prayers completed`
+              : t('noRecordYet')}
           </AppText>
         </View>
 
@@ -76,7 +76,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
         )}
       </View>
 
-      {/* 5 Interactive Prayer Chips */}
+      {/* 5 Clean Prayer Chips */}
       <View style={styles.chipsRow}>
         {prayerNames.map((name, idx) => {
           const isDone = !isFuture && !!prayersCompleted[idx];
@@ -105,16 +105,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                 pressed && !isFuture && { transform: [{ scale: 0.96 }] },
               ]}
             >
-              <View style={styles.chipTopRow}>
-                <AppText
-                  variant="caption"
-                  color={isDone ? theme.colors.primary : theme.colors.text}
-                  style={styles.chipName}
-                >
-                  {t(name.toLowerCase() as any) || name}
-                </AppText>
-                <PrayerTimeIcon prayer={name} size={13} muted={!isDone} />
-              </View>
+              <AppText
+                variant="caption"
+                color={isDone ? theme.colors.primary : theme.colors.text}
+                style={styles.chipName}
+                numberOfLines={1}
+              >
+                {t(name.toLowerCase() as any) || name}
+              </AppText>
 
               {isDone ? (
                 <View style={[styles.iconCircleDone, { backgroundColor: theme.colors.primary }]}>
@@ -129,7 +127,9 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                   </Svg>
                 </View>
               ) : (
-                <View style={[styles.emptyCheckCircle, { borderColor: theme.colors.border }]} />
+                <AppText variant="caption" color={theme.colors.textMuted} style={styles.dashText}>
+                  –
+                </AppText>
               )}
             </Pressable>
           );
@@ -183,24 +183,18 @@ const styles = StyleSheet.create({
   prayerChip: {
     flex: 1,
     paddingVertical: 9,
-    paddingHorizontal: 3,
+    paddingHorizontal: 4,
     borderRadius: RADIUS.lg,
     borderWidth: 1.2,
     alignItems: 'center',
-    gap: 6,
-  },
-  chipTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
+    gap: 5,
   },
   chipDisabled: {
     opacity: 0.4,
   },
   chipName: {
     fontWeight: '700',
-    fontSize: 10.5,
+    fontSize: 11,
   },
   iconCircleDone: {
     width: 18,
@@ -209,10 +203,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emptyCheckCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1.4,
+  dashText: {
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 18,
   },
 });

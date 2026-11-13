@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -18,11 +18,7 @@ export interface CalendarGridProps {
   onSelectDay: (day: number) => void;
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const RING_SIZE = 36;
-const RING_STROKE = 2.5;
-const RING_R = (RING_SIZE - RING_STROKE) / 2;
-const RING_CIRCUM = 2 * Math.PI * RING_R;
+const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
   monthName,
@@ -116,8 +112,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
       {/* Weekday Labels */}
       <View style={styles.weekdaysRow}>
-        {WEEKDAYS.map((w) => (
-          <View key={w} style={styles.weekdayCell}>
+        {WEEKDAYS.map((w, i) => (
+          <View key={i} style={styles.weekdayCell}>
             <AppText variant="caption" color={theme.colors.textMuted} style={styles.weekdayText}>
               {w}
             </AppText>
@@ -125,7 +121,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         ))}
       </View>
 
-      {/* Breathing Circular Heatmap / Ring Grid */}
+      {/* Spaced 5-Dot Constellation Calendar Grid */}
       <View style={styles.gridContainer}>
         {Array.from({ length: leadingEmptyCount }).map((_, i) => (
           <View key={`empty-${i}`} style={styles.cellSlot} />
@@ -135,78 +131,46 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           const isSelected = cell.isSelected;
           const isToday = cell.isToday;
           const isFuture = !!cell.isFuture;
-          const count = cell.completedCount;
-          const isFull = count === 5;
-          const isPartial = count > 0 && count < 5;
-          const dashOffset = RING_CIRCUM * (1 - count / 5);
+          const isFull = cell.completedCount === 5;
 
-          const circleBg = isFull
+          const tileBg = isSelected
             ? theme.colors.primary
-            : isPartial
+            : isFull
             ? theme.colors.secondaryTint
-            : isToday
-            ? theme.colors.surfaceElevated
+            : theme.colors.surfaceElevated;
+
+          const tileBorder = isSelected
+            ? theme.colors.primary
+            : isFull || isToday
+            ? theme.colors.primary
             : 'transparent';
 
-          const numColor = isFull
+          const numColor = isSelected
             ? theme.colors.textOnPrimary
-            : isPartial || isToday
+            : isToday || isFull
             ? theme.colors.primary
             : isFuture
             ? theme.colors.textMuted
             : theme.colors.text;
 
           return (
-            <Pressable
-              key={cell.dateKey}
-              onPress={() => onSelectDay(cell.dayNumber)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`Day ${cell.dayNumber}, ${count} of 5 prayers completed`}
-              style={styles.cellSlot}
-            >
-              <View
-                style={[
-                  styles.dayBadge,
-                  { backgroundColor: circleBg },
-                  isSelected && {
-                    borderWidth: 2,
-                    borderColor: isFull ? theme.colors.accent : theme.colors.primary,
+            <View key={cell.dateKey} style={styles.cellSlot}>
+              <Pressable
+                onPress={() => onSelectDay(cell.dayNumber)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                accessibilityLabel={`Day ${cell.dayNumber}, ${cell.completedCount} of 5 prayers completed`}
+                style={({ pressed }) => [
+                  styles.dayTile,
+                  {
+                    backgroundColor: tileBg,
+                    borderColor: tileBorder,
+                    borderWidth: isSelected || isFull || isToday ? 1.3 : 0,
                   },
-                  !isSelected && isToday && !isFull && !isPartial && {
-                    borderWidth: 1.5,
-                    borderColor: theme.colors.primary,
-                  },
-                  isFuture && styles.futureCell,
+                  isFuture && styles.futureTile,
+                  pressed && { opacity: 0.82 },
                 ]}
               >
-                {/* Proportional Progress Ring for Partial Days (1-4/5) */}
-                {isPartial && !isSelected && (
-                  <Svg width={RING_SIZE} height={RING_SIZE} style={styles.ringSvg}>
-                    <Circle
-                      cx={RING_SIZE / 2}
-                      cy={RING_SIZE / 2}
-                      r={RING_R}
-                      stroke={theme.colors.border}
-                      strokeWidth={RING_STROKE}
-                      fill="none"
-                    />
-                    <Circle
-                      cx={RING_SIZE / 2}
-                      cy={RING_SIZE / 2}
-                      r={RING_R}
-                      stroke={theme.colors.primary}
-                      strokeWidth={RING_STROKE}
-                      strokeDasharray={`${RING_CIRCUM} ${RING_CIRCUM}`}
-                      strokeDashoffset={dashOffset}
-                      strokeLinecap="round"
-                      fill="none"
-                      rotation="-90"
-                      origin={`${RING_SIZE / 2}, ${RING_SIZE / 2}`}
-                    />
-                  </Svg>
-                )}
-
                 <AppText
                   variant="bodySmall"
                   color={numColor}
@@ -217,48 +181,65 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 >
                   {cell.dayNumber}
                 </AppText>
-              </View>
-            </Pressable>
+
+                {/* 5 Crisp Prayer Dots (Fajr, Dhuhr, Asr, Maghrib, Isha) */}
+                {!isFuture ? (
+                  <View style={styles.dotsRow}>
+                    {cell.completedPrayers.map((done, dotIdx) => (
+                      <View
+                        key={dotIdx}
+                        style={[
+                          styles.dot,
+                          done
+                            ? {
+                                backgroundColor: isSelected
+                                  ? theme.colors.accent
+                                  : theme.colors.primary,
+                              }
+                            : {
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.28)'
+                                  : theme.colors.border,
+                              },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.dotsPlaceholder} />
+                )}
+              </Pressable>
+            </View>
           );
         })}
       </View>
 
-      {/* Compact Heatmap Legend Footer */}
+      {/* Compact Legend Footer */}
       <View style={[styles.legendRow, { borderTopColor: theme.colors.border }]}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendSwatch, { backgroundColor: theme.colors.primary }]} />
+          <View style={[styles.legendDot, { backgroundColor: theme.colors.primary }]} />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            5/5 Complete
+            Prayed
+          </AppText>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: theme.colors.border }]} />
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
+            Pending
           </AppText>
         </View>
         <View style={styles.legendItem}>
           <View
             style={[
-              styles.legendSwatch,
+              styles.legendBox,
               {
                 backgroundColor: theme.colors.secondaryTint,
-                borderWidth: 1.5,
                 borderColor: theme.colors.primary,
               },
             ]}
           />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            1–4 Partial
-          </AppText>
-        </View>
-        <View style={styles.legendItem}>
-          <View
-            style={[
-              styles.legendSwatch,
-              {
-                backgroundColor: 'transparent',
-                borderWidth: 1.5,
-                borderColor: theme.colors.primary,
-              },
-            ]}
-          />
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            Today / Selected
+            5/5 Complete
           </AppText>
         </View>
       </View>
@@ -270,10 +251,10 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm + 4,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    gap: SPACING.sm,
+    gap: SPACING.xs + 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -316,36 +297,50 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: 6,
   },
   cellSlot: {
     width: '14.28%',
-    height: 40,
+    padding: 2.5,
+  },
+  dayTile: {
+    height: 42,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
   },
-  dayBadge: {
-    width: RING_SIZE,
-    height: RING_SIZE,
-    borderRadius: RING_SIZE / 2,
+  futureTile: {
+    opacity: 0.42,
+  },
+  dayNumber: {
+    fontWeight: '600',
+    fontSize: 12,
+    lineHeight: 15,
+  },
+  boldDayNumber: {
+    fontWeight: '800',
+  },
+  dotsRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
+    gap: 2.5,
+    height: 5,
   },
-  ringSvg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+  dotsPlaceholder: {
+    height: 5,
   },
-  futureCell: { opacity: 0.38 },
-  dayNumber: { fontWeight: '600', fontSize: 12.5 },
-  boldDayNumber: { fontWeight: '800' },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
   legendRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingTop: SPACING.sm,
-    marginTop: 2,
+    marginTop: 4,
     borderTopWidth: 1,
   },
   legendItem: {
@@ -353,10 +348,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
   },
-  legendSwatch: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  legendDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+  },
+  legendBox: {
+    width: 11,
+    height: 11,
+    borderRadius: 3,
+    borderWidth: 1.2,
   },
   legendText: {
     fontSize: 10.5,
