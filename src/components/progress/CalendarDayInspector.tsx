@@ -10,6 +10,7 @@ export interface CalendarDayInspectorProps {
   dateLabel: string;
   hasRecord?: boolean;
   isFuture?: boolean;
+  isEditable?: boolean;
   prayersCompleted: boolean[];
   onTogglePrayerChip?: (prayerName: string, currentlyCompleted: boolean) => void;
 }
@@ -18,6 +19,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   dateLabel,
   hasRecord = false,
   isFuture = false,
+  isEditable = false,
   prayersCompleted,
   onTogglePrayerChip,
 }) => {
@@ -25,6 +27,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   const { t } = useTranslation();
   const prayerNames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const completedCount = prayersCompleted.filter(Boolean).length;
+
+  const baseSubtitle =
+    hasRecord || completedCount > 0 ? `${completedCount} of 5 prayers completed` : t('noRecordYet');
+  const subtitleText = isFuture
+    ? 'Upcoming date'
+    : isEditable
+    ? `${baseSubtitle} • Tap to update`
+    : `${baseSubtitle} • Read-only history`;
 
   return (
     <View
@@ -47,11 +57,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             color={isFuture ? theme.colors.textMuted : completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
             style={styles.statusSubtitle}
           >
-            {isFuture
-              ? 'Upcoming date'
-              : hasRecord || completedCount > 0
-              ? `${completedCount} of 5 prayers completed`
-              : t('noRecordYet')}
+            {subtitleText}
           </AppText>
         </View>
 

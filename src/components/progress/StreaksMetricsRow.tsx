@@ -32,9 +32,22 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           },
         ]}
       >
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
-          {t('longestStreak')}
-        </AppText>
+        <View style={styles.headerRow}>
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
+            {t('longestStreak')}
+          </AppText>
+          <View
+            style={[
+              styles.emojiBadge,
+              {
+                backgroundColor: theme.colors.accentTint,
+                borderColor: theme.colors.accent,
+              },
+            ]}
+          >
+            <AppText style={styles.emojiText}>🏆</AppText>
+          </View>
+        </View>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {longestStreak}{' '}
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.unitSuffix}>
@@ -56,9 +69,22 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
           },
         ]}
       >
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
-          {t('totalPrayersLogged')}
-        </AppText>
+        <View style={styles.headerRow}>
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.label}>
+            {t('totalPrayersLogged')}
+          </AppText>
+          <View
+            style={[
+              styles.emojiBadge,
+              {
+                backgroundColor: theme.colors.secondaryTint,
+                borderColor: theme.colors.primary,
+              },
+            ]}
+          >
+            <AppText style={styles.emojiText}>🕌</AppText>
+          </View>
+        </View>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {totalPrayers}{' '}
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.unitSuffix}>
@@ -85,16 +111,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.xl,
     borderWidth: 1.2,
-    gap: 4,
+    gap: 5,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
   },
   label: {
+    flex: 1,
     fontWeight: '700',
     fontSize: 11,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
+  },
+  emojiBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emojiText: {
+    fontSize: 13.5,
+    lineHeight: 17,
   },
   valueText: {
     fontWeight: '800',
-    fontSize: 20,
+    fontSize: 21,
   },
   unitSuffix: {
     fontWeight: '600',

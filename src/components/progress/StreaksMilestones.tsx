@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
@@ -33,27 +32,20 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
             styles.milestoneCard,
             {
               backgroundColor: is7Achieved ? theme.colors.mintTint : theme.colors.surface,
-              borderColor: theme.colors.border,
+              borderColor: is7Achieved ? theme.colors.primary : theme.colors.border,
             },
           ]}
         >
-          <View style={styles.iconCol}>
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Circle
-                cx="12"
-                cy="8"
-                r="6"
-                stroke={is7Achieved ? theme.colors.accent : theme.colors.textSecondary}
-                strokeWidth="2"
-              />
-              <Path
-                d="M15.477 12.89L17 22L12 19L7 22L8.523 12.89"
-                stroke={is7Achieved ? theme.colors.accent : theme.colors.textSecondary}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
+          <View
+            style={[
+              styles.emojiOrb,
+              {
+                backgroundColor: is7Achieved ? theme.colors.accentTint : theme.colors.surfaceElevated,
+                borderColor: is7Achieved ? theme.colors.accent : theme.colors.border,
+              },
+            ]}
+          >
+            <AppText style={styles.milestoneEmoji}>🏅</AppText>
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.title}>
@@ -64,19 +56,19 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
               color={is7Achieved ? theme.colors.primary : theme.colors.textSecondary}
               style={styles.status}
             >
-              {is7Achieved ? t('achieved') : `${currentStreak} / 7 ${t('days')}`}
+              {is7Achieved ? `✓ ${t('achieved')}` : `${currentStreak} / 7 ${t('days')}`}
             </AppText>
-            {/* Mini Progress Bar */}
-            {!is7Achieved && (
-              <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${progress7}%`, backgroundColor: theme.colors.primary },
-                  ]}
-                />
-              </View>
-            )}
+            <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${progress7}%`,
+                    backgroundColor: is7Achieved ? theme.colors.accent : theme.colors.primary,
+                  },
+                ]}
+              />
+            </View>
           </View>
         </View>
 
@@ -86,27 +78,20 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
             styles.milestoneCard,
             {
               backgroundColor: is30Achieved ? theme.colors.mintTint : theme.colors.surface,
-              borderColor: theme.colors.border,
+              borderColor: is30Achieved ? theme.colors.primary : theme.colors.border,
             },
           ]}
         >
-          <View style={styles.iconCol}>
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Circle
-                cx="12"
-                cy="8"
-                r="6"
-                stroke={is30Achieved ? theme.colors.accent : theme.colors.textSecondary}
-                strokeWidth="2"
-              />
-              <Path
-                d="M15.477 12.89L17 22L12 19L7 22L8.523 12.89"
-                stroke={is30Achieved ? theme.colors.accent : theme.colors.textSecondary}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
+          <View
+            style={[
+              styles.emojiOrb,
+              {
+                backgroundColor: is30Achieved ? theme.colors.accentTint : theme.colors.surfaceElevated,
+                borderColor: is30Achieved ? theme.colors.accent : theme.colors.border,
+              },
+            ]}
+          >
+            <AppText style={styles.milestoneEmoji}>👑</AppText>
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.title}>
@@ -117,19 +102,19 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
               color={is30Achieved ? theme.colors.primary : theme.colors.textSecondary}
               style={styles.status}
             >
-              {is30Achieved ? t('achieved') : `${currentStreak} / 30 ${t('days')}`}
+              {is30Achieved ? `✓ ${t('achieved')}` : `${currentStreak} / 30 ${t('days')}`}
             </AppText>
-            {/* Mini Progress Bar */}
-            {!is30Achieved && (
-              <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${progress30}%`, backgroundColor: theme.colors.primary },
-                  ]}
-                />
-              </View>
-            )}
+            <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceElevated }]}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${progress30}%`,
+                    backgroundColor: is30Achieved ? theme.colors.accent : theme.colors.primary,
+                  },
+                ]}
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -154,19 +139,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm + 2,
+    paddingHorizontal: SPACING.sm + 4,
     borderRadius: RADIUS.xl,
     borderWidth: 1.2,
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
   },
-  iconCol: {
-    width: 28,
+  emojiOrb: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  milestoneEmoji: {
+    fontSize: 17,
+    lineHeight: 21,
   },
   textCol: {
     flex: 1,
@@ -181,11 +174,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   progressTrack: {
-    height: 3,
+    height: 4,
     width: '100%',
     borderRadius: RADIUS.full,
     overflow: 'hidden',
-    marginTop: 2,
+    marginTop: 3,
   },
   progressFill: {
     height: '100%',

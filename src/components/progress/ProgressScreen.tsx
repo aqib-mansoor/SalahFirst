@@ -182,7 +182,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
           {activeSubTab === 'streaks' && (
             <>
-              <StreaksHeroCard streakDays={streakCount} />
+              <StreaksHeroCard streakDays={streakCount} weekData={dayOverview} />
               <StreaksMetricsRow longestStreak={longestStreak} longestStreakNote={streakNote} totalPrayers={totalPrayers} />
               <StreaksWeeklyChart chartData={dayBarData} />
               <StreaksPrayerBreakdown historyMap={historyMap} streakCount={streakCount} />
@@ -207,9 +207,14 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 dateLabel={dateLabel}
                 hasRecord={selectedCell?.hasRecord || false}
                 isFuture={selectedCell?.isFuture || false}
+                isEditable={selectedCell?.isEditable || false}
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
                 onTogglePrayerChip={(prayerName, isDone) => {
                   if (!selectedCell || selectedCell.isFuture) return;
+                  if (!selectedCell.isEditable) {
+                    showToast('You can only log or update prayers for Today and Yesterday.');
+                    return;
+                  }
                   if (selectedCell.isToday) {
                     const pItem = prayersList.find((p) => p.name === prayerName);
                     if (pItem) {

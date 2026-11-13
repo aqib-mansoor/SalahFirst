@@ -108,12 +108,12 @@ export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
               backgroundColor: theme.colors.accentTint,
               borderColor: theme.colors.accent,
             },
-            pressed && { opacity: 0.8 },
+            pressed && { transform: [{ scale: 0.96 }], opacity: 0.88 },
           ]}
         >
-          <Svg width={15} height={15} viewBox="0 0 24 24" fill={theme.colors.accent}>
-            <Path d="M12 23C7.5 23 4 19.5 4 15C4 11.5 7 8 8.5 6C8.8 5.6 9.4 5.7 9.5 6.2C10 8 11.5 9.5 13 9.5C13.6 9.5 14 9.1 14 8.5C14 6.5 12.5 4 11 2.5C10.7 2.2 10.9 1.7 11.3 1.8C15 3 20 7.5 20 14C20 19 16.5 23 12 23Z" />
-          </Svg>
+          <View style={[styles.streakIconOrb, { backgroundColor: theme.colors.surface }]}>
+            <AppText style={styles.streakEmoji}>🔥</AppText>
+          </View>
           <AppText
             variant="caption"
             color={theme.colors.textPrimary}
@@ -197,20 +197,32 @@ const styles = StyleSheet.create({
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: 6,
+    gap: 6,
+    paddingLeft: 5,
+    paddingRight: SPACING.sm + 4,
+    paddingVertical: 4,
     borderRadius: RADIUS.full,
-    borderWidth: 1,
+    borderWidth: 1.2,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  streakIconOrb: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  streakEmoji: {
+    fontSize: 13.5,
+    lineHeight: 17,
   },
   streakText: {
     fontWeight: '800',
-    fontSize: 12,
+    fontSize: 13,
   },
   iconButton: {
     width: 40,

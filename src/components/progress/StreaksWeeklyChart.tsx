@@ -62,11 +62,7 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
               {/* Score Pill / Star above bar */}
               <View style={styles.topScoreZone}>
                 {isFull ? (
-                  <View style={[styles.goldStarPill, { backgroundColor: theme.colors.accentTint }]}>
-                    <AppText variant="caption" color={theme.colors.accent} style={styles.goldStarText}>
-                      ★
-                    </AppText>
-                  </View>
+                  <AppText style={styles.goldStarEmoji}>⭐</AppText>
                 ) : (
                   <AppText
                     variant="caption"
@@ -155,21 +151,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topScoreZone: {
-    height: 14,
+    height: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goldStarPill: {
-    width: 13,
-    height: 13,
-    borderRadius: 6.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  goldStarText: {
-    fontSize: 8.5,
-    lineHeight: 10,
-    fontWeight: '800',
+  goldStarEmoji: {
+    fontSize: 10.5,
+    lineHeight: 14,
   },
   scoreText: {
     fontSize: 8.5,
