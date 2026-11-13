@@ -150,19 +150,30 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onToggleStreakEncouragement={toggleStreakEncouragement}
         />
 
-        {/* Individual Prayer Alert Cards */}
-        {PRAYERS_LIST.map((p) => {
-          const prayerTime = prayerData ? (prayerData[p.key] || '--:--') : '--:--';
-          return (
-            <PrayerAlertCard
-              key={p.key}
-              name={p.name}
-              time={prayerTime}
-              currentMode={alerts[p.key]}
-              onSelectMode={(mode) => setPrayerMode(p.key, mode)}
-            />
-          );
-        })}
+        {/* Unified 5-Prayer Alert Configuration Card */}
+        <View
+          style={[
+            styles.groupedPrayersCard,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
+          <AppText variant="titleSmall" color={theme.colors.text} style={styles.groupHeaderTitle}>
+            Per-Prayer Alert Mode
+          </AppText>
+          {PRAYERS_LIST.map((p, index) => {
+            const prayerTime = prayerData ? (prayerData[p.key] || '--:--') : '--:--';
+            return (
+              <PrayerAlertCard
+                key={p.key}
+                name={p.name}
+                time={prayerTime}
+                currentMode={alerts[p.key]}
+                onSelectMode={(mode) => setPrayerMode(p.key, mode)}
+                isLast={index === PRAYERS_LIST.length - 1}
+              />
+            );
+          })}
+        </View>
       </ScrollView>
     </AppContainer>
   );
@@ -200,5 +211,17 @@ const styles = StyleSheet.create({
   },
   infoText: {
     lineHeight: 16,
+  },
+  groupedPrayersCard: {
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.xs,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+  },
+  groupHeaderTitle: {
+    fontWeight: '700',
+    fontSize: 14,
+    marginBottom: 4,
   },
 });

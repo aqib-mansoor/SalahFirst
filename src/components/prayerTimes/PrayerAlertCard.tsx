@@ -12,6 +12,7 @@ export interface PrayerAlertCardProps {
   time: string;
   currentMode: NotificationMode;
   onSelectMode: (mode: NotificationMode) => void;
+  isLast?: boolean;
 }
 
 const ALERT_MODES: { id: NotificationMode; labelKey: string }[] = [
@@ -26,24 +27,18 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   time,
   currentMode,
   onSelectMode,
+  isLast = false,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   const isModeActive = (modeId: NotificationMode) => currentMode === modeId;
 
-  const getDisplayModeName = () => {
-    if (currentMode === 'AZAN') return t('notificationModeAzan');
-    if (currentMode === 'TONE') return t('notificationModeTone');
-    if (currentMode === 'VIBRATE') return t('notificationModeVibrate');
-    return t('notificationModeSilent');
-  };
-
   return (
     <View
       style={[
-        styles.card,
-        { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+        styles.rowContainer,
+        !isLast && { borderBottomWidth: 1, borderBottomColor: theme.colors.border },
       ]}
     >
       {/* Header Row */}
@@ -53,15 +48,10 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
             {t(name.toLowerCase() as any) || name}
           </AppText>
           <PrayerTimeIcon prayer={name} size={16} />
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeSub}>
-            ({time})
-          </AppText>
         </View>
-        <View style={[styles.activeTag, { backgroundColor: theme.colors.secondaryTint }]}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.tagText}>
-            {getDisplayModeName()}
-          </AppText>
-        </View>
+        <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeSub}>
+          {time}
+        </AppText>
       </View>
 
       {/* 3-Mode Unified Segmented Track */}
@@ -116,11 +106,9 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  card: {
-    padding: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    gap: SPACING.sm,
+  rowContainer: {
+    paddingVertical: SPACING.sm + 2,
+    gap: 6,
   },
   header: {
     flexDirection: 'row',
@@ -130,24 +118,15 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   boldText: {
     fontWeight: '700',
     fontSize: 13.5,
   },
   timeSub: {
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  activeTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
-  },
-  tagText: {
-    fontSize: 10,
     fontWeight: '700',
+    fontSize: 12,
   },
   track: {
     flexDirection: 'row',
