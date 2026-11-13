@@ -76,26 +76,33 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const handleSaveImage = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
+    let capturedUri: string | null = null;
     try {
-      const uri = await captureActiveWallpaper();
-      if (!uri) {
+      capturedUri = await captureActiveWallpaper();
+      if (!capturedUri) {
         showToast('Failed to generate wallpaper image.');
-        setIsProcessing(false);
         return;
       }
-      const { status } = await MediaLibrary.requestPermissionsAsync(true);
-      if (status === 'granted') {
-        await MediaLibrary.saveToLibraryAsync(uri);
+      const perm = await MediaLibrary.requestPermissionsAsync(true).catch(() => null);
+      if (perm?.status === 'granted') {
+        await MediaLibrary.saveToLibraryAsync(capturedUri);
         showToast(`HD Wallpaper (${activeTheme.name}) saved to gallery!`);
+        return;
+      }
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(capturedUri, { mimeType: 'image/png', dialogTitle: 'Save Hadith Wallpaper' });
       } else {
-        const isSharingAvailable = await Sharing.isAvailableAsync();
-        if (isSharingAvailable) {
-          await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Save Hadith Wallpaper' });
-        } else {
-          Alert.alert('Permission Required', 'Please allow photo library access in device settings.');
-        }
+        Alert.alert('Permission Required', 'Please allow photo library access in device settings to save wallpapers directly.');
       }
     } catch {
+      if (capturedUri && (await Sharing.isAvailableAsync().catch(() => false))) {
+        try {
+          await Sharing.shareAsync(capturedUri, { mimeType: 'image/png', dialogTitle: 'Save Hadith Wallpaper' });
+          return;
+        } catch {
+          // ignore
+        }
+      }
       showToast('Error saving wallpaper to device.');
     } finally {
       setIsProcessing(false);
@@ -105,18 +112,20 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
   const handleSetWallpaper = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
+    let capturedUri: string | null = null;
     try {
-      const uri = await captureActiveWallpaper();
-      if (!uri) {
+      capturedUri = await captureActiveWallpaper();
+      if (!capturedUri) {
         showToast('Failed to generate wallpaper image.');
-        setIsProcessing(false);
         return;
       }
-      let contentUri = uri;
-      const { status } = await MediaLibrary.requestPermissionsAsync(true);
-      if (status === 'granted') {
-        const asset = await MediaLibrary.createAssetAsync(uri);
-        contentUri = asset.uri;
+      let contentUri = capturedUri;
+      const perm = await MediaLibrary.requestPermissionsAsync(true).catch(() => null);
+      if (perm?.status === 'granted') {
+        const asset = await MediaLibrary.createAssetAsync(capturedUri).catch(() => null);
+        if (asset?.uri) {
+          contentUri = asset.uri;
+        }
       }
       if (Platform.OS === 'android') {
         try {
@@ -128,11 +137,11 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
           showToast('Select "Wallpaper" to set Home or Lock screen.');
           return;
         } catch {
-          // Intent fallback
+          // fallback to sharing
         }
       }
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, {
+        await Sharing.shareAsync(capturedUri, {
           mimeType: 'image/png',
           dialogTitle: `Set ${activeTheme.name} Wallpaper`,
         });
