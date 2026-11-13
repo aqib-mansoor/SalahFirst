@@ -50,12 +50,10 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
               : item.completed
               ? theme.colors.surfaceSubtle
               : theme.colors.surface,
-            borderColor: isCurrentActive
-              ? theme.colors.accent
-              : item.completed
+            borderColor: isCurrentActive || item.completed
               ? theme.colors.primary
               : theme.colors.border,
-            borderWidth: isCurrentActive ? 1.6 : 1,
+            borderWidth: isCurrentActive ? 1.5 : 1,
             opacity: 1,
             transform: [{ scale: pressed ? 0.96 : 1 }],
           },
@@ -66,27 +64,19 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
         <Svg width="100%" height="100%" viewBox="0 0 60 90" preserveAspectRatio="none">
           <Path
             d="M 8,90 L 8,42 Q 8,14 30,5 Q 52,14 52,42 L 52,90"
-            stroke={isCurrentActive ? theme.colors.accent : item.completed ? theme.colors.primary : theme.colors.border}
+            stroke={isCurrentActive || item.completed ? theme.colors.primary : theme.colors.border}
             strokeWidth={isCurrentActive ? 1.1 : 0.8}
             strokeDasharray={isCurrentActive ? undefined : '2 2'}
-            opacity={isCurrentActive ? 0.32 : item.completed ? 0.22 : 0.15}
+            opacity={isCurrentActive ? 0.28 : item.completed ? 0.22 : 0.15}
             fill="none"
           />
           <Path
             d="M 30,5 L 31.5,8 L 34.5,8 L 32,10 L 33,13 L 30,11.5 L 27,13 L 28,10 L 25.5,8 L 28.5,8 Z"
-            fill={isCurrentActive ? theme.colors.accent : item.completed ? theme.colors.primary : 'none'}
-            opacity={isCurrentActive ? 0.40 : item.completed ? 0.25 : 0}
+            fill={isCurrentActive || item.completed ? theme.colors.primary : 'none'}
+            opacity={isCurrentActive ? 0.35 : item.completed ? 0.25 : 0}
           />
         </Svg>
       </View>
-
-      {isCurrentActive && (
-        <View style={[styles.activeNowBadge, { backgroundColor: theme.colors.accent }]}>
-          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.nowBadgeText}>
-            NOW
-          </AppText>
-        </View>
-      )}
 
       <AppText
         variant="bodySmall"
@@ -110,8 +100,8 @@ export const HomePrayerCardItem: React.FC<HomePrayerCardItemProps> = ({
             </Svg>
           </View>
         ) : isCurrentActive ? (
-          <View style={[styles.currentCircle, { borderColor: theme.colors.accent }]}>
-            <View style={[styles.innerGoldDot, { backgroundColor: theme.colors.accent }]} />
+          <View style={[styles.currentCircle, { borderColor: theme.colors.primary }]}>
+            <View style={[styles.innerGoldDot, { backgroundColor: theme.colors.primary }]} />
           </View>
         ) : isFuture ? (
           <View style={styles.lockIconBox}>
@@ -146,19 +136,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 12,
     elevation: 2,
-  },
-  activeNowBadge: {
-    position: 'absolute',
-    top: -8,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: RADIUS.full,
-    zIndex: 2,
-  },
-  nowBadgeText: {
-    fontSize: 8.5,
-    fontWeight: '800',
-    letterSpacing: 0.5,
   },
   prayerName: {
     fontWeight: '700',

@@ -48,63 +48,74 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
             style={styles.statusSubtitle}
           >
             {isFuture
-              ? 'Future date'
+              ? 'Upcoming date'
               : hasRecord
-              ? `${completedCount} of 5 completed`
+              ? `${completedCount} of 5 prayers completed`
               : t('noRecordYet')}
           </AppText>
         </View>
 
-        <Pressable onPress={onPressStatus} hitSlop={8}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
-            Logged from Home ›
-          </AppText>
-        </Pressable>
+        {!isFuture && (
+          <View
+            style={[
+              styles.summaryBadge,
+              {
+                backgroundColor: completedCount === 5 ? theme.colors.secondaryTint : theme.colors.surfaceElevated,
+                borderColor: completedCount === 5 ? theme.colors.primary : theme.colors.border,
+              },
+            ]}
+          >
+            <AppText
+              variant="caption"
+              color={completedCount > 0 ? theme.colors.primary : theme.colors.textMuted}
+              style={styles.tipText}
+            >
+              {completedCount}/5
+            </AppText>
+          </View>
+        )}
       </View>
 
-      {/* 5 Read-Only Prayer Chips */}
+      {/* 5 Prayer Status Chips */}
       <View style={styles.chipsRow}>
         {prayerNames.map((name, idx) => {
           const isDone = !isFuture && !!prayersCompleted[idx];
 
           return (
-            <Pressable
+            <View
               key={name}
-              onPress={onPressStatus}
-              accessibilityRole="text"
-              accessibilityLabel={`${name} prayer on ${dateLabel}: ${isDone ? 'Completed' : 'Not completed'}. Logged from Home screen.`}
-              hitSlop={6}
-              style={({ pressed }) => [
+              style={[
                 styles.prayerChip,
                 isDone
                   ? {
-                      backgroundColor: theme.colors.mintTint,
-                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.secondaryTint,
+                      borderColor: theme.colors.primary,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
                       borderColor: theme.colors.border,
                     },
                 isFuture && styles.chipDisabled,
-                pressed && { opacity: 0.7 },
               ]}
             >
-              <PrayerTimeIcon prayer={name} size={13} muted={!isDone} />
-              <AppText
-                variant="caption"
-                color={isDone ? theme.colors.primary : theme.colors.textMuted}
-                style={styles.chipName}
-              >
-                {t(name.toLowerCase() as any) || name}
-              </AppText>
+              <View style={styles.chipTopRow}>
+                <AppText
+                  variant="caption"
+                  color={isDone ? theme.colors.primary : theme.colors.textMuted}
+                  style={styles.chipName}
+                >
+                  {t(name.toLowerCase() as any) || name}
+                </AppText>
+                <PrayerTimeIcon prayer={name} size={12} muted={!isDone} />
+              </View>
 
               {isDone ? (
-                <View style={styles.iconCircleDone}>
-                  <Svg width={10} height={10} viewBox="0 0 24 24" fill="none">
+                <View style={[styles.iconCircleDone, { backgroundColor: theme.colors.primary }]}>
+                  <Svg width={9} height={9} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M20 6L9 17L4 12"
-                      stroke={theme.colors.primary}
-                      strokeWidth="3"
+                      stroke={theme.colors.textOnPrimary}
+                      strokeWidth="3.2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
@@ -115,7 +126,7 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
                   –
                 </AppText>
               )}
-            </Pressable>
+            </View>
           );
         })}
       </View>
@@ -149,23 +160,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 10.5,
   },
+  summaryBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
   tipText: {
-    fontWeight: '700',
-    fontSize: 10.5,
+    fontWeight: '800',
+    fontSize: 11,
   },
   chipsRow: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 5,
     justifyContent: 'space-between',
   },
   prayerChip: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 2,
     borderRadius: RADIUS.md,
     borderWidth: 1,
     alignItems: 'center',
-    gap: 3,
+    gap: 5,
+  },
+  chipTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
   },
   chipDisabled: {
     opacity: 0.45,
@@ -175,8 +198,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   iconCircleDone: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },

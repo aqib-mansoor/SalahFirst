@@ -68,10 +68,10 @@ export const TrackerPrayerRow: React.FC<TrackerPrayerRowProps> = ({
       {/* Middle Prayer Info */}
       <View style={styles.infoCol}>
         <View style={styles.nameRow}>
-          <PrayerTimeIcon prayer={prayer.name} size={15} />
           <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
             {t(prayer.name.toLowerCase() as any) || prayer.name}
           </AppText>
+          <PrayerTimeIcon prayer={prayer.name} size={15} />
         </View>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.scheduledTime}>
           {t('scheduledAt', { time: prayer.time })}

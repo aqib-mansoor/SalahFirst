@@ -110,17 +110,19 @@ export const HadithCard: React.FC<HadithCardProps> = ({
           </AppText>
         )}
 
+        {translationMode === 'both' && (
+          <View style={[styles.subtleDivider, { backgroundColor: theme.colors.border }]} />
+        )}
+
         {/* Urdu Translation */}
         {(translationMode === 'ur' || translationMode === 'both') && (
-          <View style={[styles.urduBox, { backgroundColor: theme.colors.privacyBg }]}>
-            <AppText
-              variant="bodyMedium"
-              color={theme.colors.privacyText}
-              style={styles.urduText}
-            >
-              {hadith.urdu}
-            </AppText>
-          </View>
+          <AppText
+            variant="bodyMedium"
+            color={theme.colors.textSecondary}
+            style={styles.urduText}
+          >
+            {hadith.urdu}
+          </AppText>
         )}
       </View>
 
@@ -206,19 +208,22 @@ const styles = StyleSheet.create({
     height: 1,
     width: '100%',
   },
-  englishText: {
-    lineHeight: 22,
-    fontWeight: '500',
+  subtleDivider: {
+    height: 1,
+    width: '40%',
+    alignSelf: 'center',
+    opacity: 0.65,
   },
-  urduBox: {
-    padding: SPACING.md,
-    borderRadius: RADIUS.md,
+  englishText: {
+    lineHeight: 23,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   urduText: {
-    lineHeight: 26,
-    textAlign: 'right',
+    lineHeight: 28,
+    textAlign: 'center',
     fontWeight: '600',
-    fontSize: 15,
+    fontSize: 15.5,
   },
   footerRow: {
     flexDirection: 'row',

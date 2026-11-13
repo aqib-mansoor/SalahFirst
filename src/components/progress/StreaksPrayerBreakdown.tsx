@@ -98,10 +98,10 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
           <View key={item.name} style={styles.prayerRow}>
             <View style={styles.labelCol}>
               <View style={styles.nameIconGroup}>
-                <PrayerTimeIcon prayer={item.name} size={13} />
                 <AppText variant="caption" color={theme.colors.text} style={styles.prayerName}>
                   {item.name}
                 </AppText>
+                <PrayerTimeIcon prayer={item.name} size={13} />
               </View>
               <AppText variant="caption" color={theme.colors.textMuted} style={styles.percentText}>
                 {item.percentage}%

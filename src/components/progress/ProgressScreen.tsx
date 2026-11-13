@@ -8,6 +8,7 @@ import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { AppContainer, AppText } from '@/components/common';
 import { HadithToast } from '@/components/hadith/HadithToast';
 import { HomeTab } from '@/components/home/HomeBottomNav';
+import { PrayerConfirmModal } from '@/components/home/PrayerConfirmModal';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
 import { TrackerHeroCard } from './TrackerHeroCard';
 import { TrackerPrayerRow } from './TrackerPrayerRow';
@@ -43,6 +44,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   const insets = useSafeAreaInsets();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
   const [guidanceToast, setGuidanceToast] = useState<string | null>(null);
+  const [confirmPrayer, setConfirmPrayer] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const now = new Date();
@@ -56,15 +58,31 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     completedCount,
     streakCount,
     historyMap,
+    togglePrayer,
   } = usePrayerTracker(location);
 
-  const handleShowHomeGuidance = useCallback(() => {
+  const showToast = useCallback((msg: string) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    setGuidanceToast('Daily prayers are logged from the Home screen.');
+    setGuidanceToast(msg);
     toastTimerRef.current = setTimeout(() => {
       setGuidanceToast(null);
     }, 3500);
   }, []);
+
+  const handleToggleTrackerPrayer = useCallback(
+    (prayerName: string, hasStarted: boolean, completed: boolean, time: string) => {
+      if (completed) {
+        togglePrayer(prayerName);
+        return;
+      }
+      if (!hasStarted) {
+        showToast(`${prayerName} starts at ${time}. You can log it once its time arrives.`);
+        return;
+      }
+      setConfirmPrayer(prayerName);
+    },
+    [togglePrayer, showToast]
+  );
 
   // Derived statistics
   const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
@@ -125,7 +143,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                   Daily Salah Tracker
                 </AppText>
                 <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-                  Status overview • Check-in on Home screen
+                  Tap any started prayer to log completion
                 </AppText>
               </View>
 
@@ -136,7 +154,14 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                   <TrackerPrayerRow
                     key={prayer.name}
                     prayer={prayer}
-                    onPressStatus={handleShowHomeGuidance}
+                    onPressStatus={() =>
+                      handleToggleTrackerPrayer(
+                        prayer.name,
+                        prayer.hasStarted,
+                        prayer.completed,
+                        prayer.time
+                      )
+                    }
                   />
                 ))}
               </View>
@@ -175,7 +200,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 hasRecord={selectedCell?.hasRecord || false}
                 isFuture={selectedCell?.isFuture || false}
                 prayersCompleted={selectedCell?.completedPrayers || [false, false, false, false, false]}
-                onPressStatus={handleShowHomeGuidance}
               />
               <CalendarMonthSummaryCard
                 monthName={monthData.monthName}
@@ -185,6 +209,18 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
             </>
           )}
         </ScrollView>
+
+        <PrayerConfirmModal
+          visible={confirmPrayer !== null}
+          prayerName={confirmPrayer || ''}
+          onConfirm={() => {
+            if (confirmPrayer) {
+              togglePrayer(confirmPrayer);
+              setConfirmPrayer(null);
+            }
+          }}
+          onCancel={() => setConfirmPrayer(null)}
+        />
 
         {guidanceToast && (
           <View style={[styles.toastFloating, { bottom: Math.max(insets.bottom, 16) + 65 }]}>
