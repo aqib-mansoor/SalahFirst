@@ -186,6 +186,9 @@ function AppContent() {
             setActiveTab={setActiveTab}
             progressSubTab={progressSubTab}
             setProgressSubTab={setProgressSubTab}
+            isAzanReciting={isReciting}
+            recitingPrayer={recitingPrayer}
+            onStopAzan={stopRecitation}
             onOpenSettings={() => setCurrentStep('settings')}
             onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
             onStartPrayerFocus={handleStartFocusImmediately}
@@ -234,7 +237,6 @@ function AppContent() {
           )}
         </ScreenTransitionView>
       )}
-      <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
     </View>
   );
 }
