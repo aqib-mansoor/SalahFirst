@@ -11,6 +11,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
 import { checkNotificationPermissions, requestNotificationPermission } from '@/utils/notifications';
+import { canScheduleExactAlarms, openExactAlarmSettings } from '@/native/AzanServiceModule';
 import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
@@ -56,10 +57,15 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     toggle: toggleAudio,
   } = useAzanAudio();
   const [hasPermission, setHasPermission] = useState(true);
+  const [hasExactAlarmPermission, setHasExactAlarmPermission] = useState(true);
 
   const verifyPermissions = async () => {
-    const { granted } = await checkNotificationPermissions();
+    const [{ granted }, exactAllowed] = await Promise.all([
+      checkNotificationPermissions(),
+      canScheduleExactAlarms(),
+    ]);
     setHasPermission(granted);
+    setHasExactAlarmPermission(exactAllowed);
   };
 
   useEffect(() => {
@@ -79,6 +85,10 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     } else {
       setHasPermission(true);
     }
+  };
+
+  const handleFixExactAlarmPermission = async () => {
+    await openExactAlarmSettings();
   };
 
   const activeAlarmCount = alerts.exactAlarmsEnabled !== false
@@ -114,6 +124,29 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
             >
               <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.enableBtnText}>
                 {t('enable')}
+              </AppText>
+            </Pressable>
+          </View>
+        )}
+
+        {!hasExactAlarmPermission && (
+          <View style={[styles.warningBanner, { backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }]}>
+            <View style={styles.warningContent}>
+              <AppText variant="titleSmall" color={theme.colors.warning} style={styles.boldText}>
+                Exact Alarm Permission Required
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.infoText}>
+                Android requires "Alarms & Reminders" permission to ring the Azan at the exact minute.
+              </AppText>
+            </View>
+            <Pressable
+              onPress={handleFixExactAlarmPermission}
+              accessibilityRole="button"
+              accessibilityLabel="Allow"
+              style={[styles.enableBtn, { backgroundColor: theme.colors.primary }]}
+            >
+              <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.enableBtnText}>
+                Allow
               </AppText>
             </Pressable>
           </View>

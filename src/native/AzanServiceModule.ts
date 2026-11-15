@@ -21,6 +21,15 @@ export const canScheduleExactAlarms = async (): Promise<boolean> => {
   }
 };
 
+export const openExactAlarmSettings = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.openExactAlarmSettings) return false;
+  try {
+    return await AzanModule.openExactAlarmSettings();
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Stable alarm ID: dayOffset(0-6) * 10 + prayerIndex(0-4) → 0–64
  */
