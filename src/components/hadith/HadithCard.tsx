@@ -141,7 +141,14 @@ export const HadithCard: React.FC<HadithCardProps> = ({
           <AppText variant="caption" color={theme.colors.primary} style={styles.takeawayLabel}>
             {t('hadithTakeawayLabel')}
           </AppText>
-          <AppText variant="caption" color={theme.colors.textPrimary} style={styles.takeawayText}>
+          <AppText
+            variant="caption"
+            color={theme.colors.textPrimary}
+            style={[
+              styles.takeawayText,
+              language !== 'en' && styles.takeawayTextRtl,
+            ]}
+          >
             {takeawayText}
           </AppText>
         </View>
@@ -263,6 +270,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17.5,
     fontWeight: '600',
+  },
+  takeawayTextRtl: {
+    lineHeight: 22,
+    textAlign: 'right',
+    fontSize: 12.5,
   },
   footerRow: {
     flexDirection: 'row',

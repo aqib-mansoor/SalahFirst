@@ -64,6 +64,17 @@ export const getHadithIndicesForCategory = (category: HadithCategoryId): number[
   return indices;
 };
 
+export const getCategoryForHadithIndex = (index: number): Exclude<HadithCategoryId, 'all'> => {
+  const entries = Object.entries(HADITH_CATEGORY_RANGES) as [
+    Exclude<HadithCategoryId, 'all'>,
+    [number, number]
+  ][];
+  for (const [cat, [start, end]] of entries) {
+    if (index >= start && index <= end) return cat;
+  }
+  return 'salah';
+};
+
 /**
  * Returns deterministic Hadith of the Day based on Day of Year
  */

@@ -142,8 +142,12 @@ export const useHadithCollection = () => {
     if (index >= 0 && index < VERIFIED_HADITHS.length) {
       triggerHaptic('light');
       setCurrentIndex(index);
+      const currentCatIndices = getHadithIndicesForCategory(selectedCategory);
+      if (selectedCategory !== 'all' && !currentCatIndices.includes(index)) {
+        setSelectedCategoryState('all');
+      }
     }
-  }, []);
+  }, [selectedCategory]);
 
   return {
     currentHadith,

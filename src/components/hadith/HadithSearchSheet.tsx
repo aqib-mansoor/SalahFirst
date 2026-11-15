@@ -27,8 +27,11 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
   const [query, setQuery] = useState('');
 
   const matchingItems = useMemo(() => {
-    const baseIndices = getHadithIndicesForCategory(selectedCategory);
     const q = query.trim().toLowerCase();
+    // When typing a search query, search across ALL 140 Hadiths; when empty, browse active category
+    const baseIndices = q
+      ? VERIFIED_HADITHS.map((_, idx) => idx)
+      : getHadithIndicesForCategory(selectedCategory);
     return baseIndices
       .map((idx) => ({ item: VERIFIED_HADITHS[idx], idx }))
       .filter(({ item, idx }) => {
