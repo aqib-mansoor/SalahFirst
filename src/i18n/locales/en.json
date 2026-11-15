@@ -459,6 +459,12 @@
   "backupRestoreAction": "Restore Backup Now",
   "backupRestoreSuccess": "Backup restored! {{count}} prayer records merged.",
   "backupRestoreInvalid": "Invalid backup JSON. Please check the pasted text.",
+  "backupTagPrayers": "PRAYERS",
+  "backupSummaryPrayers": "{{count}} obligatory prayer records saved",
+  "backupTagSunnah": "SUNNAH",
+  "backupSummarySunnah": "{{count}} days of voluntary Sunnah history",
+  "backupTagBookmarks": "HADITH",
+  "backupSummaryBookmarks": "{{count}} saved offline Hadith bookmarks",
 
   "dailySalahTrackerTitle": "Daily Salah Tracker",
   "dailySalahTrackerSubtitle": "Tap any started prayer to log completion",

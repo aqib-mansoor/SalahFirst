@@ -459,6 +459,12 @@
   "backupRestoreAction": "ابھی بیک اپ بحال کریں",
   "backupRestoreSuccess": "بیک اپ بحال ہو گیا! {{count}} ریکارڈز شامل کیے گئے۔",
   "backupRestoreInvalid": "غیر درست بیک اپ کوڈ۔ براہ کرم پیسٹ کیا گیا ٹیکسٹ چیک کریں۔",
+  "backupTagPrayers": "نمازیں",
+  "backupSummaryPrayers": "{{count}} فرض نمازوں کا ریکارڈ محفوظ",
+  "backupTagSunnah": "نوافل",
+  "backupSummarySunnah": "{{count}} دنوں کا سنن و نوافل ریکارڈ",
+  "backupTagBookmarks": "حدیث",
+  "backupSummaryBookmarks": "{{count}} محفوظ کردہ آف لائن احادیث",
 
   "dailySalahTrackerTitle": "روزانہ نماز ٹریکر",
   "dailySalahTrackerSubtitle": "وقت شروع ہونے پر کسی بھی نماز کو مکمل کرنے کے لیے ٹیپ کریں",

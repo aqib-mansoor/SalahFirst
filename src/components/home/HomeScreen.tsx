@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
-import { AppContainer } from '@/components/common';
+import { AppContainer, BatteryOptimizationBottomSheet } from '@/components/common';
 import { HomeHeader } from './HomeHeader';
 import { HomeHeroCard } from './HomeHeroCard';
 import { HomeSalahTracker } from './HomeSalahTracker';
@@ -37,7 +37,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const { location } = useDeviceLocation();
 
   // One-time prompt for background battery optimization on Android
-  useBatteryOptimizationPrompt(Boolean(location?.latitude));
+  const {
+    isPromptVisible,
+    confirmPrompt,
+    dismissPrompt,
+  } = useBatteryOptimizationPrompt(Boolean(location?.latitude));
 
   const {
     prayerData,
@@ -119,6 +123,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           />
         </ScrollView>
       </View>
+
+      {/* Custom One-Time Battery Optimization Guidance Sheet */}
+      <BatteryOptimizationBottomSheet
+        visible={isPromptVisible}
+        onConfirm={confirmPrompt}
+        onDismiss={dismissPrompt}
+      />
     </AppContainer>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
@@ -9,17 +9,18 @@ import {
 
 /**
  * Intelligent One-Time Battery Optimization Prompt Hook.
- * Prompts the user once to allow unrestricted background execution
- * so OEM task killers (Realme, Xiaomi, Oppo, Samsung) don't silence the Azan.
+ * Controls the custom explanatory bottom sheet visibility.
  */
 export const useBatteryOptimizationPrompt = (shouldCheck: boolean = true) => {
-  const hasPromptedRef = useRef(false);
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
+  const hasCheckedRef = useRef(false);
 
   useEffect(() => {
-    if (!shouldCheck || Platform.OS !== 'android' || hasPromptedRef.current) return;
+    if (!shouldCheck || Platform.OS !== 'android' || hasCheckedRef.current) return;
 
     const checkAndPrompt = async () => {
       try {
+        hasCheckedRef.current = true;
         const alreadyPrompted = await storage.get<boolean>(
           APP_CONFIG.storageKeys.batteryPromptShown,
           false
@@ -28,9 +29,7 @@ export const useBatteryOptimizationPrompt = (shouldCheck: boolean = true) => {
 
         const isUnrestricted = await isIgnoringBatteryOptimizations();
         if (!isUnrestricted) {
-          hasPromptedRef.current = true;
-          await storage.set(APP_CONFIG.storageKeys.batteryPromptShown, true);
-          await requestIgnoreBatteryOptimizations();
+          setIsPromptVisible(true);
         } else {
           await storage.set(APP_CONFIG.storageKeys.batteryPromptShown, true);
         }
@@ -39,8 +38,24 @@ export const useBatteryOptimizationPrompt = (shouldCheck: boolean = true) => {
       }
     };
 
-    const timer = setTimeout(checkAndPrompt, 1200);
+    const timer = setTimeout(checkAndPrompt, 1500);
     return () => clearTimeout(timer);
   }, [shouldCheck]);
-};
 
+  const confirmPrompt = useCallback(async () => {
+    setIsPromptVisible(false);
+    await storage.set(APP_CONFIG.storageKeys.batteryPromptShown, true);
+    await requestIgnoreBatteryOptimizations();
+  }, []);
+
+  const dismissPrompt = useCallback(async () => {
+    setIsPromptVisible(false);
+    await storage.set(APP_CONFIG.storageKeys.batteryPromptShown, true);
+  }, []);
+
+  return {
+    isPromptVisible,
+    confirmPrompt,
+    dismissPrompt,
+  };
+};

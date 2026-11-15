@@ -460,6 +460,12 @@
   "backupRestoreAction": "استعادة النسخة الاحتياطية الآن",
   "backupRestoreSuccess": "تمت الاستعادة بنجاح! تم دمج {{count}} سجلات صلاة.",
   "backupRestoreInvalid": "بيانات النسخة الاحتياطية غير صالحة. يرجى التأكد من النص المنسوخ.",
+  "backupTagPrayers": "الصلوات",
+  "backupSummaryPrayers": "{{count}} سجل صلاة مفروضة محفوظة",
+  "backupTagSunnah": "السنن",
+  "backupSummarySunnah": "{{count}} يوم من سجلات السنن والنوافل",
+  "backupTagBookmarks": "الأحاديث",
+  "backupSummaryBookmarks": "{{count}} حديث محفوظ بدون إنترنت",
 
   "dailySalahTrackerTitle": "متتبع الصلوات اليومي",
   "dailySalahTrackerSubtitle": "اضغط على أي صلاة دخل وقتها لتسجيل أدائها",
