@@ -86,6 +86,7 @@ export const usePrayerTracker = (
   const dispatch = useAppDispatch();
   const { calcMethod: reduxMethod, juristic: reduxJuristic, historyMap, ledgerEvents, activeCycle, streakCount } =
     useAppSelector((state) => state.prayer);
+  const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
 
   const calcMethod = reduxMethod || getDefaultMethodForCountry(userLocation?.country);
   const juristic = reduxJuristic || getDefaultMadhabForCountry(userLocation?.country);
@@ -137,8 +138,17 @@ export const usePrayerTracker = (
   }, [syncCycle]);
 
   const prayerData: FormattedPrayerTimes = useMemo(
-    () => getPrayerTimes(userLocation?.latitude, userLocation?.longitude, new Date(), calcMethod, juristic, userLocation?.timezone),
-    [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, refreshTrigger]
+    () =>
+      getPrayerTimes(
+        userLocation?.latitude,
+        userLocation?.longitude,
+        new Date(),
+        calcMethod,
+        juristic,
+        userLocation?.timezone,
+        timeFormat
+      ),
+    [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, timeFormat, refreshTrigger]
   );
 
   const { countdownText, periodProgressRatio } = useTrackerCountdown(

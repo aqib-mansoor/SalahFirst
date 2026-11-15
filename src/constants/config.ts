@@ -24,6 +24,7 @@ export const APP_CONFIG = {
     juristicMethod: '@salahfirst_juristic_method',
     hijriAdjustment: '@salahfirst_hijri_adjustment',
     azanReciter: '@salahfirst_azan_reciter',
+    timeFormat: '@salahfirst_time_format',
     updateDismissedAt: '@salahfirst_update_dismissed_at',
   },
   updates: {
@@ -33,6 +34,7 @@ export const APP_CONFIG = {
   },
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',
+    timeFormat: '12h' as '12h' | '24h',
     notificationsEnabled: true,
     hapticFeedback: true,
   },

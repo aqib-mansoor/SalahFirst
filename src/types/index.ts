@@ -4,6 +4,8 @@
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
+export type TimeFormat = '12h' | '24h';
+
 export type JuristicMethod = 'Hanafi' | 'Standard';
 
 export type CalculationMethodName =

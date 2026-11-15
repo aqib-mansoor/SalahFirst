@@ -17,6 +17,7 @@ import {
   PrayerCycle,
   UserLocation,
   PrayerAlertConfig,
+  TimeFormat,
 } from '@/types';
 import { migrateLegacyHistoryToLedger } from '@/utils/prayerLedgerManager';
 
@@ -50,6 +51,7 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       storedCycle,
       storedLocation,
       storedAlerts,
+      storedTimeFormat,
       storedHijri,
       storedHadithMode,
       storedHadithBookmarks,
@@ -62,6 +64,7 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       storage.get<PrayerCycle | null>(APP_CONFIG.storageKeys.prayerCycle, null),
       storage.get<UserLocation | null>(APP_CONFIG.storageKeys.userLocation, null),
       storage.get<Partial<PrayerAlertConfig> | null>(ALERTS_STORAGE_KEY, null),
+      storage.get<TimeFormat | null>(APP_CONFIG.storageKeys.timeFormat, null),
       storage.get<number | null>(APP_CONFIG.storageKeys.hijriAdjustment, null),
       storage.get<HadithTranslationMode | null>(HADITH_MODE_STORAGE_KEY, null),
       storage.get<string[] | null>(HADITH_BOOKMARKS_STORAGE_KEY, null),
@@ -86,6 +89,7 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       hydratePreferencesState({
         userLocation: storedLocation,
         alerts: storedAlerts,
+        timeFormat: storedTimeFormat,
         hijriAdjustment: storedHijri,
         hadithTranslationMode: storedHadithMode,
         hadithBookmarks: storedHadithBookmarks,

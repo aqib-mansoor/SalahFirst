@@ -109,22 +109,44 @@ export const getLocalDateComponents = (
 
 export const formatTimeInTimezone = (
   date: Date,
-  timezone?: string
+  timezone?: string,
+  timeFormat: '12h' | '24h' = '12h'
 ): string => {
   if (!date || isNaN(date.getTime())) return '--:--';
+  const is12Hour = timeFormat === '12h';
+
   if (!timezone) {
+    if (is12Hour) {
+      let h = date.getHours();
+      const m = date.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12;
+      const mm = m < 10 ? `0${m}` : `${m}`;
+      return `${h}:${mm} ${ampm}`;
+    }
     const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
     return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
+
   try {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
+    const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: timezone,
-      hour: '2-digit',
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: false,
+      hour12: is12Hour,
     });
     return formatter.format(date);
   } catch {
+    if (is12Hour) {
+      let h = date.getHours();
+      const m = date.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12;
+      const mm = m < 10 ? `0${m}` : `${m}`;
+      return `${h}:${mm} ${ampm}`;
+    }
     const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
     return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }

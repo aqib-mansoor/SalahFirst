@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UserLocation, PrayerAlertConfig } from '@/types';
+import { UserLocation, PrayerAlertConfig, TimeFormat } from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 
@@ -28,6 +28,7 @@ export const DEFAULT_PRAYER_ALERTS: PrayerAlertConfig = {
 export interface PreferencesState {
   userLocation: UserLocation | null;
   alerts: PrayerAlertConfig;
+  timeFormat: TimeFormat;
   hijriAdjustment: number | null;
   hadithTranslationMode: HadithTranslationMode;
   hadithBookmarks: string[];
@@ -37,6 +38,7 @@ export interface PreferencesState {
 const initialState: PreferencesState = {
   userLocation: null,
   alerts: DEFAULT_PRAYER_ALERTS,
+  timeFormat: APP_CONFIG.defaultSettings.timeFormat,
   hijriAdjustment: null,
   hadithTranslationMode: 'both',
   hadithBookmarks: [],
@@ -52,6 +54,7 @@ export const preferencesSlice = createSlice({
       action: PayloadAction<{
         userLocation?: UserLocation | null;
         alerts?: Partial<PrayerAlertConfig> | null;
+        timeFormat?: TimeFormat | null;
         hijriAdjustment?: number | null;
         hadithTranslationMode?: HadithTranslationMode | null;
         hadithBookmarks?: string[] | null;
@@ -62,6 +65,9 @@ export const preferencesSlice = createSlice({
       }
       if (action.payload.alerts) {
         state.alerts = { ...DEFAULT_PRAYER_ALERTS, ...action.payload.alerts };
+      }
+      if (action.payload.timeFormat) {
+        state.timeFormat = action.payload.timeFormat;
       }
       if (action.payload.hijriAdjustment !== undefined) {
         state.hijriAdjustment = action.payload.hijriAdjustment;
@@ -78,6 +84,11 @@ export const preferencesSlice = createSlice({
     setUserLocation: (state, action: PayloadAction<UserLocation>) => {
       state.userLocation = action.payload;
       storage.set(APP_CONFIG.storageKeys.userLocation, action.payload).catch(() => {});
+    },
+
+    setTimeFormat: (state, action: PayloadAction<TimeFormat>) => {
+      state.timeFormat = action.payload;
+      storage.set(APP_CONFIG.storageKeys.timeFormat, action.payload).catch(() => {});
     },
 
     setPrayerAlerts: (state, action: PayloadAction<PrayerAlertConfig>) => {
@@ -105,6 +116,7 @@ export const preferencesSlice = createSlice({
 export const {
   hydratePreferencesState,
   setUserLocation,
+  setTimeFormat,
   setPrayerAlerts,
   setHijriAdjustment,
   setHadithTranslationMode,

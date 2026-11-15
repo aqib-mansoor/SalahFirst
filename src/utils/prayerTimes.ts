@@ -1,5 +1,5 @@
 import { Coordinates, Madhab, PrayerTimes } from 'adhan';
-import type { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod } from '@/types';
+import type { CalculationMethodName, JuristicMethod, SalahName, CurrentPrayerPeriod, TimeFormat } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation, getLocalDateComponents, localTimeToUtcEpoch } from './timezone';
 import { getCurrentPrayerPeriod, createFallbackPeriod } from './currentPrayerPeriod';
 import {
@@ -71,7 +71,8 @@ export const getPrayerTimes = (
   date: Date = new Date(),
   method: CalculationMethodName = 'Karachi',
   juristic: JuristicMethod = 'Hanafi',
-  timezone?: string
+  timezone?: string,
+  timeFormat: TimeFormat = '12h'
 ): FormattedPrayerTimes => {
   if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
     const dummyDate = new Date();
@@ -134,6 +135,7 @@ export const getPrayerTimes = (
     method,
     juristic,
     timezone,
+    timeFormat,
     rawToday: ptToday,
     rawTomorrow: ptTomorrow,
     rawYesterday: ptYesterday,
@@ -164,16 +166,16 @@ export const getPrayerTimes = (
   }
 
   return {
-    fajr: formatTimeInTimezone(rawTodayNormalized.fajr, timezone),
-    sunrise: formatTimeInTimezone(rawTodayNormalized.sunrise, timezone),
-    dhuhr: formatTimeInTimezone(rawTodayNormalized.dhuhr, timezone),
-    asr: formatTimeInTimezone(rawTodayNormalized.asr, timezone),
-    maghrib: formatTimeInTimezone(rawTodayNormalized.maghrib, timezone),
-    isha: formatTimeInTimezone(rawTodayNormalized.isha, timezone),
+    fajr: formatTimeInTimezone(rawTodayNormalized.fajr, timezone, timeFormat),
+    sunrise: formatTimeInTimezone(rawTodayNormalized.sunrise, timezone, timeFormat),
+    dhuhr: formatTimeInTimezone(rawTodayNormalized.dhuhr, timezone, timeFormat),
+    asr: formatTimeInTimezone(rawTodayNormalized.asr, timezone, timeFormat),
+    maghrib: formatTimeInTimezone(rawTodayNormalized.maghrib, timezone, timeFormat),
+    isha: formatTimeInTimezone(rawTodayNormalized.isha, timezone, timeFormat),
     currentPrayerName: currentPeriod.nameKey,
     currentTimeFormatted: currentPeriod.startTimeFormatted,
     nextPrayerName: nextName,
-    nextPrayerTimeFormatted: formatTimeInTimezone(nextTime, timezone),
+    nextPrayerTimeFormatted: formatTimeInTimezone(nextTime, timezone, timeFormat),
     nextPrayerDate: nextTime,
     raw: rawTodayNormalized,
     currentPeriod,

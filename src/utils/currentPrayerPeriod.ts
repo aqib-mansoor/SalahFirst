@@ -5,6 +5,7 @@ import type {
   CurrentPrayerPeriod,
   PrayerPeriodId,
   PrayerPeriodCategory,
+  TimeFormat,
 } from '@/types';
 import { formatTimeInTimezone, createCalendarDateForCalculation } from './timezone';
 import { getMethodParams, createRobustPrayerTimes } from './prayerCalculationBase';
@@ -25,6 +26,7 @@ export interface DetectPeriodParams {
   method?: CalculationMethodName;
   juristic?: JuristicMethod;
   timezone?: string;
+  timeFormat?: TimeFormat;
   rawToday?: RawPrayerTimesSet;
   rawTomorrow?: RawPrayerTimesSet;
   rawYesterday?: RawPrayerTimesSet;
@@ -65,7 +67,8 @@ export interface DailyNaflSchedule {
 export const calculateDailyNaflSchedule = (
   raw: RawPrayerTimesSet,
   tomorrowFajr?: Date,
-  timezone?: string
+  timezone?: string,
+  timeFormat: TimeFormat = '12h'
 ): DailyNaflSchedule => {
   const sunriseMs = raw.sunrise.getTime();
   const ishraqStart = new Date(sunriseMs + SUNRISE_PROHIBITED_MARGIN_MS);
@@ -76,11 +79,11 @@ export const calculateDailyNaflSchedule = (
   const night = calculateNightBoundaries(raw.maghrib, nextFajr);
 
   return {
-    tahajjudRange: `${formatTimeInTimezone(raw.isha, timezone)} – ${formatTimeInTimezone(nextFajr, timezone)}`,
-    lastThirdRange: `${formatTimeInTimezone(night.lastThirdStart, timezone)} – ${formatTimeInTimezone(nextFajr, timezone)}`,
-    ishraqRange: `${formatTimeInTimezone(ishraqStart, timezone)} – ${formatTimeInTimezone(ishraqEnd, timezone)}`,
-    duhaRange: `${formatTimeInTimezone(ishraqEnd, timezone)} – ${formatTimeInTimezone(zawalStart, timezone)}`,
-    zawalRange: `${formatTimeInTimezone(zawalStart, timezone)} – ${formatTimeInTimezone(raw.dhuhr, timezone)}`,
+    tahajjudRange: `${formatTimeInTimezone(raw.isha, timezone, timeFormat)} – ${formatTimeInTimezone(nextFajr, timezone, timeFormat)}`,
+    lastThirdRange: `${formatTimeInTimezone(night.lastThirdStart, timezone, timeFormat)} – ${formatTimeInTimezone(nextFajr, timezone, timeFormat)}`,
+    ishraqRange: `${formatTimeInTimezone(ishraqStart, timezone, timeFormat)} – ${formatTimeInTimezone(ishraqEnd, timezone, timeFormat)}`,
+    duhaRange: `${formatTimeInTimezone(ishraqEnd, timezone, timeFormat)} – ${formatTimeInTimezone(zawalStart, timezone, timeFormat)}`,
+    zawalRange: `${formatTimeInTimezone(zawalStart, timezone, timeFormat)} – ${formatTimeInTimezone(raw.dhuhr, timezone, timeFormat)}`,
   };
 };
 
@@ -101,7 +104,15 @@ export const createFallbackPeriod = (instant: Date = new Date(), timezone?: stri
 });
 
 export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPrayerPeriod => {
-  const { latitude, longitude, date = new Date(), method = 'Karachi', juristic = 'Hanafi', timezone } = params;
+  const {
+    latitude,
+    longitude,
+    date = new Date(),
+    method = 'Karachi',
+    juristic = 'Hanafi',
+    timezone,
+    timeFormat = '12h',
+  } = params;
 
   if (latitude == null || longitude == null || isNaN(latitude) || isNaN(longitude)) {
     return createFallbackPeriod(date, timezone);
@@ -153,8 +164,8 @@ export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPraye
     category: cat,
     startTime: start,
     endTime: end,
-    startTimeFormatted: formatTimeInTimezone(start, timezone),
-    endTimeFormatted: formatTimeInTimezone(end, timezone),
+    startTimeFormatted: formatTimeInTimezone(start, timezone, timeFormat),
+    endTimeFormatted: formatTimeInTimezone(end, timezone, timeFormat),
     descriptionKey: descKey,
     isCalculatedWindow: true,
     isObligatory: cat === 'obligatory',
@@ -164,7 +175,7 @@ export const getCurrentPrayerPeriod = (params: DetectPeriodParams): CurrentPraye
       id: nextId,
       nameKey: nextNameKey,
       startTime: nextStart,
-      timeFormatted: formatTimeInTimezone(nextStart, timezone),
+      timeFormatted: formatTimeInTimezone(nextStart, timezone, timeFormat),
     },
     obligatorySalahName: fard,
   });
