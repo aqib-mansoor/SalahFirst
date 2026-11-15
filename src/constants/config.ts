@@ -26,6 +26,7 @@ export const APP_CONFIG = {
     azanReciter: '@salahfirst_azan_reciter',
     timeFormat: '@salahfirst_time_format',
     updateDismissedAt: '@salahfirst_update_dismissed_at',
+    batteryPromptShown: '@salahfirst_battery_prompt_shown',
   },
   updates: {
     checkUrl: 'https://raw.githubusercontent.com/aqib-mansoor/SalahFirst/main/app-version.json',

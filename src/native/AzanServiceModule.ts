@@ -12,6 +12,24 @@ export interface DeviceSoundModeState {
   suppressionReason?: string | null;
 }
 
+export const isIgnoringBatteryOptimizations = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.isIgnoringBatteryOptimizations) return true;
+  try {
+    return await AzanModule.isIgnoringBatteryOptimizations();
+  } catch {
+    return true;
+  }
+};
+
+export const requestIgnoreBatteryOptimizations = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.requestIgnoreBatteryOptimizations) return false;
+  try {
+    return await AzanModule.requestIgnoreBatteryOptimizations();
+  } catch {
+    return false;
+  }
+};
+
 export const canScheduleExactAlarms = async (): Promise<boolean> => {
   if (!isAndroid || !AzanModule?.canScheduleExactAlarms) return true;
   try {

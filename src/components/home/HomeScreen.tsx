@@ -12,6 +12,7 @@ import { HomeTasbihWidget } from './HomeTasbihWidget';
 import { HomeDailyHadith } from './HomeDailyHadith';
 import { HomeTab } from './HomeBottomNav';
 import { HadithItem } from '@/data/hadiths';
+import { useBatteryOptimizationPrompt } from '@/hooks/useBatteryOptimizationPrompt';
 
 export interface HomeScreenProps {
   onOpenSettings?: () => void;
@@ -32,6 +33,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const theme = useTheme();
   const { location, permissionDenied } = useDeviceLocation();
+
+  // One-time prompt for background battery optimization on Android
+  useBatteryOptimizationPrompt(Boolean(location?.latitude));
 
   const {
     prayerData,

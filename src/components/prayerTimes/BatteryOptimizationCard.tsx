@@ -6,6 +6,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { requestIgnoreBatteryOptimizations } from '@/native/AzanServiceModule';
 
 export const BatteryOptimizationCard: React.FC = () => {
   const theme = useTheme();
@@ -14,12 +15,15 @@ export const BatteryOptimizationCard: React.FC = () => {
   if (Platform.OS !== 'android') return null;
 
   const handleOpenBatterySettings = async () => {
-    try {
-      await IntentLauncher.startActivityAsync(
-        IntentLauncher.ActivityAction.IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-      );
-    } catch {
-      Linking.openSettings();
+    const success = await requestIgnoreBatteryOptimizations();
+    if (!success) {
+      try {
+        await IntentLauncher.startActivityAsync(
+          IntentLauncher.ActivityAction.IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+        );
+      } catch {
+        Linking.openSettings();
+      }
     }
   };
 

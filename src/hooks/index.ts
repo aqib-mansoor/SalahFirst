@@ -2,6 +2,7 @@ export * from './useTheme';
 export * from './useDeviceLocation';
 export * from './usePrayerTracker';
 export * from './usePrayerAlerts';
+export * from './useBatteryOptimizationPrompt';
 export * from './useQiblaCompass';
 export * from './useHadithCollection';
 export * from './useNotificationScheduler';
