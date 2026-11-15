@@ -4,9 +4,9 @@ const assert = (cond: any, msg: string) => {
 };
 
 // In Node/tsx testing environment, provide in-memory shim for window.localStorage if needed
-if (typeof (global as any).window === 'undefined') {
+if (typeof (globalThis as any).window === 'undefined') {
   const memoryStore = new Map<string, string>();
-  (global as any).window = {
+  (globalThis as any).window = {
     localStorage: {
       getItem: (key: string) => memoryStore.get(key) ?? null,
       setItem: (key: string, val: string) => memoryStore.set(key, String(val)),
