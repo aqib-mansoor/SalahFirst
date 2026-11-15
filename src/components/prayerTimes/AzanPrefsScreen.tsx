@@ -11,11 +11,12 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useTranslation } from '@/context/LocalizationContext';
 import { checkNotificationPermissions, requestNotificationPermission } from '@/utils/notifications';
-import { canScheduleExactAlarms, openExactAlarmSettings } from '@/native/AzanServiceModule';
+import { canScheduleExactAlarms, openExactAlarmSettings, playNativeAzanImmediate, stopNativeAzan, isNativeAzanPlaying } from '@/native/AzanServiceModule';
 import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
+import { AzanTestControlsCard } from './AzanTestControlsCard';
 import { BatteryOptimizationCard } from './BatteryOptimizationCard';
 import { MasterAlarmCard } from './MasterAlarmCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
@@ -58,6 +59,8 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
   } = useAzanAudio();
   const [hasPermission, setHasPermission] = useState(true);
   const [hasExactAlarmPermission, setHasExactAlarmPermission] = useState(true);
+  const [isNativeTesting, setIsNativeTesting] = useState(false);
+  const [testFeedback, setTestFeedback] = useState<string | undefined>(undefined);
 
   const verifyPermissions = async () => {
     const [{ granted }, exactAllowed] = await Promise.all([
@@ -70,13 +73,42 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
 
   useEffect(() => {
     verifyPermissions();
+    const interval = setInterval(async () => {
+      const playing = await isNativeAzanPlaying();
+      setIsNativeTesting(playing);
+    }, 1500);
+
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
         verifyPermissions();
+        isNativeAzanPlaying().then(setIsNativeTesting);
       }
     });
-    return () => sub.remove();
+    return () => {
+      clearInterval(interval);
+      sub.remove();
+    };
   }, []);
+
+  const handleTestAzan = async () => {
+    setTestFeedback(undefined);
+    try {
+      const success = await playNativeAzanImmediate(currentReciter, '[TEST] Manual Azan Test');
+      if (success) {
+        setIsNativeTesting(true);
+      } else {
+        setTestFeedback('Could not start Azan. Check device sound mode or permissions.');
+      }
+    } catch {
+      setTestFeedback('Playback failed to start.');
+    }
+  };
+
+  const handleStopAzan = async () => {
+    await stopNativeAzan();
+    setIsNativeTesting(false);
+    setTestFeedback(undefined);
+  };
 
   const handleRequestPermission = async () => {
     const granted = await requestNotificationPermission();
@@ -168,6 +200,15 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           error={audioError}
           onSelectReciter={selectReciter}
           onToggle={toggleAudio}
+        />
+
+        {/* Manual Test Azan Card (Instant Native Playback) */}
+        <AzanTestControlsCard
+          currentReciter={currentReciter}
+          isTesting={isNativeTesting}
+          testStatusText={testFeedback}
+          onTestAzan={handleTestAzan}
+          onStopAzan={handleStopAzan}
         />
 
         {/* Battery Optimization Guidance Card */}

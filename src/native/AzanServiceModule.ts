@@ -126,7 +126,19 @@ export const getDeviceSoundMode = async (): Promise<DeviceSoundModeState> => {
 };
 
 /**
- * DEVELOPER TESTING: Trigger immediate native playback via AzanService.
+ * Check whether AzanService is currently running and active.
+ */
+export const isNativeAzanPlaying = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.isAzanPlaying) return false;
+  try {
+    return await AzanModule.isAzanPlaying();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * DEVELOPER & USER TESTING: Trigger immediate native playback via AzanService.
  */
 export const playNativeAzanImmediate = async (
   reciterKey: string = 'makkah',
