@@ -20,7 +20,7 @@ import { getRawPrayerTimes } from './prayerTimes';
 import { formatScriptureNotification } from './scriptureNotificationFormatter';
 
 export const DEFAULT_INSPIRATION_CONFIG: InspirationConfig = {
-  enabled: true,
+  enabled: false,
   quietHoursEnabled: true,
   quietHoursStart: '22:00',
   quietHoursEnd: '05:00',

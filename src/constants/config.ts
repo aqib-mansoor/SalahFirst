@@ -35,7 +35,7 @@ export const APP_CONFIG = {
   defaultSettings: {
     themeMode: 'dark' as 'dark' | 'light' | 'system',
     timeFormat: '12h' as '12h' | '24h',
-    notificationsEnabled: true,
+    notificationsEnabled: false,
     hapticFeedback: true,
   },
 } as const;

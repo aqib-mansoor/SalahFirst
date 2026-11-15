@@ -15,7 +15,7 @@ import {
 } from '../data/reengagement';
 
 export const DEFAULT_REENGAGEMENT_CONFIG: ReengagementConfig = {
-  enabled: true,
+  enabled: false,
 };
 
 export const getReengagementConfig = async (): Promise<ReengagementConfig> => {

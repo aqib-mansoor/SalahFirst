@@ -15,6 +15,7 @@ import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
+import { BatteryOptimizationCard } from './BatteryOptimizationCard';
 import { MasterAlarmCard } from './MasterAlarmCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
 
@@ -135,6 +136,9 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onSelectReciter={selectReciter}
           onToggle={toggleAudio}
         />
+
+        {/* Battery Optimization Guidance Card */}
+        <BatteryOptimizationCard />
 
         {/* Pre-Prayer Gentle Reminder Card */}
         <PrePrayerReminderCard

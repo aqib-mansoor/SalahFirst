@@ -12,6 +12,15 @@ export interface DeviceSoundModeState {
   suppressionReason?: string | null;
 }
 
+export const canScheduleExactAlarms = async (): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.canScheduleExactAlarms) return true;
+  try {
+    return await AzanModule.canScheduleExactAlarms();
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Stable alarm ID: dayOffset(0-6) * 10 + prayerIndex(0-4) → 0–64
  */

@@ -9,6 +9,11 @@ export const pruneDeliveredNotifications = async (keepIdentifier?: string): Prom
     const presented = await Notifications.getPresentedNotificationsAsync();
     for (const item of presented) {
       if (keepIdentifier && item.request.identifier === keepIdentifier) continue;
+      const id = item.request.identifier.toLowerCase();
+      // Protect active prayer alarms, Azan notifications, and live focus alerts from premature pruning
+      if (id.includes('alarm') || id.includes('azan') || id.includes('prayer-call') || id.includes('focus-active')) {
+        continue;
+      }
       await Notifications.dismissNotificationAsync(item.request.identifier).catch(() => {});
     }
   } catch {}

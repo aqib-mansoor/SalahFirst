@@ -4,8 +4,12 @@
   "minSupportedVersionCode": 1,
   "forceUpdate": false,
   "title": "What's New in SalahFirst",
-  "releaseNotes": "Enhanced wallpaper saving to device gallery and direct wallpaper setting with full Android support.",
+  "releaseNotes": "Added customizable international 12-hour/24-hour time format, wallpaper saving to gallery, and performance optimizations.",
   "highlights": [
+    {
+      "tag": "NEW",
+      "description": "International 12-Hour & 24-Hour time format option in Settings (default 12-hour AM/PM)."
+    },
     {
       "tag": "NEW",
       "description": "Save high-definition Hadith wallpapers directly to device gallery with instant photo permissions."
@@ -15,8 +19,8 @@
       "description": "Direct 'Set Wallpaper' launcher for Android lock and home screen with system chooser fallback."
     },
     {
-      "tag": "PERFORMANCE",
-      "description": "Instantaneous startup hydration with zero background lag and smooth screen transitions."
+      "tag": "SECURITY",
+      "description": "Hardened production builds with native R8/ProGuard obfuscation and Metro bytecode protection."
     }
   ],
   "playStoreUrl": "market://details?id=com.salahfirst.app",

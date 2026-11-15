@@ -51,11 +51,11 @@ export const DEFAULT_FOCUS_DURATIONS: PrayerFocusDurations = {
 };
 
 export const DEFAULT_FOCUS_PREFERENCES: FocusPreferences = {
-  autoStartOnAzan: true,
+  autoStartOnAzan: false,
   defaultDuration: 15,
-  playAzanBefore: true,
-  blockSocial: true,
-  blockShortVideos: true,
+  playAzanBefore: false,
+  blockSocial: false,
+  blockShortVideos: false,
   blockGames: false,
   blockNews: false,
 };

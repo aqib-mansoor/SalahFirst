@@ -121,11 +121,16 @@ export const scheduleAllPrayerAlerts = async (
       calculationMethod = 'Karachi',
       juristicMethod = 'Hanafi',
     } = params;
-    if (latitude === undefined || longitude === undefined) return 0;
+
+    // Safety Guard: Never wipe existing scheduled alarms if coordinates are missing or invalid
+    if (latitude === undefined || longitude === undefined || isNaN(latitude) || isNaN(longitude)) {
+      return 0;
+    }
 
     const { granted } = await checkNotificationPermissions();
     if (!granted) return 0;
 
+    // Only cancel existing alarms once new coordinates and permissions are confirmed
     const scheduled = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
     for (const notif of scheduled) {
       if (/^salahfirst-(alarm|prayer|pre|missed|autofocus|reflection)-/.test(notif.identifier)) {
