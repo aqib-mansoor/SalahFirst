@@ -542,5 +542,11 @@
   "gotItAction": "Got It",
   "updateViaPlayStore": "Update via Play Store",
   "laterAction": "Later",
-  "searchOnlineCoordsFor": "+ Search online coordinates for \"{{city}}\""
+  "searchOnlineCoordsFor": "+ Search online coordinates for \"{{city}}\"",
+  "prayerTimeAdjustmentsTitle": "Prayer Time Adjustments",
+  "prayerTimeAdjustmentsSub": "Fine-tune minutes (±30m) to match your local masjid",
+  "activePrayerOffsetsCount": "{{count}} prayer offsets active",
+  "resetAllAdjustments": "Reset All",
+  "hapticFeedbackTitle": "Haptic Feedback",
+  "hapticFeedbackSub": "Subtle tactile response for Tasbih, Qibla & Salah checkmarks"
 }

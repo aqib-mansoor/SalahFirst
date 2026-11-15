@@ -48,7 +48,6 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-
   const hasNonZero = Object.values(adjustments).some((v) => v !== 0);
 
   const handleStep = (key: keyof PrayerMinuteAdjustments, delta: number) => {
@@ -56,10 +55,7 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
     const next = Math.max(-30, Math.min(30, current + delta));
     if (next === current) return;
     triggerHaptic('light');
-    onUpdateAdjustments({
-      ...adjustments,
-      [key]: next,
-    });
+    onUpdateAdjustments({ ...adjustments, [key]: next });
   };
 
   const handleResetAll = () => {
@@ -90,18 +86,12 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
       subtitleText={t('prayerTimeAdjustmentsSub')}
       icon={headerIcon}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-        style={styles.scrollArea}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false} style={styles.scrollArea}>
         <View
           style={[
             styles.listCard,
             {
-              backgroundColor: theme.isDark
-                ? theme.colors.surfaceSubtle
-                : theme.colors.background,
+              backgroundColor: theme.isDark ? theme.colors.surfaceSubtle : theme.colors.background,
               borderColor: theme.colors.border,
             },
           ]}
@@ -114,10 +104,7 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
             return (
               <View
                 key={item.key}
-                style={[
-                  styles.row,
-                  idx > 0 && [styles.rowBorder, { borderColor: theme.colors.border }],
-                ]}
+                style={[styles.row, idx > 0 && [styles.rowBorder, { borderColor: theme.colors.border }]]}
               >
                 <View style={styles.leftCol}>
                   <PrayerTimeIcon prayer={item.iconPrayer} size={22} />
@@ -154,10 +141,8 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
                     style={[
                       styles.valuePill,
                       {
-                        backgroundColor:
-                          val !== 0 ? theme.colors.secondaryTint : theme.colors.surface,
-                        borderColor:
-                          val !== 0 ? theme.colors.primary : theme.colors.border,
+                        backgroundColor: val !== 0 ? theme.colors.secondaryTint : theme.colors.surface,
+                        borderColor: val !== 0 ? theme.colors.primary : theme.colors.border,
                       },
                     ]}
                   >
@@ -217,10 +202,7 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
           onPress={onClose}
           style={({ pressed }) => [
             styles.doneBtn,
-            {
-              backgroundColor: theme.colors.primary,
-              opacity: pressed ? 0.88 : 1,
-            },
+            { backgroundColor: theme.colors.primary, opacity: pressed ? 0.88 : 1 },
           ]}
         >
           <AppText variant="bodyMedium" color={theme.colors.textOnPrimary} style={styles.doneText}>
@@ -234,11 +216,7 @@ export const PrayerAdjustmentsBottomSheet: React.FC<PrayerAdjustmentsBottomSheet
 
 const styles = StyleSheet.create({
   scrollArea: { maxHeight: 380 },
-  listCard: {
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
+  listCard: { borderRadius: RADIUS.lg, borderWidth: 1, overflow: 'hidden' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -246,22 +224,11 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 2,
     paddingHorizontal: SPACING.md,
   },
-  rowBorder: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  leftCol: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm + 2,
-    flex: 1,
-  },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth },
+  leftCol: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm + 2, flex: 1 },
   textCol: { gap: 1 },
   prayerTitle: { fontWeight: '700' },
-  stepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs },
   stepBtn: {
     width: 30,
     height: 30,
@@ -270,11 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepSign: {
-    fontSize: 16,
-    lineHeight: 18,
-    fontWeight: '600',
-  },
+  stepSign: { fontSize: 16, lineHeight: 18, fontWeight: '600' },
   valuePill: {
     minWidth: 46,
     paddingHorizontal: SPACING.xs + 3,
@@ -283,16 +246,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
   },
-  valueText: {
-    fontWeight: '800',
-    fontSize: 11.5,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    marginTop: SPACING.md,
-  },
+  valueText: { fontWeight: '800', fontSize: 11.5 },
+  footerRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginTop: SPACING.md },
   resetBtn: {
     height: 44,
     paddingHorizontal: SPACING.md,
@@ -302,12 +257,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resetText: { fontWeight: '700' },
-  doneBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: RADIUS.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  doneBtn: { flex: 1, height: 44, borderRadius: RADIUS.lg, alignItems: 'center', justifyContent: 'center' },
   doneText: { fontWeight: '700', letterSpacing: 0.3 },
 });

@@ -38,15 +38,16 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
   ];
 
   const TIME_FORMATS: { id: TimeFormat; label: string }[] = [
-    { id: '12h', label: '12h (1:45 PM)' },
-    { id: '24h', label: '24h (13:45)' },
+    { id: '12h', label: '12H' },
+    { id: '24h', label: '24H' },
   ];
 
-  const getThemeSubtitle = () => {
-    if (themeMode === 'dark') return t('themeDark');
-    if (themeMode === 'light') return t('themeLight');
-    return t('themeSystem');
-  };
+  const themeSubtitle =
+    themeMode === 'dark'
+      ? t('themeDark')
+      : themeMode === 'light'
+      ? t('themeLight')
+      : t('themeSystem');
 
   return (
     <View style={styles.container}>
@@ -69,18 +70,16 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
                 />
               </Svg>
             </View>
-
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('theme')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                {getThemeSubtitle()}
+                {themeSubtitle}
               </AppText>
             </View>
           </View>
 
-          {/* 3-way Segmented Pill */}
           <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
             {MODES.map((mode) => {
               const isSelected = themeMode === mode.id;
@@ -118,7 +117,6 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
                 <Path d="M12 7v5l3 3" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </View>
-
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
                 {t('timeFormat')}
@@ -147,7 +145,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
                     color={isSelected ? theme.colors.textOnPrimary : theme.colors.textSecondary}
                     style={[styles.segmentText, isSelected && styles.segmentTextSelected]}
                   >
-                    {tf.id.toUpperCase()}
+                    {tf.label}
                   </AppText>
                 </Pressable>
               );
@@ -175,7 +173,6 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
               </AppText>
             </View>
           </View>
-
           <View style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryTint }]}>
             <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
               {languageLabel}
@@ -223,24 +220,10 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
 };
 
 const styles = StyleSheet.create({
-  container: {
-    gap: SPACING.xs + 2,
-  },
-  sectionLabel: {
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    paddingHorizontal: SPACING.xs,
-  },
-  card: {
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  themeRow: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 4,
-    gap: SPACING.sm,
-  },
+  container: { gap: SPACING.xs + 2 },
+  sectionLabel: { fontWeight: '800', letterSpacing: 0.8, paddingHorizontal: SPACING.xs },
+  card: { borderRadius: RADIUS.xl, borderWidth: 1, overflow: 'hidden' },
+  themeRow: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm + 4, gap: SPACING.sm },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,65 +231,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm + 4,
   },
-  leftRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm + 4,
-    flex: 1,
-    paddingRight: SPACING.sm,
-  },
-  iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textCol: {
-    flex: 1,
-    gap: 2,
-  },
-  rowTitle: {
-    fontWeight: '700',
-  },
-  segmentTrack: {
-    flexDirection: 'row',
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    padding: 3,
-    gap: 2,
-  },
-  segmentItem: {
-    flex: 1,
-    paddingVertical: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: RADIUS.sm + 2,
-  },
-  segmentSelected: {
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  segmentText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  segmentTextSelected: {
-    fontWeight: '700',
-  },
-  pillBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-  },
-  pillText: {
-    fontWeight: '700',
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginLeft: 60,
-  },
+  leftRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm + 4, flex: 1, paddingRight: SPACING.sm },
+  iconBox: { width: 36, height: 36, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
+  textCol: { flex: 1, gap: 2 },
+  rowTitle: { fontWeight: '700' },
+  segmentTrack: { flexDirection: 'row', borderRadius: RADIUS.md, borderWidth: 1, padding: 3, gap: 2 },
+  segmentItem: { flex: 1, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', borderRadius: RADIUS.sm + 2 },
+  segmentSelected: { elevation: 1 },
+  segmentText: { fontSize: 12, fontWeight: '500' },
+  segmentTextSelected: { fontWeight: '700' },
+  pillBadge: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.full },
+  pillText: { fontWeight: '700' },
+  divider: { height: StyleSheet.hairlineWidth, marginLeft: 60 },
 });

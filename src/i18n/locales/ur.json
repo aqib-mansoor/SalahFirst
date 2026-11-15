@@ -542,5 +542,11 @@
   "gotItAction": "سمجھ گیا",
   "updateViaPlayStore": "پلے اسٹور سے اپ ڈیٹ کریں",
   "laterAction": "بعد میں",
-  "searchOnlineCoordsFor": "+ \"{{city}}\" کے آن لائن کوآرڈینیٹس تلاش کریں"
+  "searchOnlineCoordsFor": "+ \"{{city}}\" کے آن لائن کوآرڈینیٹس تلاش کریں",
+  "prayerTimeAdjustmentsTitle": "اوقاتِ نماز میں منٹوں کی ترتیب",
+  "prayerTimeAdjustmentsSub": "اپنی مقامی مسجد کے مطابق منٹ (±30m) ایڈجسٹ کریں",
+  "activePrayerOffsetsCount": "{{count}} نمازوں کے اوقات میں ترمیم فعال",
+  "resetAllAdjustments": "سب ری سیٹ کریں",
+  "hapticFeedbackTitle": "ٹیکٹائل وائبریشن (Haptics)",
+  "hapticFeedbackSub": "تسبیح، قبلہ اور نماز مکمل کرنے پر ہلکا احساس"
 }

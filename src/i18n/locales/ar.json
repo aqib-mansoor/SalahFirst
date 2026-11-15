@@ -543,5 +543,11 @@
   "gotItAction": "حسناً",
   "updateViaPlayStore": "التحديث عبر متجر Play",
   "laterAction": "لاحقاً",
-  "searchOnlineCoordsFor": "+ البحث عبر الإنترنت عن إحداثيات \"{{city}}\""
+  "searchOnlineCoordsFor": "+ البحث عبر الإنترنت عن إحداثيات \"{{city}}\"",
+  "prayerTimeAdjustmentsTitle": "تعديل دقائق أوقات الصلاة",
+  "prayerTimeAdjustmentsSub": "ضبط الدقائق (±30د) لتطابق مسجدك المحلي",
+  "activePrayerOffsetsCount": "{{count}} تعديلات نشطة لأوقات الصلاة",
+  "resetAllAdjustments": "إعادة ضبط الكل",
+  "hapticFeedbackTitle": "الاهتزاز التفاعلي (Haptics)",
+  "hapticFeedbackSub": "استجابة لمسية خفيفة للتسبيح والقبلة وتسجيل الصلاة"
 }
