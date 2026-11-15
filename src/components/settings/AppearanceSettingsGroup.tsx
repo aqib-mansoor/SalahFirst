@@ -13,7 +13,7 @@ export interface AppearanceSettingsGroupProps {
   timeFormat: TimeFormat;
   onSelectTimeFormat: (format: TimeFormat) => void;
   languageLabel: string;
-  onToggleLanguage: () => void;
+  onOpenLanguageSheet: () => void;
 }
 
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
@@ -22,7 +22,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
   timeFormat,
   onSelectTimeFormat,
   languageLabel,
-  onToggleLanguage,
+  onOpenLanguageSheet,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -153,8 +153,8 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 3: App Language Toggle */}
-        <Pressable onPress={onToggleLanguage} style={styles.row}>
+        {/* Row 3: App Language Selector */}
+        <Pressable onPress={onOpenLanguageSheet} style={styles.row}>
           <View style={styles.leftRow}>
             <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">

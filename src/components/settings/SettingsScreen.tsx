@@ -10,6 +10,7 @@ import { useAzanAudio } from '@/hooks/useAzanAudio';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
+import { LanguageBottomSheet } from './LanguageBottomSheet';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
@@ -71,6 +72,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
   const { language, setLanguage, t } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
   const dispatch = useAppDispatch();
@@ -201,7 +203,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               notifyTrackerPreferencesChanged();
             }}
             languageLabel={languageLabel}
-            onToggleLanguage={handleToggleLanguage}
+            onOpenLanguageSheet={() => setLanguageSheetVisible(true)}
           />
 
           <InspirationSettingsGroup
@@ -228,6 +230,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
           onUseGps={requestGpsLocation}
+        />
+
+        <LanguageBottomSheet
+          visible={languageSheetVisible}
+          onClose={() => setLanguageSheetVisible(false)}
         />
       </View>
     </AppContainer>
