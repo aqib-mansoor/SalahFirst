@@ -21,3 +21,4 @@ export const triggerHaptic = (style: HapticStyle = 'light'): void => {
     // Non-blocking fallback if vibration hardware is unavailable
   }
 };
+
