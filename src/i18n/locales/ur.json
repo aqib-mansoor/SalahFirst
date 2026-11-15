@@ -534,5 +534,13 @@
   "exactAlarmPermTitle": "درست وقت پر الارم کی اجازت درکار ہے",
   "exactAlarmPermDesc": "عین وقت پر اذان بجانے کے لیے اینڈرائیڈ میں ”Alarms & Reminders“ کی اجازت درکار ہے۔",
   "allowAction": "اجازت دیں",
-  "perPrayerAlertMode": "ہر نماز کا الرٹ موڈ"
+  "perPrayerAlertMode": "ہر نماز کا الرٹ موڈ",
+  "threeLanguagesBadge": "3 زبانیں",
+  "whatsNewTitle": "SalahFirst میں نیا کیا ہے",
+  "appUpdateTitle": "ایپ اپ ڈیٹ",
+  "verifiedReleaseSub": "تصدیق شدہ ورژن",
+  "gotItAction": "سمجھ گیا",
+  "updateViaPlayStore": "پلے اسٹور سے اپ ڈیٹ کریں",
+  "laterAction": "بعد میں",
+  "searchOnlineCoordsFor": "+ \"{{city}}\" کے آن لائن کوآرڈینیٹس تلاش کریں"
 }

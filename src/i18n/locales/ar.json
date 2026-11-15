@@ -535,5 +535,13 @@
   "exactAlarmPermTitle": "يلزم إذن التنبيهات الدقيقة",
   "exactAlarmPermDesc": "يتطلب نظام Android إذن \"المنبهات والتذكيرات\" لرفع الأذان في وقته الدقيق.",
   "allowAction": "سماح",
-  "perPrayerAlertMode": "وضع التنبيه لكل صلاة"
+  "perPrayerAlertMode": "وضع التنبيه لكل صلاة",
+  "threeLanguagesBadge": "3 لغات",
+  "whatsNewTitle": "ما الجديد في SalahFirst",
+  "appUpdateTitle": "تحديث التطبيق",
+  "verifiedReleaseSub": "إصدار موثق",
+  "gotItAction": "حسناً",
+  "updateViaPlayStore": "التحديث عبر متجر Play",
+  "laterAction": "لاحقاً",
+  "searchOnlineCoordsFor": "+ البحث عبر الإنترنت عن إحداثيات \"{{city}}\""
 }

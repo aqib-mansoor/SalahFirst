@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Modal, StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList } from 'react-native';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { searchWorldwideCity } from '@/utils/geocoding';
 import { CityModalHeader } from './CityModalHeader';
@@ -92,101 +92,97 @@ export const SetupCityModal: React.FC<SetupCityModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-      <View style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
-          <CityModalHeader
-            isCountrySelected={Boolean(selectedCountry)}
-            hasQuery={Boolean(trimmedQuery)}
-            onBackToCountries={() => setSelectedCountry(null)}
-            onClose={handleClose}
-          />
+    <AppBottomSheet
+      visible={visible}
+      onClose={handleClose}
+      maxHeight="80%"
+      minHeight={360}
+      containerStyle={styles.sheetOverride}
+    >
+      <CityModalHeader
+        isCountrySelected={Boolean(selectedCountry)}
+        hasQuery={Boolean(trimmedQuery)}
+        onBackToCountries={() => setSelectedCountry(null)}
+        onClose={handleClose}
+      />
 
-          {selectedCountry && !trimmedQuery && (
-            <View style={[styles.activeCountryBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
-              <AppText variant="titleSmall" color={theme.colors.text}>
-                {selectedCountry}
-              </AppText>
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                {countryCities.length} verified cities
-              </AppText>
-            </View>
-          )}
-
-          {requiredNotice && (
-            <View style={[styles.noticeBox, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
-              <AppText variant="caption" color={theme.colors.textPrimary}>
-                {requiredNotice}
-              </AppText>
-            </View>
-          )}
-
-          <CityModalSearchBox
-            query={query}
-            onChangeQuery={(text) => {
-              setQuery(text);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            errorMessage={errorMessage}
-            hasExactMatch={hasExactMatch}
-            isGeocoding={isGeocoding}
-            onCustomGeocode={handleCustomGeocode}
-          />
-
-          {trimmedQuery ? (
-            <FlatList
-              data={searchFilteredCities}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <CityModalCityRow city={item} onPress={() => handleCityPick(item)} />
-              )}
-            />
-          ) : selectedCountry ? (
-            <FlatList
-              data={countryCities}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <CityModalCityRow
-                  city={item}
-                  subtitle={`Qibla ${item.qiblaDegrees}° • ${item.methodName}`}
-                  onPress={() => handleCityPick(item)}
-                />
-              )}
-            />
-          ) : (
-            <FlatList
-              data={countries}
-              keyExtractor={(item) => item.country}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <CityModalCountryRow
-                  country={item.country}
-                  cityCount={item.cityCount}
-                  onPress={() => setSelectedCountry(item.country)}
-                />
-              )}
-            />
-          )}
+      {selectedCountry && !trimmedQuery && (
+        <View style={[styles.activeCountryBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+          <AppText variant="titleSmall" color={theme.colors.text}>
+            {selectedCountry}
+          </AppText>
+          <AppText variant="caption" color={theme.colors.textMuted}>
+            {countryCities.length} {t('verifiedCities')}
+          </AppText>
         </View>
-      </View>
-    </Modal>
+      )}
+
+      {requiredNotice && (
+        <View style={[styles.noticeBox, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
+          <AppText variant="caption" color={theme.colors.textPrimary}>
+            {requiredNotice}
+          </AppText>
+        </View>
+      )}
+
+      <CityModalSearchBox
+        query={query}
+        onChangeQuery={(text) => {
+          setQuery(text);
+          if (errorMessage) setErrorMessage(null);
+        }}
+        errorMessage={errorMessage}
+        hasExactMatch={hasExactMatch}
+        isGeocoding={isGeocoding}
+        onCustomGeocode={handleCustomGeocode}
+      />
+
+      {trimmedQuery ? (
+        <FlatList
+          data={searchFilteredCities}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <CityModalCityRow city={item} onPress={() => handleCityPick(item)} />
+          )}
+        />
+      ) : selectedCountry ? (
+        <FlatList
+          data={countryCities}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <CityModalCityRow
+              city={item}
+              subtitle={`Qibla ${item.qiblaDegrees}° • ${item.methodName}`}
+              onPress={() => handleCityPick(item)}
+            />
+          )}
+        />
+      ) : (
+        <FlatList
+          data={countries}
+          keyExtractor={(item) => item.country}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <CityModalCountryRow
+              country={item.country}
+              cityCount={item.cityCount}
+              onPress={() => setSelectedCountry(item.country)}
+            />
+          )}
+        />
+      )}
+    </AppBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    borderTopLeftRadius: RADIUS.xxl,
-    borderTopRightRadius: RADIUS.xxl,
-    padding: SPACING.xl,
-    maxHeight: '80%',
-    minHeight: 440,
+  sheetOverride: {
+    paddingHorizontal: SPACING.xl,
   },
   activeCountryBanner: {
     flexDirection: 'row',

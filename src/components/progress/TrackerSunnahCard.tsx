@@ -8,6 +8,7 @@ import { storage } from '@/utils/storage';
 import { getLocalDateComponents } from '@/utils/timezone';
 import { APP_CONFIG } from '@/constants/config';
 import { useTranslation, TranslationKey } from '@/context/LocalizationContext';
+import { addTrackerListener } from '@/hooks/usePrayerTracker';
 
 const SUNNAH_KEY = APP_CONFIG.storageKeys.sunnahHistory;
 
@@ -32,11 +33,13 @@ export const TrackerSunnahCard: React.FC = () => {
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    storage.get<Record<string, Record<string, boolean>>>(SUNNAH_KEY, {}).then((history) => {
-      if (history[todayKey]) {
-        setCompletedMap(history[todayKey]);
-      }
-    });
+    const loadTodaySunnah = () => {
+      storage.get<Record<string, Record<string, boolean>>>(SUNNAH_KEY, {}).then((history) => {
+        setCompletedMap(history[todayKey] || {});
+      });
+    };
+    loadTodaySunnah();
+    return addTrackerListener(loadTodaySunnah);
   }, [todayKey]);
 
   const handleToggle = useCallback(

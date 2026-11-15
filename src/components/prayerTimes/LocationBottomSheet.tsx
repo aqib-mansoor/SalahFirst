@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Modal, StyleSheet, View, Pressable, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { searchWorldwideCity } from '@/utils/geocoding';
 import { LocationCityRow } from './LocationCityRow';
@@ -37,7 +36,6 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   currentTimezone: propTimezone,
 }) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { location: deviceLoc } = useDeviceLocation();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -117,94 +115,89 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   return (
     <>
-      <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-        <View style={styles.overlay}>
-          <Pressable style={styles.backdrop} onPress={handleClose} />
+      <AppBottomSheet
+        visible={visible}
+        onClose={handleClose}
+        maxHeight="82%"
+        containerStyle={styles.sheetOverride}
+      >
+        <LocationSheetHeader
+          selectedCountry={selectedCountry}
+          isSearching={Boolean(trimmed)}
+          onBackToCountries={() => setSelectedCountry(null)}
+          onClose={handleClose}
+        />
 
-          <View
-            style={[
-              styles.sheet,
-              {
-                backgroundColor: theme.colors.surface,
-                paddingBottom: Math.max(insets.bottom, SPACING.lg),
-              },
-            ]}
-          >
-            <LocationSheetHeader
-              selectedCountry={selectedCountry}
-              isSearching={Boolean(trimmed)}
-              onBackToCountries={() => setSelectedCountry(null)}
-              onClose={handleClose}
-            />
-
-            {selectedCountry && !trimmed && (
-              <View style={[styles.activeCountryBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
-                <AppText variant="titleSmall" color={theme.colors.text}>
-                  {selectedCountry}
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  {countryCities.length} verified cities
-                </AppText>
-              </View>
-            )}
-
-            {onUseGps && !selectedCountry && !trimmed && (
-              <LocationGpsPinnedCard
-                isGps={isGps}
-                onPress={() => {
-                  onUseGps();
-                  handleClose();
-                }}
-              />
-            )}
-
-            <LocationSearchBar
-              search={search}
-              isSearching={isSearching}
-              onlineError={onlineError}
-              attribution={attribution}
-              onSearchChange={(txt) => {
-                setSearch(txt);
-                setOnlineError(null);
-              }}
-              onClear={() => setSearch('')}
-              onSubmit={handleOnlineSearch}
-              onOnlineSearch={handleOnlineSearch}
-            />
-
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-              {trimmed ? (
-                displayCities.map((city) => (
-                  <LocationCityRow
-                    key={city.id}
-                    city={city}
-                    isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
-                    onSelect={handleCitySelect}
-                  />
-                ))
-              ) : selectedCountry ? (
-                countryCities.map((city) => (
-                  <LocationCityRow
-                    key={city.id}
-                    city={city}
-                    isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
-                    onSelect={handleCitySelect}
-                  />
-                ))
-              ) : (
-                countries.map((item) => (
-                  <CityModalCountryRow
-                    key={item.country}
-                    country={item.country}
-                    cityCount={item.cityCount}
-                    onPress={() => setSelectedCountry(item.country)}
-                  />
-                ))
-              )}
-            </ScrollView>
+        {selectedCountry && !trimmed && (
+          <View style={[styles.activeCountryBanner, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
+            <AppText variant="titleSmall" color={theme.colors.text}>
+              {selectedCountry}
+            </AppText>
+            <AppText variant="caption" color={theme.colors.textMuted}>
+              {countryCities.length} {t('verifiedCities')}
+            </AppText>
           </View>
-        </View>
-      </Modal>
+        )}
+
+        {onUseGps && !selectedCountry && !trimmed && (
+          <LocationGpsPinnedCard
+            isGps={isGps}
+            onPress={() => {
+              onUseGps();
+              handleClose();
+            }}
+          />
+        )}
+
+        <LocationSearchBar
+          search={search}
+          isSearching={isSearching}
+          onlineError={onlineError}
+          attribution={attribution}
+          onSearchChange={(txt) => {
+            setSearch(txt);
+            setOnlineError(null);
+          }}
+          onClear={() => setSearch('')}
+          onSubmit={handleOnlineSearch}
+          onOnlineSearch={handleOnlineSearch}
+        />
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.list}
+        >
+          {trimmed ? (
+            displayCities.map((city) => (
+              <LocationCityRow
+                key={city.id}
+                city={city}
+                isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
+                onSelect={handleCitySelect}
+              />
+            ))
+          ) : selectedCountry ? (
+            countryCities.map((city) => (
+              <LocationCityRow
+                key={city.id}
+                city={city}
+                isSelected={!isGps && city.name.toLowerCase() === currentCityName.toLowerCase()}
+                onSelect={handleCitySelect}
+              />
+            ))
+          ) : (
+            countries.map((item) => (
+              <CityModalCountryRow
+                key={item.country}
+                country={item.country}
+                cityCount={item.cityCount}
+                onPress={() => setSelectedCountry(item.country)}
+              />
+            ))
+          )}
+        </ScrollView>
+      </AppBottomSheet>
 
       <LocationChangeConfirmModal
         visible={!!pendingCity}
@@ -220,21 +213,8 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    flex: 1,
-  },
-  sheet: {
-    borderTopLeftRadius: RADIUS.xxl,
-    borderTopRightRadius: RADIUS.xxl,
+  sheetOverride: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
-    paddingBottom: SPACING.xl,
-    maxHeight: '80%',
     gap: SPACING.sm,
   },
   activeCountryBanner: {

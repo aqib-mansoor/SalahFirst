@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, StyleSheet, View, Pressable, TextInput, Share, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View, Pressable, TextInput, Share, Keyboard } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
+import { APP_CONFIG } from '@/constants/config';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, AppButton } from '@/components/common';
+import { AppText, AppBottomSheet, ReleaseHighlightRow } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { exportBackupToJson, restoreBackupFromJson } from '@/utils/backupExportManager';
+import {
+  generateBackupPayload,
+  restoreBackupFromJson,
+  SalahFirstBackupData,
+} from '@/utils/backupExportManager';
 import { hydrateAllStore } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
@@ -23,12 +27,11 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const [activeTab, setActiveTab] = useState<BackupTab>('export');
-  const [exportJson, setExportJson] = useState<string>('');
+  const [payload, setPayload] = useState<SalahFirstBackupData | null>(null);
   const [pasteInput, setPasteInput] = useState<string>('');
   const [statusMsg, setStatusMsg] = useState<{ text: string; isError: boolean } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -36,18 +39,16 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
   useEffect(() => {
     if (visible) {
       setStatusMsg(null);
-      exportBackupToJson().then(setExportJson).catch(() => setExportJson(''));
+      generateBackupPayload().then(setPayload).catch(() => setPayload(null));
     }
   }, [visible]);
 
-  if (!visible) return null;
-
   const handleShareBackup = async () => {
-    if (!exportJson) return;
+    if (!payload) return;
     try {
       await Share.share({
         title: t('backupAndRestoreTitle'),
-        message: exportJson,
+        message: JSON.stringify(payload, null, 2),
       });
     } catch {
       // User dismissed share sheet
@@ -55,6 +56,7 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
   };
 
   const handleRestore = async () => {
+    Keyboard.dismiss();
     const trimmed = pasteInput.trim();
     if (!trimmed) {
       setStatusMsg({ text: t('backupRestoreInvalid'), isError: true });
@@ -63,8 +65,8 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
 
     setIsProcessing(true);
     setStatusMsg(null);
-
     const res = await restoreBackupFromJson(trimmed);
+
     if (res.success) {
       await hydrateAllStore(dispatch);
       notifyTrackerPreferencesChanged();
@@ -73,206 +75,210 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
         isError: false,
       });
       setPasteInput('');
-      const updatedJson = await exportBackupToJson();
-      setExportJson(updatedJson);
+      setPayload(await generateBackupPayload());
     } else {
-      setStatusMsg({
-        text: res.error || t('backupRestoreInvalid'),
-        isError: true,
-      });
+      setStatusMsg({ text: res.error || t('backupRestoreInvalid'), isError: true });
     }
     setIsProcessing(false);
   };
 
+  const prayerRecordsCount = payload
+    ? Math.max(
+        payload.prayerLedger?.length || 0,
+        Object.values(payload.prayerTracker || {}).reduce(
+          (acc, day) => acc + Object.values(day || {}).filter(Boolean).length,
+          0
+        )
+      )
+    : 0;
+  const sunnahDaysCount = payload ? Object.keys(payload.sunnahTracker || {}).length : 0;
+  const bookmarksCount = payload ? (payload.hadithBookmarks?.length || 0) : 0;
+  const cardBg = theme.isDark ? theme.colors.surfaceSubtle : theme.colors.background;
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
-
-        <View
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-              paddingBottom: Math.max(insets.bottom, SPACING.lg),
-            },
-          ]}
-        >
-          <View style={styles.handleBar}>
-            <View style={[styles.handleIndicator, { backgroundColor: theme.colors.border }]} />
-          </View>
-
-          <View style={styles.header}>
-            <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
-              {t('backupAndRestoreTitle')}
-            </AppText>
-            <Pressable onPress={onClose} hitSlop={12} style={styles.closeBtn}>
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                <Path d="M18 6L6 18M6 6l12 12" stroke={theme.colors.textSecondary} strokeWidth="2" strokeLinecap="round" />
-              </Svg>
-            </Pressable>
-          </View>
-
-          {/* 2-Tab Segmented Switcher */}
-          <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
-            {(['export', 'restore'] as BackupTab[]).map((tab) => {
-              const isSelected = activeTab === tab;
-              return (
-                <Pressable
-                  key={tab}
-                  onPress={() => {
-                    setActiveTab(tab);
-                    setStatusMsg(null);
-                  }}
-                  style={[
-                    styles.segmentItem,
-                    isSelected && { backgroundColor: theme.colors.primary },
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    color={isSelected ? theme.colors.textOnPrimary : theme.colors.textSecondary}
-                    style={styles.segmentText}
-                  >
-                    {tab === 'export' ? t('backupTabExport') : t('backupTabRestore')}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          {activeTab === 'export' ? (
-            <View style={styles.body}>
-              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
-                {t('backupExportDesc')}
-              </AppText>
-
-              <ScrollView
-                style={[styles.codePreviewBox, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}
-                nestedScrollEnabled
+    <AppBottomSheet
+      visible={visible}
+      onClose={onClose}
+      title={t('backupAndRestoreTitle')}
+      badgeText={`v${APP_CONFIG.version}`}
+      subtitleText={t('offlineFirst')}
+      icon={
+        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+            stroke={theme.colors.primary}
+            strokeWidth="2.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      }
+    >
+      <View
+        style={[
+          styles.segmentTrack,
+          { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border },
+        ]}
+      >
+        {(['export', 'restore'] as BackupTab[]).map((tab) => {
+          const isSelected = activeTab === tab;
+          return (
+            <Pressable
+              key={tab}
+              onPress={() => {
+                Keyboard.dismiss();
+                setActiveTab(tab);
+                setStatusMsg(null);
+              }}
+              style={[
+                styles.segmentItem,
+                isSelected && { backgroundColor: theme.colors.primary },
+              ]}
+            >
+              <AppText
+                variant="caption"
+                color={isSelected ? theme.colors.textOnPrimary : theme.colors.textSecondary}
+                style={styles.segmentText}
               >
-                <AppText
-                  variant="caption"
-                  color={theme.colors.textPrimary}
-                  selectable
-                  style={styles.codeText}
-                >
-                  {exportJson}
-                </AppText>
-              </ScrollView>
-
-              <AppButton
-                label={t('backupShareButton')}
-                onPress={handleShareBackup}
-                variant="primary"
-                size="md"
-              />
-            </View>
-          ) : (
-            <View style={styles.body}>
-              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
-                {t('backupRestoreDesc')}
+                {tab === 'export' ? t('backupTabExport') : t('backupTabRestore')}
               </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
 
-              <TextInput
-                value={pasteInput}
-                onChangeText={setPasteInput}
-                placeholder={t('backupPastePlaceholder')}
-                placeholderTextColor={theme.colors.textMuted}
-                multiline
-                textAlignVertical="top"
-                style={[
-                  styles.textInput,
-                  {
-                    backgroundColor: theme.colors.surfaceSubtle,
-                    borderColor: theme.colors.border,
-                    color: theme.colors.textPrimary,
-                  },
-                ]}
-              />
+      {activeTab === 'export' ? (
+        <View style={styles.contentSection}>
+          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
+            {t('backupExportDesc')}
+          </AppText>
 
-              {statusMsg && (
-                <View
-                  style={[
-                    styles.statusBanner,
-                    {
-                      backgroundColor: statusMsg.isError ? theme.colors.warningBg : theme.colors.secondaryTint,
-                      borderColor: statusMsg.isError ? theme.colors.warningBorder : theme.colors.primary,
-                    },
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    color={statusMsg.isError ? theme.colors.warning : theme.colors.primary}
-                    style={styles.statusText}
-                  >
-                    {statusMsg.text}
-                  </AppText>
-                </View>
-              )}
+          <View
+            style={[
+              styles.summaryCard,
+              { backgroundColor: cardBg, borderColor: theme.colors.border },
+            ]}
+          >
+            {[
+              { tag: t('backupTagPrayers'), description: t('backupSummaryPrayers', { count: prayerRecordsCount }) },
+              { tag: t('backupTagSunnah'), description: t('backupSummarySunnah', { count: sunnahDaysCount }) },
+              { tag: t('backupTagBookmarks'), description: t('backupSummaryBookmarks', { count: bookmarksCount }) },
+            ].map((item, idx) => (
+              <ReleaseHighlightRow key={idx} item={item} />
+            ))}
+          </View>
 
-              <AppButton
-                label={t('backupRestoreAction')}
-                onPress={handleRestore}
-                loading={isProcessing}
-                disabled={isProcessing}
-                variant="gold"
-                size="md"
-              />
+          <Pressable
+            onPress={handleShareBackup}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              { backgroundColor: theme.colors.primary, opacity: pressed ? 0.88 : 1 },
+            ]}
+          >
+            <AppText variant="bodyMedium" color={theme.colors.textOnPrimary} style={styles.buttonLabel}>
+              {t('backupShareButton')}
+            </AppText>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={styles.contentSection}>
+          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
+            {t('backupRestoreDesc')}
+          </AppText>
+
+          <TextInput
+            value={pasteInput}
+            onChangeText={setPasteInput}
+            placeholder={t('backupPastePlaceholder')}
+            placeholderTextColor={theme.colors.textMuted}
+            multiline
+            textAlignVertical="top"
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: cardBg,
+                borderColor: theme.colors.border,
+                color: theme.colors.textPrimary,
+              },
+            ]}
+          />
+
+          {statusMsg && (
+            <View
+              style={[
+                styles.statusBanner,
+                {
+                  backgroundColor: statusMsg.isError
+                    ? theme.colors.warningBg
+                    : theme.colors.secondaryTint,
+                  borderColor: statusMsg.isError
+                    ? theme.colors.warningBorder
+                    : theme.colors.primary,
+                },
+              ]}
+            >
+              <AppText
+                variant="caption"
+                color={statusMsg.isError ? theme.colors.warning : theme.colors.primary}
+                style={styles.statusText}
+              >
+                {statusMsg.text}
+              </AppText>
             </View>
           )}
+
+          <Pressable
+            onPress={handleRestore}
+            disabled={isProcessing}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              {
+                backgroundColor: theme.colors.primary,
+                opacity: pressed || isProcessing ? 0.85 : 1,
+              },
+            ]}
+          >
+            <AppText variant="bodyMedium" color={theme.colors.textOnPrimary} style={styles.buttonLabel}>
+              {t('backupRestoreAction')}
+            </AppText>
+          </Pressable>
         </View>
-      </View>
-    </Modal>
+      )}
+    </AppBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' },
-  backdrop: { ...StyleSheet.absoluteFill },
-  sheet: {
-    borderTopLeftRadius: RADIUS.xl,
-    borderTopRightRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    paddingHorizontal: SPACING.lg,
-    gap: SPACING.sm + 2,
-  },
-  handleBar: { alignItems: 'center', paddingVertical: SPACING.xs + 2 },
-  handleIndicator: { width: 36, height: 4, borderRadius: RADIUS.full },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontWeight: '700' },
-  closeBtn: { padding: SPACING.xs },
   segmentTrack: {
     flexDirection: 'row',
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     padding: 3,
     gap: 4,
+    marginBottom: SPACING.sm + 2,
   },
   segmentItem: {
     flex: 1,
-    paddingVertical: 7,
+    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: RADIUS.sm + 2,
+    borderRadius: RADIUS.md,
   },
   segmentText: { fontWeight: '700', fontSize: 12 },
-  body: { gap: SPACING.sm + 2, paddingTop: 2 },
+  contentSection: { gap: SPACING.md },
   desc: { lineHeight: 17 },
-  codePreviewBox: {
-    maxHeight: 150,
-    borderRadius: RADIUS.md,
+  summaryCard: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    padding: SPACING.sm + 2,
+    gap: SPACING.xs,
   },
-  codeText: { fontSize: 10.5, lineHeight: 15 },
   textInput: {
-    height: 120,
-    borderRadius: RADIUS.md,
+    height: 110,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    padding: SPACING.sm + 2,
+    padding: SPACING.md,
     fontSize: 12,
   },
   statusBanner: {
@@ -282,4 +288,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   statusText: { fontWeight: '700', fontSize: 11.5 },
+  primaryButton: {
+    width: '100%',
+    height: 46,
+    borderRadius: RADIUS.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonLabel: { fontWeight: '700', letterSpacing: 0.3 },
 });

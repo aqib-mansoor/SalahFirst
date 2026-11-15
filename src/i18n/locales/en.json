@@ -534,5 +534,13 @@
   "exactAlarmPermTitle": "Exact Alarm Permission Required",
   "exactAlarmPermDesc": "Android requires \"Alarms & Reminders\" permission to ring the Azan at the exact minute.",
   "allowAction": "Allow",
-  "perPrayerAlertMode": "Per-Prayer Alert Mode"
+  "perPrayerAlertMode": "Per-Prayer Alert Mode",
+  "threeLanguagesBadge": "3 Languages",
+  "whatsNewTitle": "What's New in SalahFirst",
+  "appUpdateTitle": "App Update",
+  "verifiedReleaseSub": "Verified release",
+  "gotItAction": "Got It",
+  "updateViaPlayStore": "Update via Play Store",
+  "laterAction": "Later",
+  "searchOnlineCoordsFor": "+ Search online coordinates for \"{{city}}\""
 }

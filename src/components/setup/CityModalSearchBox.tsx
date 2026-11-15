@@ -67,7 +67,7 @@ export const CityModalSearchBox: React.FC<CityModalSearchBoxProps> = ({
             <ActivityIndicator size="small" color={theme.colors.primary} />
           ) : (
             <AppText variant="titleSmall" color={theme.colors.primary}>
-              + Search online coordinates for "{trimmed}"
+              {t('searchOnlineCoordsFor', { city: trimmed })}
             </AppText>
           )}
         </Pressable>

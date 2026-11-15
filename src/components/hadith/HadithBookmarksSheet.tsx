@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { StyleSheet, View, Modal, Pressable, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem, VERIFIED_HADITHS } from '@/data/hadiths';
 import { HadithBookmarksSheetHeader } from './HadithBookmarksSheetHeader';
@@ -28,7 +27,6 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<string>('all');
@@ -73,95 +71,67 @@ export const HadithBookmarksSheet: React.FC<HadithBookmarksSheetProps> = ({
   };
 
   return (
-    <Modal
+    <AppBottomSheet
       visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
+      onClose={onClose}
+      maxHeight="85%"
+      containerStyle={styles.sheetOverride}
     >
-      <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+      {/* Header */}
+      <HadithBookmarksSheetHeader
+        totalCount={savedHadiths.length}
+        onClose={onClose}
+      />
 
-        <View
-          style={[
-            styles.sheetContainer,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-              paddingBottom: Math.max(insets.bottom + 16, 24),
-            },
-          ]}
-        >
-          {/* Header */}
-          <HadithBookmarksSheetHeader
-            totalCount={savedHadiths.length}
-            onClose={onClose}
-          />
+      {/* Quick Collection Filters & Search Bar */}
+      <HadithBookmarksSheetFilter
+        totalCount={savedHadiths.length}
+        sources={sources}
+        selectedSource={selectedSource}
+        searchQuery={searchQuery}
+        onSelectSource={setSelectedSource}
+        onChangeSearchQuery={setSearchQuery}
+        getSourceCount={(src) => savedHadiths.filter((h) => h.source.includes(src)).length}
+      />
 
-          {/* Quick Collection Filters & Search Bar */}
-          <HadithBookmarksSheetFilter
-            totalCount={savedHadiths.length}
-            sources={sources}
-            selectedSource={selectedSource}
-            searchQuery={searchQuery}
-            onSelectSource={setSelectedSource}
-            onChangeSearchQuery={setSearchQuery}
-            getSourceCount={(src) => savedHadiths.filter((h) => h.source.includes(src)).length}
-          />
+      {/* Scrollable list of Rich Mini-Cards */}
+      <ScrollView
+        style={styles.scrollList}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredHadiths.map((item) => {
+          const itemIdx = VERIFIED_HADITHS.findIndex((h) => h.id === item.id);
+          const isSelected = itemIdx === currentIndex;
 
-          {/* Scrollable list of Rich Mini-Cards */}
-          <ScrollView
-            style={styles.scrollList}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {filteredHadiths.map((item) => {
-              const itemIdx = VERIFIED_HADITHS.findIndex((h) => h.id === item.id);
-              const isSelected = itemIdx === currentIndex;
+          return (
+            <HadithSavedCardItem
+              key={item.id}
+              item={item}
+              itemIndex={itemIdx}
+              isSelected={isSelected}
+              onSelect={() => handleSelect(item.id)}
+              onRemove={() => onRemoveBookmark(item.id)}
+            />
+          );
+        })}
 
-              return (
-                <HadithSavedCardItem
-                  key={item.id}
-                  item={item}
-                  itemIndex={itemIdx}
-                  isSelected={isSelected}
-                  onSelect={() => handleSelect(item.id)}
-                  onRemove={() => onRemoveBookmark(item.id)}
-                />
-              );
-            })}
-
-            {filteredHadiths.length === 0 && (
-              <View style={styles.emptyState}>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  {t('noMatchingBookmarks') || 'No bookmarks match your search.'}
-                </AppText>
-              </View>
-            )}
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+        {filteredHadiths.length === 0 && (
+          <View style={styles.emptyState}>
+            <AppText variant="caption" color={theme.colors.textMuted}>
+              {t('noMatchingBookmarks') || 'No bookmarks match your search.'}
+            </AppText>
+          </View>
+        )}
+      </ScrollView>
+    </AppBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  sheetContainer: {
-    maxHeight: '85%',
-    borderTopLeftRadius: RADIUS.xxl,
-    borderTopRightRadius: RADIUS.xxl,
-    borderWidth: 1,
-    borderBottomWidth: 0,
+  sheetOverride: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
   },
   scrollList: {
     maxHeight: 440,

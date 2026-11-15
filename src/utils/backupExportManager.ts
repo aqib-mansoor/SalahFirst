@@ -138,7 +138,17 @@ export const restoreBackupFromJson = async (
       payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.juristicMethod, payload.juristicMethod) : Promise.resolve(),
     ]);
 
-    return { success: true, restoredCount: newEventCount };
+    const totalRestored =
+      newEventCount > 0
+        ? newEventCount
+        : Object.values(payload.prayerTracker || {}).reduce(
+            (acc, day) => acc + Object.values(day || {}).filter(Boolean).length,
+            0
+          ) +
+          Object.keys(payload.sunnahTracker || {}).length +
+          (payload.hadithBookmarks?.length || 0);
+
+    return { success: true, restoredCount: totalRestored };
   } catch (err: any) {
     return { success: false, restoredCount: 0, error: err?.message || 'Failed to parse backup JSON.' };
   }
