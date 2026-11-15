@@ -53,20 +53,19 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      {/* Title & Play Button Header */}
-      <View style={styles.topRow}>
-        <View style={styles.titleInfo}>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.boldText}>
+      <View style={styles.headerRow}>
+        <View style={styles.titleColumn}>
+          <AppText variant="titleSmall" color={theme.colors.text} style={styles.titleText}>
             {t('makkahAzanPreview')}
           </AppText>
           <View style={styles.statusRow}>
             {isLoading && (
-              <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginRight: 4 }} />
+              <ActivityIndicator size="small" color={theme.colors.primary} style={styles.indicator} />
             )}
             <AppText
               variant="caption"
               color={error ? theme.colors.error : isPlaying ? theme.colors.primary : theme.colors.textMuted}
-              numberOfLines={2}
+              numberOfLines={1}
               style={styles.statusText}
             >
               {statusText}
@@ -80,29 +79,25 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? t('stopAzanPreview') : t('playAzanPreview')}
           style={({ pressed }) => [
-            styles.playBtn,
+            styles.playCircle,
             {
-              backgroundColor: theme.colors.buttonGold,
-              opacity: isLoading ? 0.7 : pressed ? 0.9 : 1,
+              backgroundColor: isPlaying ? theme.colors.error : theme.colors.primary,
+              opacity: isLoading ? 0.7 : pressed ? 0.85 : 1,
             },
           ]}
         >
           {isPlaying ? (
-            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M6 6h12v12H6z" fill={theme.colors.buttonGoldText} />
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M6 6h12v12H6z" fill={theme.colors.textOnPrimary} />
             </Svg>
           ) : (
-            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M8 5v14l11-7z" fill={theme.colors.buttonGoldText} />
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={styles.playIconOffset}>
+              <Path d="M8 5v14l11-7z" fill={theme.colors.textOnPrimary} />
             </Svg>
           )}
-          <AppText variant="caption" color={theme.colors.buttonGoldText} style={styles.btnText}>
-            {isPlaying ? t('stopAzanPreview') : t('playAzanPreview')}
-          </AppText>
         </Pressable>
       </View>
 
-      {/* Reciter Selector Pills */}
       <View style={styles.recitersRow}>
         {RECITERS.map((reciter) => {
           const isSelected = currentReciter === reciter.id;
@@ -114,15 +109,14 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
               style={({ pressed }) => [
-                styles.reciterPill,
+                styles.reciterChip,
                 {
                   backgroundColor: isSelected
                     ? theme.colors.secondaryTint
                     : pressed
                     ? theme.colors.surfaceElevated
-                    : theme.colors.surface,
+                    : theme.colors.surfaceSubtle,
                   borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  borderWidth: isSelected ? 1.5 : 1,
                 },
               ]}
             >
@@ -148,49 +142,52 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: SPACING.sm + 2,
   },
-  topRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: SPACING.sm,
   },
-  titleInfo: {
+  titleColumn: {
     flex: 1,
     gap: 2,
+  },
+  titleText: {
+    fontWeight: '700',
+    fontSize: 14,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  indicator: {
+    marginRight: 4,
+  },
   statusText: {
     flexShrink: 1,
     fontSize: 11,
   },
-  boldText: {
-    fontWeight: '700',
-  },
-  playBtn: {
-    flexDirection: 'row',
+  playCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: RADIUS.full,
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs + 3,
-    borderRadius: RADIUS.lg,
+    justifyContent: 'center',
   },
-  btnText: {
-    fontWeight: '700',
-    fontSize: 12,
+  playIconOffset: {
+    marginLeft: 2,
   },
   recitersRow: {
     flexDirection: 'row',
     gap: SPACING.xs + 2,
   },
-  reciterPill: {
+  reciterChip: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.xs + 2,
+    paddingVertical: SPACING.xs + 3,
     borderRadius: RADIUS.lg,
+    borderWidth: 1,
   },
   reciterText: {
     fontSize: 11,

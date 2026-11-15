@@ -37,20 +37,20 @@ export const BatteryOptimizationCard: React.FC = () => {
         <View
           style={[
             styles.iconWrapper,
-            { backgroundColor: theme.colors.surfaceElevated },
+            { backgroundColor: theme.colors.secondaryTint },
           ]}
         >
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-              stroke={theme.colors.accent}
+              stroke={theme.colors.primary}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <Path
               d="M12 8v4M12 16h.01"
-              stroke={theme.colors.accent}
+              stroke={theme.colors.primary}
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -74,14 +74,23 @@ export const BatteryOptimizationCard: React.FC = () => {
         style={({ pressed }) => [
           styles.actionBtn,
           {
-            backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surfaceElevated,
-            borderColor: theme.colors.accent,
+            backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surfaceSubtle,
+            borderColor: theme.colors.border,
           },
         ]}
       >
-        <AppText variant="caption" color={theme.colors.accent} style={styles.actionBtnText}>
+        <AppText variant="caption" color={theme.colors.primary} style={styles.actionBtnText}>
           {t('batteryOptButton')}
         </AppText>
+        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M9 18l6-6-6-6"
+            stroke={theme.colors.primary}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
       </Pressable>
     </View>
   );
@@ -92,12 +101,12 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
   },
   contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.sm + 2,
   },
   iconWrapper: {
     width: 38,
@@ -119,16 +128,17 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   actionBtn: {
-    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 9,
     paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    marginTop: 2,
   },
   actionBtnText: {
-    fontWeight: '700',
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
   },
 });
-
