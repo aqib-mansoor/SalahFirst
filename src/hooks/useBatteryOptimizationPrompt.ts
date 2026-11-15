@@ -43,3 +43,4 @@ export const useBatteryOptimizationPrompt = (shouldCheck: boolean = true) => {
     return () => clearTimeout(timer);
   }, [shouldCheck]);
 };
+
