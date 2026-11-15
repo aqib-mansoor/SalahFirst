@@ -12,6 +12,7 @@ import { AppContainer } from '@/components/common';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
 import { LanguageBottomSheet } from './LanguageBottomSheet';
 import { CalculationMethodBottomSheet } from './CalculationMethodBottomSheet';
+import { PrayerAdjustmentsBottomSheet } from './PrayerAdjustmentsBottomSheet';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
@@ -20,10 +21,11 @@ import { InspirationSettingsGroup } from './InspirationSettingsGroup';
 import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
-import { CalculationMethodName, JuristicMethod, TimeFormat } from '@/types';
+import { CalculationMethodName, JuristicMethod, TimeFormat, PrayerMinuteAdjustments } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCalculationMethod, setJuristicMethod } from '@/store/slices/prayerSlice';
-import { setTimeFormat } from '@/store/slices/preferencesSlice';
+import { setCalculationMethod, setJuristicMethod, setPrayerAdjustments } from '@/store/slices/prayerSlice';
+import { setTimeFormat, setHapticFeedback } from '@/store/slices/preferencesSlice';
+import { triggerHaptic } from '@/utils/haptics';
 import {
   getInspirationConfig,
   saveInspirationConfig,
@@ -68,7 +70,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
-  const { calcMethod, juristic } = usePrayerTracker(location);
+  const { prayerData, calcMethod, juristic } = usePrayerTracker(location);
   const { alerts } = usePrayerAlerts();
   const { currentReciter } = useAzanAudio();
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
@@ -76,11 +78,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [sheetVisible, setSheetVisible] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
   const [calcMethodSheetVisible, setCalcMethodSheetVisible] = useState(false);
+  const [adjustmentsSheetVisible, setAdjustmentsSheetVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
   const dispatch = useAppDispatch();
   const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
+  const hapticFeedback = useAppSelector((state) => state.preferences.hapticFeedback);
+  const prayerAdjustments = useAppSelector((state) => state.prayer.prayerAdjustments);
 
   useEffect(() => {
     getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
@@ -130,6 +135,17 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     notifyTrackerPreferencesChanged();
   };
 
+  const handleUpdatePrayerAdjustments = (updated: PrayerMinuteAdjustments) => {
+    dispatch(setPrayerAdjustments(updated));
+    notifyTrackerPreferencesChanged();
+  };
+
+  const activeAdjustmentsCount = Object.values(prayerAdjustments).filter((v) => v !== 0).length;
+  const adjustmentsSummaryText =
+    activeAdjustmentsCount > 0
+      ? t('activePrayerOffsetsCount', { count: activeAdjustmentsCount })
+      : t('prayerTimeAdjustmentsSub');
+
   const languageLabel =
     language === 'ur'
       ? 'اردو (Urdu)'
@@ -172,10 +188,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             calculationMethodName={t(CALC_LABEL_KEYS[calcMethod] || 'calcMethodKarachi')}
             hijriAdjustment={hijriAdjustment}
             azanSummaryText={azanSummaryText}
+            adjustmentsSummaryText={adjustmentsSummaryText}
             onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
             onOpenLocation={() => setSheetVisible(true)}
             onOpenAzanPrefs={onOpenAzanPrefs}
             onOpenFocusConfig={onOpenFocusConfig}
+            onOpenPrayerAdjustments={() => setAdjustmentsSheetVisible(true)}
             onToggleJuristic={handleToggleJuristic}
             onCycleCalculationMethod={() => setCalcMethodSheetVisible(true)}
           />
@@ -190,6 +208,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             }}
             languageLabel={languageLabel}
             onOpenLanguageSheet={() => setLanguageSheetVisible(true)}
+            hapticFeedback={hapticFeedback}
+            onToggleHapticFeedback={(enabled: boolean) => {
+              dispatch(setHapticFeedback(enabled));
+              if (enabled) triggerHaptic('light');
+            }}
           />
 
           <InspirationSettingsGroup
@@ -234,6 +257,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         <BackupRestoreModal
           visible={backupModalVisible}
           onClose={() => setBackupModalVisible(false)}
+        />
+
+        <PrayerAdjustmentsBottomSheet
+          visible={adjustmentsSheetVisible}
+          adjustments={prayerAdjustments}
+          currentTimes={prayerData}
+          onUpdateAdjustments={handleUpdatePrayerAdjustments}
+          onClose={() => setAdjustmentsSheetVisible(false)}
         />
       </View>
     </AppContainer>

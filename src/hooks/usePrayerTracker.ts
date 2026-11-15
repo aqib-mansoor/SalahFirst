@@ -26,6 +26,7 @@ import {
   getCycleCompletionStatus,
 } from '@/utils/prayerLedgerManager';
 import { useTrackerCountdown } from './useTrackerCountdown';
+import { triggerHaptic } from '@/utils/haptics';
 
 export interface PrayerStatus {
   name: string;
@@ -84,8 +85,15 @@ export const usePrayerTracker = (
   options?: UsePrayerTrackerOptions
 ) => {
   const dispatch = useAppDispatch();
-  const { calcMethod: reduxMethod, juristic: reduxJuristic, historyMap, ledgerEvents, activeCycle, streakCount } =
-    useAppSelector((state) => state.prayer);
+  const {
+    calcMethod: reduxMethod,
+    juristic: reduxJuristic,
+    prayerAdjustments,
+    historyMap,
+    ledgerEvents,
+    activeCycle,
+    streakCount,
+  } = useAppSelector((state) => state.prayer);
   const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
 
   const calcMethod = reduxMethod || getDefaultMethodForCountry(userLocation?.country);
@@ -148,7 +156,7 @@ export const usePrayerTracker = (
         userLocation?.timezone,
         timeFormat
       ),
-    [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, timeFormat, refreshTrigger]
+    [userLocation?.latitude, userLocation?.longitude, userLocation?.timezone, calcMethod, juristic, prayerAdjustments, timeFormat, refreshTrigger]
   );
 
   const { countdownText, periodProgressRatio } = useTrackerCountdown(
@@ -188,6 +196,7 @@ export const usePrayerTracker = (
       }
 
       dispatch(setPrayerCompletedAction({ dateKey: activeDateKey, prayerName, completed }));
+      triggerHaptic(completed ? 'medium' : 'light');
       const updatedToday = { ...cycleCompletions, [prayerName]: completed };
       await handlePostCompletionAlerts(prayerName, completed, updatedToday, activeDateKey);
       notifyTrackerPreferencesChanged();
@@ -212,7 +221,8 @@ export const usePrayerTracker = (
 
       const dayRecord = historyMap[dateKey] || EMPTY_COMPLETED;
       const nextStatus = !dayRecord[prayerName];
-      dispatch(setPrayerCompletedAction({ dateKey, prayerName, completed: nextStatus }));
+      dispatch(setPrayerCompletedAction({ dateKey: dateKey, prayerName, completed: nextStatus }));
+      triggerHaptic(nextStatus ? 'medium' : 'light');
       await handlePostCompletionAlerts(prayerName, nextStatus, { ...dayRecord, [prayerName]: nextStatus }, dateKey);
       notifyTrackerPreferencesChanged();
     },

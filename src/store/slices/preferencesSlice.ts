@@ -32,6 +32,7 @@ export interface PreferencesState {
   hijriAdjustment: number | null;
   hadithTranslationMode: HadithTranslationMode;
   hadithBookmarks: string[];
+  hapticFeedback: boolean;
   isHydrated: boolean;
 }
 
@@ -42,6 +43,7 @@ const initialState: PreferencesState = {
   hijriAdjustment: null,
   hadithTranslationMode: 'both',
   hadithBookmarks: [],
+  hapticFeedback: APP_CONFIG.defaultSettings.hapticFeedback,
   isHydrated: false,
 };
 
@@ -58,6 +60,7 @@ export const preferencesSlice = createSlice({
         hijriAdjustment?: number | null;
         hadithTranslationMode?: HadithTranslationMode | null;
         hadithBookmarks?: string[] | null;
+        hapticFeedback?: boolean | null;
       }>
     ) => {
       if (action.payload.userLocation !== undefined) {
@@ -77,6 +80,9 @@ export const preferencesSlice = createSlice({
       }
       if (action.payload.hadithBookmarks) {
         state.hadithBookmarks = action.payload.hadithBookmarks;
+      }
+      if (typeof action.payload.hapticFeedback === 'boolean') {
+        state.hapticFeedback = action.payload.hapticFeedback;
       }
       state.isHydrated = true;
     },
@@ -110,6 +116,11 @@ export const preferencesSlice = createSlice({
       state.hadithBookmarks = action.payload;
       storage.set(HADITH_BOOKMARKS_STORAGE_KEY, action.payload).catch(() => {});
     },
+
+    setHapticFeedback: (state, action: PayloadAction<boolean>) => {
+      state.hapticFeedback = action.payload;
+      storage.set(APP_CONFIG.storageKeys.hapticFeedback, action.payload).catch(() => {});
+    },
   },
 });
 
@@ -121,6 +132,7 @@ export const {
   setHijriAdjustment,
   setHadithTranslationMode,
   setHadithBookmarks,
+  setHapticFeedback,
 } = preferencesSlice.actions;
 
 export default preferencesSlice.reducer;

@@ -1,13 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CalculationMethodName, JuristicMethod, PrayerCompletionEvent, PrayerCycle, ObligatorySalah } from '@/types';
+import {
+  CalculationMethodName,
+  JuristicMethod,
+  PrayerCompletionEvent,
+  PrayerCycle,
+  ObligatorySalah,
+  PrayerMinuteAdjustments,
+} from '@/types';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
 import { calculateCurrentStreak } from '@/utils/trackerStatistics';
 import { deriveHistoryMapFromLedger } from '@/utils/prayerLedgerManager';
+import { DEFAULT_PRAYER_ADJUSTMENTS, setCachedPrayerAdjustments } from '@/utils/prayerCalculationBase';
 
 export interface PrayerState {
   calcMethod: CalculationMethodName;
   juristic: JuristicMethod;
+  prayerAdjustments: PrayerMinuteAdjustments;
   historyMap: Record<string, Record<string, boolean>>;
   ledgerEvents: PrayerCompletionEvent[];
   activeCycle: PrayerCycle | null;
@@ -18,6 +27,7 @@ export interface PrayerState {
 const initialState: PrayerState = {
   calcMethod: 'Karachi',
   juristic: 'Hanafi',
+  prayerAdjustments: { ...DEFAULT_PRAYER_ADJUSTMENTS },
   historyMap: {},
   ledgerEvents: [],
   activeCycle: null,
@@ -34,6 +44,7 @@ export const prayerSlice = createSlice({
       action: PayloadAction<{
         calcMethod?: CalculationMethodName;
         juristic?: JuristicMethod;
+        prayerAdjustments?: Partial<PrayerMinuteAdjustments> | null;
         historyMap?: Record<string, Record<string, boolean>>;
         ledgerEvents?: PrayerCompletionEvent[];
         activeCycle?: PrayerCycle | null;
@@ -44,6 +55,13 @@ export const prayerSlice = createSlice({
       }
       if (action.payload.juristic) {
         state.juristic = action.payload.juristic;
+      }
+      if (action.payload.prayerAdjustments) {
+        state.prayerAdjustments = {
+          ...DEFAULT_PRAYER_ADJUSTMENTS,
+          ...action.payload.prayerAdjustments,
+        };
+        setCachedPrayerAdjustments(state.prayerAdjustments);
       }
       if (action.payload.activeCycle) {
         state.activeCycle = action.payload.activeCycle;
@@ -154,6 +172,12 @@ export const prayerSlice = createSlice({
       state.juristic = action.payload;
       storage.set(APP_CONFIG.storageKeys.juristicMethod, action.payload).catch(() => {});
     },
+
+    setPrayerAdjustments: (state, action: PayloadAction<PrayerMinuteAdjustments>) => {
+      state.prayerAdjustments = action.payload;
+      setCachedPrayerAdjustments(action.payload);
+      storage.set(APP_CONFIG.storageKeys.prayerAdjustments, action.payload).catch(() => {});
+    },
   },
 });
 
@@ -166,6 +190,7 @@ export const {
   carryOverPrayers,
   setCalculationMethod,
   setJuristicMethod,
+  setPrayerAdjustments,
 } = prayerSlice.actions;
 
 export default prayerSlice.reducer;

@@ -49,6 +49,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   const { location, updateLocation, needsCitySelection, requestGpsLocation } = useDeviceLocation();
   const { prayerData, prayersList, juristic, calcMethod } = usePrayerTracker(location);
   const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
+  const prayerAdjustments = useAppSelector((state) => state.prayer.prayerAdjustments);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
 
   const viewedDate = useMemo(() => {
@@ -72,7 +73,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       location?.timezone,
       timeFormat
     );
-  }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic, timeFormat]);
+  }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic, prayerAdjustments, timeFormat]);
 
   // When today's Isha is reached, tomorrow's Fajr becomes next
   const isAfterTodayIsha = useMemo(() => {

@@ -15,10 +15,12 @@ export interface PrayerSettingsGroupProps {
   calculationMethodName?: string;
   hijriAdjustment?: number;
   azanSummaryText?: string;
+  adjustmentsSummaryText?: string;
   onUpdateHijriAdjustment?: (newAdjustment: number) => void;
   onOpenLocation: () => void;
   onOpenAzanPrefs: () => void;
   onOpenFocusConfig?: () => void;
+  onOpenPrayerAdjustments?: () => void;
   onToggleJuristic: () => void;
   onCycleCalculationMethod?: () => void;
 }
@@ -30,10 +32,12 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   calculationMethodName = 'University of Islamic Sciences, Karachi',
   hijriAdjustment = 0,
   azanSummaryText,
+  adjustmentsSummaryText,
   onUpdateHijriAdjustment,
   onOpenLocation,
   onOpenAzanPrefs,
   onOpenFocusConfig,
+  onOpenPrayerAdjustments,
   onToggleJuristic,
   onCycleCalculationMethod,
 }) => {
@@ -155,6 +159,31 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
             onUpdate={(val) => onUpdateHijriAdjustment?.(val)}
           />
         </View>
+
+        {onOpenPrayerAdjustments && (
+          <>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Pressable onPress={onOpenPrayerAdjustments} style={styles.row}>
+              <View style={styles.leftRow}>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+                  <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                    <Circle cx="12" cy="12" r="9" stroke={theme.colors.primary} strokeWidth="2" />
+                    <Path d="M12 7v5l3 3" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                </View>
+                <View style={styles.textCol}>
+                  <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                    {t('prayerTimeAdjustmentsTitle')}
+                  </AppText>
+                  <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1}>
+                    {adjustmentsSummaryText || t('prayerTimeAdjustmentsSub')}
+                  </AppText>
+                </View>
+              </View>
+              {ChevronRight}
+            </Pressable>
+          </>
+        )}
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 

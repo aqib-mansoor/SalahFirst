@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable, Switch } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -14,6 +14,8 @@ export interface AppearanceSettingsGroupProps {
   onSelectTimeFormat: (format: TimeFormat) => void;
   languageLabel: string;
   onOpenLanguageSheet: () => void;
+  hapticFeedback?: boolean;
+  onToggleHapticFeedback?: (enabled: boolean) => void;
 }
 
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
@@ -23,6 +25,8 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
   onSelectTimeFormat,
   languageLabel,
   onOpenLanguageSheet,
+  hapticFeedback = true,
+  onToggleHapticFeedback,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -178,6 +182,41 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
             </AppText>
           </View>
         </Pressable>
+
+        {onToggleHapticFeedback && (
+          <>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <View style={styles.row}>
+              <View style={styles.leftRow}>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+                  <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M6 8v8M18 8v8M3 10v4M21 10v4M9 5h6a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"
+                      stroke={theme.colors.primary}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                </View>
+                <View style={styles.textCol}>
+                  <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                    {t('hapticFeedbackTitle')}
+                  </AppText>
+                  <AppText variant="caption" color={theme.colors.textSecondary}>
+                    {t('hapticFeedbackSub')}
+                  </AppText>
+                </View>
+              </View>
+              <Switch
+                value={hapticFeedback}
+                onValueChange={onToggleHapticFeedback}
+                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+                thumbColor={theme.colors.textOnPrimary}
+              />
+            </View>
+          </>
+        )}
       </View>
     </View>
   );

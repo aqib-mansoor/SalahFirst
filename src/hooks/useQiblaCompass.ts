@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Vibration, AppState, AppStateStatus } from 'react-native';
+import { AppState, AppStateStatus } from 'react-native';
 import { Magnetometer } from 'expo-sensors';
 import {
   calculateQiblaBearing,
   calculateDistanceToKaaba,
   getCardinalDirection,
 } from '@/utils/qiblaCalculations';
+import { triggerHaptic } from '@/utils/haptics';
 
 export type TurnDirection = 'left' | 'right' | 'aligned';
 
@@ -100,9 +101,7 @@ export const useQiblaCompass = (
   useEffect(() => {
     if (!isActive) return;
     if (isAligned && !wasAlignedRef.current) {
-      try {
-        Vibration.vibrate(40);
-      } catch {}
+      triggerHaptic('success');
     }
     wasAlignedRef.current = isAligned;
   }, [isAligned, isActive]);

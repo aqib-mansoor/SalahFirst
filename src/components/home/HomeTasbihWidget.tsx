@@ -10,6 +10,7 @@ import { TasbihResetModal } from './TasbihResetModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { incrementTasbih, resetAllTasbih, selectTasbihPhase } from '@/store/slices/tasbihSlice';
 import { useTranslation } from '@/context/LocalizationContext';
+import { triggerHaptic } from '@/utils/haptics';
 
 export const HomeTasbihWidget: React.FC = React.memo(() => {
   const theme = useTheme();
@@ -22,15 +23,19 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
   const progressPercent = Math.min(100, Math.max(0, (count / currentPhase.target) * 100));
 
   const handleIncrement = () => {
+    const isPhaseComplete = count + 1 >= currentPhase.target;
+    triggerHaptic(isPhaseComplete ? 'success' : 'light');
     dispatch(incrementTasbih());
   };
 
   const handleResetPress = () => {
     if (count === 0 && phaseIndex === 0) return;
+    triggerHaptic('light');
     setShowResetModal(true);
   };
 
   const handleConfirmReset = () => {
+    triggerHaptic('medium');
     dispatch(resetAllTasbih());
     setShowResetModal(false);
   };

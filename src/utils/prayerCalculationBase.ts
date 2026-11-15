@@ -1,5 +1,25 @@
 import { Coordinates, CalculationMethod, PrayerTimes, HighLatitudeRule, PolarCircleResolution } from 'adhan';
-import type { CalculationMethodName, JuristicMethod } from '@/types';
+import type { CalculationMethodName, JuristicMethod, PrayerMinuteAdjustments } from '@/types';
+
+export const DEFAULT_PRAYER_ADJUSTMENTS: PrayerMinuteAdjustments = {
+  fajr: 0,
+  sunrise: 0,
+  dhuhr: 0,
+  asr: 0,
+  maghrib: 0,
+  isha: 0,
+};
+
+let cachedPrayerAdjustments: PrayerMinuteAdjustments = { ...DEFAULT_PRAYER_ADJUSTMENTS };
+
+export const setCachedPrayerAdjustments = (adj?: Partial<PrayerMinuteAdjustments> | null) => {
+  cachedPrayerAdjustments = {
+    ...DEFAULT_PRAYER_ADJUSTMENTS,
+    ...(adj || {}),
+  };
+};
+
+export const getCachedPrayerAdjustments = (): PrayerMinuteAdjustments => cachedPrayerAdjustments;
 
 export const getDefaultMethodForCountry = (country?: string): CalculationMethodName => {
   if (!country) return 'Karachi';
@@ -59,10 +79,19 @@ export const getMethodParams = (method: CalculationMethodName = 'Karachi') => {
 export const createRobustPrayerTimes = (
   coords: Coordinates,
   date: Date,
-  params: ReturnType<typeof getMethodParams>
+  params: ReturnType<typeof getMethodParams>,
+  adjustments: PrayerMinuteAdjustments = cachedPrayerAdjustments
 ): PrayerTimes => {
   params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
   params.highLatitudeRule = HighLatitudeRule.recommended(coords);
+  params.adjustments = {
+    fajr: adjustments.fajr || 0,
+    sunrise: adjustments.sunrise || 0,
+    dhuhr: adjustments.dhuhr || 0,
+    asr: adjustments.asr || 0,
+    maghrib: adjustments.maghrib || 0,
+    isha: adjustments.isha || 0,
+  };
   try {
     const pt = new PrayerTimes(coords, date, params);
     if (

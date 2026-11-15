@@ -1,6 +1,12 @@
 import { storage } from './storage';
 import { APP_CONFIG } from '@/constants/config';
-import { PrayerCompletionEvent, PrayerCycle, CalculationMethodName, JuristicMethod } from '@/types';
+import {
+  PrayerCompletionEvent,
+  PrayerCycle,
+  CalculationMethodName,
+  JuristicMethod,
+  PrayerMinuteAdjustments,
+} from '@/types';
 import * as Sharing from 'expo-sharing';
 
 export const BACKUP_SCHEMA_VERSION = 2;
@@ -14,17 +20,19 @@ export interface SalahFirstBackupData {
   prayerCycle: PrayerCycle | null;
   calculationMethod?: CalculationMethodName;
   juristicMethod?: JuristicMethod;
+  prayerAdjustments?: PrayerMinuteAdjustments;
   hadithBookmarks?: string[];
   sunnahTracker?: Record<string, Record<string, boolean>>;
 }
 
 export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => {
-  const [ledger, tracker, cycle, calcMethod, juristic, bookmarks, sunnah, legacySunnah] = await Promise.all([
+  const [ledger, tracker, cycle, calcMethod, juristic, prayerAdjustments, bookmarks, sunnah, legacySunnah] = await Promise.all([
     storage.get<PrayerCompletionEvent[]>(APP_CONFIG.storageKeys.prayerLedger, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
     storage.get<PrayerCycle | null>(APP_CONFIG.storageKeys.prayerCycle, null),
     storage.get<CalculationMethodName | null>(APP_CONFIG.storageKeys.calculationMethod, null),
     storage.get<JuristicMethod | null>(APP_CONFIG.storageKeys.juristicMethod, null),
+    storage.get<PrayerMinuteAdjustments | null>(APP_CONFIG.storageKeys.prayerAdjustments, null),
     storage.get<string[]>(APP_CONFIG.storageKeys.hadithBookmarks, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.sunnahHistory, {}),
     storage.get<Record<string, Record<string, boolean>>>('@salahfirst_sunnah_tracker', {}),
@@ -41,6 +49,7 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     prayerCycle: cycle,
     calculationMethod: calcMethod || undefined,
     juristicMethod: juristic || undefined,
+    prayerAdjustments: prayerAdjustments || undefined,
     hadithBookmarks: bookmarks,
     sunnahTracker: mergedSunnah,
   };
@@ -136,6 +145,7 @@ export const restoreBackupFromJson = async (
       payload.hadithBookmarks ? storage.set(APP_CONFIG.storageKeys.hadithBookmarks, payload.hadithBookmarks) : Promise.resolve(),
       payload.calculationMethod ? storage.set(APP_CONFIG.storageKeys.calculationMethod, payload.calculationMethod) : Promise.resolve(),
       payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.juristicMethod, payload.juristicMethod) : Promise.resolve(),
+      payload.prayerAdjustments ? storage.set(APP_CONFIG.storageKeys.prayerAdjustments, payload.prayerAdjustments) : Promise.resolve(),
     ]);
 
     const totalRestored =

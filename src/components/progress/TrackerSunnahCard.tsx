@@ -9,6 +9,7 @@ import { getLocalDateComponents } from '@/utils/timezone';
 import { APP_CONFIG } from '@/constants/config';
 import { useTranslation, TranslationKey } from '@/context/LocalizationContext';
 import { addTrackerListener } from '@/hooks/usePrayerTracker';
+import { triggerHaptic } from '@/utils/haptics';
 
 const SUNNAH_KEY = APP_CONFIG.storageKeys.sunnahHistory;
 
@@ -44,7 +45,9 @@ export const TrackerSunnahCard: React.FC = () => {
 
   const handleToggle = useCallback(
     async (id: string) => {
-      const nextMap = { ...completedMap, [id]: !completedMap[id] };
+      const nextStatus = !completedMap[id];
+      triggerHaptic(nextStatus ? 'medium' : 'light');
+      const nextMap = { ...completedMap, [id]: nextStatus };
       setCompletedMap(nextMap);
 
       const history = await storage.get<Record<string, Record<string, boolean>>>(SUNNAH_KEY, {});

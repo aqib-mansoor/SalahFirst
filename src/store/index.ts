@@ -18,6 +18,7 @@ import {
   UserLocation,
   PrayerAlertConfig,
   TimeFormat,
+  PrayerMinuteAdjustments,
 } from '@/types';
 import { migrateLegacyHistoryToLedger } from '@/utils/prayerLedgerManager';
 
@@ -55,6 +56,8 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       storedHijri,
       storedHadithMode,
       storedHadithBookmarks,
+      storedPrayerAdjustments,
+      storedHapticFeedback,
     ] = await Promise.all([
       storage.get<CalculationMethodName | null>(APP_CONFIG.storageKeys.calculationMethod, null),
       storage.get<JuristicMethod | null>(APP_CONFIG.storageKeys.juristicMethod, null),
@@ -68,6 +71,8 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       storage.get<number | null>(APP_CONFIG.storageKeys.hijriAdjustment, null),
       storage.get<HadithTranslationMode | null>(HADITH_MODE_STORAGE_KEY, null),
       storage.get<string[] | null>(HADITH_BOOKMARKS_STORAGE_KEY, null),
+      storage.get<Partial<PrayerMinuteAdjustments> | null>(APP_CONFIG.storageKeys.prayerAdjustments, null),
+      storage.get<boolean | null>(APP_CONFIG.storageKeys.hapticFeedback, null),
     ]);
 
     let finalLedger = storedLedger;
@@ -79,6 +84,7 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       hydratePrayerState({
         calcMethod: storedMethod || undefined,
         juristic: storedJuristic || undefined,
+        prayerAdjustments: storedPrayerAdjustments,
         historyMap: storedHistory || undefined,
         ledgerEvents: finalLedger,
         activeCycle: storedCycle,
@@ -93,6 +99,7 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
         hijriAdjustment: storedHijri,
         hadithTranslationMode: storedHadithMode,
         hadithBookmarks: storedHadithBookmarks,
+        hapticFeedback: storedHapticFeedback,
       })
     );
 

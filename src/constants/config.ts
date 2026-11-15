@@ -29,6 +29,8 @@ export const APP_CONFIG = {
     batteryPromptShown: '@salahfirst_battery_prompt_shown',
     sunnahHistory: '@salahfirst_sunnah_history',
     hadithBookmarks: '@salahfirst_hadith_bookmarks',
+    prayerAdjustments: '@salahfirst_prayer_adjustments',
+    hapticFeedback: '@salahfirst_haptic_feedback',
   },
   updates: {
     checkUrl: 'https://raw.githubusercontent.com/aqib-mansoor/SalahFirst/main/app-version.json',

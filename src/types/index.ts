@@ -82,6 +82,15 @@ export interface UserPreferences {
 
 export type SalahName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
+export interface PrayerMinuteAdjustments {
+  fajr: number;
+  sunrise: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+}
+
 export interface PrayerTimeItem {
   id: SalahName;
   name: string;
