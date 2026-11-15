@@ -17,12 +17,12 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays, we
 
   const spiritualQuote =
     streakDays === 0
-      ? t('beginYourStreak') || 'Begin your sacred prayer streak today.'
+      ? t('streakQuoteZero')
       : streakDays < 7
-      ? '“The most beloved deed to Allah is that which is done consistently.”'
+      ? t('streakQuoteUnder7')
       : streakDays < 30
-      ? '“Take up deeds you can carry out steadfastly.”'
-      : '“Istiqamah: Steadfastness is greater than a thousand miracles.”';
+      ? t('streakQuoteUnder30')
+      : t('streakQuote30Plus');
 
   return (
     <View

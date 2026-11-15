@@ -4,6 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { CalendarDayCell } from '@/utils/calendarUtils';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarMonthSummaryCardProps {
   monthName: string;
@@ -17,6 +18,7 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
   cells,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const { totalLogged, maxPossible, perfectDays, completionRate } = useMemo(() => {
     let logged = 0;
@@ -54,7 +56,7 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
     >
       <View style={styles.headerRow}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Monthly Summary
+          {t('monthlySummaryTitle')}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
           {monthName}
@@ -68,7 +70,7 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
             {completionRate}%
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.statLabel}>
-            Consistency
+            {t('consistencyLabel')}
           </AppText>
         </View>
 
@@ -80,7 +82,7 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
             </AppText>
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.statLabel}>
-            Prayers Logged
+            {t('prayersLoggedLabel')}
           </AppText>
         </View>
 
@@ -89,7 +91,7 @@ export const CalendarMonthSummaryCard: React.FC<CalendarMonthSummaryCardProps> =
             {perfectDays}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.statLabel}>
-            5/5 Perfect Days
+            {t('perfectDaysLabel')}
           </AppText>
         </View>
       </View>

@@ -9,9 +9,11 @@ import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 import { TasbihResetModal } from './TasbihResetModal';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { incrementTasbih, resetAllTasbih, selectTasbihPhase } from '@/store/slices/tasbihSlice';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export const HomeTasbihWidget: React.FC = React.memo(() => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { count, phaseIndex, totalCycles } = useAppSelector((state) => state.tasbih);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -39,24 +41,24 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
       <View style={styles.headerRow}>
         <View style={styles.titleWithBadge}>
           <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
-            Post-Salah Tasbih
+            {t('postSalahTasbih')}
           </AppText>
           {totalCycles > 0 && (
             <View style={[styles.cyclesBadge, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
               <AppText variant="caption" color={theme.colors.textPrimary} style={styles.cyclesText}>
-                📿 {totalCycles} {totalCycles === 1 ? 'cycle' : 'cycles'}
+                📿 {totalCycles} {totalCycles === 1 ? t('cycleSingular') : t('cyclesPlural')}
               </AppText>
             </View>
           )}
         </View>
 
-        <Pressable onPress={handleResetPress} hitSlop={8} accessibilityRole="button" accessibilityLabel="Reset Tasbih" style={styles.resetButton}>
+        <Pressable onPress={handleResetPress} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('reset')} style={styles.resetButton}>
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
             <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             <Path d="M3 3v5h5" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
           <AppText variant="caption" color={theme.colors.textSecondary} style={styles.resetText}>
-            Reset
+            {t('reset')}
           </AppText>
         </Pressable>
       </View>
@@ -79,7 +81,7 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
             {/* Step Indicator + Dots Row */}
             <View style={styles.stepHeaderRow}>
               <AppText variant="caption" color={theme.colors.accentLight} style={styles.stepLabel}>
-                DHIKR {phaseIndex + 1} OF {DHIKR_PHASES.length}
+                {t('dhikrStepOf', { current: phaseIndex + 1, total: DHIKR_PHASES.length })}
               </AppText>
               <View style={styles.dotsRow}>
                 {DHIKR_PHASES.map((phase, idx) => {
@@ -111,7 +113,7 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
             </AppText>
 
             <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.translitText}>
-              {currentPhase.transliteration} • <AppText color="rgba(255, 255, 255, 0.85)" style={styles.meaningText}>{currentPhase.translation}</AppText>
+              {currentPhase.transliteration} • <AppText color="rgba(255, 255, 255, 0.85)" style={styles.meaningText}>{t(currentPhase.translationKey as any) || currentPhase.translation}</AppText>
             </AppText>
 
             {/* Mini Progress Track */}

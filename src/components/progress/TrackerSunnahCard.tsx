@@ -6,24 +6,27 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText, PrayerTimeIcon } from '@/components/common';
 import { storage } from '@/utils/storage';
 import { getLocalDateComponents } from '@/utils/timezone';
+import { APP_CONFIG } from '@/constants/config';
+import { useTranslation, TranslationKey } from '@/context/LocalizationContext';
 
-const SUNNAH_KEY = '@salahfirst_sunnah_history';
+const SUNNAH_KEY = APP_CONFIG.storageKeys.sunnahHistory;
 
 interface SunnahItem {
   id: string;
-  name: string;
-  description: string;
+  nameKey: TranslationKey;
+  descKey: TranslationKey;
   iconPrayer: string;
 }
 
 const SUNNAH_PRAYERS: SunnahItem[] = [
-  { id: 'duha', name: 'Duha', description: 'Forenoon', iconPrayer: 'Dhuhr' },
-  { id: 'witr', name: 'Witr', description: 'Night', iconPrayer: 'Isha' },
-  { id: 'tahajjud', name: 'Tahajjud', description: 'Qiyam', iconPrayer: 'Fajr' },
+  { id: 'duha', nameKey: 'sunnahDuha', descKey: 'sunnahDuhaDesc', iconPrayer: 'Dhuhr' },
+  { id: 'witr', nameKey: 'sunnahWitr', descKey: 'sunnahWitrDesc', iconPrayer: 'Isha' },
+  { id: 'tahajjud', nameKey: 'sunnahTahajjud', descKey: 'sunnahTahajjudDesc', iconPrayer: 'Fajr' },
 ];
 
 export const TrackerSunnahCard: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const todayKey = getLocalDateComponents(new Date()).dateKey;
 
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
@@ -64,10 +67,10 @@ export const TrackerSunnahCard: React.FC = () => {
       <View style={styles.headerRow}>
         <View style={styles.titleCol}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-            Sunnah & Voluntary Prayers
+            {t('sunnahAndVoluntaryTitle')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
-            Extra blessings beyond the 5 daily Fardh
+            {t('sunnahAndVoluntarySub')}
           </AppText>
         </View>
 
@@ -94,6 +97,8 @@ export const TrackerSunnahCard: React.FC = () => {
       <View style={styles.chipsRow}>
         {SUNNAH_PRAYERS.map((item) => {
           const isDone = !!completedMap[item.id];
+          const itemName = t(item.nameKey);
+          const itemDesc = t(item.descKey);
 
           return (
             <Pressable
@@ -101,8 +106,8 @@ export const TrackerSunnahCard: React.FC = () => {
               onPress={() => handleToggle(item.id)}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: isDone }}
-              accessibilityLabel={`${item.name} voluntary prayer`}
-              accessibilityHint={`Tap to toggle ${item.name}`}
+              accessibilityLabel={`${itemName} voluntary prayer`}
+              accessibilityHint={`Tap to toggle ${itemName}`}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.chip,
@@ -126,7 +131,7 @@ export const TrackerSunnahCard: React.FC = () => {
                     color={isDone ? theme.colors.primary : theme.colors.text}
                     style={styles.chipTitle}
                   >
-                    {item.name}
+                    {itemName}
                   </AppText>
                 </View>
                 {isDone ? (
@@ -147,7 +152,7 @@ export const TrackerSunnahCard: React.FC = () => {
               </View>
 
               <AppText variant="caption" color={theme.colors.textMuted} style={styles.chipSub}>
-                {item.description}
+                {itemDesc}
               </AppText>
             </Pressable>
           );

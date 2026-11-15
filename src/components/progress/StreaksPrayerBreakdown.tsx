@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, PrayerTimeIcon } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
@@ -17,9 +18,10 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
   streakCount,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   // Calculate per-prayer consistency rate over recorded days
-  const { breakdown, rankTitle, rankSubtitle } = useMemo(() => {
+  const { breakdown, rankTitle } = useMemo(() => {
     const dates = Object.keys(historyMap);
     const totalDays = Math.max(dates.length, 1);
 
@@ -45,24 +47,19 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
       return { name, percentage };
     });
 
-    let rank = 'Seeker';
-    let sub = 'Building initial consistency';
+    let rank = t('rankSeeker');
     if (streakCount >= 30) {
-      rank = 'Ahl al-Istiqamah';
-      sub = 'Unwavering steadfastness';
+      rank = t('rankIstiqamah');
     } else if (streakCount >= 14) {
-      rank = 'Muqim as-Salah';
-      sub = 'Deeply rooted prayer habit';
+      rank = t('rankMuqim');
     } else if (streakCount >= 7) {
-      rank = 'Steadfast Believer';
-      sub = 'Strong weekly momentum';
+      rank = t('rankSteadfast');
     } else if (streakCount >= 3) {
-      rank = 'Committed Pioneer';
-      sub = 'Consistent foundation formed';
+      rank = t('rankPioneer');
     }
 
-    return { breakdown: rates, rankTitle: rank, rankSubtitle: sub };
-  }, [historyMap, streakCount]);
+    return { breakdown: rates, rankTitle: rank };
+  }, [historyMap, streakCount, t]);
 
   return (
     <View
@@ -78,10 +75,10 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
       <View style={styles.headerRow}>
         <View style={styles.titleCol}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-            Prayer Consistency Breakdown
+            {t('prayerConsistencyBreakdown')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
-            Historical completion by prayer time
+            {t('historicalCompletionByPrayer')}
           </AppText>
         </View>
 
@@ -99,7 +96,7 @@ export const StreaksPrayerBreakdown: React.FC<StreaksPrayerBreakdownProps> = ({
             <View style={styles.labelCol}>
               <View style={styles.nameIconGroup}>
                 <AppText variant="caption" color={theme.colors.text} style={styles.prayerName}>
-                  {item.name}
+                  {t(item.name.toLowerCase() as any) || item.name}
                 </AppText>
                 <PrayerTimeIcon prayer={item.name} size={13} />
               </View>

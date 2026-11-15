@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SPACING } from '@/constants/theme';
 import { useThemeState } from '@/hooks/useTheme';
-import { useTranslation } from '@/context/LocalizationContext';
+import { useTranslation, TranslationKey } from '@/context/LocalizationContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker, notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
 import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
@@ -11,6 +11,8 @@ import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
 import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
 import { LanguageBottomSheet } from './LanguageBottomSheet';
+import { CalculationMethodBottomSheet } from './CalculationMethodBottomSheet';
+import { BackupRestoreModal } from './BackupRestoreModal';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
 import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
@@ -41,19 +43,19 @@ export interface SettingsScreenProps {
   onOpenChangelog?: () => void;
 }
 
-const CALC_LABELS: Record<CalculationMethodName, string> = {
-  Karachi: 'University of Islamic Sciences, Karachi',
-  UmmAlQura: 'Umm al-Qura University, Makkah',
-  Dubai: 'Dubai (UAE)',
-  MuslimWorldLeague: 'Muslim World League',
-  Egyptian: 'Egyptian General Authority',
-  NorthAmerica: 'ISNA (North America)',
-  MoonsightingCommittee: 'Moonsighting Committee Worldwide',
-  Kuwait: 'State of Kuwait',
-  Qatar: 'Qatar Ministry of Awqaf',
-  Singapore: 'MUIS Singapore',
-  Tehran: 'University of Tehran',
-  Turkey: 'Diyanet, Turkey',
+const CALC_LABEL_KEYS: Record<CalculationMethodName, TranslationKey> = {
+  Karachi: 'calcMethodKarachi',
+  UmmAlQura: 'calcMethodUmmAlQura',
+  Dubai: 'calcMethodDubai',
+  MuslimWorldLeague: 'calcMethodMuslimWorldLeague',
+  Egyptian: 'calcMethodEgyptian',
+  NorthAmerica: 'calcMethodNorthAmerica',
+  MoonsightingCommittee: 'calcMethodMoonsightingCommittee',
+  Kuwait: 'calcMethodKuwait',
+  Qatar: 'calcMethodQatar',
+  Singapore: 'calcMethodSingapore',
+  Tehran: 'calcMethodTehran',
+  Turkey: 'calcMethodTurkey',
 };
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
@@ -70,15 +72,17 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { alerts } = usePrayerAlerts();
   const { currentReciter } = useAzanAudio();
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
-  const { language, setLanguage, t } = useTranslation();
+  const { language, t } = useTranslation();
   const [sheetVisible, setSheetVisible] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
+  const [calcMethodSheetVisible, setCalcMethodSheetVisible] = useState(false);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
   const dispatch = useAppDispatch();
   const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
 
-  React.useEffect(() => {
+  useEffect(() => {
     getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
     getReengagementConfig().then((cfg) => setReengagementEnabled(cfg.enabled));
   }, []);
@@ -121,31 +125,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     notifyTrackerPreferencesChanged();
   };
 
-  const handleCycleCalcMethod = () => {
-    const methods: CalculationMethodName[] = [
-      'Karachi',
-      'UmmAlQura',
-      'Dubai',
-      'MuslimWorldLeague',
-      'Egyptian',
-      'NorthAmerica',
-      'MoonsightingCommittee',
-      'Kuwait',
-      'Qatar',
-      'Singapore',
-      'Tehran',
-      'Turkey',
-    ];
-    const currentIndex = methods.indexOf(calcMethod);
-    const nextMethod = methods[(currentIndex + 1) % methods.length];
-    dispatch(setCalculationMethod(nextMethod));
+  const handleSelectCalcMethod = (method: CalculationMethodName) => {
+    dispatch(setCalculationMethod(method));
     notifyTrackerPreferencesChanged();
-  };
-
-  const handleToggleLanguage = () => {
-    if (language === 'en') setLanguage('ur');
-    else if (language === 'ur') setLanguage('ar');
-    else setLanguage('en');
   };
 
   const languageLabel =
@@ -163,8 +145,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       : t('reciterMakkah');
   const reminderLabel =
     alerts.reminderOffset === 'off'
-      ? `${t('off')} pre-reminder`
-      : `${alerts.reminderOffset.replace('m', ' min')} pre-reminder`;
+      ? t('off')
+      : alerts.reminderOffset === '10m'
+      ? t('tenMinBefore')
+      : alerts.reminderOffset === '30m'
+      ? t('thirtyMinBefore')
+      : t('fifteenMinBefore');
   const azanSummaryText = `${reciterName} • ${reminderLabel}`;
 
   return (
@@ -180,10 +166,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           contentContainerStyle={styles.scroll}
         >
           <PrayerSettingsGroup
-            cityName={location?.city || 'Select City'}
+            cityName={location?.city || t('selectCity')}
             country={location?.country || ''}
             juristicMethod={juristic}
-            calculationMethodName={CALC_LABELS[calcMethod] || calcMethod}
+            calculationMethodName={t(CALC_LABEL_KEYS[calcMethod] || 'calcMethodKarachi')}
             hijriAdjustment={hijriAdjustment}
             azanSummaryText={azanSummaryText}
             onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
@@ -191,7 +177,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenAzanPrefs={onOpenAzanPrefs}
             onOpenFocusConfig={onOpenFocusConfig}
             onToggleJuristic={handleToggleJuristic}
-            onCycleCalculationMethod={handleCycleCalcMethod}
+            onCycleCalculationMethod={() => setCalcMethodSheetVisible(true)}
           />
 
           <AppearanceSettingsGroup
@@ -220,21 +206,34 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
             onOpenChangelog={onOpenChangelog}
+            onOpenBackupRestore={() => setBackupModalVisible(true)}
           />
         </ScrollView>
 
         <LocationBottomSheet
           visible={sheetVisible}
-          currentCityName={location?.city || 'Select City'}
+          currentCityName={location?.city || t('selectCity')}
           isGps={location?.isGps}
           onClose={() => setSheetVisible(false)}
           onSelectCity={handleSelectCity}
           onUseGps={requestGpsLocation}
         />
 
+        <CalculationMethodBottomSheet
+          visible={calcMethodSheetVisible}
+          selectedMethod={calcMethod}
+          onSelectMethod={handleSelectCalcMethod}
+          onClose={() => setCalcMethodSheetVisible(false)}
+        />
+
         <LanguageBottomSheet
           visible={languageSheetVisible}
           onClose={() => setLanguageSheetVisible(false)}
+        />
+
+        <BackupRestoreModal
+          visible={backupModalVisible}
+          onClose={() => setBackupModalVisible(false)}
         />
       </View>
     </AppContainer>

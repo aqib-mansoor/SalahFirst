@@ -11,12 +11,14 @@ export interface GeneralSettingsGroupProps {
   onOpenPrivacyPolicy: () => void;
   onOpenTerms: () => void;
   onOpenChangelog?: () => void;
+  onOpenBackupRestore?: () => void;
 }
 
 export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
   onOpenPrivacyPolicy,
   onOpenTerms,
   onOpenChangelog,
+  onOpenBackupRestore,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -34,6 +36,43 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
       </AppText>
 
       <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+        {/* Row 0: Local Backup & Restore */}
+        {onOpenBackupRestore && (
+          <>
+            <Pressable
+              onPress={onOpenBackupRestore}
+              accessibilityRole="button"
+              accessibilityLabel={t('backupAndRestoreTitle')}
+              style={styles.row}
+            >
+              <View style={styles.leftRow}>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+                  <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+                      stroke={theme.colors.accent}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                </View>
+                <View style={styles.textCol}>
+                  <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                    {t('backupAndRestoreTitle')}
+                  </AppText>
+                  <AppText variant="caption" color={theme.colors.textSecondary}>
+                    {t('backupAndRestoreSubtitle')}
+                  </AppText>
+                </View>
+              </View>
+              {ChevronRight}
+            </Pressable>
+
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+          </>
+        )}
+
         {/* Row 1: Native Privacy Policy */}
         <Pressable
           onPress={onOpenPrivacyPolicy}
@@ -107,7 +146,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
                 {APP_CONFIG.name} v{APP_CONFIG.version}
               </AppText>
               <AppText variant="caption" color={theme.colors.primary}>
-                What's New in this update • Tap to view
+                {t('whatsNewTap')}
               </AppText>
             </View>
           </View>

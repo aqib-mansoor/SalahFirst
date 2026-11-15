@@ -3,6 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export type ProgressSubTab = 'tracker' | 'streaks' | 'calendar';
 
@@ -16,11 +17,12 @@ export const ProgressTabsHeader: React.FC<ProgressTabsHeaderProps> = ({
   onTabChange,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const tabs: { id: ProgressSubTab; label: string }[] = [
-    { id: 'tracker', label: 'Tracker' },
-    { id: 'streaks', label: 'Streaks' },
-    { id: 'calendar', label: 'Calendar' },
+    { id: 'tracker', label: t('tracker') },
+    { id: 'streaks', label: t('streaks') },
+    { id: 'calendar', label: t('calendar') },
   ];
 
   return (

@@ -4,6 +4,7 @@ import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
+import { useTranslation } from '@/context/LocalizationContext';
 import { AppContainer } from '@/components/common';
 import { HomeHeader } from './HomeHeader';
 import { HomeHeroCard } from './HomeHeroCard';
@@ -32,7 +33,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenWallpaper,
 }) => {
   const theme = useTheme();
-  const { location, permissionDenied } = useDeviceLocation();
+  const { t } = useTranslation();
+  const { location } = useDeviceLocation();
 
   // One-time prompt for background battery optimization on Android
   useBatteryOptimizationPrompt(Boolean(location?.latitude));
@@ -70,7 +72,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <View style={styles.container}>
         {/* Stable Flow Header */}
         <HomeHeader
-          cityName={location?.city || 'Select City'}
+          cityName={location?.city || t('selectCity')}
           countryName={location?.country}
           streakCount={streakCount}
           onOpenSettings={onOpenSettings}

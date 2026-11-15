@@ -5,6 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText, PrayerTimeIcon } from '@/components/common';
 import { FocusDuration } from '@/types';
 import { PrayerFocusOffsets, PrayerFocusDurations } from '@/utils/prayerFocusOffsets';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface FocusPrayerScheduleCardProps {
   offsets: PrayerFocusOffsets;
@@ -32,15 +33,16 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
   onUpdateDuration,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
       <View style={styles.titleColumn}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Prayer Focus Schedule
+          {t('prayerFocusScheduleTitle')}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
-          Set congregation delay and focus duration per Salah
+          {t('prayerFocusScheduleSub')}
         </AppText>
       </View>
 
@@ -49,15 +51,16 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
           const delay = offsets[p.key] ?? 20;
           const duration = durations[p.key] ?? 15;
           const azanDate = rawPrayerDates?.[p.key];
+          const localizedName = t(p.key as any) || p.name;
 
-          let preview = delay === 0 ? 'Starts at Azan' : `+${delay}m after Azan`;
+          let preview = delay === 0 ? t('startsAtAzan') : t('afterAzanMins', { mins: delay });
           if (azanDate && !isNaN(azanDate.getTime())) {
             const azanStr = `${pad(azanDate.getHours())}:${pad(azanDate.getMinutes())}`;
             const focusStart = new Date(azanDate.getTime() + delay * 60000);
             const focusEnd = new Date(focusStart.getTime() + duration * 60000);
             const startStr = `${pad(focusStart.getHours())}:${pad(focusStart.getMinutes())}`;
             const endStr = `${pad(focusEnd.getHours())}:${pad(focusEnd.getMinutes())}`;
-            preview = `Azan ${azanStr} → Focus ${startStr}-${endStr}`;
+            preview = `${t('azan')} ${azanStr} → ${t('focusLabel')} ${startStr}-${endStr}`;
           }
 
           return (
@@ -71,7 +74,7 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
               <View style={styles.topInfo}>
                 <View style={styles.prayerTitleRow}>
                   <AppText variant="bodyMedium" color={theme.colors.text} style={styles.prayerName}>
-                    {p.name}
+                    {localizedName}
                   </AppText>
                   <PrayerTimeIcon prayer={p.name} size={16} />
                 </View>
@@ -84,7 +87,7 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
                 {/* Delay Stepper */}
                 <View style={styles.stepperGroup}>
                   <AppText variant="caption" color={theme.colors.textMuted} style={styles.stepperLabel}>
-                    Delay
+                    {t('delayLabel')}
                   </AppText>
                   <View style={[styles.stepper, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
                     <Pressable
@@ -112,7 +115,7 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
                 {/* Duration Stepper */}
                 <View style={styles.stepperGroup}>
                   <AppText variant="caption" color={theme.colors.textMuted} style={styles.stepperLabel}>
-                    Focus
+                    {t('focusLabel')}
                   </AppText>
                   <View style={[styles.stepper, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
                     <Pressable

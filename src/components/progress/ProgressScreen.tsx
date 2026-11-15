@@ -2,19 +2,15 @@ import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
-import { AppContainer, AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
+import { AppContainer } from '@/components/common';
 import { HadithToast } from '@/components/hadith/HadithToast';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { PrayerConfirmModal } from '@/components/home/PrayerConfirmModal';
 import { ProgressTabsHeader, ProgressSubTab } from './ProgressTabsHeader';
-import { TrackerHeroCard } from './TrackerHeroCard';
-import { TrackerPrayerRow } from './TrackerPrayerRow';
-import { TrackerSunnahCard } from './TrackerSunnahCard';
-import { TrackerWeekOverview } from './TrackerWeekOverview';
-import { TrackerWisdomBanner } from './TrackerWisdomBanner';
+import { TrackerTabView } from './TrackerTabView';
 import { StreaksHeroCard } from './StreaksHeroCard';
 import { StreaksMetricsRow } from './StreaksMetricsRow';
 import { StreaksWeeklyChart } from './StreaksWeeklyChart';
@@ -36,11 +32,10 @@ export interface ProgressScreenProps {
 }
 
 export const ProgressScreen: React.FC<ProgressScreenProps> = ({
-  onNavigateTab,
   initialSubTab = 'tracker',
 }) => {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [activeSubTab, setActiveSubTab] = useState<ProgressSubTab>(initialSubTab);
   const [guidanceToast, setGuidanceToast] = useState<string | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<{ prayerName: string; dateKey?: string } | null>(null);
@@ -77,12 +72,13 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
         return;
       }
       if (!hasStarted) {
-        showToast(`${prayerName} starts at ${time}. You can log it once its time arrives.`);
+        const localizedPrayer = (t(prayerName.toLowerCase() as any) as string) || prayerName;
+        showToast(t('prayerStartsAtNotice', { prayer: localizedPrayer, time }));
         return;
       }
       setConfirmTarget({ prayerName });
     },
-    [togglePrayer, showToast]
+    [togglePrayer, showToast, t]
   );
 
   const handleJumpToday = useCallback(() => {
@@ -92,9 +88,14 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     setSelectedDay(today.getDate());
   }, []);
 
-  // Derived statistics
   const { dayOverview, dayBarData } = useMemo(() => getLast7Days(historyMap), [historyMap]);
-  const { longestStreak, streakNote } = useMemo(() => calculateLongestStreak(historyMap), [historyMap]);
+  const { longestStreak } = useMemo(() => calculateLongestStreak(historyMap), [historyMap]);
+  const localizedStreakNote = useMemo(() => {
+    if (longestStreak === 0) return t('beginYourStreak');
+    if (longestStreak >= 7) return t('personalBest');
+    return `${longestStreak} ${t('days')} ${t('completedSuffix')}`;
+  }, [longestStreak, t]);
+
   const totalPrayers = useMemo(() => calculateTotalPrayers(historyMap), [historyMap]);
   const monthData = useMemo(
     () => generateCalendarMonth(selectedYear, selectedMonth, historyMap, selectedDay),
@@ -145,45 +146,23 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           bounces={false}
         >
           {activeSubTab === 'tracker' && (
-            <>
-              <View style={styles.headerTitles}>
-                <AppText variant="titleMedium" color={theme.colors.text} style={styles.title}>
-                  Daily Salah Tracker
-                </AppText>
-                <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.subtitle}>
-                  Tap any started prayer to log completion
-                </AppText>
-              </View>
-
-              <TrackerHeroCard completedCount={completedCount} />
-
-              <View style={styles.prayersList}>
-                {prayersList.map((prayer) => (
-                  <TrackerPrayerRow
-                    key={prayer.name}
-                    prayer={prayer}
-                    onPressStatus={() =>
-                      handleToggleTrackerPrayer(
-                        prayer.name,
-                        prayer.hasStarted,
-                        prayer.completed,
-                        prayer.time
-                      )
-                    }
-                  />
-                ))}
-              </View>
-
-              <TrackerSunnahCard />
-              <TrackerWeekOverview weekData={dayOverview} onOpenStatistics={() => setActiveSubTab('streaks')} />
-              <TrackerWisdomBanner />
-            </>
+            <TrackerTabView
+              completedCount={completedCount}
+              prayersList={prayersList}
+              dayOverview={dayOverview}
+              onToggleTrackerPrayer={handleToggleTrackerPrayer}
+              onOpenStatistics={() => setActiveSubTab('streaks')}
+            />
           )}
 
           {activeSubTab === 'streaks' && (
             <>
               <StreaksHeroCard streakDays={streakCount} weekData={dayOverview} />
-              <StreaksMetricsRow longestStreak={longestStreak} longestStreakNote={streakNote} totalPrayers={totalPrayers} />
+              <StreaksMetricsRow
+                longestStreak={longestStreak}
+                longestStreakNote={localizedStreakNote}
+                totalPrayers={totalPrayers}
+              />
               <StreaksWeeklyChart chartData={dayBarData} />
               <StreaksPrayerBreakdown historyMap={historyMap} streakCount={streakCount} />
               <StreaksMilestones currentStreak={streakCount} />
@@ -212,7 +191,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
                 onTogglePrayerChip={(prayerName, isDone) => {
                   if (!selectedCell || selectedCell.isFuture) return;
                   if (!selectedCell.isEditable) {
-                    showToast('You can only log or update prayers for Today and Yesterday.');
+                    showToast(t('editableTodayYesterdayNotice'));
                     return;
                   }
                   if (selectedCell.isToday) {
@@ -269,24 +248,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: SPACING.xs,
     gap: SPACING.md,
-  },
-  headerTitles: {
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xs,
-    gap: 2,
-  },
-  title: {
-    fontWeight: '800',
-    fontSize: 18,
-    lineHeight: 24,
-  },
-  subtitle: {
-    fontWeight: '500',
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  prayersList: {
-    gap: SPACING.xs + 2,
   },
   toastFloating: {
     position: 'absolute',

@@ -4,6 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { DayBarData } from '@/utils/trackerStatistics';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksWeeklyChartProps {
   chartData?: DayBarData[];
@@ -11,6 +12,7 @@ export interface StreaksWeeklyChartProps {
 
 export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartData }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const fallbackBars: DayBarData[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(
     (name) => ({
@@ -38,12 +40,12 @@ export const StreaksWeeklyChart: React.FC<StreaksWeeklyChartProps> = ({ chartDat
       {/* Header */}
       <View style={styles.headerRow}>
         <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          Weekly Completion (7 Days)
+          {t('weeklyCompletionTitle')}
         </AppText>
         <View style={styles.legendRow}>
           <View style={[styles.legendDot, { backgroundColor: theme.colors.accent }]} />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.timeframe}>
-            5/5 Peak
+            {t('fiveOfFivePeak')}
           </AppText>
         </View>
       </View>

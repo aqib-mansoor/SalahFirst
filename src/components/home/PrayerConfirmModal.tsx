@@ -40,11 +40,11 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
 
           {/* Title & Question */}
           <AppText variant="titleMedium" color={theme.colors.textPrimary} align="center" style={styles.title}>
-            Confirm {localizedPrayer} Salah
+            {t('confirmSalahTitle', { prayer: localizedPrayer })}
           </AppText>
 
           <AppText variant="bodyMedium" color={theme.colors.textSecondary} align="center" style={styles.subtitle}>
-            Have you completed your {localizedPrayer} prayer today?
+            {t('confirmSalahQuestion', { prayer: localizedPrayer })}
           </AppText>
 
           {/* Sincerity & Honesty Callout Box */}
@@ -54,19 +54,19 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
                 "وَكَانَ اللَّهُ بِمَا تَعْمَلُونَ عَلِيمًا"
               </AppText>
               <AppText variant="caption" align="center" color={theme.colors.textSecondary} style={styles.ayahTranslation}>
-                "And Allah is ever knowing of what you do." (4:128)
+                {t('confirmSalahAyahTrans')}
               </AppText>
             </View>
 
             <AppText variant="caption" align="center" color={theme.colors.textPrimary} style={styles.honestyNote}>
-              Be honest with yourself and Allah. Only mark as completed if you have genuinely offered this prayer.
+              {t('confirmSalahHonestyNote')}
             </AppText>
           </View>
 
           {/* Action Buttons */}
           <View style={styles.buttonCol}>
             <AppButton
-              label={`Yes, I Prayed ${localizedPrayer}`}
+              label={t('yesPrayedPrayer', { prayer: localizedPrayer })}
               onPress={onConfirm}
               variant="gold"
               size="md"
@@ -74,7 +74,7 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
             />
 
             <AppButton
-              label="Not Yet / Cancel"
+              label={t('notYetCancel')}
               onPress={onCancel}
               variant="ghost"
               size="md"

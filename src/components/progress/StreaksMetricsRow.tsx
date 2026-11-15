@@ -88,7 +88,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
           {totalPrayers}{' '}
           <AppText variant="bodySmall" color={theme.colors.textMuted} style={styles.unitSuffix}>
-            prayers
+            {t('prayersSuffix')}
           </AppText>
         </AppText>
         <AppText variant="caption" color={theme.colors.accent} style={styles.noteText}>

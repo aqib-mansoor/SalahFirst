@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, AppButton } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface TasbihResetModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export const TasbihResetModal: React.FC<TasbihResetModalProps> = ({
   onCancel,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
@@ -58,18 +60,18 @@ export const TasbihResetModal: React.FC<TasbihResetModalProps> = ({
 
           {/* Title & Message */}
           <AppText variant="titleMedium" color={theme.colors.textPrimary} align="center" style={styles.title}>
-            Reset Dhikr Counter?
+            {t('resetTasbihTitle')}
           </AppText>
 
           <AppText variant="bodySmall" color={theme.colors.textSecondary} align="center" style={styles.subtitle}>
-            Are you sure you want to reset your current recitation progress back to zero?
+            {t('resetTasbihConfirm')}
           </AppText>
 
           {/* Active Recitation Status Box */}
           <View style={[styles.statusBox, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
             <View style={styles.statusRow}>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                Current Dhikr:
+                {t('currentDhikrLabel')}
               </AppText>
               <AppText variant="caption" color={theme.colors.primary} style={styles.dhikrBold}>
                 {dhikrName}
@@ -78,10 +80,10 @@ export const TasbihResetModal: React.FC<TasbihResetModalProps> = ({
 
             <View style={styles.statusRow}>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                Recorded Count:
+                {t('recordedCountLabel')}
               </AppText>
               <AppText variant="caption" color={theme.colors.accent} style={styles.countBold}>
-                {count} / {target} beads
+                {count} / {target} {t('beadsSuffix')}
               </AppText>
             </View>
           </View>
@@ -89,7 +91,7 @@ export const TasbihResetModal: React.FC<TasbihResetModalProps> = ({
           {/* Actions */}
           <View style={styles.buttonCol}>
             <AppButton
-              label="Keep Counting"
+              label={t('keepCounting')}
               onPress={onCancel}
               variant="gold"
               size="md"
@@ -97,7 +99,7 @@ export const TasbihResetModal: React.FC<TasbihResetModalProps> = ({
             />
 
             <AppButton
-              label="Reset to Zero"
+              label={t('resetToZero')}
               onPress={onConfirm}
               variant="ghost"
               size="md"

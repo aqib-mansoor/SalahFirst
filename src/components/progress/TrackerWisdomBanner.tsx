@@ -4,9 +4,11 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export const TrackerWisdomBanner: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -36,13 +38,13 @@ export const TrackerWisdomBanner: React.FC = () => {
         {/* Wisdom Text */}
         <View style={styles.textCol}>
           <AppText variant="caption" color={theme.colors.accent} style={styles.wisdomTag}>
-            SACRED REFLECTION
+            {t('sacredReflectionTag')}
           </AppText>
           <AppText variant="bodySmall" color={theme.colors.text} style={styles.quoteText}>
-            “The first matter that the slave will be brought to account for on the Day of Judgment is prayer.”
+            {t('wisdomQuoteText')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.sourceText}>
-            Sunan an-Nasa'i • 465
+            {t('wisdomQuoteSource')}
           </AppText>
         </View>
       </View>

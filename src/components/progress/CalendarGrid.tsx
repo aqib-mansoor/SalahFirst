@@ -5,6 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { CalendarDayCell } from '@/utils/calendarUtils';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface CalendarGridProps {
   monthName: string;
@@ -32,6 +33,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onSelectDay,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -71,7 +73,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               ]}
             >
               <AppText variant="caption" color={theme.colors.primary} style={styles.todayPillText}>
-                Today
+                {t('today')}
               </AppText>
             </Pressable>
           )}
@@ -219,13 +221,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: theme.colors.primary }]} />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            Prayed
+            {t('prayedLegend')}
           </AppText>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: theme.colors.border }]} />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            Pending
+            {t('pending')}
           </AppText>
         </View>
         <View style={styles.legendItem}>
@@ -239,7 +241,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
             ]}
           />
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.legendText}>
-            5/5 Complete
+            {t('fiveOfFiveComplete')}
           </AppText>
         </View>
       </View>

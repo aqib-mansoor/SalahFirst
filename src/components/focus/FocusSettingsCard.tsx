@@ -3,6 +3,7 @@ import { StyleSheet, View, Switch } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 
 export interface FocusSettingsCardProps {
   autoStartOnAzan: boolean;
@@ -14,6 +15,7 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
   onToggleAutoStart,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -25,10 +27,10 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
       <View style={styles.row}>
         <View style={styles.textColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
-            Auto-start Focus at Namaz time
+            {t('autoStartFocusTitle')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
-            Automatically turns on prayer focus after congregation delay
+            {t('autoStartFocusSub')}
           </AppText>
         </View>
 

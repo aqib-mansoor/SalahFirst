@@ -137,7 +137,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
               {countdownText}
             </AppText>
             <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.leftSimpleText}>
-              left
+              {t('timeRemainingLeft')}
             </AppText>
           </View>
         </View>
@@ -159,7 +159,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         />
       ) : isCurrentCompleted && currentObligatoryName ? (
         <HeroCompletionBanner
-          message={`${localizedFocusPrayer || currentObligatoryName} completed! Alhamdulillah`}
+          message={t('prayerCompletedAlhamdulillah', { prayer: localizedFocusPrayer || currentObligatoryName })}
         />
       ) : (
         <HeroFocusButton

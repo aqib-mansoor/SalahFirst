@@ -19,15 +19,18 @@ export interface SalahFirstBackupData {
 }
 
 export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => {
-  const [ledger, tracker, cycle, calcMethod, juristic, bookmarks, sunnah] = await Promise.all([
+  const [ledger, tracker, cycle, calcMethod, juristic, bookmarks, sunnah, legacySunnah] = await Promise.all([
     storage.get<PrayerCompletionEvent[]>(APP_CONFIG.storageKeys.prayerLedger, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
     storage.get<PrayerCycle | null>(APP_CONFIG.storageKeys.prayerCycle, null),
     storage.get<CalculationMethodName | null>(APP_CONFIG.storageKeys.calculationMethod, null),
     storage.get<JuristicMethod | null>(APP_CONFIG.storageKeys.juristicMethod, null),
-    storage.get<string[]>('@salahfirst_hadith_bookmarks', []),
+    storage.get<string[]>(APP_CONFIG.storageKeys.hadithBookmarks, []),
+    storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.sunnahHistory, {}),
     storage.get<Record<string, Record<string, boolean>>>('@salahfirst_sunnah_tracker', {}),
   ]);
+
+  const mergedSunnah = { ...legacySunnah, ...sunnah };
 
   return {
     schemaVersion: BACKUP_SCHEMA_VERSION,
@@ -39,7 +42,7 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     calculationMethod: calcMethod || undefined,
     juristicMethod: juristic || undefined,
     hadithBookmarks: bookmarks,
-    sunnahTracker: sunnah,
+    sunnahTracker: mergedSunnah,
   };
 };
 
@@ -111,12 +114,28 @@ export const restoreBackupFromJson = async (
       };
     });
 
+    // 3.5. Merge Sunnah tracker history
+    const currentSunnah = await storage.get<Record<string, Record<string, boolean>>>(
+      APP_CONFIG.storageKeys.sunnahHistory,
+      {}
+    );
+    const mergedSunnah = { ...currentSunnah };
+    Object.entries(payload.sunnahTracker || {}).forEach(([dateKey, daySunnah]) => {
+      mergedSunnah[dateKey] = {
+        ...(mergedSunnah[dateKey] || {}),
+        ...daySunnah,
+      };
+    });
+
     // 4. Commit all updates transactionally
     await Promise.all([
       storage.set(APP_CONFIG.storageKeys.prayerLedger, mergedLedger),
       storage.set(APP_CONFIG.storageKeys.prayerTracker, mergedTracker),
+      storage.set(APP_CONFIG.storageKeys.sunnahHistory, mergedSunnah),
       payload.prayerCycle ? storage.set(APP_CONFIG.storageKeys.prayerCycle, payload.prayerCycle) : Promise.resolve(),
-      payload.hadithBookmarks ? storage.set('@salahfirst_hadith_bookmarks', payload.hadithBookmarks) : Promise.resolve(),
+      payload.hadithBookmarks ? storage.set(APP_CONFIG.storageKeys.hadithBookmarks, payload.hadithBookmarks) : Promise.resolve(),
+      payload.calculationMethod ? storage.set(APP_CONFIG.storageKeys.calculationMethod, payload.calculationMethod) : Promise.resolve(),
+      payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.juristicMethod, payload.juristicMethod) : Promise.resolve(),
     ]);
 
     return { success: true, restoredCount: newEventCount };

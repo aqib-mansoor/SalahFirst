@@ -136,20 +136,20 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           <View style={[styles.warningBanner, { backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }]}>
             <View style={styles.warningContent}>
               <AppText variant="titleSmall" color={theme.colors.warning} style={styles.boldText}>
-                Exact Alarm Permission Required
+                {t('exactAlarmPermTitle')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary} style={styles.infoText}>
-                Android requires "Alarms & Reminders" permission to ring the Azan at the exact minute.
+                {t('exactAlarmPermDesc')}
               </AppText>
             </View>
             <Pressable
               onPress={handleFixExactAlarmPermission}
               accessibilityRole="button"
-              accessibilityLabel="Allow"
+              accessibilityLabel={t('allowAction')}
               style={[styles.enableBtn, { backgroundColor: theme.colors.primary }]}
             >
               <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.enableBtnText}>
-                Allow
+                {t('allowAction')}
               </AppText>
             </Pressable>
           </View>
@@ -198,7 +198,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           ]}
         >
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.groupHeaderTitle}>
-            Per-Prayer Alert Mode
+            {t('perPrayerAlertMode')}
           </AppText>
           {PRAYERS_LIST.map((p, index) => {
             const prayerTime = prayerData ? (prayerData[p.key] || '--:--') : '--:--';

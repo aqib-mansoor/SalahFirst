@@ -42,7 +42,7 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
           {t('todaysProgress')}
         </AppText>
         <AppText variant="titleMedium" color={theme.colors.textInverse} style={styles.headline}>
-          {completedCount} of 5 completed
+          {t('prayersCompletedCount', { count: completedCount, total })}
         </AppText>
         <AppText variant="caption" color={theme.colors.accentLight} style={styles.remainingText}>
           {remaining === 0

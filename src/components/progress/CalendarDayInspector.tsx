@@ -29,12 +29,14 @@ export const CalendarDayInspector: React.FC<CalendarDayInspectorProps> = ({
   const completedCount = prayersCompleted.filter(Boolean).length;
 
   const baseSubtitle =
-    hasRecord || completedCount > 0 ? `${completedCount} of 5 prayers completed` : t('noRecordYet');
+    hasRecord || completedCount > 0
+      ? t('prayersCompletedCount', { count: completedCount, total: 5 })
+      : t('noRecordYet');
   const subtitleText = isFuture
-    ? 'Upcoming date'
+    ? t('upcomingDate')
     : isEditable
-    ? `${baseSubtitle} • Tap to update`
-    : `${baseSubtitle} • Read-only history`;
+    ? `${baseSubtitle} • ${t('tapToUpdate')}`
+    : `${baseSubtitle} • ${t('readOnlyHistory')}`;
 
   return (
     <View

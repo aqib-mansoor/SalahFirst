@@ -27,6 +27,8 @@ export const APP_CONFIG = {
     timeFormat: '@salahfirst_time_format',
     updateDismissedAt: '@salahfirst_update_dismissed_at',
     batteryPromptShown: '@salahfirst_battery_prompt_shown',
+    sunnahHistory: '@salahfirst_sunnah_history',
+    hadithBookmarks: '@salahfirst_hadith_bookmarks',
   },
   updates: {
     checkUrl: 'https://raw.githubusercontent.com/aqib-mansoor/SalahFirst/main/app-version.json',

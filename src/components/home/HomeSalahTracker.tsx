@@ -46,7 +46,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
         ? (t('jumuah' as any) as string)
         : (t(item.name.toLowerCase() as any) as string) || item.name;
       setNoticeMessage(
-        `${localizedName} starts at ${item.time}. You can log it once its time arrives.`
+        t('prayerStartsAtNotice', { prayer: localizedName, time: item.time })
       );
       return;
     }

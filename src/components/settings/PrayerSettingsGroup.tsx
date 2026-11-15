@@ -191,10 +191,10 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
                 </View>
                 <View style={styles.textCol}>
                   <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                    Prayer Focus & Congregation
+                    {t('prayerFocusAndCongregation')}
                   </AppText>
                   <AppText variant="caption" color={theme.colors.textSecondary}>
-                    Congregation delays • Focus duration
+                    {t('prayerFocusAndCongregationSub')}
                   </AppText>
                 </View>
               </View>
