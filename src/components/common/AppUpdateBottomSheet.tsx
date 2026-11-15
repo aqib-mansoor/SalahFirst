@@ -98,7 +98,7 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
             style={[styles.handleBar, { backgroundColor: theme.colors.border }]}
           />
 
-          {/* Header: Icon, Title, and Version Pill */}
+          {/* Mature Balanced Header */}
           <View style={styles.header}>
             <View
               style={[
@@ -125,10 +125,15 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
             </View>
 
             <View style={styles.headerText}>
-              <View style={styles.titleRow}>
-                <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
-                  {isChangelogOnly ? "What's New" : updateInfo.title || 'App Update'}
-                </AppText>
+              <AppText
+                variant="titleMedium"
+                color={theme.colors.textPrimary}
+                style={styles.title}
+                numberOfLines={1}
+              >
+                {isChangelogOnly ? "What's New in SalahFirst" : updateInfo.title || 'App Update'}
+              </AppText>
+              <View style={styles.subRow}>
                 <View
                   style={[
                     styles.versionPill,
@@ -142,18 +147,18 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
                 >
                   <AppText variant="caption" color={theme.colors.primary} style={styles.versionText}>
                     {isChangelogOnly
-                      ? `v${currentVersion}`
+                      ? `Version v${currentVersion}`
                       : `v${currentVersion} → v${updateInfo.latestVersion}`}
                   </AppText>
                 </View>
+                <AppText variant="caption" color={theme.colors.textSecondary}>
+                  • Verified release
+                </AppText>
               </View>
-              <AppText variant="caption" color={theme.colors.textSecondary}>
-                SalahFirst Islamic Productivity
-              </AppText>
             </View>
           </View>
 
-          {/* Key Highlights (Non-scrollable, tight fit) */}
+          {/* Key Highlights */}
           <View
             style={[
               styles.highlightsCard,
@@ -263,40 +268,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.md,
     marginBottom: SPACING.md,
+    width: '100%',
   },
   iconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   headerText: {
     flex: 1,
-    gap: 2,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'nowrap',
+    gap: 3,
   },
   title: {
     fontWeight: '800',
-    fontSize: 16,
-    flexShrink: 1,
+    fontSize: 17,
+    letterSpacing: -0.2,
+  },
+  subRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs + 2,
   },
   versionPill: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 1.5,
-    borderRadius: RADIUS.full,
+    paddingHorizontal: SPACING.xs + 3,
+    paddingVertical: 1,
+    borderRadius: RADIUS.xs + 2,
     borderWidth: StyleSheet.hairlineWidth,
-    marginLeft: SPACING.xs,
   },
   versionText: {
     fontWeight: '700',
     fontSize: 10,
+    letterSpacing: 0.2,
   },
   highlightsCard: {
     paddingHorizontal: SPACING.md,
