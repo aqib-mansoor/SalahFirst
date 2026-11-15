@@ -25,6 +25,28 @@ export const VERIFIED_HADITHS: HadithItem[] = [
   ...TAHAJJUD_CHARACTER_HADITHS,
 ];
 
+export type HadithCategoryId = 'all' | 'salah' | 'wudu' | 'khushoo' | 'congregation' | 'character';
+
+export const HADITH_CATEGORY_RANGES: Record<Exclude<HadithCategoryId, 'all'>, [number, number]> = {
+  salah: [0, 19],
+  wudu: [20, 39],
+  khushoo: [40, 59],
+  congregation: [60, 79],
+  character: [80, 99],
+};
+
+export const getHadithIndicesForCategory = (category: HadithCategoryId): number[] => {
+  if (category === 'all') {
+    return VERIFIED_HADITHS.map((_, idx) => idx);
+  }
+  const [start, end] = HADITH_CATEGORY_RANGES[category];
+  const indices: number[] = [];
+  for (let i = start; i <= end && i < VERIFIED_HADITHS.length; i++) {
+    indices.push(i);
+  }
+  return indices;
+};
+
 /**
  * Returns deterministic Hadith of the Day based on Day of Year
  */

@@ -4,6 +4,7 @@ import Svg, { Path, Rect, G } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
 
 export interface HomeDailyHadithProps {
@@ -13,6 +14,7 @@ export interface HomeDailyHadithProps {
 
 export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onReadFull, onOpenWallpaper }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [language, setLanguage] = useState<'en' | 'ur'>('en');
   const dailyHadith = VERIFIED_HADITHS[getDayOfYearHadithIndex()];
 
@@ -31,16 +33,16 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
       {/* Section Header */}
       <View style={styles.headerRow}>
         <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
-          Daily Hadith
+          {t('dailyHadith')}
         </AppText>
         <Pressable
           onPress={onReadFull}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel="Read full Hadith collection"
+          accessibilityLabel={t('readFull')}
         >
           <AppText variant="bodySmall" color={theme.colors.primary} style={styles.readFull}>
-            Read Full ›
+            {t('readFull')} ›
           </AppText>
         </Pressable>
       </View>
@@ -162,7 +164,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
                   style={[styles.actionBtn, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}
                 >
                   <AppText variant="caption" color={theme.colors.primary} style={styles.actionBtnText}>
-                    Wallpaper
+                    {t('wallpaper')}
                   </AppText>
                 </Pressable>
               )}
@@ -172,7 +174,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
                 style={[styles.actionBtn, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.primary }]}
               >
                 <AppText variant="caption" color={theme.colors.primary} style={styles.actionBtnText}>
-                  Share
+                  {t('share')}
                 </AppText>
               </Pressable>
             </View>

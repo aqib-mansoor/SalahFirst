@@ -26,8 +26,24 @@ import {
   CALCULATION_METHOD_LABELS,
 } from '@/utils/prayerTimes';
 import { PresetCity } from '@/data';
-import { useTranslation } from '@/context/LocalizationContext';
+import { CalculationMethodName } from '@/types';
+import { useTranslation, TranslationKey } from '@/context/LocalizationContext';
 import { useAppSelector } from '@/store/hooks';
+
+const CALC_LABEL_KEYS: Record<CalculationMethodName, TranslationKey> = {
+  Karachi: 'calcMethodKarachi',
+  UmmAlQura: 'calcMethodUmmAlQura',
+  Dubai: 'calcMethodDubai',
+  MuslimWorldLeague: 'calcMethodMuslimWorldLeague',
+  Egyptian: 'calcMethodEgyptian',
+  NorthAmerica: 'calcMethodNorthAmerica',
+  MoonsightingCommittee: 'calcMethodMoonsightingCommittee',
+  Kuwait: 'calcMethodKuwait',
+  Qatar: 'calcMethodQatar',
+  Singapore: 'calcMethodSingapore',
+  Tehran: 'calcMethodTehran',
+  Turkey: 'calcMethodTurkey',
+};
 
 export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
@@ -141,7 +157,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
           <PrayerTimesLocationCard
             cityName={location?.city}
             country={location?.country || ''}
-            methodName={CALCULATION_METHOD_LABELS[calcMethod]}
+            methodName={t(CALC_LABEL_KEYS[calcMethod]) || CALCULATION_METHOD_LABELS[calcMethod]}
             juristicMethod={juristic}
             isGps={location?.isGps}
             onOpenLocationSheet={() => setSheetVisible(true)}

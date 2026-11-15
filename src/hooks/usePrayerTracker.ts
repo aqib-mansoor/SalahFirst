@@ -168,37 +168,45 @@ export const usePrayerTracker = (
   );
 
   const setPrayerCompleted = useCallback(
-    async (prayerName: string, completed: boolean = true) => {
-      if (cycleCompletions[prayerName as ObligatorySalah] === completed) return;
+    async (
+      prayerName: string,
+      completed: boolean = true,
+      options?: { targetCycleId?: string; targetDateKey?: string; source?: 'manual' | 'notification' | 'focus' }
+    ) => {
+      const cycleId = options?.targetCycleId || activeCycle?.cycleId;
+      const targetDate = options?.targetDateKey || activeDateKey;
+      const targetPrayer = prayerName as ObligatorySalah;
+
+      if (!options?.targetCycleId && cycleCompletions[targetPrayer] === completed) return;
 
       const nowMs = Date.now();
       const isBeforeFajr = prayerData.raw?.fajr ? nowMs < prayerData.raw.fajr.getTime() : false;
 
-      if (completed && !isBeforeFajr) {
+      if (completed && !isBeforeFajr && !options?.targetCycleId) {
         const lower = prayerName.toLowerCase() as keyof typeof prayerData.raw;
         const rawDate = prayerData.raw?.[lower];
         if (rawDate && nowMs < rawDate.getTime()) return;
       }
 
-      if (completed && activeCycle) {
+      if (completed && cycleId) {
         const { event } = await recordPrayerCompletion({
-          prayerKey: prayerName as ObligatorySalah,
-          cycleId: activeCycle.cycleId,
+          prayerKey: targetPrayer,
+          cycleId,
           timezone: userLocation?.timezone,
           latitude: userLocation?.latitude,
           longitude: userLocation?.longitude,
-          source: 'manual',
+          source: options?.source || 'manual',
         });
         dispatch(recordLedgerEvent(event));
-      } else if (!completed && activeCycle) {
-        await removePrayerCompletion(activeCycle.cycleId, prayerName as ObligatorySalah);
-        dispatch(removeLedgerEvent({ cycleId: activeCycle.cycleId, prayerKey: prayerName as ObligatorySalah, localDate: activeDateKey }));
+      } else if (!completed && cycleId) {
+        await removePrayerCompletion(cycleId, targetPrayer);
+        dispatch(removeLedgerEvent({ cycleId, prayerKey: targetPrayer, localDate: targetDate }));
       }
 
-      dispatch(setPrayerCompletedAction({ dateKey: activeDateKey, prayerName, completed }));
+      dispatch(setPrayerCompletedAction({ dateKey: targetDate, prayerName, completed }));
       triggerHaptic(completed ? 'medium' : 'light');
       const updatedToday = { ...cycleCompletions, [prayerName]: completed };
-      await handlePostCompletionAlerts(prayerName, completed, updatedToday, activeDateKey);
+      await handlePostCompletionAlerts(prayerName, completed, updatedToday, targetDate);
       notifyTrackerPreferencesChanged();
     },
     [cycleCompletions, activeCycle, activeDateKey, userLocation, prayerData.raw, dispatch]
@@ -263,6 +271,7 @@ export const usePrayerTracker = (
     calcMethod,
     juristic,
     activeCycle,
+    activeDateKey,
     togglePrayer,
     setPrayerCompleted,
     toggleHistoricalPrayer,

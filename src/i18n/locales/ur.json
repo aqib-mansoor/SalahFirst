@@ -63,6 +63,7 @@
   "beginFocus": "فوکس شروع کریں",
   "focusFinished": "فوکس سیشن مکمل ہوا",
   "didYouCompletePrayer": "کیا آپ نے نماز ادا کر لی؟",
+  "didYouCompleteSpecificPrayer": "کیا آپ نے {{prayer}} کی نماز ادا کر لی؟",
   "yesPrayed": "جی ہاں، میں نے نماز پڑھ لی",
   "notYet": "ابھی نہیں",
   "exitFocusEarly": "فوکس موڈ بند کریں",

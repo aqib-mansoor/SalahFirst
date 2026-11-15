@@ -43,14 +43,14 @@ export const FocusExitEarlyModal: React.FC<FocusExitEarlyModalProps> = ({
 
           {/* Title */}
           <AppText variant="titleMedium" color={PALETTE.white} align="center" style={styles.title}>
-            Pause Salah Focus?
+            {t('focusPauseTitle')}
           </AppText>
 
           {/* Time Remaining Badge */}
           <View style={styles.badgePill}>
             <View style={styles.liveDot} />
             <AppText variant="caption" style={styles.badgeText}>
-              Only {minutesLeft}m left of {prayerName}
+              {t('focusMinutesLeftOf', { minutes: minutesLeft, prayer: t(prayerName.toLowerCase() as any) })}
             </AppText>
           </View>
 
@@ -60,7 +60,7 @@ export const FocusExitEarlyModal: React.FC<FocusExitEarlyModalProps> = ({
               وَٱسْتَعِينُوا۟ بِٱلصَّبْرِ وَٱلصَّلَوٰةِ
             </AppText>
             <AppText variant="caption" align="center" style={styles.reminderText}>
-              Protect your conversation with Allah. Put worldly distractions aside for just a few moments.
+              {t('focusProtectReminder')}
             </AppText>
           </View>
 
@@ -78,10 +78,10 @@ export const FocusExitEarlyModal: React.FC<FocusExitEarlyModalProps> = ({
               hitSlop={12}
               style={styles.exitBtn}
               accessibilityRole="button"
-              accessibilityLabel="Exit focus mode anyway"
+              accessibilityLabel={t('focusExitAnyway')}
             >
               <AppText variant="caption" style={styles.exitText}>
-                Exit Anyway
+                {t('focusExitAnyway')}
               </AppText>
             </Pressable>
           </View>

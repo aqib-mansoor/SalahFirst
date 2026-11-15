@@ -42,17 +42,17 @@ export const FocusCompletionModal: React.FC<FocusCompletionModalProps> = ({
             style={styles.badgeText}
           >
             {breachCount === 0
-              ? '🛡️ ZERO DISTRACTIONS • FULL KHUSHU'
-              : `⚠️ ${breachCount} DISTRACTION INTERRUPTION(S)`}
+              ? t('focusZeroDistractions')
+              : t('focusDistractionCount', { count: breachCount })}
           </AppText>
         </View>
 
         <AppText variant="titleMedium" color={theme.colors.text} align="center" style={styles.title}>
-          {t('didYouCompletePrayer')}
+          {t('didYouCompleteSpecificPrayer', { prayer: t(prayerName.toLowerCase() as any) })}
         </AppText>
 
         <AppText variant="bodySmall" color={theme.colors.textMuted} align="center" style={styles.subtitle}>
-          {prayerName} • May Allah accept your worship and bless your focus.
+          {t('focusMayAllahAccept')}
         </AppText>
 
         <View style={styles.actions}>

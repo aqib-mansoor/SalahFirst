@@ -63,6 +63,7 @@
   "beginFocus": "بدء التركيز",
   "focusFinished": "انتهت جلسة التركيز",
   "didYouCompletePrayer": "هل أديت صلاتك؟",
+  "didYouCompleteSpecificPrayer": "هل أديت صلاة {{prayer}}؟",
   "yesPrayed": "نعم، أديت الصلاة",
   "notYet": "ليس بعد",
   "exitFocusEarly": "الخروج من وضع التركيز",

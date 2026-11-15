@@ -34,7 +34,7 @@ export interface ActiveFocusScreenProps {
   prayerName?: string;
   existingSession?: FocusSession | null;
   onExit: () => void;
-  onCompletePrayer: () => void;
+  onCompletePrayer: (session: FocusSession) => void;
 }
 
 export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
@@ -216,7 +216,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         visible={isCompleted}
         prayerName={effectivePrayer}
         breachCount={breachCount}
-        onConfirmPrayed={() => handleCleanExit(onCompletePrayer, true)}
+        onConfirmPrayed={() => handleCleanExit(() => onCompletePrayer(sessionRef.current), true)}
         onNotYet={() => handleCleanExit(undefined, true)}
       />
 

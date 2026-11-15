@@ -58,7 +58,7 @@ export const useNotificationResponseRouter = ({
         stopAzanAudio();
         stopNativeAzan();
         const prayer = String(data.prayerName);
-        const session = createFocusSession(prayer, 15);
+        const session = createFocusSession(prayer, 15, 0, prayer as any);
         saveActiveFocusSession(session);
         setActiveSession(session);
         setFocusPrayerName(prayer);
@@ -85,7 +85,7 @@ export const useNotificationResponseRouter = ({
       } else if (data.type === 'auto-focus-start' && data.prayerName) {
         const prayer = String(data.prayerName);
         const duration = (Number(data.duration) || 15) as FocusDuration;
-        const session = createFocusSession(prayer, duration);
+        const session = createFocusSession(prayer, duration, 0, prayer as any);
         if (data.targetEndTimestamp) {
           session.targetEndTimestamp = Number(data.targetEndTimestamp);
         }

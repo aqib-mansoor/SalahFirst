@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
+import { useTranslation } from '@/context/LocalizationContext';
 import { HadithItem } from '@/data/hadiths';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 import { HadithTranslationSelector } from './HadithTranslationSelector';
@@ -33,6 +34,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
   onSharePress,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -73,7 +75,7 @@ export const HadithCard: React.FC<HadithCardProps> = ({
           color={theme.colors.accent}
           style={styles.counterText}
         >
-          #{currentIndex + 1} of {totalHadiths}
+          #{currentIndex + 1} {t('of')} {totalHadiths}
         </AppText>
       </View>
 

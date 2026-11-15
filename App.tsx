@@ -19,7 +19,7 @@ import { ProgressSubTab } from '@/components/progress';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
-import { FocusDuration } from '@/types';
+import { FocusDuration, ObligatorySalah } from '@/types';
 import { loadFocusDurations, PrayerFocusDurations } from '@/utils/prayerFocusOffsets';
 import { usePrayerTracker } from '@/hooks/usePrayerTracker';
 import { useDeviceLocation, initDeviceLocationCache } from '@/hooks/useDeviceLocation';
@@ -33,7 +33,13 @@ import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';
 import { useAppUpdateChecker } from '@/hooks/useAppUpdateChecker';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LocalizationProvider, useTranslation } from '@/context/LocalizationContext';
-import { getActiveFocusSession, clearActiveFocusSession, FocusSession } from '@/utils/focusSession';
+import {
+  getActiveFocusSession,
+  clearActiveFocusSession,
+  createFocusSession,
+  saveActiveFocusSession,
+  FocusSession,
+} from '@/utils/focusSession';
 import { registerSingleNotificationPolicy } from '@/utils/notificationCleanup';
 
 export type { AppStep };
@@ -55,7 +61,7 @@ function AppContent() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic } =
+  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic, activeCycle } =
     usePrayerTracker(location, { enableCountdown: false });
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
@@ -143,25 +149,39 @@ function AppContent() {
     setCurrentStep('main');
     setActiveTab('home');
   };
-  const getSuggestedPrayerName = () => {
-    const pending = prayersList.find((p) => p.name.toUpperCase() === prayerData.currentPrayerName && !p.completed);
-    return pending ? pending.name : (prayerData.nextPrayerName || 'Fajr');
+  const getSuggestedPrayerInfo = (): { prayerName: string; prayerKey: ObligatorySalah; cycleId?: string; dateKey?: string } => {
+    const currentObligatory = prayerData.currentPeriod?.obligatorySalahName as ObligatorySalah | undefined;
+    const currentItem = currentObligatory ? prayersList.find((p) => p.name === currentObligatory) : undefined;
+    const pendingCurrent = currentItem && !currentItem.completed ? currentObligatory : undefined;
+    const nextObligatory = prayerData.nextPrayerName as ObligatorySalah | undefined;
+    const resolvedKey = pendingCurrent || nextObligatory || 'Fajr';
+    return {
+      prayerName: resolvedKey,
+      prayerKey: resolvedKey,
+      cycleId: activeCycle?.cycleId,
+      dateKey: activeCycle?.locationSnapshot ? prayerData.currentPeriod?.id : undefined,
+    };
   };
+
   const handleStartFocusImmediately = async () => {
-    const targetPrayer = getSuggestedPrayerName();
+    const info = getSuggestedPrayerInfo();
     const durations = await loadFocusDurations();
-    const key = targetPrayer.toLowerCase() as keyof PrayerFocusDurations;
+    const key = info.prayerKey.toLowerCase() as keyof PrayerFocusDurations;
     const savedDuration = durations[key] || 15;
-    setFocusPrayerName(targetPrayer);
+    const session = createFocusSession(info.prayerName, savedDuration, 0, info.prayerKey, info.dateKey, info.cycleId);
+    await saveActiveFocusSession(session);
+    setFocusPrayerName(info.prayerName);
     setFocusDuration(savedDuration);
-    setActiveSession(null);
+    setActiveSession(session);
     setCurrentStep('focus-active');
   };
+
   const handleOpenFocusConfigFromHome = () => {
-    setFocusPrayerName(getSuggestedPrayerName());
+    setFocusPrayerName(getSuggestedPrayerInfo().prayerName);
     setFocusConfigOrigin('main');
     setCurrentStep('focus-config');
   };
+
   const handleOpenFocusConfigFromSettings = () => {
     setFocusConfigOrigin('settings');
     setCurrentStep('focus-config');
@@ -172,7 +192,14 @@ function AppContent() {
     setCurrentStep('wallpaper');
   };
 
-  const handleCompletePrayerFocus = () => setPrayerCompleted(focusPrayerName, true);
+  const handleCompletePrayerFocus = (session: FocusSession) => {
+    const targetKey = (session.prayerKey || session.prayerName) as ObligatorySalah;
+    setPrayerCompleted(targetKey, true, {
+      targetCycleId: session.cycleId,
+      targetDateKey: session.dateKey,
+      source: 'focus',
+    });
+  };
 
   if (!isAppReady) {
     return (

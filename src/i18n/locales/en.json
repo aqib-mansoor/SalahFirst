@@ -63,6 +63,7 @@
   "beginFocus": "Begin Focus",
   "focusFinished": "FOCUS SESSION FINISHED",
   "didYouCompletePrayer": "Did you complete your prayer?",
+  "didYouCompleteSpecificPrayer": "Did you complete {{prayer}} prayer?",
   "yesPrayed": "Yes, I prayed",
   "notYet": "Not yet",
   "exitFocusEarly": "Exit Focus Early",

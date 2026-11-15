@@ -7,6 +7,8 @@ import { AppContainer } from '@/components/common';
 import { HomeTab } from '@/components/home/HomeBottomNav';
 import { HadithItem } from '@/data/hadiths';
 import { HadithHeader } from './HadithHeader';
+import { HadithCategoryStrip } from './HadithCategoryStrip';
+import { HadithSearchSheet } from './HadithSearchSheet';
 import { HadithToast } from './HadithToast';
 import { HadithCard } from './HadithCard';
 import { HadithPagination } from './HadithPagination';
@@ -20,11 +22,14 @@ export interface HadithScreenProps {
 
 export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpenWallpaper }) => {
   const [showBookmarksSheet, setShowBookmarksSheet] = useState(false);
+  const [showSearchSheet, setShowSearchSheet] = useState(false);
   const insets = useSafeAreaInsets();
   const {
     currentHadith,
     currentIndex,
     totalHadiths,
+    selectedCategory,
+    setSelectedCategory,
     translationMode,
     setTranslationMode,
     savedHadiths,
@@ -55,6 +60,12 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpe
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
+          <HadithCategoryStrip
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onOpenSearch={() => setShowSearchSheet(true)}
+          />
+
           <HadithCard
             hadith={currentHadith}
             currentIndex={currentIndex}
@@ -80,6 +91,15 @@ export const HadithScreen: React.FC<HadithScreenProps> = ({ onNavigateTab, onOpe
             onOpenAllBookmarks={() => setShowBookmarksSheet(true)}
           />
         </ScrollView>
+
+        {/* 100-Hadith Quick Search Bottom Sheet */}
+        <HadithSearchSheet
+          visible={showSearchSheet}
+          currentIndex={currentIndex}
+          selectedCategory={selectedCategory}
+          onSelectHadith={jumpToHadith}
+          onClose={() => setShowSearchSheet(false)}
+        />
 
         {/* 50+ Bookmarks Dedicated Modal Sheet */}
         <HadithBookmarksSheet

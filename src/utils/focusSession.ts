@@ -1,5 +1,5 @@
 import { storage } from './storage';
-import { FocusDuration } from '@/types';
+import { FocusDuration, ObligatorySalah } from '@/types';
 
 export const FOCUS_SESSION_KEY = '@salahfirst_active_focus_session';
 const FOCUS_COMPLETED_KEY = '@salahfirst_focus_completed_days';
@@ -10,22 +10,23 @@ const todayKey = (): string => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-/** Mark focus session as completed for a specific prayer today */
-export const markFocusCompleted = async (prayerName: string): Promise<void> => {
+/** Mark focus session as completed for a specific prayer and date */
+export const markFocusCompleted = async (prayerName: string, dateKey?: string): Promise<void> => {
   try {
-    const key = todayKey();
+    const key = dateKey || todayKey();
     const map = await storage.get<Record<string, string[]>>(FOCUS_COMPLETED_KEY, {});
     const list = map[key] ?? [];
-    if (!list.includes(prayerName.toLowerCase())) list.push(prayerName.toLowerCase());
+    const lower = prayerName.toLowerCase();
+    if (!list.includes(lower)) list.push(lower);
     map[key] = list;
     await storage.set(FOCUS_COMPLETED_KEY, map);
   } catch {}
 };
 
 /** Check if focus was already completed for a prayer today */
-export const isFocusCompletedToday = async (prayerName: string): Promise<boolean> => {
+export const isFocusCompletedToday = async (prayerName: string, dateKey?: string): Promise<boolean> => {
   try {
-    const key = todayKey();
+    const key = dateKey || todayKey();
     const map = await storage.get<Record<string, string[]>>(FOCUS_COMPLETED_KEY, {});
     return (map[key] ?? []).includes(prayerName.toLowerCase());
   } catch {
@@ -35,6 +36,9 @@ export const isFocusCompletedToday = async (prayerName: string): Promise<boolean
 
 export interface FocusSession {
   prayerName: string;
+  prayerKey?: ObligatorySalah;
+  dateKey?: string;
+  cycleId?: string;
   durationMinutes: FocusDuration;
   startTimestamp: number;
   targetEndTimestamp: number;
@@ -45,11 +49,17 @@ export interface FocusSession {
 export const createFocusSession = (
   prayerName: string,
   durationMinutes: FocusDuration,
-  breachCount: number = 0
+  breachCount: number = 0,
+  prayerKey?: ObligatorySalah,
+  dateKey?: string,
+  cycleId?: string
 ): FocusSession => {
   const now = Date.now();
   return {
     prayerName,
+    prayerKey,
+    dateKey,
+    cycleId,
     durationMinutes,
     startTimestamp: now,
     targetEndTimestamp: now + durationMinutes * 60 * 1000,
