@@ -5,7 +5,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { VERIFIED_HADITHS, HadithCategoryId, getHadithIndicesForCategory } from '@/data/hadiths';
+import { VERIFIED_HADITHS, HadithCategoryId, getHadithIndicesForCategory, getHadithReflection } from '@/data/hadiths';
 
 export interface HadithSearchSheetProps {
   visible: boolean;
@@ -23,7 +23,7 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [query, setQuery] = useState('');
 
   const matchingItems = useMemo(() => {
@@ -33,6 +33,7 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
       .map((idx) => ({ item: VERIFIED_HADITHS[idx], idx }))
       .filter(({ item, idx }) => {
         if (!q) return true;
+        const takeaway = getHadithReflection(item, idx, language).toLowerCase();
         return (
           item.english.toLowerCase().includes(q) ||
           item.urdu.includes(q) ||
@@ -40,11 +41,12 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
           item.badge.toLowerCase().includes(q) ||
           item.source.toLowerCase().includes(q) ||
           item.reference.toLowerCase().includes(q) ||
+          takeaway.includes(q) ||
           `#${idx + 1}` === q ||
           `${idx + 1}` === q
         );
       });
-  }, [selectedCategory, query]);
+  }, [selectedCategory, query, language]);
 
   const HeaderIcon = (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -131,7 +133,11 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
               </View>
 
               <AppText variant="bodySmall" color={theme.colors.textPrimary} numberOfLines={2} style={styles.englishText}>
-                “{item.english}”
+                {language === 'ur' ? item.urdu : item.english}
+              </AppText>
+
+              <AppText variant="caption" color={theme.colors.primary} numberOfLines={1} style={styles.takeawayPreview}>
+                {t('hadithTakeawayLabel')} • {getHadithReflection(item, idx, language)}
               </AppText>
             </Pressable>
           );
@@ -209,6 +215,10 @@ const styles = StyleSheet.create({
   englishText: {
     lineHeight: 18,
     fontSize: 12.5,
+  },
+  takeawayPreview: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   emptyState: {
     paddingVertical: SPACING.xl,

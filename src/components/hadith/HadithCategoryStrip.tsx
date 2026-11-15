@@ -14,7 +14,9 @@ export interface HadithCategoryStripProps {
 }
 
 const CATEGORIES: { id: HadithCategoryId; labelKey: TranslationKey; count: number }[] = [
-  { id: 'all', labelKey: 'filterAll', count: 100 },
+  { id: 'all', labelKey: 'filterAll', count: 140 },
+  { id: 'youth', labelKey: 'hadithCatYouth', count: 20 },
+  { id: 'peace', labelKey: 'hadithCatPeace', count: 20 },
   { id: 'salah', labelKey: 'hadithCatSalah', count: 20 },
   { id: 'wudu', labelKey: 'hadithCatWudu', count: 20 },
   { id: 'khushoo', labelKey: 'hadithCatKhushoo', count: 20 },

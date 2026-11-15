@@ -10,5 +10,7 @@ export interface HadithItem {
   urdu: string;
   source: string;
   reference: string;
+  reflectionEn?: string;
+  reflectionUr?: string;
+  reflectionAr?: string;
 }
-

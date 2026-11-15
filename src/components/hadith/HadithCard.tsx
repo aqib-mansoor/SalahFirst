@@ -4,7 +4,7 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { HadithItem } from '@/data/hadiths';
+import { HadithItem, getHadithReflection } from '@/data/hadiths';
 import { HadithTranslationMode } from '@/hooks/useHadithCollection';
 import { HadithTranslationSelector } from './HadithTranslationSelector';
 import { HadithCardFooterActions } from './HadithCardFooterActions';
@@ -34,7 +34,8 @@ export const HadithCard: React.FC<HadithCardProps> = ({
   onSharePress,
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const takeawayText = getHadithReflection(hadith, currentIndex, language);
 
   return (
     <View
@@ -126,6 +127,24 @@ export const HadithCard: React.FC<HadithCardProps> = ({
             {hadith.urdu}
           </AppText>
         )}
+
+        {/* Heart Takeaway / Actionable Reflection Box */}
+        <View
+          style={[
+            styles.takeawayBox,
+            {
+              backgroundColor: theme.colors.secondaryTint,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <AppText variant="caption" color={theme.colors.primary} style={styles.takeawayLabel}>
+            {t('hadithTakeawayLabel')}
+          </AppText>
+          <AppText variant="caption" color={theme.colors.textPrimary} style={styles.takeawayText}>
+            {takeawayText}
+          </AppText>
+        </View>
       </View>
 
       {/* Source Citation & Actions Footer */}
@@ -226,6 +245,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 15.5,
+  },
+  takeawayBox: {
+    marginTop: 4,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    gap: 3,
+  },
+  takeawayLabel: {
+    fontWeight: '800',
+    fontSize: 10,
+    letterSpacing: 0.6,
+  },
+  takeawayText: {
+    fontSize: 12,
+    lineHeight: 17.5,
+    fontWeight: '600',
   },
   footerRow: {
     flexDirection: 'row',
