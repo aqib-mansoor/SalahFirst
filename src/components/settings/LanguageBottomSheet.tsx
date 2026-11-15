@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, StyleSheet, View, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -44,6 +45,7 @@ export const LanguageBottomSheet: React.FC<LanguageBottomSheetProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { language, setLanguage, t } = useTranslation();
 
   if (!visible) return null;
@@ -63,7 +65,16 @@ export const LanguageBottomSheet: React.FC<LanguageBottomSheetProps> = ({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
-        <View style={[styles.sheet, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+        <View
+          style={[
+            styles.sheet,
+            {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.border,
+              paddingBottom: Math.max(insets.bottom, SPACING.lg),
+            },
+          ]}
+        >
           <View style={styles.handleBar}>
             <View style={[styles.handleIndicator, { backgroundColor: theme.colors.border }]} />
           </View>

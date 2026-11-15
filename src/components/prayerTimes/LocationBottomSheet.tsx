@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Modal, StyleSheet, View, Pressable, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PRESET_CITIES, PresetCity } from '@/data';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -36,6 +37,7 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   currentTimezone: propTimezone,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { location: deviceLoc } = useDeviceLocation();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -119,7 +121,15 @@ export const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <View style={styles.overlay}>
           <Pressable style={styles.backdrop} onPress={handleClose} />
 
-          <View style={[styles.sheet, { backgroundColor: theme.colors.surface }]}>
+          <View
+            style={[
+              styles.sheet,
+              {
+                backgroundColor: theme.colors.surface,
+                paddingBottom: Math.max(insets.bottom, SPACING.lg),
+              },
+            ]}
+          >
             <LocationSheetHeader
               selectedCountry={selectedCountry}
               isSearching={Boolean(trimmed)}
