@@ -549,5 +549,21 @@
   "activePrayerOffsetsCount": "{{count}} prayer offsets active",
   "resetAllAdjustments": "Reset All",
   "hapticFeedbackTitle": "Haptic Feedback",
-  "hapticFeedbackSub": "Subtle tactile response for Tasbih, Qibla & Salah checkmarks"
+  "hapticFeedbackSub": "Subtle tactile response for Tasbih, Qibla & Salah checkmarks",
+  "hadithCatSalah": "Salah",
+  "hadithCatWudu": "Wudu & Purity",
+  "hadithCatKhushoo": "Khushoo",
+  "hadithCatCongregation": "Congregation",
+  "hadithCatCharacter": "Character & Night",
+  "hadithSearchBtn": "Search",
+  "searchAllHadithsTitle": "Search 100 Verified Hadiths",
+  "searchHadithsPlaceholder": "Search by keyword, topic, source or #number...",
+  "noMatchingHadiths": "No Hadiths match your search.",
+  "focusZeroDistractions": "ZERO DISTRACTIONS • FULL KHUSHU",
+  "focusDistractionCount": "{{count}} DISTRACTION INTERRUPTION(S)",
+  "focusMayAllahAccept": "May Allah accept your worship and bless your focus.",
+  "focusPauseTitle": "Pause Salah Focus?",
+  "focusMinutesLeftOf": "Only {{minutes}}m left of {{prayer}}",
+  "focusProtectReminder": "Protect your conversation with Allah. Put worldly distractions aside for just a few moments.",
+  "focusExitAnyway": "Exit Anyway"
 }

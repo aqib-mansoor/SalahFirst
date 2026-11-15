@@ -61,7 +61,7 @@ function AppContent() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic, activeCycle } =
+  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic, activeCycle, activeDateKey } =
     usePrayerTracker(location, { enableCountdown: false });
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
@@ -159,7 +159,7 @@ function AppContent() {
       prayerName: resolvedKey,
       prayerKey: resolvedKey,
       cycleId: activeCycle?.cycleId,
-      dateKey: activeCycle?.locationSnapshot ? prayerData.currentPeriod?.id : undefined,
+      dateKey: activeDateKey,
     };
   };
 

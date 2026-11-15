@@ -549,5 +549,21 @@
   "activePrayerOffsetsCount": "{{count}} نمازوں کے اوقات میں ترمیم فعال",
   "resetAllAdjustments": "سب ری سیٹ کریں",
   "hapticFeedbackTitle": "ٹیکٹائل وائبریشن (Haptics)",
-  "hapticFeedbackSub": "تسبیح، قبلہ اور نماز مکمل کرنے پر ہلکا احساس"
+  "hapticFeedbackSub": "تسبیح، قبلہ اور نماز مکمل کرنے پر ہلکا احساس",
+  "hadithCatSalah": "نماز",
+  "hadithCatWudu": "وضو اور طہارت",
+  "hadithCatKhushoo": "خشوع و خضوع",
+  "hadithCatCongregation": "باجماعت نماز",
+  "hadithCatCharacter": "اخلاق اور تہجد",
+  "hadithSearchBtn": "تلاش",
+  "searchAllHadithsTitle": "100 مستند احادیث میں تلاش کریں",
+  "searchHadithsPlaceholder": "لفظ، موضوع، کتاب یا #نمبر سے تلاش کریں...",
+  "noMatchingHadiths": "آپ کی تلاش کے مطابق کوئی حدیث نہیں ملی۔",
+  "focusZeroDistractions": "بلا خلفشار • مکمل خشوع و خضوع",
+  "focusDistractionCount": "{{count}} بار توجہ میں خلل آیا",
+  "focusMayAllahAccept": "اللہ آپ کی عبادت قبول فرمائے اور آپ کے خشوع میں برکت دے۔",
+  "focusPauseTitle": "کیا نماز فوکس روکنا چاہتے ہیں؟",
+  "focusMinutesLeftOf": "نمازِ {{prayer}} کے صرف {{minutes}} منٹ باقی ہیں",
+  "focusProtectReminder": "اللہ کے ساتھ اپنی مناجات کی حفاظت کریں۔ دنیاوی مصروفیات کو چند لمحوں کے لیے ایک طرف رکھ دیں۔",
+  "focusExitAnyway": "پھر بھی باہر نکلیں"
 }

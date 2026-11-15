@@ -550,5 +550,21 @@
   "activePrayerOffsetsCount": "{{count}} تعديلات نشطة لأوقات الصلاة",
   "resetAllAdjustments": "إعادة ضبط الكل",
   "hapticFeedbackTitle": "الاهتزاز التفاعلي (Haptics)",
-  "hapticFeedbackSub": "استجابة لمسية خفيفة للتسبيح والقبلة وتسجيل الصلاة"
+  "hapticFeedbackSub": "استجابة لمسية خفيفة للتسبيح والقبلة وتسجيل الصلاة",
+  "hadithCatSalah": "الصلاة",
+  "hadithCatWudu": "الوضوء والطهارة",
+  "hadithCatKhushoo": "الخشوع",
+  "hadithCatCongregation": "صلاة الجماعة",
+  "hadithCatCharacter": "الأخلاق وقيام الليل",
+  "hadithSearchBtn": "بحث",
+  "searchAllHadithsTitle": "البحث في 100 حديث موثق",
+  "searchHadithsPlaceholder": "ابحث بالكلمة أو الموضوع أو المصدر أو #الرقم...",
+  "noMatchingHadiths": "لا توجد أحاديث تطابق بحثك.",
+  "focusZeroDistractions": "بلا مشتتات • خشوع تام",
+  "focusDistractionCount": "{{count}} مقاطعات أثناء التركيز",
+  "focusMayAllahAccept": "تقبل الله طاعتك وبارك في خشوعك.",
+  "focusPauseTitle": "إيقاف وضع الخشوع؟",
+  "focusMinutesLeftOf": "تبقى {{minutes}}د فقط من صلاة {{prayer}}",
+  "focusProtectReminder": "احفظ مناجاتك مع الله، وضع مشاغل الدنيا جانباً لبضع دقائق.",
+  "focusExitAnyway": "الخروج على أي حال"
 }
