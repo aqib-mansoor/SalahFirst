@@ -4,26 +4,21 @@
   "minSupportedVersionCode": 1,
   "forceUpdate": false,
   "title": "What's New in SalahFirst",
-  "releaseNotes": "Added customizable international 12-hour/24-hour time format, wallpaper saving to gallery, and performance optimizations.",
+  "releaseNotes": "Performance improvements and precision Azan notification updates.",
   "highlights": [
     {
       "tag": "NEW",
-      "description": "International 12-Hour & 24-Hour time format option in Settings (default 12-hour AM/PM)."
-    },
-    {
-      "tag": "NEW",
-      "description": "Save high-definition Hadith wallpapers directly to device gallery with instant photo permissions."
+      "description": "Precise background Azan recitation & manual test audio."
     },
     {
       "tag": "IMPROVED",
-      "description": "Direct 'Set Wallpaper' launcher for Android lock and home screen with system chooser fallback."
+      "description": "International 12h/24h time format & sound mode support."
     },
     {
-      "tag": "SECURITY",
-      "description": "Hardened production builds with native R8/ProGuard obfuscation and Metro bytecode protection."
+      "tag": "OPTIMIZED",
+      "description": "Enhanced offline battery saver & reboot alarm restoration."
     }
   ],
   "playStoreUrl": "market://details?id=com.salahfirst.app",
   "webUrl": "https://play.google.com/store/apps/details?id=com.salahfirst.app"
 }
-

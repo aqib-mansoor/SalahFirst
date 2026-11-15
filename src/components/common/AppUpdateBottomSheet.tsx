@@ -6,9 +6,8 @@ import {
   Pressable,
   Linking,
   Platform,
-  ScrollView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { SPACING, RADIUS } from '@/constants/theme';
@@ -33,7 +32,6 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
   isChangelogOnly = false,
 }) => {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
 
   if (!visible || !updateInfo) return null;
 
@@ -65,7 +63,7 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
     }
   };
 
-  const highlights = updateInfo.highlights || [];
+  const highlights = (updateInfo.highlights || []).slice(0, 3);
 
   return (
     <Modal
@@ -76,152 +74,158 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
     >
       <View style={styles.backdrop}>
         {!isForced && (
-          <Pressable style={StyleSheet.absoluteFill} onPress={onDismiss} />
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={onDismiss}
+            accessibilityLabel="Close update bottom sheet"
+          />
         )}
 
-        <View
-          style={[
-            styles.sheetContainer,
-            {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-              paddingBottom: Math.max(insets.bottom, SPACING.lg),
-            },
-          ]}
-        >
-          {/* Top Handle Indicator */}
-          <View
-            style={[styles.handleBar, { backgroundColor: theme.colors.border }]}
-          />
-
-          {/* Icon Badge */}
+        <SafeAreaView edges={['bottom']} style={styles.safeArea}>
           <View
             style={[
-              styles.iconWrapper,
+              styles.sheetContainer,
               {
-                backgroundColor: theme.isDark
-                  ? 'rgba(16, 185, 129, 0.15)'
-                  : theme.colors.mintTint,
-                borderColor: theme.isDark
-                  ? theme.colors.primaryDark
-                  : theme.colors.border,
-              },
-            ]}
-          >
-            <Svg width={30} height={30} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M12 3v13m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
-                stroke={theme.colors.primary}
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </View>
-
-          {/* Title and Version Tag */}
-          <View style={styles.titleRow}>
-            <AppText variant="titleMedium" color={theme.colors.text} align="center">
-              {isChangelogOnly
-                ? "What's New in SalahFirst"
-                : updateInfo.title || 'New Update Available'}
-            </AppText>
-            <View
-              style={[
-                styles.versionBadge,
-                { backgroundColor: theme.colors.surfaceSubtle },
-              ]}
-            >
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                {isChangelogOnly
-                  ? `Installed Version: v${currentVersion}`
-                  : `v${currentVersion} → v${updateInfo.latestVersion}`}
-              </AppText>
-            </View>
-          </View>
-
-          {/* Release Highlights / What's New Box */}
-          <View
-            style={[
-              styles.releaseNotesBox,
-              {
-                backgroundColor: theme.colors.surfaceSubtle,
+                backgroundColor: theme.colors.surface,
                 borderColor: theme.colors.border,
               },
             ]}
           >
-            <AppText variant="caption" color={theme.colors.primary} style={styles.notesHeader}>
-              RELEASE HIGHLIGHTS
-            </AppText>
+            {/* Top Indicator */}
+            <View
+              style={[styles.handleBar, { backgroundColor: theme.colors.border }]}
+            />
 
-            {highlights.length > 0 ? (
-              <ScrollView
-                style={styles.highlightsScroll}
-                contentContainerStyle={styles.highlightsContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {highlights.map((item, idx) => (
-                  <ReleaseHighlightRow key={idx} item={item} />
-                ))}
-              </ScrollView>
-            ) : (
-              <AppText variant="bodySmall" color={theme.colors.textSecondary} style={styles.notesText}>
-                {updateInfo.releaseNotes ||
-                  'SalahFirst is updated with fresh performance boosts and enhancements.'}
-              </AppText>
-            )}
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionColumn}>
-            {isChangelogOnly ? (
-              <Pressable
-                onPress={onDismiss}
-                style={({ pressed }) => [
-                  styles.primaryBtn,
+            {/* Header: Icon, Title, and Version Pill */}
+            <View style={styles.header}>
+              <View
+                style={[
+                  styles.iconBox,
                   {
-                    backgroundColor: theme.colors.primary,
-                    opacity: pressed ? 0.9 : 1,
+                    backgroundColor: theme.isDark
+                      ? 'rgba(16, 185, 129, 0.14)'
+                      : theme.colors.mintTint,
+                    borderColor: theme.isDark
+                      ? theme.colors.primaryDark
+                      : theme.colors.border,
                   },
                 ]}
               >
-                <AppText variant="bodyMedium" color="#FFFFFF" style={styles.btnLabel}>
-                  Got It
+                <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M12 3v13m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                    stroke={theme.colors.primary}
+                    strokeWidth={2.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              </View>
+
+              <View style={styles.headerText}>
+                <View style={styles.titleRow}>
+                  <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
+                    {isChangelogOnly ? "What's New" : updateInfo.title || 'App Update'}
+                  </AppText>
+                  <View
+                    style={[
+                      styles.versionPill,
+                      {
+                        backgroundColor: theme.isDark
+                          ? theme.colors.surfaceSubtle
+                          : theme.colors.mintTint,
+                        borderColor: theme.isDark ? theme.colors.border : theme.colors.primary,
+                      },
+                    ]}
+                  >
+                    <AppText variant="caption" color={theme.colors.primary} style={styles.versionText}>
+                      {isChangelogOnly
+                        ? `v${currentVersion}`
+                        : `v${currentVersion} → v${updateInfo.latestVersion}`}
+                    </AppText>
+                  </View>
+                </View>
+                <AppText variant="caption" color={theme.colors.textSecondary}>
+                  SalahFirst Islamic Productivity
                 </AppText>
-              </Pressable>
-            ) : (
-              <>
+              </View>
+            </View>
+
+            {/* Key Highlights (Non-scrollable, tight fit) */}
+            <View
+              style={[
+                styles.highlightsCard,
+                {
+                  backgroundColor: theme.isDark
+                    ? theme.colors.surfaceSubtle
+                    : theme.colors.background,
+                  borderColor: theme.colors.border,
+                },
+              ]}
+            >
+              {highlights.length > 0 ? (
+                highlights.map((item, idx) => (
+                  <ReleaseHighlightRow key={idx} item={item} />
+                ))
+              ) : (
+                <AppText variant="bodySmall" color={theme.colors.textSecondary}>
+                  {updateInfo.releaseNotes || 'SalahFirst is updated with fresh performance boosts.'}
+                </AppText>
+              )}
+            </View>
+
+            {/* Action Section */}
+            <View style={styles.actions}>
+              {isChangelogOnly ? (
                 <Pressable
-                  onPress={handleUpdate}
+                  onPress={onDismiss}
                   style={({ pressed }) => [
-                    styles.primaryBtn,
+                    styles.primaryButton,
                     {
                       backgroundColor: theme.colors.primary,
-                      opacity: pressed ? 0.9 : 1,
-                      transform: [{ scale: pressed ? 0.98 : 1 }],
+                      opacity: pressed ? 0.88 : 1,
+                      transform: [{ scale: pressed ? 0.985 : 1 }],
                     },
                   ]}
                 >
-                  <AppText variant="bodyMedium" color="#FFFFFF" style={styles.btnLabel}>
-                    Update Now via Play Store
+                  <AppText variant="bodyMedium" color="#FFFFFF" style={styles.buttonLabel}>
+                    Got It
                   </AppText>
                 </Pressable>
-
-                {!isForced && (
+              ) : (
+                <>
                   <Pressable
-                    onPress={onDismiss}
-                    hitSlop={10}
-                    style={styles.cancelBtn}
+                    onPress={handleUpdate}
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      {
+                        backgroundColor: theme.colors.primary,
+                        opacity: pressed ? 0.88 : 1,
+                        transform: [{ scale: pressed ? 0.985 : 1 }],
+                      },
+                    ]}
                   >
-                    <AppText variant="bodySmall" color={theme.colors.textMuted}>
-                      Later (Continue with v{currentVersion})
+                    <AppText variant="bodyMedium" color="#FFFFFF" style={styles.buttonLabel}>
+                      Update via Play Store
                     </AppText>
                   </Pressable>
-                )}
-              </>
-            )}
+
+                  {!isForced && (
+                    <Pressable
+                      onPress={onDismiss}
+                      hitSlop={10}
+                      style={styles.secondaryButton}
+                    >
+                      <AppText variant="bodySmall" color={theme.colors.textSecondary}>
+                        Later
+                      </AppText>
+                    </Pressable>
+                  )}
+                </>
+              )}
+            </View>
           </View>
-        </View>
+        </SafeAreaView>
       </View>
     </Modal>
   );
@@ -230,89 +234,96 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    backgroundColor: 'rgba(0, 0, 0, 0.68)',
     justifyContent: 'flex-end',
+  },
+  safeArea: {
+    width: '100%',
   },
   sheetContainer: {
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
     borderTopWidth: 1,
-    paddingTop: SPACING.md,
+    paddingTop: SPACING.sm,
     paddingHorizontal: SPACING.xl,
-    alignItems: 'center',
-    maxHeight: '80%',
+    paddingBottom: SPACING.lg,
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
-    elevation: 16,
+    elevation: 20,
   },
   handleBar: {
-    width: 44,
+    width: 36,
     height: 4,
     borderRadius: RADIUS.full,
+    alignSelf: 'center',
     marginBottom: SPACING.md,
   },
-  iconWrapper: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  iconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    marginBottom: SPACING.sm,
+  },
+  headerText: {
+    flex: 1,
+    gap: 2,
   },
   titleRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: SPACING.md,
+    justifyContent: 'space-between',
   },
-  versionBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
-    marginTop: 2,
-  },
-  releaseNotesBox: {
-    width: '100%',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    marginBottom: SPACING.lg,
-    gap: SPACING.sm,
-    maxHeight: 220,
-  },
-  highlightsScroll: {
-    maxHeight: 160,
-  },
-  highlightsContent: {
-    gap: SPACING.sm,
-  },
-  notesHeader: {
+  title: {
     fontWeight: '800',
-    letterSpacing: 0.6,
+    fontSize: 16,
+  },
+  versionPill: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 1.5,
+    borderRadius: RADIUS.full,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  versionText: {
+    fontWeight: '700',
     fontSize: 10,
   },
-  notesText: {
-    lineHeight: 18,
+  highlightsCard: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    gap: SPACING.xs,
+    marginBottom: SPACING.lg,
   },
-  actionColumn: {
+  actions: {
     width: '100%',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.xs,
   },
-  primaryBtn: {
+  primaryButton: {
     width: '100%',
-    height: 48,
+    height: 46,
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnLabel: {
+  buttonLabel: {
     fontWeight: '700',
+    letterSpacing: 0.3,
   },
-  cancelBtn: {
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
+  secondaryButton: {
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
   },
 });
