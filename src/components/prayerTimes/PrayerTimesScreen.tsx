@@ -27,6 +27,7 @@ import {
 } from '@/utils/prayerTimes';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
+import { useAppSelector } from '@/store/hooks';
 
 export interface PrayerTimesScreenProps {
   onNavigateHome?: () => void;
@@ -47,6 +48,7 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
 
   const { location, updateLocation, needsCitySelection, requestGpsLocation } = useDeviceLocation();
   const { prayerData, prayersList, juristic, calcMethod } = usePrayerTracker(location);
+  const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
   const { alerts, cyclePrayerMode } = usePrayerAlerts();
 
   const viewedDate = useMemo(() => {
@@ -67,9 +69,10 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
       viewedDate,
       calcMethod,
       juristic,
-      location?.timezone
+      location?.timezone,
+      timeFormat
     );
-  }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic]);
+  }, [isToday, prayerData, location?.latitude, location?.longitude, location?.timezone, viewedDate, calcMethod, juristic, timeFormat]);
 
   // When today's Isha is reached, tomorrow's Fajr becomes next
   const isAfterTodayIsha = useMemo(() => {
@@ -97,8 +100,8 @@ export const PrayerTimesScreen: React.FC<PrayerTimesScreenProps> = ({
   }, [isToday, isAfterTodayIsha, prayersList, activePrayerData]);
 
   const naflSchedule = useMemo(() => {
-    return calculateDailyNaflSchedule(activePrayerData.raw, undefined, location?.timezone);
-  }, [activePrayerData.raw, location?.timezone]);
+    return calculateDailyNaflSchedule(activePrayerData.raw, undefined, location?.timezone, timeFormat);
+  }, [activePrayerData.raw, location?.timezone, timeFormat]);
 
   useEffect(() => {
     if (needsCitySelection && !location) setSheetVisible(true);

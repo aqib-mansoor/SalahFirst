@@ -17,9 +17,10 @@ import { InspirationSettingsGroup } from './InspirationSettingsGroup';
 import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
-import { CalculationMethodName, JuristicMethod } from '@/types';
-import { useAppDispatch } from '@/store/hooks';
+import { CalculationMethodName, JuristicMethod, TimeFormat } from '@/types';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setCalculationMethod, setJuristicMethod } from '@/store/slices/prayerSlice';
+import { setTimeFormat } from '@/store/slices/preferencesSlice';
 import {
   getInspirationConfig,
   saveInspirationConfig,
@@ -73,6 +74,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
   const dispatch = useAppDispatch();
+  const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
 
   React.useEffect(() => {
     getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
@@ -193,6 +195,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <AppearanceSettingsGroup
             themeMode={themeMode}
             onSelectThemeMode={setThemeMode}
+            timeFormat={timeFormat}
+            onSelectTimeFormat={(tf: TimeFormat) => {
+              dispatch(setTimeFormat(tf));
+              notifyTrackerPreferencesChanged();
+            }}
             languageLabel={languageLabel}
             onToggleLanguage={handleToggleLanguage}
           />

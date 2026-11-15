@@ -38,6 +38,7 @@ export const LocationChangeConfirmModal: React.FC<LocationChangeConfirmModalProp
     juristic: reduxJuristic,
     historyMap,
   } = useAppSelector((state) => state.prayer);
+  const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
 
   const destTz = useMemo(() => {
     if (!destinationCity) return 'UTC';
@@ -67,9 +68,10 @@ export const LocationChangeConfirmModal: React.FC<LocationChangeConfirmModalProp
       new Date(),
       calcMethod,
       juristic,
-      destTz
+      destTz,
+      timeFormat
     );
-  }, [destinationCity, calcMethod, juristic, destTz]);
+  }, [destinationCity, calcMethod, juristic, destTz, timeFormat]);
 
   if (!destinationCity || !timeDiff || !destPrayerTimes) {
     return null;

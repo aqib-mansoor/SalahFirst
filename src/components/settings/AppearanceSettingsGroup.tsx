@@ -4,12 +4,14 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
-import { ThemeMode } from '@/types';
+import { ThemeMode, TimeFormat } from '@/types';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface AppearanceSettingsGroupProps {
   themeMode: ThemeMode;
   onSelectThemeMode: (mode: ThemeMode) => void;
+  timeFormat: TimeFormat;
+  onSelectTimeFormat: (format: TimeFormat) => void;
   languageLabel: string;
   onToggleLanguage: () => void;
 }
@@ -17,6 +19,8 @@ export interface AppearanceSettingsGroupProps {
 export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = ({
   themeMode,
   onSelectThemeMode,
+  timeFormat,
+  onSelectTimeFormat,
   languageLabel,
   onToggleLanguage,
 }) => {
@@ -27,6 +31,11 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
     { id: 'light', label: t('themeLight') },
     { id: 'dark', label: t('themeDark') },
     { id: 'system', label: t('themeSystem') },
+  ];
+
+  const TIME_FORMATS: { id: TimeFormat; label: string }[] = [
+    { id: '12h', label: '12h (1:45 PM)' },
+    { id: '24h', label: '24h (13:45)' },
   ];
 
   const getThemeSubtitle = () => {
@@ -96,7 +105,55 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 2: App Language Toggle */}
+        {/* Row 2: Time Format (12h vs 24h) */}
+        <View style={styles.themeRow}>
+          <View style={styles.leftRow}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+                <Circle cx="12" cy="12" r="9" stroke={theme.colors.primary} strokeWidth="2" />
+                <Path d="M12 7v5l3 3" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
+
+            <View style={styles.textCol}>
+              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
+                {t('timeFormat')}
+              </AppText>
+              <AppText variant="caption" color={theme.colors.textSecondary}>
+                {timeFormat === '12h' ? t('timeFormat12h') : t('timeFormat24h')}
+              </AppText>
+            </View>
+          </View>
+
+          <View style={[styles.segmentTrack, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
+            {TIME_FORMATS.map((tf) => {
+              const isSelected = timeFormat === tf.id;
+              return (
+                <Pressable
+                  key={tf.id}
+                  onPress={() => onSelectTimeFormat(tf.id)}
+                  style={({ pressed }) => [
+                    styles.segmentItem,
+                    isSelected && [styles.segmentSelected, { backgroundColor: theme.colors.primary }],
+                    pressed && !isSelected && { opacity: 0.7 },
+                  ]}
+                >
+                  <AppText
+                    variant="caption"
+                    color={isSelected ? theme.colors.textOnPrimary : theme.colors.textSecondary}
+                    style={[styles.segmentText, isSelected && styles.segmentTextSelected]}
+                  >
+                    {tf.id.toUpperCase()}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+
+        {/* Row 3: App Language Toggle */}
         <Pressable onPress={onToggleLanguage} style={styles.row}>
           <View style={styles.leftRow}>
             <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
