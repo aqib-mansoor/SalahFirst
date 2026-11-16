@@ -1,11 +1,17 @@
-import React, { useState, useMemo } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, Pressable } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { StyleSheet, View, TextInput, FlatList, Pressable } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { VERIFIED_HADITHS, HadithCategoryId, getHadithIndicesForCategory, getHadithReflection } from '@/data/hadiths';
+import {
+  VERIFIED_HADITHS,
+  HadithItem,
+  HadithCategoryId,
+  getHadithIndicesForCategory,
+  getHadithReflection,
+} from '@/data/hadiths';
 
 export interface HadithSearchSheetProps {
   visible: boolean;
@@ -14,6 +20,36 @@ export interface HadithSearchSheetProps {
   onSelectHadith: (index: number) => void;
   onClose: () => void;
 }
+
+interface PreIndexedHadith {
+  item: HadithItem;
+  idx: number;
+  searchCorpus: string;
+}
+
+// Pre-index searchable text once at module load to avoid repeated runtime string operations
+const PRE_INDEXED_HADITHS: PreIndexedHadith[] = VERIFIED_HADITHS.map((item, idx) => {
+  const reflectionEn = getHadithReflection(item, idx, 'en');
+  const reflectionUr = getHadithReflection(item, idx, 'ur');
+  const reflectionAr = getHadithReflection(item, idx, 'ar');
+  const searchCorpus = [
+    item.english,
+    item.urdu,
+    item.arabic,
+    item.badge,
+    item.source,
+    item.reference,
+    reflectionEn,
+    reflectionUr,
+    reflectionAr,
+    `#${idx + 1}`,
+    `${idx + 1}`,
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  return { item, idx, searchCorpus };
+});
 
 export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
   visible,
@@ -28,35 +64,76 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
 
   const matchingItems = useMemo(() => {
     const q = query.trim().toLowerCase();
-    // When typing a search query, search across ALL 140 Hadiths; when empty, browse active category
-    const baseIndices = q
-      ? VERIFIED_HADITHS.map((_, idx) => idx)
-      : getHadithIndicesForCategory(selectedCategory);
-    return baseIndices
-      .map((idx) => ({ item: VERIFIED_HADITHS[idx], idx }))
-      .filter(({ item, idx }) => {
-        if (!q) return true;
-        const takeaway = getHadithReflection(item, idx, language).toLowerCase();
-        return (
-          item.english.toLowerCase().includes(q) ||
-          item.urdu.includes(q) ||
-          item.arabic.includes(q) ||
-          item.badge.toLowerCase().includes(q) ||
-          item.source.toLowerCase().includes(q) ||
-          item.reference.toLowerCase().includes(q) ||
-          takeaway.includes(q) ||
-          `#${idx + 1}` === q ||
-          `${idx + 1}` === q
-        );
-      });
-  }, [selectedCategory, query, language]);
+    if (!q) {
+      const baseIndices = getHadithIndicesForCategory(selectedCategory);
+      return baseIndices.map((idx) => PRE_INDEXED_HADITHS[idx]);
+    }
+    return PRE_INDEXED_HADITHS.filter((entry) => entry.searchCorpus.includes(q));
+  }, [selectedCategory, query]);
 
-  const HeaderIcon = (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Circle cx="11" cy="11" r="7" stroke={theme.colors.accent} strokeWidth="2.2" />
-      <Path d="M20 20L16.2 16.2" stroke={theme.colors.accent} strokeWidth="2.2" strokeLinecap="round" />
-    </Svg>
+  const HeaderIcon = useMemo(
+    () => (
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <Circle cx="11" cy="11" r="7" stroke={theme.colors.accent} strokeWidth="2.2" />
+        <Path d="M20 20L16.2 16.2" stroke={theme.colors.accent} strokeWidth="2.2" strokeLinecap="round" />
+      </Svg>
+    ),
+    [theme.colors.accent]
   );
+
+  const renderHadithRow = useCallback(
+    ({ item: { item, idx } }: { item: PreIndexedHadith }) => {
+      const isSelected = idx === currentIndex;
+      const takeaway = getHadithReflection(item, idx, language);
+
+      return (
+        <Pressable
+          onPress={() => {
+            onSelectHadith(idx);
+            onClose();
+          }}
+          style={({ pressed }) => [
+            styles.rowCard,
+            {
+              backgroundColor: isSelected ? theme.colors.secondaryTint : theme.colors.surface,
+              borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+              opacity: pressed ? 0.84 : 1,
+            },
+          ]}
+        >
+          <View style={styles.topRow}>
+            <View
+              style={[
+                styles.indexPill,
+                { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent },
+              ]}
+            >
+              <AppText variant="caption" color={theme.colors.warning} style={styles.indexText}>
+                #{idx + 1}
+              </AppText>
+            </View>
+            <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText} numberOfLines={1}>
+              {item.badge}
+            </AppText>
+            <AppText variant="caption" color={theme.colors.textMuted} style={styles.sourceText} numberOfLines={1}>
+              {item.source} • {item.reference}
+            </AppText>
+          </View>
+
+          <AppText variant="bodySmall" color={theme.colors.textPrimary} numberOfLines={2} style={styles.englishText}>
+            {language === 'ur' ? item.urdu : item.english}
+          </AppText>
+
+          <AppText variant="caption" color={theme.colors.primary} numberOfLines={1} style={styles.takeawayPreview}>
+            {t('hadithTakeawayLabel')} • {takeaway}
+          </AppText>
+        </Pressable>
+      );
+    },
+    [currentIndex, language, onSelectHadith, onClose, t, theme]
+  );
+
+  const keyExtractor = useCallback((entry: PreIndexedHadith) => entry.item.id, []);
 
   return (
     <AppBottomSheet
@@ -86,6 +163,8 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
           placeholder={t('searchHadithsPlaceholder')}
           placeholderTextColor={theme.colors.textMuted}
           style={[styles.searchInput, { color: theme.colors.textPrimary }]}
+          autoCorrect={false}
+          autoCapitalize="none"
         />
         {query.length > 0 && (
           <Pressable onPress={() => setQuery('')} hitSlop={8}>
@@ -96,64 +175,27 @@ export const HadithSearchSheet: React.FC<HadithSearchSheetProps> = ({
         )}
       </View>
 
-      {/* Scrollable Results */}
-      <ScrollView
+      {/* Virtualized FlatList for 0-Lag Instant Display */}
+      <FlatList
+        data={matchingItems}
+        keyExtractor={keyExtractor}
+        renderItem={renderHadithRow}
         style={styles.scrollList}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-      >
-        {matchingItems.map(({ item, idx }) => {
-          const isSelected = idx === currentIndex;
-          return (
-            <Pressable
-              key={item.id}
-              onPress={() => {
-                onSelectHadith(idx);
-                onClose();
-              }}
-              style={({ pressed }) => [
-                styles.rowCard,
-                {
-                  backgroundColor: isSelected ? theme.colors.secondaryTint : theme.colors.surface,
-                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  opacity: pressed ? 0.84 : 1,
-                },
-              ]}
-            >
-              <View style={styles.topRow}>
-                <View style={[styles.indexPill, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
-                  <AppText variant="caption" color={theme.colors.warning} style={styles.indexText}>
-                    #{idx + 1}
-                  </AppText>
-                </View>
-                <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText} numberOfLines={1}>
-                  {item.badge}
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted} style={styles.sourceText} numberOfLines={1}>
-                  {item.source} • {item.reference}
-                </AppText>
-              </View>
-
-              <AppText variant="bodySmall" color={theme.colors.textPrimary} numberOfLines={2} style={styles.englishText}>
-                {language === 'ur' ? item.urdu : item.english}
-              </AppText>
-
-              <AppText variant="caption" color={theme.colors.primary} numberOfLines={1} style={styles.takeawayPreview}>
-                {t('hadithTakeawayLabel')} • {getHadithReflection(item, idx, language)}
-              </AppText>
-            </Pressable>
-          );
-        })}
-
-        {matchingItems.length === 0 && (
+        initialNumToRender={10}
+        maxToRenderPerBatch={12}
+        windowSize={5}
+        removeClippedSubviews
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <AppText variant="bodySmall" color={theme.colors.textMuted}>
               {t('noMatchingHadiths')}
             </AppText>
           </View>
-        )}
-      </ScrollView>
+        }
+      />
     </AppBottomSheet>
   );
 };
