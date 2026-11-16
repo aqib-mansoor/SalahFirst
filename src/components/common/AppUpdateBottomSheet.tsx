@@ -66,7 +66,25 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
     }
   };
 
-  const highlights = (updateInfo.highlights || []).slice(0, 3);
+  const fallbackHighlights = [
+    {
+      tag: t('whatsNewHighlight1Tag'),
+      description: t('whatsNewHighlight1Desc'),
+    },
+    {
+      tag: t('whatsNewHighlight2Tag'),
+      description: t('whatsNewHighlight2Desc'),
+    },
+    {
+      tag: t('whatsNewHighlight3Tag'),
+      description: t('whatsNewHighlight3Desc'),
+    },
+  ];
+
+  const highlights =
+    isChangelogOnly || !updateInfo.highlights?.length
+      ? fallbackHighlights
+      : updateInfo.highlights.slice(0, 3);
 
   const headerIcon = (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">

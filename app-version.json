@@ -4,19 +4,19 @@
   "minSupportedVersionCode": 1,
   "forceUpdate": false,
   "title": "What's New in SalahFirst",
-  "releaseNotes": "Performance improvements and precision Azan notification updates.",
+  "releaseNotes": "140 Verified Hadiths, new Gen-Z categories, instant search and heart takeaways.",
   "highlights": [
     {
       "tag": "NEW",
-      "description": "Precise background Azan recitation & manual test audio."
+      "description": "140 Verified Offline Hadiths: 40 new inspiring Hadiths for youth, hope & peace of heart."
     },
     {
-      "tag": "IMPROVED",
-      "description": "International 12h/24h time format & sound mode support."
+      "tag": "NEW",
+      "description": "Gen-Z Categories & Heart Takeaways: Practical reflection takeaways with thematic filter pills."
     },
     {
       "tag": "OPTIMIZED",
-      "description": "Enhanced offline battery saver & reboot alarm restoration."
+      "description": "Instant Search & Zero Lag: Virtualized search sheet opens instantaneously with zero lag."
     }
   ],
   "playStoreUrl": "market://details?id=com.salahfirst.app",
