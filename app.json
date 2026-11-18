@@ -31,17 +31,16 @@
         "USE_EXACT_ALARM",
         "WAKE_LOCK",
         "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO"
+        "android.permission.WRITE_EXTERNAL_STORAGE"
       ],
       "blockedPermissions": [
         "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
         "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO"
+        "android.permission.READ_MEDIA_AUDIO",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "predictiveBackGestureEnabled": false,
       "androidNavigationBar": {
@@ -67,7 +66,8 @@
         "expo-media-library",
         {
           "photosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery.",
-          "savePhotosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery."
+          "savePhotosPermission": "Allow SalahFirst to save authentic Hadith wallpapers to your gallery.",
+          "granularPermissions": []
         }
       ],
       "expo-sharing",
@@ -79,7 +79,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#075E3A"
         }
-      ]
+      ],
+      "./plugins/withSalahFirstNative"
     ],
     "web": {
       "favicon": "./assets/favicon.png"

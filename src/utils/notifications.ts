@@ -187,9 +187,13 @@ export const scheduleAllPrayerAlerts = async (
             reciterKey
           );
 
-          // If mode is AZAN, native AlarmManager handles the exact alarm with unified notification banner
-          if (mode === 'AZAN') {
-            await scheduleNativeAzan(prayer.name, prayer.key, reciterKey, prayerDate, dayOffset);
+          // If mode is AZAN, native AlarmManager handles the exact alarm; fall back to expo-notifications if native unavailable
+          const nativeScheduled =
+            mode === 'AZAN'
+              ? await scheduleNativeAzan(prayer.name, prayer.key, reciterKey, prayerDate, dayOffset)
+              : false;
+
+          if (nativeScheduled) {
             scheduledCount++;
           } else {
             await Notifications.scheduleNotificationAsync({
