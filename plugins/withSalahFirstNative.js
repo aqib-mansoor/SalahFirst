@@ -63,6 +63,35 @@ function withSalahFirstManifest(config) {
       });
     }
 
+    // Mark implicit hardware features (like screen.portrait from orientation="portrait" and location)
+    // as required="false" so Google Play Console does not block review for Tablet/Foldable/Chromebook/XR
+    const optionalFeatures = [
+      'android.hardware.screen.portrait',
+      'android.hardware.screen.landscape',
+      'android.hardware.location',
+      'android.hardware.location.gps',
+      'android.hardware.location.network',
+      'android.hardware.sensor.compass',
+    ];
+
+    if (!Array.isArray(manifest['uses-feature'])) {
+      manifest['uses-feature'] = [];
+    }
+
+    manifest['uses-feature'] = manifest['uses-feature'].filter((feat) => {
+      const name = feat.$?.['android:name'] || '';
+      return !optionalFeatures.includes(name);
+    });
+
+    for (const featName of optionalFeatures) {
+      manifest['uses-feature'].push({
+        $: {
+          'android:name': featName,
+          'android:required': 'false',
+        },
+      });
+    }
+
     // Remove legacy AzanService if present
     if (Array.isArray(mainApp.service)) {
       mainApp.service = mainApp.service.filter(
