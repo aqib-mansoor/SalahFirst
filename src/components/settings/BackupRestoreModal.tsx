@@ -4,16 +4,19 @@ import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { APP_CONFIG } from '@/constants/config';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, AppBottomSheet, ReleaseHighlightRow } from '@/components/common';
+import { AppText, AppBottomSheet } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import {
   generateBackupPayload,
   restoreBackupFromJson,
+  downloadBackupFile,
+  pickAndReadBackupFile,
   SalahFirstBackupData,
 } from '@/utils/backupExportManager';
 import { hydrateAllStore } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
 import { notifyTrackerPreferencesChanged } from '@/hooks/usePrayerTracker';
+import { BackupExportContent } from './BackupExportContent';
 
 export interface BackupRestoreModalProps {
   visible: boolean;
@@ -43,6 +46,16 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
     }
   }, [visible]);
 
+  const handleDownloadBackupFile = async () => {
+    setIsProcessing(true);
+    setStatusMsg(null);
+    const saved = await downloadBackupFile(payload);
+    if (saved) {
+      setStatusMsg({ text: t('backupDownloadSuccess'), isError: false });
+    }
+    setIsProcessing(false);
+  };
+
   const handleShareBackup = async () => {
     if (!payload) return;
     try {
@@ -55,17 +68,10 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
     }
   };
 
-  const handleRestore = async () => {
-    Keyboard.dismiss();
-    const trimmed = pasteInput.trim();
-    if (!trimmed) {
-      setStatusMsg({ text: t('backupRestoreInvalid'), isError: true });
-      return;
-    }
-
+  const executeRestore = async (jsonContent: string) => {
     setIsProcessing(true);
     setStatusMsg(null);
-    const res = await restoreBackupFromJson(trimmed);
+    const res = await restoreBackupFromJson(jsonContent);
 
     if (res.success) {
       await hydrateAllStore(dispatch);
@@ -80,6 +86,23 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
       setStatusMsg({ text: res.error || t('backupRestoreInvalid'), isError: true });
     }
     setIsProcessing(false);
+  };
+
+  const handleUploadBackupFile = async () => {
+    Keyboard.dismiss();
+    const content = await pickAndReadBackupFile();
+    if (!content) return;
+    await executeRestore(content);
+  };
+
+  const handleRestoreFromPaste = async () => {
+    Keyboard.dismiss();
+    const trimmed = pasteInput.trim();
+    if (!trimmed) {
+      setStatusMsg({ text: t('backupRestoreInvalid'), isError: true });
+      return;
+    }
+    await executeRestore(trimmed);
   };
 
   const prayerRecordsCount = payload
@@ -148,42 +171,49 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
       </View>
 
       {activeTab === 'export' ? (
-        <View style={styles.contentSection}>
-          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
-            {t('backupExportDesc')}
-          </AppText>
-
-          <View
-            style={[
-              styles.summaryCard,
-              { backgroundColor: cardBg, borderColor: theme.colors.border },
-            ]}
-          >
-            {[
-              { tag: t('backupTagPrayers'), description: t('backupSummaryPrayers', { count: prayerRecordsCount }) },
-              { tag: t('backupTagSunnah'), description: t('backupSummarySunnah', { count: sunnahDaysCount }) },
-              { tag: t('backupTagBookmarks'), description: t('backupSummaryBookmarks', { count: bookmarksCount }) },
-            ].map((item, idx) => (
-              <ReleaseHighlightRow key={idx} item={item} />
-            ))}
-          </View>
-
-          <Pressable
-            onPress={handleShareBackup}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              { backgroundColor: theme.colors.primary, opacity: pressed ? 0.88 : 1 },
-            ]}
-          >
-            <AppText variant="bodyMedium" color={theme.colors.textOnPrimary} style={styles.buttonLabel}>
-              {t('backupShareButton')}
-            </AppText>
-          </Pressable>
-        </View>
+        <BackupExportContent
+          prayerRecordsCount={prayerRecordsCount}
+          sunnahDaysCount={sunnahDaysCount}
+          bookmarksCount={bookmarksCount}
+          isProcessing={isProcessing}
+          statusMsg={statusMsg}
+          onDownloadFile={handleDownloadBackupFile}
+          onShareText={handleShareBackup}
+        />
       ) : (
         <View style={styles.contentSection}>
           <AppText variant="caption" color={theme.colors.textSecondary} style={styles.desc}>
             {t('backupRestoreDesc')}
+          </AppText>
+
+          <Pressable
+            onPress={handleUploadBackupFile}
+            disabled={isProcessing}
+            style={({ pressed }) => [
+              styles.uploadButton,
+              {
+                backgroundColor: theme.colors.secondaryTint,
+                borderColor: theme.colors.primary,
+                opacity: pressed || isProcessing ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"
+                stroke={theme.colors.primary}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+            <AppText variant="bodyMedium" color={theme.colors.primary} style={styles.buttonLabel}>
+              {t('backupUploadFileButton')}
+            </AppText>
+          </Pressable>
+
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.dividerLabel}>
+            {t('backupOrPasteLabel')}
           </AppText>
 
           <TextInput
@@ -228,7 +258,7 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
           )}
 
           <Pressable
-            onPress={handleRestore}
+            onPress={handleRestoreFromPaste}
             disabled={isProcessing}
             style={({ pressed }) => [
               styles.primaryButton,
@@ -265,17 +295,26 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
   },
   segmentText: { fontWeight: '700', fontSize: 12 },
-  contentSection: { gap: SPACING.md },
+  contentSection: { gap: SPACING.sm + 2 },
   desc: { lineHeight: 17 },
-  summaryCard: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+  uploadButton: {
+    width: '100%',
+    height: 46,
     borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    gap: SPACING.xs,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    gap: SPACING.xs + 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dividerLabel: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 10.5,
+    letterSpacing: 0.8,
   },
   textInput: {
-    height: 110,
+    height: 92,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     padding: SPACING.md,

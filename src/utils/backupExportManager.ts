@@ -1,3 +1,4 @@
+import { NativeModules, Platform } from 'react-native';
 import { storage } from './storage';
 import { APP_CONFIG } from '@/constants/config';
 import {
@@ -6,8 +7,10 @@ import {
   CalculationMethodName,
   JuristicMethod,
   PrayerMinuteAdjustments,
+  UserLocation,
 } from '@/types';
-import * as Sharing from 'expo-sharing';
+
+const { SystemNavModule } = NativeModules;
 
 export const BACKUP_SCHEMA_VERSION = 2;
 
@@ -23,10 +26,32 @@ export interface SalahFirstBackupData {
   prayerAdjustments?: PrayerMinuteAdjustments;
   hadithBookmarks?: string[];
   sunnahTracker?: Record<string, Record<string, boolean>>;
+  streak?: number;
+  hijriAdjustment?: number;
+  azanReciter?: string;
+  timeFormat?: '12h' | '24h';
+  userPreferences?: Record<string, any>;
+  userLocation?: UserLocation | null;
 }
 
 export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => {
-  const [ledger, tracker, cycle, calcMethod, juristic, prayerAdjustments, bookmarks, sunnah, legacySunnah] = await Promise.all([
+  const [
+    ledger,
+    tracker,
+    cycle,
+    calcMethod,
+    juristic,
+    prayerAdjustments,
+    bookmarks,
+    sunnah,
+    legacySunnah,
+    streak,
+    hijriAdjustment,
+    azanReciter,
+    timeFormat,
+    userPreferences,
+    userLocation,
+  ] = await Promise.all([
     storage.get<PrayerCompletionEvent[]>(APP_CONFIG.storageKeys.prayerLedger, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
     storage.get<PrayerCycle | null>(APP_CONFIG.storageKeys.prayerCycle, null),
@@ -36,6 +61,12 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     storage.get<string[]>(APP_CONFIG.storageKeys.hadithBookmarks, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.sunnahHistory, {}),
     storage.get<Record<string, Record<string, boolean>>>('@salahfirst_sunnah_tracker', {}),
+    storage.get<number>(APP_CONFIG.storageKeys.streak, 0),
+    storage.get<number>(APP_CONFIG.storageKeys.hijriAdjustment, 0),
+    storage.get<string>(APP_CONFIG.storageKeys.azanReciter, 'makkah'),
+    storage.get<'12h' | '24h'>(APP_CONFIG.storageKeys.timeFormat, '12h'),
+    storage.get<Record<string, any> | null>(APP_CONFIG.storageKeys.userPreferences, null),
+    storage.get<UserLocation | null>(APP_CONFIG.storageKeys.userLocation, null),
   ]);
 
   const mergedSunnah = { ...legacySunnah, ...sunnah };
@@ -52,12 +83,42 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     prayerAdjustments: prayerAdjustments || undefined,
     hadithBookmarks: bookmarks,
     sunnahTracker: mergedSunnah,
+    streak,
+    hijriAdjustment,
+    azanReciter,
+    timeFormat,
+    userPreferences: userPreferences || undefined,
+    userLocation: userLocation || undefined,
   };
 };
 
 export const exportBackupToJson = async (): Promise<string> => {
   const payload = await generateBackupPayload();
   return JSON.stringify(payload, null, 2);
+};
+
+export const downloadBackupFile = async (
+  existingPayload?: SalahFirstBackupData | null
+): Promise<boolean> => {
+  if (Platform.OS !== 'android' || !SystemNavModule?.saveBackupJsonFile) return false;
+  try {
+    const payload = existingPayload || (await generateBackupPayload());
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `salahfirst-backup-${dateStr}.json`;
+    const jsonContent = JSON.stringify(payload, null, 2);
+    return await SystemNavModule.saveBackupJsonFile(fileName, jsonContent);
+  } catch {
+    return false;
+  }
+};
+
+export const pickAndReadBackupFile = async (): Promise<string | null> => {
+  if (Platform.OS !== 'android' || !SystemNavModule?.pickBackupJsonFile) return null;
+  try {
+    return await SystemNavModule.pickBackupJsonFile();
+  } catch {
+    return null;
+  }
 };
 
 export const validateBackupPayload = (data: any): { isValid: boolean; error?: string } => {
@@ -88,11 +149,9 @@ export const restoreBackupFromJson = async (
 
     const payload = parsed as SalahFirstBackupData;
 
-    // 1. Pre-restore snapshot of existing data to guarantee rollback safety
     const currentBackup = await generateBackupPayload();
     await storage.set('@salahfirst_pre_restore_snapshot', currentBackup);
 
-    // 2. Merge ledger events safely without destroying unique past events
     const currentLedger = await storage.get<PrayerCompletionEvent[]>(
       APP_CONFIG.storageKeys.prayerLedger,
       []
@@ -109,13 +168,11 @@ export const restoreBackupFromJson = async (
       }
     });
 
-    // 3. Merge legacy date-tracker records
     const currentTracker = await storage.get<Record<string, Record<string, boolean>>>(
       APP_CONFIG.storageKeys.prayerTracker,
       {}
     );
     const mergedTracker = { ...currentTracker };
-
     Object.entries(payload.prayerTracker || {}).forEach(([dateKey, dayPrayers]) => {
       mergedTracker[dateKey] = {
         ...(mergedTracker[dateKey] || {}),
@@ -123,7 +180,6 @@ export const restoreBackupFromJson = async (
       };
     });
 
-    // 3.5. Merge Sunnah tracker history
     const currentSunnah = await storage.get<Record<string, Record<string, boolean>>>(
       APP_CONFIG.storageKeys.sunnahHistory,
       {}
@@ -136,16 +192,26 @@ export const restoreBackupFromJson = async (
       };
     });
 
-    // 4. Commit all updates transactionally
+    const currentBookmarks = await storage.get<string[]>(APP_CONFIG.storageKeys.hadithBookmarks, []);
+    const mergedBookmarks = Array.from(
+      new Set([...currentBookmarks, ...(payload.hadithBookmarks || [])])
+    );
+
     await Promise.all([
       storage.set(APP_CONFIG.storageKeys.prayerLedger, mergedLedger),
       storage.set(APP_CONFIG.storageKeys.prayerTracker, mergedTracker),
       storage.set(APP_CONFIG.storageKeys.sunnahHistory, mergedSunnah),
+      storage.set(APP_CONFIG.storageKeys.hadithBookmarks, mergedBookmarks),
       payload.prayerCycle ? storage.set(APP_CONFIG.storageKeys.prayerCycle, payload.prayerCycle) : Promise.resolve(),
-      payload.hadithBookmarks ? storage.set(APP_CONFIG.storageKeys.hadithBookmarks, payload.hadithBookmarks) : Promise.resolve(),
       payload.calculationMethod ? storage.set(APP_CONFIG.storageKeys.calculationMethod, payload.calculationMethod) : Promise.resolve(),
       payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.juristicMethod, payload.juristicMethod) : Promise.resolve(),
       payload.prayerAdjustments ? storage.set(APP_CONFIG.storageKeys.prayerAdjustments, payload.prayerAdjustments) : Promise.resolve(),
+      typeof payload.streak === 'number' ? storage.set(APP_CONFIG.storageKeys.streak, payload.streak) : Promise.resolve(),
+      typeof payload.hijriAdjustment === 'number' ? storage.set(APP_CONFIG.storageKeys.hijriAdjustment, payload.hijriAdjustment) : Promise.resolve(),
+      payload.azanReciter ? storage.set(APP_CONFIG.storageKeys.azanReciter, payload.azanReciter) : Promise.resolve(),
+      payload.timeFormat ? storage.set(APP_CONFIG.storageKeys.timeFormat, payload.timeFormat) : Promise.resolve(),
+      payload.userPreferences ? storage.set(APP_CONFIG.storageKeys.userPreferences, payload.userPreferences) : Promise.resolve(),
+      payload.userLocation ? storage.set(APP_CONFIG.storageKeys.userLocation, payload.userLocation) : Promise.resolve(),
     ]);
 
     const totalRestored =
@@ -163,4 +229,3 @@ export const restoreBackupFromJson = async (
     return { success: false, restoredCount: 0, error: err?.message || 'Failed to parse backup JSON.' };
   }
 };
-
