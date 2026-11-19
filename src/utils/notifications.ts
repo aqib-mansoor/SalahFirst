@@ -187,11 +187,17 @@ export const scheduleAllPrayerAlerts = async (
             reciterKey
           );
 
-          // If mode is AZAN, native AlarmManager handles the exact alarm; fall back to expo-notifications if native unavailable
-          const nativeScheduled =
-            mode === 'AZAN'
-              ? await scheduleNativeAzan(prayer.name, prayer.key, reciterKey, prayerDate, dayOffset)
-              : false;
+          // Schedule AZAN, TONE, and VIBRATE through native AlarmManager.setAlarmClock on Android;
+          // fall back to expo-notifications on iOS or if native scheduling is unavailable
+          const nativeModeOrReciter =
+            mode === 'TONE' ? 'tone' : mode === 'VIBRATE' ? 'vibrate' : reciterKey;
+          const nativeScheduled = await scheduleNativeAzan(
+            prayer.name,
+            prayer.key,
+            nativeModeOrReciter,
+            prayerDate,
+            dayOffset
+          );
 
           if (nativeScheduled) {
             scheduledCount++;

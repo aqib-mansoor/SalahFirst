@@ -17,6 +17,8 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
   alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
 };
 
+export const PRAYER_TONE_ASSET = require('../../assets/audio/prayer_tone.wav');
+
 // Android res/raw names (same files used by native AzanService). A bare name makes
 // expo-audio load the raw resource directly, independent of the Metro dev server.
 const ANDROID_RAW_NAMES: Record<AzanReciterKey, string> = {
@@ -27,6 +29,9 @@ const ANDROID_RAW_NAMES: Record<AzanReciterKey, string> = {
 
 const getAzanSource = (key: AzanReciterKey) =>
   Platform.OS === 'android' ? { uri: ANDROID_RAW_NAMES[key] } : AZAN_LOCAL_ASSETS[key];
+
+const getPrayerToneSource = () =>
+  Platform.OS === 'android' ? { uri: 'prayer_tone' } : PRAYER_TONE_ASSET;
 
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;
@@ -169,6 +174,36 @@ export const isAzanPlaying = async (): Promise<boolean> => {
   try {
     if (!currentPlayer) return false;
     return currentPlayer.playing;
+  } catch {
+    return false;
+  }
+};
+
+export const playPrayerTonePreview = async (): Promise<boolean> => {
+  await stopAzanAudio();
+  const thisSessionId = ++activeSessionId;
+
+  const soundState = await getDeviceSoundMode();
+  if (!soundState.canPlayAudibleSound) {
+    return false;
+  }
+
+  try {
+    await configureAudioMode(true);
+    const player = createAudioPlayer(getPrayerToneSource());
+    if (thisSessionId !== activeSessionId) {
+      player.remove();
+      return false;
+    }
+    currentSubscription = player.addListener('playbackStatusUpdate', (status: AudioStatus) => {
+      if (thisSessionId !== activeSessionId) return;
+      if (status.didJustFinish || status.error) {
+        stopAzanAudio();
+      }
+    });
+    player.play();
+    currentPlayer = player;
+    return true;
   } catch {
     return false;
   }

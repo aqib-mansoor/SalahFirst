@@ -4,8 +4,8 @@ import { Platform } from 'react-native';
 export const PRAYER_CHANNEL_MAKKAH = 'salahfirst-prayer-makkah-v2';
 export const PRAYER_CHANNEL_MADINAH = 'salahfirst-prayer-madinah-v2';
 export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v2';
-export const PRAYER_CHANNEL_TONE = 'salahfirst-prayer-tone-v2';
-export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v2';
+export const PRAYER_CHANNEL_TONE = 'salahfirst-prayer-tone-v3';
+export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v3';
 export const PRAYER_CHANNEL_ID = PRAYER_CHANNEL_MAKKAH;
 export const PRAYER_CATEGORY_ID = 'salahfirst-prayer-actions';
 export const MISSED_CATEGORY_ID = 'salahfirst-missed-actions';
@@ -26,7 +26,7 @@ export const getPrayerChannelForModeAndReciter = (
     return { channelId: PRAYER_CHANNEL_VIBRATE, soundName: undefined };
   }
   if (mode === 'TONE') {
-    return { channelId: PRAYER_CHANNEL_TONE, soundName: 'default' };
+    return { channelId: PRAYER_CHANNEL_TONE, soundName: 'prayer_tone.wav' };
   }
   if (reciterKey === 'madinah') {
     return { channelId: PRAYER_CHANNEL_MADINAH, soundName: 'azan_madinah.mp3' };
@@ -101,21 +101,29 @@ export const setupNotificationChannels = async (): Promise<void> => {
   }
 
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_TONE, {
-    name: 'Prayer Alert (Standard Tone)',
-    importance: Notifications.AndroidImportance.HIGH,
+    name: 'Prayer Alert (Chime Tone)',
+    importance: Notifications.AndroidImportance.MAX,
     bypassDnd: false,
     vibrationPattern: [0, 400, 200, 400],
     lightColor: '#0E7449',
     enableLights: true,
     enableVibrate: true,
-    sound: 'default',
+    sound: 'prayer_tone.wav',
+    audioAttributes: {
+      usage: Notifications.AndroidAudioUsage.ALARM,
+      contentType: Notifications.AndroidAudioContentType.SONIFICATION,
+      flags: {
+        enforceAudibility: true,
+        requestHardwareAudioVideoSynchronization: false,
+      },
+    },
   });
 
   await Notifications.setNotificationChannelAsync(PRAYER_CHANNEL_VIBRATE, {
     name: 'Prayer Alert (Vibrate Only)',
-    importance: Notifications.AndroidImportance.HIGH,
+    importance: Notifications.AndroidImportance.MAX,
     bypassDnd: false,
-    vibrationPattern: [0, 600, 300, 600],
+    vibrationPattern: [0, 600, 300, 600, 300, 600],
     lightColor: '#CCA15F',
     enableLights: true,
     enableVibrate: true,

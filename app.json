@@ -58,7 +58,8 @@
           "sounds": [
             "./assets/audio/azan_makkah.mp3",
             "./assets/audio/azan_madinah.mp3",
-            "./assets/audio/azan_alaqsa.mp3"
+            "./assets/audio/azan_alaqsa.mp3",
+            "./assets/audio/prayer_tone.wav"
           ]
         }
       ],

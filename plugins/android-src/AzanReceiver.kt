@@ -13,14 +13,16 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 
 /**
  * Woken by AlarmManager at exact prayer time — even when app is killed or device is in Doze mode.
- * Posts a high-priority CATEGORY_ALARM notification on per-reciter USAGE_ALARM channels
- * using stable resource-name URIs so Play Store updates never break cached channel sounds.
- * Strictly respects Silent and DND modes via DeviceSoundModeHelper.
+ * Handles AZAN (makkah/madinah/alAqsa), TONE (prayer_tone), and VIBRATE modes with dedicated
+ * channels and hardware vibration. Strictly respects Silent and DND modes.
  */
 class AzanReceiver : BroadcastReceiver() {
 
@@ -56,6 +58,8 @@ class AzanReceiver : BroadcastReceiver() {
         const val EXTRA_RECITER = "reciter"
         const val EXTRA_PRAYER = "prayer"
         private const val SILENT_CHANNEL_ID = "salahfirst-azan-silent-v3"
+        private const val VIBRATE_CHANNEL_ID = "salahfirst-prayer-vibrate-v3"
+        private val VIBRATE_PATTERN = longArrayOf(0, 600, 300, 600, 300, 600)
 
         @Volatile
         var isPlaying: Boolean = false
@@ -65,6 +69,34 @@ class AzanReceiver : BroadcastReceiver() {
             isPlaying = false
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             nm?.cancel(NOTIFICATION_ID)
+        }
+
+        private fun triggerHardwareVibration(context: Context) {
+            try {
+                val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    nm?.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
+                ) {
+                    return
+                }
+                val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                    vm?.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                }
+                if (vibrator?.hasVibrator() == true) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, -1))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(VIBRATE_PATTERN, -1)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Hardware vibration warning: ${e.message}")
+            }
         }
 
         fun postAzanNotification(context: Context, prayer: String, reciter: String) {
@@ -78,7 +110,39 @@ class AzanReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            // Strictly respect Silent and DND modes: post silent visual notification only
+            // 1. VIBRATE Mode: Always vibrate (unless Total Silence DND) + visual banner
+            if (reciter == "vibrate") {
+                triggerHardwareVibration(context)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(VIBRATE_CHANNEL_ID) == null) {
+                    val ch = NotificationChannel(
+                        VIBRATE_CHANNEL_ID,
+                        "Prayer Alert (Vibrate Only)",
+                        NotificationManager.IMPORTANCE_HIGH
+                    ).apply {
+                        description = "Prayer time vibration alert without audio"
+                        setSound(null, null)
+                        enableVibration(true)
+                        vibrationPattern = VIBRATE_PATTERN
+                        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    }
+                    nm.createNotificationChannel(ch)
+                }
+                val vibrateNotif = NotificationCompat.Builder(context, VIBRATE_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.notification_icon)
+                    .setContentTitle("$prayer • Hayya 'alas-Salah")
+                    .setContentText("It is time for $prayer prayer.")
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setContentIntent(openIntent)
+                    .setAutoCancel(true)
+                    .setVibrate(VIBRATE_PATTERN)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .build()
+                nm.notify(NOTIFICATION_ID, vibrateNotif)
+                return
+            }
+
+            // 2. Strictly respect Silent and DND modes for audible modes (AZAN & TONE)
             if (!soundState.canPlayAudibleSound) {
                 Log.i(TAG, "Silent notice posted (${soundState.suppressionReason})")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(SILENT_CHANNEL_ID) == null) {
@@ -107,13 +171,14 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
+            val isTone = reciter == "tone"
             val (channelId, channelName, rawName) = when (reciter) {
+                "tone"    -> Triple("salahfirst-prayer-tone-v3", "Prayer Alert (Chime Tone)", "prayer_tone")
                 "madinah" -> Triple("salahfirst-azan-alarm-madinah-v3", "Prayer Azan Alarm (Madinah)", "azan_madinah")
                 "alAqsa"  -> Triple("salahfirst-azan-alarm-alaqsa-v3", "Prayer Azan Alarm (Al-Aqsa)", "azan_alaqsa")
                 else      -> Triple("salahfirst-azan-alarm-makkah-v3", "Prayer Azan Alarm (Makkah)", "azan_makkah")
             }
 
-            // Use resource name URI instead of integer resId so app updates never break cached channels
             val soundUri = Uri.parse(
                 "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/$rawName"
             )
@@ -130,7 +195,7 @@ class AzanReceiver : BroadcastReceiver() {
                     channelName,
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Exact prayer time Azan recitation on the Alarm audio stream"
+                    description = "Exact prayer time alert on the Alarm audio stream"
                     setSound(soundUri, audioAttributes)
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 500, 250, 500)
@@ -146,23 +211,27 @@ class AzanReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            val notification = NotificationCompat.Builder(context, channelId)
+            val builder = NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("$prayer • Hayya 'alas-Salah")
-                .setContentText("It is time for $prayer prayer. Tap Stop Azan to silence.")
+                .setContentText(
+                    if (isTone) "It is time for $prayer prayer."
+                    else "It is time for $prayer prayer. Tap Stop Azan to silence."
+                )
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(openIntent)
-                .setAutoCancel(false)
+                .setAutoCancel(isTone)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSound(soundUri, AudioManager.STREAM_ALARM)
-                .addAction(android.R.drawable.ic_media_pause, "Stop Azan", stopIntent)
-                .build()
 
-            isPlaying = true
-            nm.notify(NOTIFICATION_ID, notification)
-            Log.i(TAG, "Audible Azan alarm notification posted on $channelId for $prayer.")
+            if (!isTone) {
+                builder.addAction(android.R.drawable.ic_media_pause, "Stop Azan", stopIntent)
+                isPlaying = true
+            }
+
+            nm.notify(NOTIFICATION_ID, builder.build())
+            Log.i(TAG, "Audible prayer notification posted on $channelId for $prayer.")
         }
     }
 }
-
