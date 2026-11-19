@@ -118,7 +118,10 @@ function withSalahFirstManifest(config) {
       },
       'intent-filter': [
         {
-          action: [{ $: { 'android:name': 'com.salahfirst.app.STOP_AZAN' } }],
+          action: [
+            { $: { 'android:name': 'com.salahfirst.app.STOP_AZAN' } },
+            { $: { 'android:name': 'com.salahfirst.app.MARK_PRAYED' } },
+          ],
         },
       ],
     });

@@ -32,6 +32,23 @@ class AzanReceiver : BroadcastReceiver() {
             cancelAzanNotification(context)
             return
         }
+        if (intent.action == ACTION_MARK_PRAYED) {
+            val prayerName = intent.getStringExtra(EXTRA_PRAYER) ?: "Fajr"
+            Log.i(TAG, "ACTION_MARK_PRAYED received for $prayerName.")
+            cancelAzanNotification(context)
+            context.getSharedPreferences(AzanModule.PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putString(AzanModule.KEY_PENDING_PRAYED, prayerName)
+                .apply()
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            if (launchIntent != null) {
+                try {
+                    context.startActivity(launchIntent)
+                } catch (_: Exception) {}
+            }
+            return
+        }
 
         val reciter = intent.getStringExtra(EXTRA_RECITER) ?: "makkah"
         val prayer = intent.getStringExtra(EXTRA_PRAYER) ?: "Prayer"
@@ -55,6 +72,7 @@ class AzanReceiver : BroadcastReceiver() {
         private const val TAG = "AzanReceiver"
         const val NOTIFICATION_ID = 7777
         const val ACTION_STOP_AZAN = "com.salahfirst.app.STOP_AZAN"
+        const val ACTION_MARK_PRAYED = "com.salahfirst.app.MARK_PRAYED"
         const val EXTRA_RECITER = "reciter"
         const val EXTRA_PRAYER = "prayer"
         private const val SILENT_CHANNEL_ID = "salahfirst-azan-silent-v3"
@@ -110,6 +128,16 @@ class AzanReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
+            val markPrayedIntent = PendingIntent.getBroadcast(
+                context,
+                2003,
+                Intent(context, AzanReceiver::class.java).apply {
+                    action = ACTION_MARK_PRAYED
+                    putExtra(EXTRA_PRAYER, prayer)
+                },
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
             // 1. VIBRATE Mode: Always vibrate (unless Total Silence DND) + visual banner
             if (reciter == "vibrate") {
                 triggerHardwareVibration(context)
@@ -137,6 +165,7 @@ class AzanReceiver : BroadcastReceiver() {
                     .setAutoCancel(true)
                     .setVibrate(VIBRATE_PATTERN)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .addAction(0, "I Have Prayed", markPrayedIntent)
                     .build()
                 nm.notify(NOTIFICATION_ID, vibrateNotif)
                 return
@@ -174,6 +203,7 @@ class AzanReceiver : BroadcastReceiver() {
                     .setContentIntent(openIntent)
                     .setAutoCancel(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .addAction(0, "I Have Prayed", markPrayedIntent)
                     .build()
                 nm.notify(NOTIFICATION_ID, silentNotif)
                 return
@@ -237,6 +267,7 @@ class AzanReceiver : BroadcastReceiver() {
                 builder.addAction(android.R.drawable.ic_media_pause, "Stop Azan", stopIntent)
                 isPlaying = true
             }
+            builder.addAction(0, "I Have Prayed", markPrayedIntent)
 
             nm.notify(NOTIFICATION_ID, builder.build())
             Log.i(TAG, "Audible prayer notification posted on $channelId for $prayer.")

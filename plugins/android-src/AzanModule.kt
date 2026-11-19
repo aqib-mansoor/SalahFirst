@@ -261,6 +261,20 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     }
 
     @ReactMethod
+    fun consumePendingPrayedPrayer(promise: Promise) {
+        try {
+            val prefs = reactApplicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val pending = prefs.getString(KEY_PENDING_PRAYED, null)
+            if (pending != null) {
+                prefs.edit().remove(KEY_PENDING_PRAYED).apply()
+            }
+            promise.resolve(pending)
+        } catch (e: Exception) {
+            promise.resolve(null)
+        }
+    }
+
+    @ReactMethod
     fun playNativeAzanImmediate(reciterName: String, testLabel: String, promise: Promise) {
         try {
             AzanReceiver.postAzanNotification(reactApplicationContext, testLabel, reciterName)
@@ -329,6 +343,7 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
         const val PREFS_NAME = "SalahFirstAzanAlarms"
         const val KEY_USE_ALARM_CLOCK = "use_alarm_clock"
         const val KEY_FAJR_OVERRIDE = "fajr_wakeup_override"
+        const val KEY_PENDING_PRAYED = "pending_prayed_prayer"
     }
 }
 

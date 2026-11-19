@@ -40,6 +40,11 @@ export const getPrayerChannelForModeAndReciter = (
 export const setupNotificationChannels = async (): Promise<void> => {
   await Notifications.setNotificationCategoryAsync(PRAYER_CATEGORY_ID, [
     {
+      identifier: 'MARK_PRAYED',
+      buttonTitle: 'I Have Prayed',
+      options: { opensAppToForeground: true },
+    },
+    {
       identifier: 'START_FOCUS',
       buttonTitle: 'Start Salah Focus',
       options: { opensAppToForeground: true },

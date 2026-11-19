@@ -168,6 +168,15 @@ export const isNativeAzanPlaying = async (): Promise<boolean> => {
   }
 };
 
+export const consumePendingPrayedPrayer = async (): Promise<string | null> => {
+  if (!isAndroid || !AzanModule?.consumePendingPrayedPrayer) return null;
+  try {
+    return await AzanModule.consumePendingPrayedPrayer();
+  } catch {
+    return null;
+  }
+};
+
 /**
  * DEVELOPER & USER TESTING: Trigger immediate native playback via AzanService.
  */

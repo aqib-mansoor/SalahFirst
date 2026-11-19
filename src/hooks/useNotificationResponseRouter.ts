@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { FocusDuration } from '@/types';
 import { HomeTab } from '@/components/home/HomeBottomNav';
@@ -10,7 +11,7 @@ import {
   saveActiveFocusSession,
 } from '@/utils/focusSession';
 import { stopAzanAudio } from '@/utils/azanAudio';
-import { stopNativeAzan } from '@/native/AzanServiceModule';
+import { stopNativeAzan, consumePendingPrayedPrayer } from '@/native/AzanServiceModule';
 
 export interface UseNotificationResponseRouterParams {
   setCurrentStep: (step: AppStep) => void;
@@ -30,6 +31,22 @@ export const useNotificationResponseRouter = ({
   onMarkPrayerCompleted,
 }: UseNotificationResponseRouterParams) => {
   useEffect(() => {
+    const checkPendingNativePrayed = async () => {
+      const pendingPrayer = await consumePendingPrayedPrayer();
+      if (pendingPrayer) {
+        onMarkPrayerCompleted?.(pendingPrayer);
+        setCurrentStep('main');
+        setActiveTab('home');
+      }
+    };
+
+    checkPendingNativePrayed();
+    const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') {
+        checkPendingNativePrayed();
+      }
+    });
+
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as {
         type?: string;
@@ -106,7 +123,10 @@ export const useNotificationResponseRouter = ({
       }
     });
 
-    return () => subscription.remove();
+    return () => {
+      appStateSub.remove();
+      subscription.remove();
+    };
   }, [setCurrentStep, setActiveTab, setActiveSession, setFocusPrayerName, setFocusDuration, onMarkPrayerCompleted]);
 };
 
