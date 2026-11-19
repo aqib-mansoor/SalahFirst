@@ -1,30 +1,46 @@
-import React from 'react';
-import { StyleSheet, View, Pressable, Platform, Linking } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Pressable, Platform, Linking, AppState, AppStateStatus } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import * as IntentLauncher from 'expo-intent-launcher';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
-import { requestIgnoreBatteryOptimizations } from '@/native/AzanServiceModule';
+import {
+  isIgnoringBatteryOptimizations,
+  requestIgnoreBatteryOptimizations,
+} from '@/native/AzanServiceModule';
 
 export const BatteryOptimizationCard: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [isUnrestricted, setIsUnrestricted] = useState<boolean>(true);
 
-  if (Platform.OS !== 'android') return null;
+  const checkBatteryStatus = useCallback(async () => {
+    if (Platform.OS !== 'android') return;
+    const ignoring = await isIgnoringBatteryOptimizations();
+    setIsUnrestricted(ignoring);
+  }, []);
+
+  useEffect(() => {
+    checkBatteryStatus();
+
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') {
+        checkBatteryStatus();
+      }
+    });
+    return () => sub.remove();
+  }, [checkBatteryStatus]);
+
+  // Auto-hide on iOS or once battery optimization is already "Unrestricted"
+  if (Platform.OS !== 'android' || isUnrestricted) return null;
 
   const handleOpenBatterySettings = async () => {
     const success = await requestIgnoreBatteryOptimizations();
     if (!success) {
-      try {
-        await IntentLauncher.startActivityAsync(
-          IntentLauncher.ActivityAction.IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-        );
-      } catch {
-        Linking.openSettings();
-      }
+      await Linking.openSettings().catch(() => {});
     }
+    setTimeout(checkBatteryStatus, 600);
   };
 
   return (

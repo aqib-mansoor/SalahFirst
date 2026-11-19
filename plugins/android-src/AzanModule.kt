@@ -47,24 +47,34 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
 
     @ReactMethod
     fun requestIgnoreBatteryOptimizations(promise: Promise) {
+        val ctx = reactApplicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            promise.resolve(false)
+            return
+        }
         try {
-            val ctx = reactApplicationContext
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            val pm = ctx.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            val alreadyIgnoring = pm?.isIgnoringBatteryOptimizations(ctx.packageName) == true
+
+            val action = if (alreadyIgnoring) {
+                android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            } else {
+                android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            }
+
+            val intent = Intent(action).apply {
+                data = android.net.Uri.parse("package:${ctx.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            ctx.startActivity(intent)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            try {
+                val appDetailsIntent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = android.net.Uri.parse("package:${ctx.packageName}")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                ctx.startActivity(intent)
-                promise.resolve(true)
-            } else {
-                promise.resolve(false)
-            }
-        } catch (e: Exception) {
-            try {
-                val fallbackIntent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                reactApplicationContext.startActivity(fallbackIntent)
+                ctx.startActivity(appDetailsIntent)
                 promise.resolve(true)
             } catch (fallbackErr: Exception) {
                 promise.resolve(false)
