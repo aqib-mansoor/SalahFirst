@@ -2,7 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Vibration, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { PrayerAlertConfig, UserLocation, CalculationMethodName, JuristicMethod } from '@/types';
-import { playAzanAudio, stopAzanAudio, AzanReciterKey, AZAN_PRESET_URLS } from '@/utils/azanAudio';
+import {
+  playAzanAudio,
+  stopAzanAudio,
+  playPrayerTonePreview,
+  AzanReciterKey,
+  AZAN_PRESET_URLS,
+} from '@/utils/azanAudio';
 import { getRawPrayerTimes } from '@/utils/prayerTimes';
 import { getLocalDateComponents } from '@/utils/timezone';
 import { storage } from '@/utils/storage';
@@ -97,7 +103,12 @@ export const useAzanAutoReciter = ({
         if (mode === 'SILENT') return;
 
         if (mode === 'VIBRATE') {
-          Vibration.vibrate([0, 500, 250, 500]);
+          Vibration.vibrate([0, 600, 300, 600, 300, 600]);
+          return;
+        }
+
+        if (mode === 'TONE' && alerts?.exactAlarmsEnabled !== false && Platform.OS !== 'android') {
+          playPrayerTonePreview();
           return;
         }
 
@@ -142,7 +153,11 @@ export const useAzanAutoReciter = ({
         if (diffSeconds >= 0 && diffSeconds <= 60 && !playedKeysRef.current.has(playedKey)) {
           playedKeysRef.current.add(playedKey);
           if (mode === 'VIBRATE') {
-            Vibration.vibrate([0, 500, 250, 500]);
+            Vibration.vibrate([0, 600, 300, 600, 300, 600]);
+          } else if (mode === 'TONE') {
+            if (Platform.OS !== 'android') {
+              playPrayerTonePreview();
+            }
           } else if (mode === 'AZAN') {
             const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
             // On Android, native AzanService handles the audio via AlarmManager; only show in-app banner

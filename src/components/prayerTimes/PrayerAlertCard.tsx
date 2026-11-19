@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable, Vibration } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, PrayerTimeIcon } from '@/components/common';
 import { NotificationMode } from '@/types';
 import { NotificationModeIcon } from './NotificationModeIcons';
 import { useTranslation } from '@/context/LocalizationContext';
+import { playPrayerTonePreview, stopAzanAudio } from '@/utils/azanAudio';
 
 export interface PrayerAlertCardProps {
   name: string;
@@ -33,6 +34,18 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
   const { t } = useTranslation();
 
   const isModeActive = (modeId: NotificationMode) => currentMode === modeId;
+
+  const handlePressMode = (modeId: NotificationMode) => {
+    onSelectMode(modeId);
+    if (modeId === 'TONE') {
+      playPrayerTonePreview();
+    } else if (modeId === 'VIBRATE') {
+      stopAzanAudio();
+      Vibration.vibrate([0, 400, 200, 400]);
+    } else if (modeId === 'SILENT') {
+      stopAzanAudio();
+    }
+  };
 
   return (
     <View
@@ -71,7 +84,7 @@ export const PrayerAlertCard: React.FC<PrayerAlertCardProps> = ({
           return (
             <Pressable
               key={mode.id}
-              onPress={() => onSelectMode(mode.id)}
+              onPress={() => handlePressMode(mode.id)}
               hitSlop={4}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
