@@ -9,23 +9,33 @@ import { useTranslation } from '@/context/LocalizationContext';
 export interface QiblaCalibrationTipProps {
   needsCalibration?: boolean;
   hasSensor?: boolean;
+  isTilted?: boolean;
 }
 
 export const QiblaCalibrationTip: React.FC<QiblaCalibrationTipProps> = ({
   needsCalibration = false,
   hasSensor = true,
+  isTilted = false,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  // If sensor is working normally with no interference, keep screen clean and minimal
-  if (!needsCalibration && hasSensor) {
+  // If sensor is working normally with no interference and phone is held flat, keep screen clean
+  if (!needsCalibration && hasSensor && !isTilted) {
     return null;
   }
 
+  const headingText = !hasSensor
+    ? (t('recalibrateCompass') || 'Calibration Needed')
+    : needsCalibration
+    ? (t('recalibrateCompass') || 'Calibration Needed')
+    : 'Hold Phone Flat';
+
   const tipText = !hasSensor
     ? (t('sensorUnavailable') || 'Magnetometer sensor unavailable. Showing calculated bearing.')
-    : (t('magneticInterference') || 'Magnetic interference detected. Wave phone in a figure-8 motion away from metal objects.');
+    : needsCalibration
+    ? (t('magneticInterference') || 'Magnetic interference detected. Wave phone in a figure-8 motion away from metal objects.')
+    : 'Keep your phone parallel to the ground for the highest Qibla accuracy.';
 
   return (
     <View
@@ -51,7 +61,7 @@ export const QiblaCalibrationTip: React.FC<QiblaCalibrationTipProps> = ({
 
       <View style={styles.textColumn}>
         <AppText variant="caption" color={theme.colors.accent} style={styles.alertHeading}>
-          {t('recalibrateCompass') || 'Calibration Needed'}
+          {headingText}
         </AppText>
         <AppText variant="caption" color={theme.colors.textMuted} style={styles.tipText}>
           {tipText}

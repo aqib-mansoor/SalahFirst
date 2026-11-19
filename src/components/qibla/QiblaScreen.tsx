@@ -55,6 +55,7 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
     turnDegrees,
     hasSensor,
     needsCalibration,
+    isTilted,
   } = useQiblaCompass(location?.latitude, location?.longitude, isActive);
 
   const activeDialTheme = QIBLA_DIAL_THEMES[dialStyle] || QIBLA_DIAL_THEMES.classic;
@@ -127,10 +128,11 @@ export const QiblaScreen: React.FC<QiblaScreenProps> = ({ onNavigateTab, isActiv
             cardinal={cardinal}
           />
 
-          {/* Calibration Alert (Renders ONLY if interference is actively detected) */}
+          {/* Calibration & Flat-Hold Alert (Renders ONLY if interference or tilt is actively detected) */}
           <QiblaCalibrationTip
             hasSensor={hasSensor}
             needsCalibration={needsCalibration}
+            isTilted={isTilted}
           />
         </ScrollView>
 

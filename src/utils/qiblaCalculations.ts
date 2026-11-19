@@ -33,6 +33,27 @@ export const calculateDistanceToKaaba = (lat: number, lng: number): number => {
   return Math.round(R * c);
 };
 
+/**
+ * Estimates the local magnetic declination (difference between True Geographic North
+ * and Magnetic North in degrees, East = positive, West = negative) using the
+ * World Magnetic Model geomagnetic dipole + regional harmonic approximation.
+ */
+export const calculateMagneticDeclination = (lat: number, lng: number): number => {
+  // 2025/2026 North Geomagnetic Pole reference (~80.8°N, -72.7°W)
+  const poleLat = toRad(80.8);
+  const poleLng = toRad(-72.7);
+  const phi = toRad(lat);
+  const dLambda = poleLng - toRad(lng);
+
+  const y = Math.sin(dLambda) * Math.cos(poleLat);
+  const x =
+    Math.cos(phi) * Math.sin(poleLat) -
+    Math.sin(phi) * Math.cos(poleLat) * Math.cos(dLambda);
+  const dipoleDeclination = toDeg(Math.atan2(y, x));
+
+  return Math.max(-35, Math.min(35, Math.round(dipoleDeclination * 10) / 10));
+};
+
 export const getCardinalDirection = (deg: number): string => {
   const directions = [
     'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
