@@ -45,6 +45,8 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
     toggleExactAlarms,
     toggleMissedPrayerReminders,
     toggleStreakEncouragement,
+    toggleFajrWakeUpOverride,
+    toggleHideStatusBarAlarmIcon,
   } = usePrayerAlerts();
 
   const insets = useSafeAreaInsets();
@@ -188,6 +190,10 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           onToggleMissedPrayers={toggleMissedPrayerReminders}
           streakEncouragementEnabled={alerts.streakEncouragementEnabled !== false}
           onToggleStreakEncouragement={toggleStreakEncouragement}
+          fajrWakeUpOverride={alerts.fajrWakeUpOverride !== false}
+          onToggleFajrWakeUpOverride={toggleFajrWakeUpOverride}
+          hideStatusBarAlarmIcon={alerts.hideStatusBarAlarmIcon === true}
+          onToggleHideStatusBarAlarmIcon={toggleHideStatusBarAlarmIcon}
         />
 
         {/* Unified 5-Prayer Alert Configuration Card */}

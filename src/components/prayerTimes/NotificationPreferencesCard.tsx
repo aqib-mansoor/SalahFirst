@@ -10,6 +10,10 @@ export interface NotificationPreferencesCardProps {
   onToggleMissedPrayers: () => void;
   streakEncouragementEnabled: boolean;
   onToggleStreakEncouragement: () => void;
+  fajrWakeUpOverride?: boolean;
+  onToggleFajrWakeUpOverride?: () => void;
+  hideStatusBarAlarmIcon?: boolean;
+  onToggleHideStatusBarAlarmIcon?: () => void;
 }
 
 export const NotificationPreferencesCard: React.FC<NotificationPreferencesCardProps> = ({
@@ -17,6 +21,10 @@ export const NotificationPreferencesCard: React.FC<NotificationPreferencesCardPr
   onToggleMissedPrayers,
   streakEncouragementEnabled,
   onToggleStreakEncouragement,
+  fajrWakeUpOverride = true,
+  onToggleFajrWakeUpOverride,
+  hideStatusBarAlarmIcon = false,
+  onToggleHideStatusBarAlarmIcon,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -61,6 +69,20 @@ export const NotificationPreferencesCard: React.FC<NotificationPreferencesCardPr
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
+      {onToggleFajrWakeUpOverride &&
+        renderToggleRow(
+          'Fajr Wake-Up Override',
+          'Play Fajr Azan even when phone is on Silent or Vibrate overnight',
+          fajrWakeUpOverride,
+          onToggleFajrWakeUpOverride
+        )}
+      {onToggleHideStatusBarAlarmIcon &&
+        renderToggleRow(
+          'Clean Status Bar Mode',
+          'Hide permanent Android alarm clock icon from top status bar',
+          hideStatusBarAlarmIcon,
+          onToggleHideStatusBarAlarmIcon
+        )}
       {renderToggleRow(
         t('missedPrayersTitle'),
         t('missedPrayersDesc'),

@@ -151,6 +151,11 @@ export const scheduleAllPrayerAlerts = async (
     await cancelAllNativeAzans();
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
+    await setNativeAlarmBehaviorPrefs(
+      alerts?.hideStatusBarAlarmIcon !== true,
+      alerts?.fajrWakeUpOverride !== false
+    );
+
     const [history, focusOffsets, focusDurations, focusPrefs, reciterKey, storedAdjustments] = await Promise.all([
       storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
       loadFocusOffsets(),
