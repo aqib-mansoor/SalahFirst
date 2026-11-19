@@ -25,6 +25,7 @@ class AzanBootReceiver : BroadcastReceiver() {
                     true
                 }
                 val prefs = context.getSharedPreferences(AzanModule.PREFS_NAME, Context.MODE_PRIVATE)
+                val useAlarmClock = prefs.getBoolean(AzanModule.KEY_USE_ALARM_CLOCK, true)
                 val now = System.currentTimeMillis()
                 var restored = 0
 
@@ -47,7 +48,7 @@ class AzanBootReceiver : BroadcastReceiver() {
                         receiverIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
-                    if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (canExact && useAlarmClock && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         val showIntent = PendingIntent.getActivity(
                             context,
                             id + 1000,
@@ -55,6 +56,8 @@ class AzanBootReceiver : BroadcastReceiver() {
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
                         am.setAlarmClock(AlarmManager.AlarmClockInfo(triggerMs, showIntent), pi)
+                    } else if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
                     } else {

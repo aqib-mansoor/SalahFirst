@@ -56,6 +56,19 @@ export const getAlarmId = (prayerKey: string, dayOffset: number): number => {
   return dayOffset * 10 + (idx >= 0 ? idx : 0);
 };
 
+export const setNativeAlarmBehaviorPrefs = async (
+  useAlarmClock: boolean,
+  fajrWakeUpOverride: boolean
+): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.setAlarmBehaviorPrefs) return false;
+  try {
+    await AzanModule.setAlarmBehaviorPrefs(useAlarmClock, fajrWakeUpOverride);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Schedule a native AlarmManager exact alarm to play full Azan via AzanService.
  * Works even when the app is killed, screen is off, or user is in another app.

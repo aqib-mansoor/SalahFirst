@@ -76,6 +76,14 @@ export const usePrayerAlerts = () => {
     saveAlerts({ ...alerts, quietHoursEnabled: !alerts.quietHoursEnabled });
   }, [alerts, saveAlerts]);
 
+  const toggleHideStatusBarAlarmIcon = useCallback(() => {
+    saveAlerts({ ...alerts, hideStatusBarAlarmIcon: !alerts.hideStatusBarAlarmIcon });
+  }, [alerts, saveAlerts]);
+
+  const toggleFajrWakeUpOverride = useCallback(() => {
+    saveAlerts({ ...alerts, fajrWakeUpOverride: alerts.fajrWakeUpOverride === false ? true : false });
+  }, [alerts, saveAlerts]);
+
   return {
     alerts,
     setPrayerMode,
@@ -86,5 +94,7 @@ export const usePrayerAlerts = () => {
     toggleDailyReflection,
     toggleStreakEncouragement,
     toggleQuietHours,
+    toggleHideStatusBarAlarmIcon,
+    toggleFajrWakeUpOverride,
   };
 };

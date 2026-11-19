@@ -23,6 +23,8 @@ export const DEFAULT_PRAYER_ALERTS: PrayerAlertConfig = {
   quietHoursEnabled: false,
   quietHoursStart: '23:00',
   quietHoursEnd: '05:00',
+  hideStatusBarAlarmIcon: false,
+  fajrWakeUpOverride: true,
 };
 
 export interface PreferencesState {

@@ -111,6 +111,23 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     }
 
     @ReactMethod
+    fun setAlarmBehaviorPrefs(
+        useAlarmClock: Boolean,
+        fajrWakeUpOverride: Boolean,
+        promise: Promise
+    ) {
+        try {
+            reactApplicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_USE_ALARM_CLOCK, useAlarmClock)
+                .putBoolean(KEY_FAJR_OVERRIDE, fajrWakeUpOverride)
+                .apply()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.resolve(false)
+        }
+    }
+
+    @ReactMethod
     fun scheduleAzan(
         prayerName: String,
         reciterName: String,
@@ -126,6 +143,8 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             } else {
                 true
             }
+            val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val useAlarmClock = prefs.getBoolean(KEY_USE_ALARM_CLOCK, true)
 
             val intent = buildReceiverIntent(ctx, reciterName, prayerName)
             val pi = PendingIntent.getBroadcast(
@@ -136,7 +155,7 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             )
 
             val triggerMs = triggerAtMs.toLong()
-            if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (canExact && useAlarmClock && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val showIntent = PendingIntent.getActivity(
                     ctx,
                     alarmId + 1000,
@@ -144,13 +163,15 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
                 am.setAlarmClock(AlarmManager.AlarmClockInfo(triggerMs, showIntent), pi)
+            } else if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
             } else {
                 am.set(AlarmManager.RTC_WAKEUP, triggerMs, pi)
             }
 
-            ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            prefs.edit()
                 .putString("alarm_$alarmId", "$prayerName|$reciterName|$triggerMs")
                 .apply()
 
@@ -306,6 +327,8 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     companion object {
         const val TEST_ALARM_ID = 9999
         const val PREFS_NAME = "SalahFirstAzanAlarms"
+        const val KEY_USE_ALARM_CLOCK = "use_alarm_clock"
+        const val KEY_FAJR_OVERRIDE = "fajr_wakeup_override"
     }
 }
 

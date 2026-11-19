@@ -142,8 +142,16 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 2. Strictly respect Silent and DND modes for audible modes (AZAN & TONE)
-            if (!soundState.canPlayAudibleSound) {
+            // 2. Strictly respect Silent and DND modes for audible modes (AZAN & TONE),
+            // except when Fajr Wake-Up Override is enabled and device is not in Total Silence DND.
+            val prefs = context.getSharedPreferences(AzanModule.PREFS_NAME, Context.MODE_PRIVATE)
+            val fajrOverride = prefs.getBoolean(AzanModule.KEY_FAJR_OVERRIDE, true)
+            val isFajrPrayer = prayer.equals("Fajr", ignoreCase = true)
+            val isTotalSilence = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                nm.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
+            val allowFajrWakeUp = isFajrPrayer && fajrOverride && !isTotalSilence
+
+            if (!soundState.canPlayAudibleSound && !allowFajrWakeUp) {
                 Log.i(TAG, "Silent notice posted (${soundState.suppressionReason})")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(SILENT_CHANNEL_ID) == null) {
                     val ch = NotificationChannel(

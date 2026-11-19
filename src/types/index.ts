@@ -55,6 +55,8 @@ export interface PrayerAlertConfig {
   quietHoursEnabled: boolean;
   quietHoursStart?: string; // HH:mm format, e.g. '22:00'
   quietHoursEnd?: string;   // HH:mm format, e.g. '05:00'
+  hideStatusBarAlarmIcon?: boolean;
+  fajrWakeUpOverride?: boolean;
 }
 
 export type FocusDuration = number;

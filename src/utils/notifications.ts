@@ -33,7 +33,11 @@ import {
   scheduleDailyReflectionAlert,
 } from './notificationFollowups';
 import { AzanReciterKey } from './azanAudio';
-import { scheduleNativeAzan, cancelAllNativeAzans } from '@/native/AzanServiceModule';
+import {
+  scheduleNativeAzan,
+  cancelAllNativeAzans,
+  setNativeAlarmBehaviorPrefs,
+} from '@/native/AzanServiceModule';
 import i18n from '@/i18n';
 
 export {
