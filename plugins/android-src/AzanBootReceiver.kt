@@ -13,7 +13,9 @@ class AzanBootReceiver : BroadcastReceiver() {
         val action = intent.action ?: return
         if (action == Intent.ACTION_BOOT_COMPLETED ||
             action == Intent.ACTION_LOCKED_BOOT_COMPLETED ||
-            action == Intent.ACTION_MY_PACKAGE_REPLACED
+            action == Intent.ACTION_MY_PACKAGE_REPLACED ||
+            action == Intent.ACTION_TIME_CHANGED ||
+            action == Intent.ACTION_TIMEZONE_CHANGED
         ) {
             try {
                 val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -26,7 +28,7 @@ class AzanBootReceiver : BroadcastReceiver() {
                 val now = System.currentTimeMillis()
                 var restored = 0
 
-                for (id in 0..69) {
+                for (id in 0..139) {
                     val entry = prefs.getString("alarm_$id", null) ?: continue
                     val parts = entry.split("|")
                     if (parts.size < 3) continue

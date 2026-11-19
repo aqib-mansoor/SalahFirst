@@ -135,6 +135,8 @@ function withSalahFirstManifest(config) {
             { $: { 'android:name': 'android.intent.action.BOOT_COMPLETED' } },
             { $: { 'android:name': 'android.intent.action.LOCKED_BOOT_COMPLETED' } },
             { $: { 'android:name': 'android.intent.action.MY_PACKAGE_REPLACED' } },
+            { $: { 'android:name': 'android.intent.action.TIME_SET' } },
+            { $: { 'android:name': 'android.intent.action.TIMEZONE_CHANGED' } },
           ],
           category: [{ $: { 'android:name': 'android.intent.category.DEFAULT' } }],
         },

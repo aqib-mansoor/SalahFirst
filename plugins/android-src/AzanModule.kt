@@ -187,7 +187,7 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
             val ctx = reactApplicationContext
             val am = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-            for (id in 0..69) {
+            for (id in 0..139) {
                 val pi = PendingIntent.getBroadcast(
                     ctx,
                     id,

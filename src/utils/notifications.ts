@@ -1,6 +1,13 @@
 import * as Notifications from 'expo-notifications';
-import { PrayerAlertConfig, NotificationMode, ReminderOffset, CalculationMethodName, JuristicMethod } from '@/types';
-import { getRawPrayerTimes } from './prayerTimes';
+import {
+  PrayerAlertConfig,
+  NotificationMode,
+  ReminderOffset,
+  CalculationMethodName,
+  JuristicMethod,
+  PrayerMinuteAdjustments,
+} from '@/types';
+import { getRawPrayerTimes, setCachedPrayerAdjustments } from './prayerTimes';
 import { storage } from './storage';
 import { APP_CONFIG } from '@/constants/config';
 import { formatDateKey } from './trackerStatistics';
@@ -140,13 +147,17 @@ export const scheduleAllPrayerAlerts = async (
     await cancelAllNativeAzans();
     if (alerts && alerts.exactAlarmsEnabled === false) return 0;
 
-    const [history, focusOffsets, focusDurations, focusPrefs, reciterKey] = await Promise.all([
+    const [history, focusOffsets, focusDurations, focusPrefs, reciterKey, storedAdjustments] = await Promise.all([
       storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
       loadFocusOffsets(),
       loadFocusDurations(),
       loadFocusPreferences(),
       storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah'),
+      storage.get<Partial<PrayerMinuteAdjustments> | null>(APP_CONFIG.storageKeys.prayerAdjustments, null),
     ]);
+    if (storedAdjustments) {
+      setCachedPrayerAdjustments(storedAdjustments);
+    }
 
     const now = new Date();
     let scheduledCount = 0;
@@ -155,8 +166,8 @@ export const scheduleAllPrayerAlerts = async (
     const qStart = alerts?.quietHoursStart ?? '23:00';
     const qEnd = alerts?.quietHoursEnd ?? '05:00';
 
-    // 7-day rolling schedule window for exact prayer Azan alarms (35 alarms max)
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    // 14-day rolling schedule window for exact prayer Azan alarms (70 alarms max)
+    for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
       const targetDate = new Date(now.getTime() + dayOffset * 86400000);
       const dateKey = getLocalDateComponents(targetDate, timezone).dateKey;
       const raw = getRawPrayerTimes(
