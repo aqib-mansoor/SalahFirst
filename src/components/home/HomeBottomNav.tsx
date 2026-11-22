@@ -63,8 +63,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           const isActive = activeTab === tab.id;
 
           if (isActive) {
-            const activeBg = theme.isDark ? theme.colors.secondaryTint : theme.colors.accentLight;
-            const activeColor = theme.isDark ? theme.colors.accent : theme.colors.textPrimary;
+            const activeBg = theme.colors.secondaryTint;
+            const activeColor = theme.colors.primary;
 
             return (
               <Pressable
@@ -74,8 +74,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   styles.activePill,
                   {
                     backgroundColor: activeBg,
-                    borderColor: theme.colors.accent,
-                    shadowColor: theme.colors.accent,
+                    borderColor: theme.colors.primary,
+                    shadowColor: theme.colors.primary,
                   },
                   pressed && { opacity: 0.85 },
                 ]}

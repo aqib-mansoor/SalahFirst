@@ -22,12 +22,12 @@ export const SunMilestonesCard: React.FC<SunMilestonesCardProps> = ({
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
       {/* Sunrise */}
       <View style={styles.milestone}>
-        <View style={[styles.iconPill, { backgroundColor: theme.colors.accentTint }]}>
+        <View style={[styles.iconPill, { backgroundColor: theme.colors.secondaryTint }]}>
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="4" stroke={theme.colors.accent} strokeWidth="2" />
+            <Circle cx="12" cy="12" r="4" stroke={theme.colors.primary} strokeWidth="2" />
             <Path
               d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-              stroke={theme.colors.accent}
+              stroke={theme.colors.primary}
               strokeWidth="2"
               strokeLinecap="round"
             />

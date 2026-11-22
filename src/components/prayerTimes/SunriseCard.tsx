@@ -18,10 +18,10 @@ export const SunriseCard: React.FC<SunriseCardProps> = ({ time = '06:39 AM' }) =
     <View style={[styles.card, { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border }]}>
       <View style={styles.leftRow}>
         <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-          <Circle cx="12" cy="12" r="4" stroke={PALETTE.gold} strokeWidth="2" />
+          <Circle cx="12" cy="12" r="4" stroke={theme.colors.primary} strokeWidth="2" />
           <Path
             d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-            stroke={PALETTE.gold}
+            stroke={theme.colors.primary}
             strokeWidth="2"
             strokeLinecap="round"
           />
