@@ -134,3 +134,4 @@ export const useFocusAutoSilencer = (
 
   return { activeSilencedPrayer, isSilenced: isSilencedRef.current };
 };
+
