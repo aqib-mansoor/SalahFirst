@@ -7,6 +7,7 @@ const {
 } = require('expo/config-plugins');
 
 const KOTLIN_FILES = [
+  'AzanAudioPlayer.kt',
   'AzanBootReceiver.kt',
   'AzanModule.kt',
   'AzanPackage.kt',

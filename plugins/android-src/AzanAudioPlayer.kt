@@ -1,0 +1,110 @@
+package com.salahfirst.app
+
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.os.PowerManager
+import android.util.Log
+
+/**
+ * Dedicated Native Audio Player for Azan & Prayer Chime.
+ * Plays raw bundled audio assets on USAGE_ALARM stream with a temporary WakeLock,
+ * guaranteeing full uninterrupted playback across all Android devices (Samsung, Xiaomi, Pixel, etc.).
+ */
+object AzanAudioPlayer {
+    private const val TAG = "AzanAudioPlayer"
+    private const val WAKE_LOCK_TAG = "SalahFirst:AzanAudioPlayerWakeLock"
+    private const val MAX_PLAYBACK_MS = 4 * 60 * 1000L // 4 minutes safety timeout
+
+    @Volatile
+    private var mediaPlayer: MediaPlayer? = null
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    @Volatile
+    var isPlaying: Boolean = false
+        private set
+
+    @Synchronized
+    fun play(
+        context: Context,
+        rawResName: String,
+        onComplete: (() -> Unit)? = null
+    ): Boolean {
+        stop()
+
+        val resId = context.resources.getIdentifier(rawResName, "raw", context.packageName)
+        if (resId == 0) {
+            Log.e(TAG, "Audio asset not found in res/raw: $rawResName")
+            return false
+        }
+
+        return try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)?.apply {
+                setReferenceCounted(false)
+                acquire(MAX_PLAYBACK_MS)
+            }
+
+            val afd = context.resources.openRawResourceFd(resId)
+            val player = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                afd.close()
+
+                setOnCompletionListener {
+                    Log.i(TAG, "Playback completed naturally for $rawResName")
+                    stop()
+                    onComplete?.invoke()
+                }
+
+                setOnErrorListener { _, what, extra ->
+                    Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
+                    stop()
+                    false
+                }
+
+                prepare()
+                start()
+            }
+
+            mediaPlayer = player
+            isPlaying = true
+            Log.i(TAG, "Azan playback started on USAGE_ALARM stream for $rawResName")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start Azan playback: ${e.message}", e)
+            stop()
+            false
+        }
+    }
+
+    @Synchronized
+    fun stop() {
+        isPlaying = false
+        try {
+            mediaPlayer?.let { player ->
+                if (player.isPlaying) {
+                    player.stop()
+                }
+                player.reset()
+                player.release()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error stopping MediaPlayer: ${e.message}")
+        } finally {
+            mediaPlayer = null
+        }
+
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+            }
+        } catch (_: Exception) {}
+        wakeLock = null
+    }
+}
