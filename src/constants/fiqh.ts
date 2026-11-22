@@ -67,6 +67,24 @@ export const DEFAULT_FIQH_PROFILES: Record<FiqhName, { calcMethod: CalculationMe
   Hanbali: { calcMethod: 'UmmAlQura' },
 };
 
+export interface FiqhCongregationDelays {
+  fajr: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+}
+
+export const FIQH_CONGREGATION_DELAYS: Record<FiqhName, FiqhCongregationDelays> = {
+  Hanafi: { fajr: 35, dhuhr: 20, asr: 20, maghrib: 7, isha: 20 },
+  Hanbali: { fajr: 25, dhuhr: 20, asr: 20, maghrib: 10, isha: 20 },
+  Shafii: { fajr: 20, dhuhr: 15, asr: 15, maghrib: 5, isha: 15 },
+  Maliki: { fajr: 20, dhuhr: 15, asr: 15, maghrib: 5, isha: 15 },
+};
+
+export const getDefaultDelaysForFiqh = (fiqh: FiqhName): FiqhCongregationDelays =>
+  FIQH_CONGREGATION_DELAYS[fiqh] || FIQH_CONGREGATION_DELAYS.Hanafi;
+
 export const getFiqhDetails = (fiqh: FiqhName): FiqhOption =>
   FIQH_OPTIONS.find((f) => f.id === fiqh) || FIQH_OPTIONS[0];
 

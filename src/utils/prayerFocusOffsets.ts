@@ -1,5 +1,6 @@
 import { storage } from './storage';
-import { FocusDuration } from '@/types';
+import { FocusDuration, FiqhName } from '@/types';
+import { getDefaultDelaysForFiqh } from '@/constants/fiqh';
 import {
   FocusSession,
   createFocusSession,
@@ -8,11 +9,11 @@ import {
 } from './focusSession';
 
 export interface PrayerFocusOffsets {
-  fajr: number; // default +30 mins after Azan
-  dhuhr: number; // default +60 mins after Azan (~1:00 PM)
-  asr: number; // default +20 mins after Azan
-  maghrib: number; // default 0 mins (immediate with sunset)
-  isha: number; // default +20 mins after Azan
+  fajr: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
 }
 
 export interface PrayerFocusDurations {
@@ -21,6 +22,15 @@ export interface PrayerFocusDurations {
   asr: FocusDuration;
   maghrib: FocusDuration;
   isha: FocusDuration;
+}
+
+export interface AutoSilenceConfig {
+  enabled: boolean;
+  fajr: boolean;
+  dhuhr: boolean;
+  asr: boolean;
+  maghrib: boolean;
+  isha: boolean;
 }
 
 export interface FocusPreferences {
@@ -35,24 +45,33 @@ export interface FocusPreferences {
 }
 
 export const DEFAULT_FOCUS_OFFSETS: PrayerFocusOffsets = {
-  fajr: 30,
-  dhuhr: 60,
+  fajr: 35,
+  dhuhr: 20,
   asr: 20,
-  maghrib: 0,
+  maghrib: 7,
   isha: 20,
 };
 
 export const DEFAULT_FOCUS_DURATIONS: PrayerFocusDurations = {
-  fajr: 15,
-  dhuhr: 15,
+  fajr: 20,
+  dhuhr: 20,
   asr: 15,
   maghrib: 15,
-  isha: 20,
+  isha: 25,
+};
+
+export const DEFAULT_AUTO_SILENCE_CONFIG: AutoSilenceConfig = {
+  enabled: true,
+  fajr: true,
+  dhuhr: true,
+  asr: true,
+  maghrib: true,
+  isha: true,
 };
 
 export const DEFAULT_FOCUS_PREFERENCES: FocusPreferences = {
-  autoStartOnAzan: false,
-  defaultDuration: 15,
+  autoStartOnAzan: true,
+  defaultDuration: 20,
   playAzanBefore: false,
   blockSocial: false,
   blockShortVideos: false,
@@ -63,15 +82,31 @@ export const DEFAULT_FOCUS_PREFERENCES: FocusPreferences = {
 const STORAGE_KEY = '@salahfirst_focus_offsets';
 const DURATIONS_STORAGE_KEY = '@salahfirst_focus_durations';
 const PREFS_STORAGE_KEY = '@salahfirst_focus_preferences';
+const AUTO_SILENCE_KEY = '@salahfirst_auto_silence_config';
 
-export const loadFocusOffsets = async (): Promise<PrayerFocusOffsets> => {
+export const loadAutoSilenceConfig = async (): Promise<AutoSilenceConfig> => {
+  try {
+    const saved = await storage.get<AutoSilenceConfig | null>(AUTO_SILENCE_KEY, null);
+    if (saved && typeof saved === 'object') {
+      return { ...DEFAULT_AUTO_SILENCE_CONFIG, ...saved };
+    }
+  } catch {}
+  return DEFAULT_AUTO_SILENCE_CONFIG;
+};
+
+export const saveAutoSilenceConfig = async (cfg: AutoSilenceConfig): Promise<void> => {
+  await storage.set(AUTO_SILENCE_KEY, cfg);
+};
+
+export const loadFocusOffsets = async (fiqh?: FiqhName): Promise<PrayerFocusOffsets> => {
+  const defaults = fiqh ? getDefaultDelaysForFiqh(fiqh) : DEFAULT_FOCUS_OFFSETS;
   try {
     const saved = await storage.get<PrayerFocusOffsets | null>(STORAGE_KEY, null);
     if (saved && typeof saved === 'object') {
-      return { ...DEFAULT_FOCUS_OFFSETS, ...saved };
+      return { ...defaults, ...saved };
     }
   } catch {}
-  return DEFAULT_FOCUS_OFFSETS;
+  return defaults;
 };
 
 export const saveFocusOffsets = async (offsets: PrayerFocusOffsets): Promise<void> => {
