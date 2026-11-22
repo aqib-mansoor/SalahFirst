@@ -96,7 +96,6 @@ export const FiqhBottomSheet: React.FC<FiqhBottomSheetProps> = ({
           {FIQH_OPTIONS.map((item, idx) => {
             const isSelected = selectedFiqh === item.id;
             const itemTitle = language === 'ar' ? item.titleAr : language === 'ur' ? item.titleUr : item.titleEn;
-            const shadowBadge = item.asrRule === 'double' ? t('shadowDoubleBadge') : t('shadowSingleBadge');
 
             return (
               <Pressable
@@ -118,23 +117,6 @@ export const FiqhBottomSheet: React.FC<FiqhBottomSheetProps> = ({
                     >
                       {itemTitle} • {item.titleAr}
                     </AppText>
-                    <View
-                      style={[
-                        styles.badge,
-                        {
-                          backgroundColor:
-                            item.asrRule === 'double' ? theme.colors.accentTint : theme.colors.secondaryTint,
-                        },
-                      ]}
-                    >
-                      <AppText
-                        variant="caption"
-                        color={item.asrRule === 'double' ? theme.colors.accent : theme.colors.primary}
-                        style={styles.badgeText}
-                      >
-                        {shadowBadge}
-                      </AppText>
-                    </View>
                   </View>
                   <AppText variant="caption" color={theme.colors.textSecondary} style={styles.descText}>
                     {t(item.descKey as TranslationKey)}
@@ -211,15 +193,6 @@ const styles = StyleSheet.create({
   nameText: {
     fontWeight: '700',
     marginRight: SPACING.sm,
-  },
-  badge: {
-    paddingHorizontal: SPACING.xs + 2,
-    paddingVertical: 2,
-    borderRadius: RADIUS.full,
-  },
-  badgeText: {
-    fontWeight: '700',
-    fontSize: 10,
   },
   descText: {
     fontSize: 12,

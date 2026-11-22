@@ -19,7 +19,6 @@ export const FiqhSettingRow: React.FC<FiqhSettingRowProps> = ({ fiqh, onPress })
   const details = getFiqhDetails(fiqh);
 
   const displayTitle = language === 'ar' ? details.titleAr : language === 'ur' ? details.titleUr : details.titleEn;
-  const shadowRuleText = details.asrRule === 'double' ? t('shadowDoubleBadge') : t('shadowSingleBadge');
 
   return (
     <Pressable
@@ -45,7 +44,7 @@ export const FiqhSettingRow: React.FC<FiqhSettingRowProps> = ({ fiqh, onPress })
             {t('fiqh')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1}>
-            {displayTitle} • {shadowRuleText}
+            {t('asrJuristicPreference')}
           </AppText>
         </View>
       </View>
