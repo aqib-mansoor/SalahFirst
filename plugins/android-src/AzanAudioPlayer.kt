@@ -108,3 +108,4 @@ object AzanAudioPlayer {
         wakeLock = null
     }
 }
+
