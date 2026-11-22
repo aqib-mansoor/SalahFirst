@@ -6,6 +6,7 @@ import {
   PrayerCycle,
   CalculationMethodName,
   JuristicMethod,
+  FiqhName,
   PrayerMinuteAdjustments,
   UserLocation,
 } from '@/types';
@@ -23,6 +24,8 @@ export interface SalahFirstBackupData {
   prayerCycle: PrayerCycle | null;
   calculationMethod?: CalculationMethodName;
   juristicMethod?: JuristicMethod;
+  fiqh?: FiqhName;
+  fiqhProfiles?: Record<string, any>;
   prayerAdjustments?: PrayerMinuteAdjustments;
   hadithBookmarks?: string[];
   sunnahTracker?: Record<string, Record<string, boolean>>;
@@ -41,6 +44,8 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     cycle,
     calcMethod,
     juristic,
+    fiqh,
+    fiqhProfiles,
     prayerAdjustments,
     bookmarks,
     sunnah,
@@ -57,6 +62,8 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     storage.get<PrayerCycle | null>(APP_CONFIG.storageKeys.prayerCycle, null),
     storage.get<CalculationMethodName | null>(APP_CONFIG.storageKeys.calculationMethod, null),
     storage.get<JuristicMethod | null>(APP_CONFIG.storageKeys.juristicMethod, null),
+    storage.get<FiqhName | null>(APP_CONFIG.storageKeys.fiqh, null),
+    storage.get<Record<string, any> | null>(APP_CONFIG.storageKeys.fiqhProfiles, null),
     storage.get<PrayerMinuteAdjustments | null>(APP_CONFIG.storageKeys.prayerAdjustments, null),
     storage.get<string[]>(APP_CONFIG.storageKeys.hadithBookmarks, []),
     storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.sunnahHistory, {}),
@@ -80,6 +87,8 @@ export const generateBackupPayload = async (): Promise<SalahFirstBackupData> => 
     prayerCycle: cycle,
     calculationMethod: calcMethod || undefined,
     juristicMethod: juristic || undefined,
+    fiqh: fiqh || undefined,
+    fiqhProfiles: fiqhProfiles || undefined,
     prayerAdjustments: prayerAdjustments || undefined,
     hadithBookmarks: bookmarks,
     sunnahTracker: mergedSunnah,
@@ -205,6 +214,8 @@ export const restoreBackupFromJson = async (
       payload.prayerCycle ? storage.set(APP_CONFIG.storageKeys.prayerCycle, payload.prayerCycle) : Promise.resolve(),
       payload.calculationMethod ? storage.set(APP_CONFIG.storageKeys.calculationMethod, payload.calculationMethod) : Promise.resolve(),
       payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.juristicMethod, payload.juristicMethod) : Promise.resolve(),
+      payload.fiqh ? storage.set(APP_CONFIG.storageKeys.fiqh, payload.fiqh) : (payload.juristicMethod ? storage.set(APP_CONFIG.storageKeys.fiqh, payload.juristicMethod) : Promise.resolve()),
+      payload.fiqhProfiles ? storage.set(APP_CONFIG.storageKeys.fiqhProfiles, payload.fiqhProfiles) : Promise.resolve(),
       payload.prayerAdjustments ? storage.set(APP_CONFIG.storageKeys.prayerAdjustments, payload.prayerAdjustments) : Promise.resolve(),
       typeof payload.streak === 'number' ? storage.set(APP_CONFIG.storageKeys.streak, payload.streak) : Promise.resolve(),
       typeof payload.hijriAdjustment === 'number' ? storage.set(APP_CONFIG.storageKeys.hijriAdjustment, payload.hijriAdjustment) : Promise.resolve(),
