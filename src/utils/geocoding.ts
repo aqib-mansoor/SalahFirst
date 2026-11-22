@@ -39,7 +39,6 @@ export const reverseGeocodeCoordinates = async (
   latitude: number,
   longitude: number
 ): Promise<ReverseGeocodeResult> => {
-  const defaultTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   let city = 'Current City';
   let region = '';
   let country = 'Current Country';
@@ -51,29 +50,30 @@ export const reverseGeocodeCoordinates = async (
       city = p.city || p.subregion || p.district || p.name || 'Current City';
       region = p.region || p.subregion || '';
       country = p.country || 'Current Country';
-      return { city, region, country, timezone: defaultTz };
     }
   } catch {}
 
   // Fallback to Nominatim reverse if native reverse geocoding is unavailable
-  try {
-    const now = Date.now();
-    const elapsed = now - lastRequestTime;
-    if (elapsed < 1000) await delay(1000 - elapsed);
-    lastRequestTime = Date.now();
+  if (city === 'Current City' || country === 'Current Country') {
+    try {
+      const now = Date.now();
+      const elapsed = now - lastRequestTime;
+      if (elapsed < 1000) await delay(1000 - elapsed);
+      lastRequestTime = Date.now();
 
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'SalahFirst-App/1.0 (https://salahfirst.app)' },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const addr = data.address || {};
-      city = addr.city || addr.town || addr.village || addr.county || city;
-      region = addr.state || region;
-      country = addr.country || country;
-    }
-  } catch {}
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'SalahFirst-App/1.0 (https://salahfirst.app)' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const addr = data.address || {};
+        city = addr.city || addr.town || addr.village || addr.county || city;
+        region = addr.state || region;
+        country = addr.country || country;
+      }
+    } catch {}
+  }
 
   // Offline / Unresolved Fallback: Match nearest preset city in country or region
   if (city === 'Current City' || country === 'Current Country') {
@@ -89,7 +89,15 @@ export const reverseGeocodeCoordinates = async (
     }
   }
 
-  return { city, region, country, timezone: defaultTz };
+  // Accurately resolve true geographical IANA timezone via local boundary polygon lookup
+  let timezone = 'UTC';
+  try {
+    timezone = resolveTimezone(latitude, longitude, country !== 'Current Country' ? country : undefined);
+  } catch {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  }
+
+  return { city, region, country, timezone };
 };
 
 export const searchWorldwideCity = async (
