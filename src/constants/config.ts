@@ -22,6 +22,8 @@ export const APP_CONFIG = {
     streak: '@salahfirst_streak',
     calculationMethod: '@salahfirst_calc_method',
     juristicMethod: '@salahfirst_juristic_method',
+    fiqh: '@salahfirst_fiqh',
+    fiqhProfiles: '@salahfirst_fiqh_profiles',
     hijriAdjustment: '@salahfirst_hijri_adjustment',
     azanReciter: '@salahfirst_azan_reciter',
     timeFormat: '@salahfirst_time_format',

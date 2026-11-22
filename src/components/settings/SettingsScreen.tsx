@@ -13,6 +13,7 @@ import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomShee
 import { LanguageBottomSheet } from './LanguageBottomSheet';
 import { CalculationMethodBottomSheet } from './CalculationMethodBottomSheet';
 import { PrayerAdjustmentsBottomSheet } from './PrayerAdjustmentsBottomSheet';
+import { FiqhBottomSheet } from './FiqhBottomSheet';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
@@ -21,9 +22,9 @@ import { InspirationSettingsGroup } from './InspirationSettingsGroup';
 import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
-import { CalculationMethodName, JuristicMethod, TimeFormat, PrayerMinuteAdjustments } from '@/types';
+import { CalculationMethodName, JuristicMethod, FiqhName, TimeFormat, PrayerMinuteAdjustments } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCalculationMethod, setJuristicMethod, setPrayerAdjustments } from '@/store/slices/prayerSlice';
+import { setCalculationMethod, setJuristicMethod, setFiqh, setPrayerAdjustments } from '@/store/slices/prayerSlice';
 import { setTimeFormat, setHapticFeedback } from '@/store/slices/preferencesSlice';
 import { triggerHaptic } from '@/utils/haptics';
 import {
@@ -70,7 +71,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
   const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
-  const { prayerData, calcMethod, juristic } = usePrayerTracker(location);
+  const { prayerData, calcMethod, juristic, fiqh: reduxFiqh } = usePrayerTracker(location);
   const { alerts } = usePrayerAlerts();
   const { currentReciter } = useAzanAudio();
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
@@ -78,6 +79,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [sheetVisible, setSheetVisible] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
   const [calcMethodSheetVisible, setCalcMethodSheetVisible] = useState(false);
+  const [fiqhSheetVisible, setFiqhSheetVisible] = useState(false);
   const [adjustmentsSheetVisible, setAdjustmentsSheetVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
@@ -124,9 +126,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     });
   };
 
-  const handleToggleJuristic = () => {
-    const nextJuristic: JuristicMethod = juristic === 'Hanafi' ? 'Standard' : 'Hanafi';
-    dispatch(setJuristicMethod(nextJuristic));
+  const handleSelectFiqh = (selectedFiqh: FiqhName, applyRecommendedCalc: boolean) => {
+    dispatch(setFiqh({ fiqh: selectedFiqh, applyRecommendedCalc }));
     notifyTrackerPreferencesChanged();
   };
 
@@ -185,6 +186,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             cityName={location?.city || t('selectCity')}
             country={location?.country || ''}
             juristicMethod={juristic}
+            fiqh={reduxFiqh || (juristic as FiqhName)}
             calculationMethodName={t(CALC_LABEL_KEYS[calcMethod] || 'calcMethodKarachi')}
             hijriAdjustment={hijriAdjustment}
             azanSummaryText={azanSummaryText}
@@ -194,7 +196,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onOpenAzanPrefs={onOpenAzanPrefs}
             onOpenFocusConfig={onOpenFocusConfig}
             onOpenPrayerAdjustments={() => setAdjustmentsSheetVisible(true)}
-            onToggleJuristic={handleToggleJuristic}
+            onOpenFiqh={() => setFiqhSheetVisible(true)}
             onCycleCalculationMethod={() => setCalcMethodSheetVisible(true)}
           />
 
@@ -247,6 +249,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           selectedMethod={calcMethod}
           onSelectMethod={handleSelectCalcMethod}
           onClose={() => setCalcMethodSheetVisible(false)}
+        />
+
+        <FiqhBottomSheet
+          visible={fiqhSheetVisible}
+          selectedFiqh={reduxFiqh || (juristic as FiqhName) || 'Hanafi'}
+          onSelectFiqh={handleSelectFiqh}
+          onClose={() => setFiqhSheetVisible(false)}
         />
 
         <LanguageBottomSheet

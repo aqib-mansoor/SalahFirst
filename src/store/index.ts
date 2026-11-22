@@ -13,6 +13,7 @@ import { APP_CONFIG } from '@/constants/config';
 import {
   CalculationMethodName,
   JuristicMethod,
+  FiqhName,
   PrayerCompletionEvent,
   PrayerCycle,
   UserLocation,
@@ -46,6 +47,8 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
     const [
       storedMethod,
       storedJuristic,
+      storedFiqh,
+      storedFiqhProfiles,
       storedHistory,
       storedTasbih,
       storedLedger,
@@ -61,6 +64,8 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
     ] = await Promise.all([
       storage.get<CalculationMethodName | null>(APP_CONFIG.storageKeys.calculationMethod, null),
       storage.get<JuristicMethod | null>(APP_CONFIG.storageKeys.juristicMethod, null),
+      storage.get<FiqhName | null>(APP_CONFIG.storageKeys.fiqh, null),
+      storage.get<Record<FiqhName, { calcMethod: CalculationMethodName }> | null>(APP_CONFIG.storageKeys.fiqhProfiles, null),
       storage.get<Record<string, Record<string, boolean>>>(APP_CONFIG.storageKeys.prayerTracker, {}),
       storage.get<{ count: number; phaseIndex: number; totalCycles: number } | null>(TASBIH_STORAGE_KEY, null),
       storage.get<PrayerCompletionEvent[]>(APP_CONFIG.storageKeys.prayerLedger, []),
@@ -84,6 +89,8 @@ export const hydrateAllStore = async (dispatch: AppDispatch) => {
       hydratePrayerState({
         calcMethod: storedMethod || undefined,
         juristic: storedJuristic || undefined,
+        fiqh: storedFiqh || undefined,
+        fiqhProfiles: storedFiqhProfiles || undefined,
         prayerAdjustments: storedPrayerAdjustments,
         historyMap: storedHistory || undefined,
         ledgerEvents: finalLedger,

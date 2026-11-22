@@ -7,11 +7,14 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { getIslamicDateFormatted } from '@/utils/hijriCalendar';
 import { HijriStepper } from './HijriStepper';
+import { FiqhSettingRow } from './FiqhSettingRow';
+import { FiqhName, JuristicMethod } from '@/types';
 
 export interface PrayerSettingsGroupProps {
   cityName: string;
   country: string;
-  juristicMethod: 'Hanafi' | 'Standard';
+  juristicMethod?: JuristicMethod;
+  fiqh?: FiqhName;
   calculationMethodName?: string;
   hijriAdjustment?: number;
   azanSummaryText?: string;
@@ -21,14 +24,16 @@ export interface PrayerSettingsGroupProps {
   onOpenAzanPrefs: () => void;
   onOpenFocusConfig?: () => void;
   onOpenPrayerAdjustments?: () => void;
-  onToggleJuristic: () => void;
+  onToggleJuristic?: () => void;
+  onOpenFiqh?: () => void;
   onCycleCalculationMethod?: () => void;
 }
 
 export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   cityName,
   country,
-  juristicMethod,
+  juristicMethod = 'Hanafi',
+  fiqh,
   calculationMethodName = 'University of Islamic Sciences, Karachi',
   hijriAdjustment = 0,
   azanSummaryText,
@@ -39,6 +44,7 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
   onOpenFocusConfig,
   onOpenPrayerAdjustments,
   onToggleJuristic,
+  onOpenFiqh,
   onCycleCalculationMethod,
 }) => {
   const theme = useTheme();
@@ -109,30 +115,11 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 3: Asr Juristic Preference */}
-        <Pressable onPress={onToggleJuristic} style={styles.row}>
-          <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
-              <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-                <Circle cx="12" cy="12" r="5" stroke={theme.colors.accent} strokeWidth="2" />
-                <Path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" />
-              </Svg>
-            </View>
-            <View style={styles.textCol}>
-              <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                {t('asrJuristicPreference')}
-              </AppText>
-              <AppText variant="caption" color={theme.colors.textSecondary}>
-                {t('standardOrHanafi')}
-              </AppText>
-            </View>
-          </View>
-          <View style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
-              {juristicMethod}
-            </AppText>
-          </View>
-        </Pressable>
+        {/* Row 3: Juristic Fiqh Preference */}
+        <FiqhSettingRow
+          fiqh={fiqh || (juristicMethod === 'Hanafi' ? 'Hanafi' : 'Shafii')}
+          onPress={onOpenFiqh || onToggleJuristic || (() => {})}
+        />
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 

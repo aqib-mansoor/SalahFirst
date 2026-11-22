@@ -88,6 +88,7 @@ export const usePrayerTracker = (
   const {
     calcMethod: reduxMethod,
     juristic: reduxJuristic,
+    fiqh: reduxFiqh,
     prayerAdjustments,
     historyMap,
     ledgerEvents,
@@ -270,6 +271,7 @@ export const usePrayerTracker = (
     streakCount,
     calcMethod,
     juristic,
+    fiqh: (reduxFiqh || juristic) as any,
     activeCycle,
     activeDateKey,
     togglePrayer,

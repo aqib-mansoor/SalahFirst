@@ -6,7 +6,13 @@ export type ThemeMode = 'dark' | 'light' | 'system';
 
 export type TimeFormat = '12h' | '24h';
 
-export type JuristicMethod = 'Hanafi' | 'Standard';
+export type FiqhName = 'Hanafi' | 'Shafii' | 'Maliki' | 'Hanbali';
+
+export type JuristicMethod = FiqhName | 'Hanafi' | 'Standard';
+
+export interface FiqhProfile {
+  calcMethod: CalculationMethodName;
+}
 
 export type CalculationMethodName =
   | 'Karachi'

@@ -32,7 +32,17 @@ export const PrayerTimesLocationCard: React.FC<PrayerTimesLocationCardProps> = (
 
   const displayCity = cityName || t('detectingLocation');
   const locationLabel = country ? `${displayCity}, ${country}` : displayCity;
-  const juristicLabel = juristicMethod === 'Hanafi' ? t('hanafiAsr') : t('standardAsr');
+  const fiqhKey =
+    juristicMethod === 'Hanafi'
+      ? 'fiqhHanafi'
+      : juristicMethod === 'Shafii'
+      ? 'fiqhShafii'
+      : juristicMethod === 'Maliki'
+      ? 'fiqhMaliki'
+      : juristicMethod === 'Hanbali'
+      ? 'fiqhHanbali'
+      : 'standardAsr';
+  const juristicLabel = t(fiqhKey);
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>

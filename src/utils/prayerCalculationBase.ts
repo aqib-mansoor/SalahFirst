@@ -1,5 +1,5 @@
 import { Coordinates, CalculationMethod, PrayerTimes, HighLatitudeRule, PolarCircleResolution } from 'adhan';
-import type { CalculationMethodName, JuristicMethod, PrayerMinuteAdjustments } from '@/types';
+import type { CalculationMethodName, JuristicMethod, FiqhName, PrayerMinuteAdjustments } from '@/types';
 
 export const DEFAULT_PRAYER_ADJUSTMENTS: PrayerMinuteAdjustments = {
   fajr: 0,
@@ -37,10 +37,23 @@ export const getDefaultMethodForCountry = (country?: string): CalculationMethodN
 
 export const getDefaultCalculationMethodForCountry = getDefaultMethodForCountry;
 
-export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
+export const getDefaultFiqhForCountry = (country?: string): FiqhName => {
   if (!country) return 'Hanafi';
   const c = country.toLowerCase().trim();
-  return /pakistan|india|bangladesh|turkey|türkiye|afghanistan/.test(c) ? 'Hanafi' : 'Standard';
+  if (/pakistan|india|bangladesh|turkey|türkiye|afghanistan|uzbekistan|tajikistan/.test(c)) {
+    return 'Hanafi';
+  }
+  if (/saudi|qatar|kuwait|emirates|dubai|uae|oman|bahrain/.test(c)) {
+    return 'Hanbali';
+  }
+  if (/morocco|algeria|tunisia|libya|sudan|mauritania|mali|senegal|niger/.test(c)) {
+    return 'Maliki';
+  }
+  return 'Shafii';
+};
+
+export const getDefaultMadhabForCountry = (country?: string): JuristicMethod => {
+  return getDefaultFiqhForCountry(country);
 };
 
 export const CALCULATION_METHOD_LABELS: Record<CalculationMethodName, string> = {

@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   CalculationMethodName,
   JuristicMethod,
+  FiqhName,
   PrayerCompletionEvent,
   PrayerCycle,
   ObligatorySalah,
@@ -12,10 +13,17 @@ import { APP_CONFIG } from '@/constants/config';
 import { calculateCurrentStreak } from '@/utils/trackerStatistics';
 import { deriveHistoryMapFromLedger } from '@/utils/prayerLedgerManager';
 import { DEFAULT_PRAYER_ADJUSTMENTS, setCachedPrayerAdjustments } from '@/utils/prayerCalculationBase';
+import {
+  DEFAULT_FIQH_PROFILES,
+  normalizeFiqh,
+  getFiqhDetails,
+} from '@/constants/fiqh';
 
 export interface PrayerState {
   calcMethod: CalculationMethodName;
   juristic: JuristicMethod;
+  fiqh: FiqhName;
+  fiqhProfiles: Record<FiqhName, { calcMethod: CalculationMethodName }>;
   prayerAdjustments: PrayerMinuteAdjustments;
   historyMap: Record<string, Record<string, boolean>>;
   ledgerEvents: PrayerCompletionEvent[];
@@ -27,6 +35,8 @@ export interface PrayerState {
 const initialState: PrayerState = {
   calcMethod: 'Karachi',
   juristic: 'Hanafi',
+  fiqh: 'Hanafi',
+  fiqhProfiles: { ...DEFAULT_FIQH_PROFILES },
   prayerAdjustments: { ...DEFAULT_PRAYER_ADJUSTMENTS },
   historyMap: {},
   ledgerEvents: [],
@@ -44,6 +54,8 @@ export const prayerSlice = createSlice({
       action: PayloadAction<{
         calcMethod?: CalculationMethodName;
         juristic?: JuristicMethod;
+        fiqh?: FiqhName;
+        fiqhProfiles?: Record<FiqhName, { calcMethod: CalculationMethodName }> | null;
         prayerAdjustments?: Partial<PrayerMinuteAdjustments> | null;
         historyMap?: Record<string, Record<string, boolean>>;
         ledgerEvents?: PrayerCompletionEvent[];
@@ -53,8 +65,15 @@ export const prayerSlice = createSlice({
       if (action.payload.calcMethod) {
         state.calcMethod = action.payload.calcMethod;
       }
-      if (action.payload.juristic) {
-        state.juristic = action.payload.juristic;
+      if (action.payload.fiqh) {
+        state.fiqh = normalizeFiqh(action.payload.fiqh);
+        state.juristic = state.fiqh;
+      } else if (action.payload.juristic) {
+        state.fiqh = normalizeFiqh(action.payload.juristic);
+        state.juristic = state.fiqh;
+      }
+      if (action.payload.fiqhProfiles) {
+        state.fiqhProfiles = { ...DEFAULT_FIQH_PROFILES, ...action.payload.fiqhProfiles };
       }
       if (action.payload.prayerAdjustments) {
         state.prayerAdjustments = {
@@ -165,12 +184,41 @@ export const prayerSlice = createSlice({
 
     setCalculationMethod: (state, action: PayloadAction<CalculationMethodName>) => {
       state.calcMethod = action.payload;
+      if (state.fiqh) {
+        state.fiqhProfiles[state.fiqh] = { calcMethod: action.payload };
+        storage.set(APP_CONFIG.storageKeys.fiqhProfiles, state.fiqhProfiles).catch(() => {});
+      }
       storage.set(APP_CONFIG.storageKeys.calculationMethod, action.payload).catch(() => {});
     },
 
     setJuristicMethod: (state, action: PayloadAction<JuristicMethod>) => {
-      state.juristic = action.payload;
-      storage.set(APP_CONFIG.storageKeys.juristicMethod, action.payload).catch(() => {});
+      const normalized = normalizeFiqh(action.payload);
+      state.juristic = normalized;
+      state.fiqh = normalized;
+      storage.set(APP_CONFIG.storageKeys.juristicMethod, normalized).catch(() => {});
+      storage.set(APP_CONFIG.storageKeys.fiqh, normalized).catch(() => {});
+    },
+
+    setFiqh: (
+      state,
+      action: PayloadAction<{ fiqh: FiqhName; applyRecommendedCalc?: boolean }>
+    ) => {
+      const { fiqh, applyRecommendedCalc = true } = action.payload;
+      state.fiqh = fiqh;
+      state.juristic = fiqh;
+      storage.set(APP_CONFIG.storageKeys.fiqh, fiqh).catch(() => {});
+      storage.set(APP_CONFIG.storageKeys.juristicMethod, fiqh).catch(() => {});
+
+      if (applyRecommendedCalc) {
+        const details = getFiqhDetails(fiqh);
+        state.calcMethod = details.recommendedCalcMethod;
+        state.fiqhProfiles[fiqh] = { calcMethod: details.recommendedCalcMethod };
+        storage.set(APP_CONFIG.storageKeys.calculationMethod, details.recommendedCalcMethod).catch(() => {});
+      } else if (state.fiqhProfiles[fiqh]?.calcMethod) {
+        state.calcMethod = state.fiqhProfiles[fiqh].calcMethod;
+        storage.set(APP_CONFIG.storageKeys.calculationMethod, state.calcMethod).catch(() => {});
+      }
+      storage.set(APP_CONFIG.storageKeys.fiqhProfiles, state.fiqhProfiles).catch(() => {});
     },
 
     setPrayerAdjustments: (state, action: PayloadAction<PrayerMinuteAdjustments>) => {
@@ -190,6 +238,7 @@ export const {
   carryOverPrayers,
   setCalculationMethod,
   setJuristicMethod,
+  setFiqh,
   setPrayerAdjustments,
 } = prayerSlice.actions;
 
