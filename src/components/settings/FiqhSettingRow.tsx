@@ -44,7 +44,7 @@ export const FiqhSettingRow: React.FC<FiqhSettingRowProps> = ({ fiqh, onPress })
             {t('fiqh')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textSecondary} numberOfLines={1}>
-            {t('asrJuristicPreference')}
+            {t(details.descKey as any)}
           </AppText>
         </View>
       </View>
