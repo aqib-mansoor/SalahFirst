@@ -5,12 +5,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.os.VibrationEffect
@@ -22,13 +18,13 @@ import androidx.core.app.NotificationCompat
 /**
  * Woken by AlarmManager at exact prayer time — even when app is killed or device is in Doze mode.
  * Handles AZAN (makkah/madinah/alAqsa), TONE (prayer_tone), and VIBRATE modes with dedicated
- * channels and hardware vibration. Strictly respects Silent and DND modes.
+ * channels and hardware vibration. Audio is played via native AzanAudioPlayer on USAGE_ALARM stream.
  */
 class AzanReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_STOP_AZAN) {
-            Log.i(TAG, "ACTION_STOP_AZAN received. Cancelling active Azan notification.")
+            Log.i(TAG, "ACTION_STOP_AZAN received. Stopping audio and cancelling notification.")
             cancelAzanNotification(context)
             return
         }
@@ -77,14 +73,14 @@ class AzanReceiver : BroadcastReceiver() {
         const val EXTRA_PRAYER = "prayer"
         private const val SILENT_CHANNEL_ID = "salahfirst-azan-silent-v3"
         private const val VIBRATE_CHANNEL_ID = "salahfirst-prayer-vibrate-v3"
+        private const val AUDIBLE_CHANNEL_ID = "salahfirst-azan-alarm-v4"
         private val VIBRATE_PATTERN = longArrayOf(0, 600, 300, 600, 300, 600)
 
-        @Volatile
-        var isPlaying: Boolean = false
-            private set
+        val isPlaying: Boolean
+            get() = AzanAudioPlayer.isPlaying
 
         fun cancelAzanNotification(context: Context) {
-            isPlaying = false
+            AzanAudioPlayer.stop()
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             nm?.cancel(NOTIFICATION_ID)
         }
@@ -185,8 +181,7 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 2. Strictly respect Silent and DND modes for audible modes (AZAN & TONE),
-            // except when Fajr Wake-Up Override is enabled and device is not in Total Silence DND.
+            // 2. Respect Silent and DND modes (except Fajr Wake-Up Override outside Total Silence)
             val fajrOverride = prefs.getBoolean(AzanModule.KEY_FAJR_OVERRIDE, true)
             val isFajrPrayer = prayer.equals("Fajr", ignoreCase = true)
             val isTotalSilence = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -229,31 +224,25 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            val (channelId, channelName, rawName) = when (reciter) {
-                "tone"    -> Triple("salahfirst-prayer-tone-v3", "Prayer Alert (Chime Tone)", "prayer_tone")
-                "madinah" -> Triple("salahfirst-azan-alarm-madinah-v3", "Prayer Azan Alarm (Madinah)", "azan_madinah")
-                "alAqsa"  -> Triple("salahfirst-azan-alarm-alaqsa-v3", "Prayer Azan Alarm (Al-Aqsa)", "azan_alaqsa")
-                else      -> Triple("salahfirst-azan-alarm-makkah-v3", "Prayer Azan Alarm (Makkah)", "azan_makkah")
+            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio track via native AzanAudioPlayer
+            val rawName = when (reciter) {
+                "tone"    -> "prayer_tone"
+                "madinah" -> "azan_madinah"
+                "alAqsa"  -> "azan_alaqsa"
+                else      -> "azan_makkah"
             }
 
-            val soundUri = Uri.parse(
-                "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/$rawName"
-            )
+            // Initiate full uninterrupted recitation on USAGE_ALARM stream
+            AzanAudioPlayer.play(context, rawName)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(channelId) == null) {
-                val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                    .build()
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(AUDIBLE_CHANNEL_ID) == null) {
                 val channel = NotificationChannel(
-                    channelId,
-                    channelName,
+                    AUDIBLE_CHANNEL_ID,
+                    "Prayer Azan Alarm",
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Exact prayer time alert on the Alarm audio stream"
-                    setSound(soundUri, audioAttributes)
+                    description = "Exact prayer time alarm with full Azan recitation"
+                    setSound(null, null) // Audio is exclusively handled by AzanAudioPlayer
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 500, 250, 500)
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -273,7 +262,7 @@ class AzanReceiver : BroadcastReceiver() {
                 .setSummaryText(texts.subText)
                 .bigText(texts.bigBody)
 
-            val builder = NotificationCompat.Builder(context, channelId)
+            val builder = NotificationCompat.Builder(context, AUDIBLE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(texts.title)
                 .setContentText(texts.shortBody)
@@ -284,16 +273,14 @@ class AzanReceiver : BroadcastReceiver() {
                 .setContentIntent(openIntent)
                 .setAutoCancel(isTone)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setSound(soundUri, AudioManager.STREAM_ALARM)
 
             if (isAzan) {
                 builder.addAction(android.R.drawable.ic_media_pause, texts.silenceAction, stopIntent)
-                isPlaying = true
             }
             builder.addAction(0, texts.prayedAction, markPrayedIntent)
 
             nm.notify(NOTIFICATION_ID, builder.build())
-            Log.i(TAG, "Audible prayer notification posted on $channelId for $prayer.")
+            Log.i(TAG, "Audible prayer alert posted for $prayer with $rawName recitation.")
         }
     }
 }
