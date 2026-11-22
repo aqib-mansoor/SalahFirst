@@ -74,10 +74,10 @@ export const FocusSettingsGroup: React.FC<FocusSettingsGroupProps> = ({
             </View>
             <View style={styles.textCol}>
               <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                {((t as any)('autoSilenceAtPrayer') || 'Auto-Silence at Prayer')}
+                {t('autoSilenceTitle')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                {((t as any)('autoSilenceDesc') || 'Silences phone during congregation & restores sound')}
+                {t('autoSilenceSub')}
               </AppText>
             </View>
           </View>
@@ -134,7 +134,7 @@ export const FocusSettingsGroup: React.FC<FocusSettingsGroupProps> = ({
         <View style={styles.noteRow}>
           <View style={[styles.statusBadge, { backgroundColor: theme.colors.secondaryTint }]}>
             <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-              ✓ Vibrate mode • Ringtone muted, alarms active
+              ✓ {t('autoSilenceBadge')}
             </AppText>
           </View>
         </View>
@@ -159,7 +159,7 @@ export const FocusSettingsGroup: React.FC<FocusSettingsGroupProps> = ({
                 </View>
                 <View style={styles.textCol}>
                   <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                    {((t as any)('congregationDelays') || 'Congregation Delays & Timers')}
+                    {t('prayerFocusAndCongregation')}
                   </AppText>
                   <AppText variant="caption" color={theme.colors.textSecondary}>
                     {t('prayerFocusAndCongregationSub')}

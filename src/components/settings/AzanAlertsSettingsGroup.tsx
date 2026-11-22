@@ -120,7 +120,7 @@ export const AzanAlertsSettingsGroup: React.FC<AzanAlertsSettingsGroupProps> = (
                 {t('prePrayerReminder')}
               </AppText>
               <AppText variant="caption" color={theme.colors.textSecondary}>
-                {reminderOffset === 'off' ? t('off') : `${reminderOffset.replace('m', '')} ${((t as any)('minutesBefore') || 'min before')}`}
+                {reminderOffset === 'off' ? t('off') : `${reminderOffset.replace('m', '')} min`}
               </AppText>
             </View>
           </View>
@@ -175,10 +175,10 @@ export const AzanAlertsSettingsGroup: React.FC<AzanAlertsSettingsGroupProps> = (
                 </View>
                 <View style={styles.textCol}>
                   <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.rowTitle}>
-                    {((t as any)('exactAlarmsTitle') || 'Exact Alarm Precision')}
+                    {t('localAlarmsEnabled')}
                   </AppText>
                   <AppText variant="caption" color={theme.colors.textSecondary}>
-                    {((t as any)('exactAlarmsDesc') || 'Guarantees on-time Azan wakeups')}
+                    {t('masterAlarmsSubtitle')}
                   </AppText>
                 </View>
               </View>
