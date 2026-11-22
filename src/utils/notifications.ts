@@ -226,12 +226,13 @@ export const scheduleAllPrayerAlerts = async (
               identifier: `salahfirst-alarm-${prayer.key}-${dateKey}`,
               content: {
                 title: isJumuah
-                  ? "Jumu'ah • Friday Prayer Call"
-                  : (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Prayer Call`,
+                  ? (i18n.t('notifPrayerTitleJumuah' as any) as string) || "Jumu'ah • Friday Prayer Call"
+                  : (i18n.t(alarmTitleKey as any) as string) || `${prayer.name} • Hayya 'alas-Salah`,
                 body: isJumuah
-                  ? "Hayya 'alas-Salah — It is time for Jumu'ah prayer."
+                  ? (i18n.t('notifPrayerBodyJumuah' as any) as string) ||
+                    "Jumu'ah Mubarak — Gather for the Friday remembrance and congregation."
                   : (i18n.t(alarmBodyKey as any) as string) ||
-                    `Hayya 'alas-Salah — It is time for ${prayer.name} prayer.`,
+                    `Hayya 'alas-Salah — Turn your heart in worship for ${prayer.name} prayer.`,
                 sound: mode === 'VIBRATE' ? undefined : soundName,
                 categoryIdentifier: PRAYER_CATEGORY_ID,
                 data: { prayerName: prayer.name, type: 'prayer-alarm' },

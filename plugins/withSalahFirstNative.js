@@ -14,6 +14,7 @@ const KOTLIN_FILES = [
   'DeviceSoundModeHelper.kt',
   'FocusSilencerModule.kt',
   'FocusSilencerPackage.kt',
+  'PrayerNotificationContent.kt',
   'SystemNavModule.kt',
   'SystemNavPackage.kt',
 ];

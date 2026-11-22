@@ -69,6 +69,15 @@ export const setNativeAlarmBehaviorPrefs = async (
   }
 };
 
+export const setNativeAppLanguage = async (language: string): Promise<boolean> => {
+  if (!isAndroid || !AzanModule?.setAppLanguage) return false;
+  try {
+    return await AzanModule.setAppLanguage(language);
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Schedule a native AlarmManager exact alarm to play full Azan via AzanService.
  * Works even when the app is killed, screen is off, or user is in another app.

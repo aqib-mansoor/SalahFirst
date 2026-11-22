@@ -128,6 +128,18 @@ class AzanModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaMo
     }
 
     @ReactMethod
+    fun setAppLanguage(language: String, promise: Promise) {
+        try {
+            reactApplicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putString("app_language", language)
+                .apply()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.resolve(false)
+        }
+    }
+
+    @ReactMethod
     fun scheduleAzan(
         prayerName: String,
         reciterName: String,

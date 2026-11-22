@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import { I18nManager } from 'react-native';
 import * as Localization from 'expo-localization';
 import { storage } from '@/utils/storage';
+import { setNativeAppLanguage } from '@/native/AzanServiceModule';
 import en from './locales/en.json';
 import ur from './locales/ur.json';
 import ar from './locales/ar.json';
@@ -73,6 +74,7 @@ export const initAppLanguage = async (): Promise<AppLanguage> => {
       I18nManager.allowRTL(rtl);
       I18nManager.forceRTL(rtl);
     }
+    setNativeAppLanguage(chosen).catch(() => {});
     
     return chosen;
   } catch {
@@ -93,6 +95,7 @@ export const changeAppLanguage = async (newLang: AppLanguage): Promise<void> => 
       I18nManager.allowRTL(rtl);
       I18nManager.forceRTL(rtl);
     }
+    setNativeAppLanguage(newLang).catch(() => {});
   } catch (error) {
     console.error('[i18n] Failed to switch language:', error);
   }

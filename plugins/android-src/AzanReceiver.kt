@@ -121,6 +121,13 @@ class AzanReceiver : BroadcastReceiver() {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
             val soundState = DeviceSoundModeHelper.evaluateSoundMode(context)
 
+            val prefs = context.getSharedPreferences(AzanModule.PREFS_NAME, Context.MODE_PRIVATE)
+            val lang = prefs.getString("app_language", null) ?: java.util.Locale.getDefault().language
+            val isTone = reciter == "tone"
+            val isVibrate = reciter == "vibrate"
+            val isAzan = !isTone && !isVibrate
+            val texts = PrayerNotificationContent.get(prayer, lang, isAzan)
+
             val openIntent = PendingIntent.getActivity(
                 context,
                 2001,
@@ -139,7 +146,7 @@ class AzanReceiver : BroadcastReceiver() {
             )
 
             // 1. VIBRATE Mode: Always vibrate (unless Total Silence DND) + visual banner
-            if (reciter == "vibrate") {
+            if (isVibrate) {
                 triggerHardwareVibration(context)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(VIBRATE_CHANNEL_ID) == null) {
                     val ch = NotificationChannel(
@@ -155,17 +162,24 @@ class AzanReceiver : BroadcastReceiver() {
                     }
                     nm.createNotificationChannel(ch)
                 }
+                val vibrateBigStyle = NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(texts.title)
+                    .setSummaryText(texts.subText)
+                    .bigText(texts.bigBody)
+
                 val vibrateNotif = NotificationCompat.Builder(context, VIBRATE_CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon)
-                    .setContentTitle("$prayer • Hayya 'alas-Salah")
-                    .setContentText("It is time for $prayer prayer.")
+                    .setContentTitle(texts.title)
+                    .setContentText(texts.shortBody)
+                    .setSubText(texts.subText)
+                    .setStyle(vibrateBigStyle)
                     .setPriority(NotificationCompat.PRIORITY_MAX)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setContentIntent(openIntent)
                     .setAutoCancel(true)
                     .setVibrate(VIBRATE_PATTERN)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .addAction(0, "I Have Prayed", markPrayedIntent)
+                    .addAction(0, texts.prayedAction, markPrayedIntent)
                     .build()
                 nm.notify(NOTIFICATION_ID, vibrateNotif)
                 return
@@ -173,7 +187,6 @@ class AzanReceiver : BroadcastReceiver() {
 
             // 2. Strictly respect Silent and DND modes for audible modes (AZAN & TONE),
             // except when Fajr Wake-Up Override is enabled and device is not in Total Silence DND.
-            val prefs = context.getSharedPreferences(AzanModule.PREFS_NAME, Context.MODE_PRIVATE)
             val fajrOverride = prefs.getBoolean(AzanModule.KEY_FAJR_OVERRIDE, true)
             val isFajrPrayer = prayer.equals("Fajr", ignoreCase = true)
             val isTotalSilence = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -194,22 +207,28 @@ class AzanReceiver : BroadcastReceiver() {
                     }
                     nm.createNotificationChannel(ch)
                 }
+                val silentBigStyle = NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(texts.title)
+                    .setSummaryText(texts.subText)
+                    .bigText(texts.bigBody)
+
                 val silentNotif = NotificationCompat.Builder(context, SILENT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon)
-                    .setContentTitle("$prayer • Hayya 'alas-Salah")
-                    .setContentText("It is time for $prayer prayer.")
+                    .setContentTitle(texts.title)
+                    .setContentText(texts.shortBody)
+                    .setSubText(texts.subText)
+                    .setStyle(silentBigStyle)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setContentIntent(openIntent)
                     .setAutoCancel(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .addAction(0, "I Have Prayed", markPrayedIntent)
+                    .addAction(0, texts.prayedAction, markPrayedIntent)
                     .build()
                 nm.notify(NOTIFICATION_ID, silentNotif)
                 return
             }
 
-            val isTone = reciter == "tone"
             val (channelId, channelName, rawName) = when (reciter) {
                 "tone"    -> Triple("salahfirst-prayer-tone-v3", "Prayer Alert (Chime Tone)", "prayer_tone")
                 "madinah" -> Triple("salahfirst-azan-alarm-madinah-v3", "Prayer Azan Alarm (Madinah)", "azan_madinah")
@@ -249,13 +268,17 @@ class AzanReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
+            val bigStyle = NotificationCompat.BigTextStyle()
+                .setBigContentTitle(texts.title)
+                .setSummaryText(texts.subText)
+                .bigText(texts.bigBody)
+
             val builder = NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("$prayer • Hayya 'alas-Salah")
-                .setContentText(
-                    if (isTone) "It is time for $prayer prayer."
-                    else "It is time for $prayer prayer. Tap Stop Azan to silence."
-                )
+                .setContentTitle(texts.title)
+                .setContentText(texts.shortBody)
+                .setSubText(texts.subText)
+                .setStyle(bigStyle)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(openIntent)
@@ -263,11 +286,11 @@ class AzanReceiver : BroadcastReceiver() {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSound(soundUri, AudioManager.STREAM_ALARM)
 
-            if (!isTone) {
-                builder.addAction(android.R.drawable.ic_media_pause, "Stop Azan", stopIntent)
+            if (isAzan) {
+                builder.addAction(android.R.drawable.ic_media_pause, texts.silenceAction, stopIntent)
                 isPlaying = true
             }
-            builder.addAction(0, "I Have Prayed", markPrayedIntent)
+            builder.addAction(0, texts.prayedAction, markPrayedIntent)
 
             nm.notify(NOTIFICATION_ID, builder.build())
             Log.i(TAG, "Audible prayer notification posted on $channelId for $prayer.")
