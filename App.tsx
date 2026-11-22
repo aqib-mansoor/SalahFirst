@@ -62,26 +62,17 @@ function AppContent() {
 
   const { location } = useDeviceLocation();
   const { alerts } = usePrayerAlerts();
-  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic, activeCycle, activeDateKey } =
+  const { prayersList, setPrayerCompleted, prayerData, calcMethod, juristic, fiqh, activeCycle, activeDateKey } =
     usePrayerTracker(location, { enableCountdown: false });
 
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
+  useFocusAutoSilencer(prayerData.raw, fiqh);
 
   const { isReciting, recitingPrayer, stopRecitation } = useAzanAutoReciter({
-    location,
-    alerts,
-    calculationMethod: calcMethod,
-    juristicMethod: juristic,
+    location, alerts, calculationMethod: calcMethod, juristicMethod: juristic,
   });
 
-  const {
-    isUpdateVisible,
-    updateInfo,
-    dismissUpdate,
-    openChangelog,
-    currentVersion,
-    currentVersionCode,
-  } = useAppUpdateChecker();
+  const { isUpdateVisible, updateInfo, dismissUpdate, openChangelog, currentVersion, currentVersionCode } = useAppUpdateChecker();
 
   useTransparentNavigationBar({
     isDark: theme.isDark,
@@ -134,11 +125,7 @@ function AppContent() {
   }, []);
 
   useNotificationResponseRouter({
-    setCurrentStep,
-    setActiveTab,
-    setActiveSession,
-    setFocusPrayerName,
-    setFocusDuration,
+    setCurrentStep, setActiveTab, setActiveSession, setFocusPrayerName, setFocusDuration,
     onMarkPrayerCompleted: (name) => setPrayerCompleted(name, true),
   });
   useEffect(() => registerSingleNotificationPolicy(), []);
@@ -182,12 +169,10 @@ function AppContent() {
     setFocusConfigOrigin('main');
     setCurrentStep('focus-config');
   };
-
   const handleOpenFocusConfigFromSettings = () => {
     setFocusConfigOrigin('settings');
     setCurrentStep('focus-config');
   };
-
   const handleOpenWallpaper = (hadith?: HadithItem) => {
     setWallpaperHadith(hadith || VERIFIED_HADITHS[getDayOfYearHadithIndex()]);
     setCurrentStep('wallpaper');
@@ -282,15 +267,11 @@ function AppContent() {
         </ScreenTransitionView>
       )}
 
-      {/* Global In-App Update Bottom Sheet */}
       <AppUpdateBottomSheet
         visible={isUpdateVisible}
         updateInfo={updateInfo}
         currentVersion={currentVersion}
-        isChangelogOnly={
-          !!updateInfo &&
-          updateInfo.latestVersionCode <= currentVersionCode
-        }
+        isChangelogOnly={!!updateInfo && updateInfo.latestVersionCode <= currentVersionCode}
         onDismiss={dismissUpdate}
       />
     </View>
