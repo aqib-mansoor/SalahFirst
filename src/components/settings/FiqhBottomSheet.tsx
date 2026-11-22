@@ -123,13 +123,13 @@ export const FiqhBottomSheet: React.FC<FiqhBottomSheetProps> = ({
                         styles.badge,
                         {
                           backgroundColor:
-                            item.asrRule === 'double' ? theme.colors.accentTint : theme.colors.mintTint,
+                            item.asrRule === 'double' ? theme.colors.accentTint : theme.colors.secondaryTint,
                         },
                       ]}
                     >
                       <AppText
                         variant="caption"
-                        color={item.asrRule === 'double' ? theme.colors.accent : theme.colors.mint}
+                        color={item.asrRule === 'double' ? theme.colors.accent : theme.colors.primary}
                         style={styles.badgeText}
                       >
                         {shadowBadge}

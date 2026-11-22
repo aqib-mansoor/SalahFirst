@@ -84,5 +84,5 @@ export const normalizeFiqh = (val?: string | null, country?: string): FiqhName =
   return 'Hanafi';
 };
 
-export const getMadhabForFiqh = (fiqh: FiqhName | string): Madhab =>
+export const getMadhabForFiqh = (fiqh: FiqhName | string) =>
   fiqh === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
