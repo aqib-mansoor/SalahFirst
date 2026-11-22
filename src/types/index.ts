@@ -4,6 +4,8 @@
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
+export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
+
 export type TimeFormat = '12h' | '24h';
 
 export type FiqhName = 'Hanafi' | 'Shafii' | 'Maliki' | 'Hanbali';

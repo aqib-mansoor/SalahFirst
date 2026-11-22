@@ -9,7 +9,7 @@ import { WelcomeScreen } from '@/components/welcome';
 import { SetupScreen } from '@/components/setup';
 import { MainTabShell } from '@/components/home';
 import { ScreenTransitionView, AppUpdateBottomSheet } from '@/components/common';
-import { AzanPrefsScreen, FloatingAzanBanner } from '@/components/prayerTimes';
+import { AzanPrefsScreen } from '@/components/prayerTimes';
 import { PrayerFocusConfigScreen, ActiveFocusScreen } from '@/components/focus';
 import { SettingsScreen } from '@/components/settings';
 import { PrivacyPolicyScreen, TermsScreen } from '@/components/legal';
@@ -68,7 +68,7 @@ function AppContent() {
   useNotificationScheduler(location, alerts, calcMethod, juristic, language);
   useFocusAutoSilencer(prayerData.raw, fiqh);
 
-  const { isReciting, recitingPrayer, stopRecitation } = useAzanAutoReciter({
+  useAzanAutoReciter({
     location, alerts, calculationMethod: calcMethod, juristicMethod: juristic,
   });
 
@@ -209,9 +209,6 @@ function AppContent() {
             setActiveTab={setActiveTab}
             progressSubTab={progressSubTab}
             setProgressSubTab={setProgressSubTab}
-            isAzanReciting={isReciting}
-            recitingPrayer={recitingPrayer}
-            onStopAzan={stopRecitation}
             onOpenSettings={() => setCurrentStep('settings')}
             onOpenAzanPrefs={() => setCurrentStep('azan-prefs')}
             onStartPrayerFocus={handleStartFocusImmediately}
@@ -259,11 +256,6 @@ function AppContent() {
               onClose={() => setCurrentStep('main')}
             />
           )}
-          {isReciting && (
-            <View style={styles.secondaryAzanDock}>
-              <FloatingAzanBanner visible={isReciting} prayerName={recitingPrayer} onStop={stopRecitation} />
-            </View>
-          )}
         </ScreenTransitionView>
       )}
 
@@ -294,5 +286,4 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   mainShell: { flex: 1 },
   hiddenScreen: { display: 'none' },
-  secondaryAzanDock: { position: 'absolute', bottom: 28, left: 0, right: 0, zIndex: 999 },
 });

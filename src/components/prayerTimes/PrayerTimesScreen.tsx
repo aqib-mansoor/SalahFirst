@@ -8,17 +8,15 @@ import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer, AppText } from '@/components/common';
 import { HomeTab } from '@/components/home/HomeBottomNav';
-import {
-  PrayerTimesHeader,
-  PrayerTimesDateSwitcher,
-  PrayerTimesLocationCard,
-  SunMilestonesCard,
-  NextTomorrowPrayerCard,
-  NaflTimingsCard,
-  PrayerTimeRow,
-  LocationBottomSheet,
-  AzanPrefsScreen,
-} from '@/components/prayerTimes';
+import { PrayerTimesHeader } from './PrayerTimesHeader';
+import { PrayerTimesDateSwitcher } from './PrayerTimesDateSwitcher';
+import { PrayerTimesLocationCard } from './PrayerTimesLocationCard';
+import { SunMilestonesCard } from './SunMilestonesCard';
+import { NextTomorrowPrayerCard } from './NextTomorrowPrayerCard';
+import { NaflTimingsCard } from './NaflTimingsCard';
+import { PrayerTimeRow } from './PrayerTimeRow';
+import { LocationBottomSheet } from './LocationBottomSheet';
+import { AzanPrefsScreen } from './AzanPrefsScreen';
 import {
   getPrayerTimes,
   formatRemainingTime,

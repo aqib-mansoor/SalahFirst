@@ -8,7 +8,8 @@ import { useTranslation } from '@/context/LocalizationContext';
 import { IslamicNavIcon } from './IslamicNavIcons';
 
 
-export type HomeTab = 'home' | 'prayers' | 'qibla' | 'hadith' | 'progress';
+import { HomeTab } from '@/types';
+export type { HomeTab };
 
 export interface HomeBottomNavProps {
   activeTab: HomeTab;

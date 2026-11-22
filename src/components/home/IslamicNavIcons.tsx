@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
-import { HomeTab } from './HomeBottomNav';
+import { HomeTab } from '@/types';
 
 export interface IslamicNavIconProps {
   tabId: HomeTab;

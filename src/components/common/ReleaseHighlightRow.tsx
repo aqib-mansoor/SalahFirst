@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText } from './AppText';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { ReleaseFeatureItem } from '@/types/appVersion';
 import Svg, { Path } from 'react-native-svg';

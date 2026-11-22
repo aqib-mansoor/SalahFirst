@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeScreen } from './HomeScreen';
-import { PrayerTimesScreen, FloatingAzanBanner } from '@/components/prayerTimes';
+import { PrayerTimesScreen } from '@/components/prayerTimes';
 import { QiblaScreen } from '@/components/qibla';
 import { HadithScreen } from '@/components/hadith';
 import { ProgressScreen, ProgressSubTab } from '@/components/progress';
@@ -15,9 +15,6 @@ export interface MainTabShellProps {
   setActiveTab: (tab: HomeTab) => void;
   progressSubTab: ProgressSubTab;
   setProgressSubTab: (subTab: ProgressSubTab) => void;
-  isAzanReciting?: boolean;
-  recitingPrayer?: string | null;
-  onStopAzan?: () => void;
   onOpenSettings: () => void;
   onOpenAzanPrefs?: () => void;
   onStartPrayerFocus: () => void;
@@ -34,9 +31,6 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
   setActiveTab,
   progressSubTab,
   setProgressSubTab,
-  isAzanReciting = false,
-  recitingPrayer = null,
-  onStopAzan,
   onOpenSettings,
   onOpenAzanPrefs,
   onStartPrayerFocus,
@@ -120,17 +114,6 @@ export const MainTabShell: React.FC<MainTabShellProps> = ({
         />
       </Animated.View>
 
-      {/* Persistent Azan Recitation Dock (Positioned cleanly above the bottom nav bar so top screen headers are never covered) */}
-      {isAzanReciting && recitingPrayer && onStopAzan && (
-        <View style={[styles.azanDockAboveNav, { bottom: Math.max(insets.bottom + 10, 24) + 64 }]}>
-          <FloatingAzanBanner
-            visible={isAzanReciting}
-            prayerName={recitingPrayer}
-            onStop={onStopAzan}
-          />
-        </View>
-      )}
-
       {/* Single Persistent Floating Navigation Bar */}
       <HomeBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </View>
@@ -146,11 +129,5 @@ const styles = StyleSheet.create({
   },
   hiddenTab: {
     display: 'none',
-  },
-  azanDockAboveNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 999,
   },
 });
