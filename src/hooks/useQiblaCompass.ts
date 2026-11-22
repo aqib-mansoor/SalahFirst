@@ -21,6 +21,7 @@ export const useQiblaCompass = (
   const [needsCalibration, setNeedsCalibration] = useState<boolean>(false);
   const [isTilted, setIsTilted] = useState<boolean>(false);
   const smoothHeadingRef = useRef<number>(0);
+  const lastReportedHeadingRef = useRef<number>(-1);
   const wasAlignedRef = useRef<boolean>(false);
   const gravityRef = useRef<{ x: number; y: number; z: number } | null>(null);
 
@@ -64,7 +65,8 @@ export const useQiblaCompass = (
             const norm = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z) || 1;
             const tiltRad = Math.acos(Math.min(1, Math.abs(acc.z) / norm));
             const tiltDeg = (tiltRad * 180) / Math.PI;
-            setIsTilted(tiltDeg > 32);
+            const isNowTilted = tiltDeg > 32;
+            setIsTilted((prev) => (prev !== isNowTilted ? isNowTilted : prev));
           });
         }
 
@@ -102,11 +104,8 @@ export const useQiblaCompass = (
 
           // Check magnetic magnitude for interference (normal Earth field ~30-65 uT)
           const magnitude = Math.sqrt(x * x + y * y + z * z);
-          if (magnitude > 0 && (magnitude < 20 || magnitude > 85)) {
-            setNeedsCalibration(true);
-          } else {
-            setNeedsCalibration(false);
-          }
+          const isInterference = magnitude > 0 && (magnitude < 20 || magnitude > 85);
+          setNeedsCalibration((prev) => (prev !== isInterference ? isInterference : prev));
 
           // Low-pass filter smoothing for steady compass rotation
           let diff = rawAngle - smoothHeadingRef.current;
@@ -114,7 +113,11 @@ export const useQiblaCompass = (
           if (diff < -180) diff += 360;
 
           smoothHeadingRef.current = (smoothHeadingRef.current + diff * 0.25 + 360) % 360;
-          setHeading(Math.round(smoothHeadingRef.current));
+          const roundedHeading = Math.round(smoothHeadingRef.current);
+          if (roundedHeading !== lastReportedHeadingRef.current) {
+            lastReportedHeadingRef.current = roundedHeading;
+            setHeading(roundedHeading);
+          }
         });
       } catch {
         if (isMounted) setHasSensor(false);

@@ -60,3 +60,5 @@ Thumbs.db
 *.tsbuildinfo
 coverage/
 .nyc_output/
+tmp_test/
+

@@ -3,9 +3,9 @@ import { createAudioPlayer, setAudioModeAsync, AudioPlayer, AudioStatus } from '
 import { getDeviceSoundMode } from '@/native/AzanServiceModule';
 
 export const AZAN_PRESET_URLS = {
-  makkah: 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
-  madinah: 'https://cdn.aladhan.com/audio/adhans/a2.mp3',
-  alAqsa: 'https://cdn.aladhan.com/audio/adhans/a3.mp3',
+  makkah: 'azan_makkah',
+  madinah: 'azan_madinah',
+  alAqsa: 'azan_alaqsa',
 } as const;
 
 export type AzanReciterKey = keyof typeof AZAN_PRESET_URLS;
