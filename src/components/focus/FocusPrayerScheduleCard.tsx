@@ -167,9 +167,12 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
 
 const styles = StyleSheet.create({
   card: { padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, gap: SPACING.sm + 2 },
-  titleColumn: { gap: 2 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  titleColumn: { flex: 1, gap: 2, marginRight: SPACING.sm },
   title: { fontWeight: '700', fontSize: 14 },
   subtitle: { fontSize: 12 },
+  resetBtn: { paddingVertical: 2, paddingHorizontal: 2 },
+  resetText: { fontWeight: '600', fontSize: 11.5 },
   prayersList: { gap: 2 },
   prayerRow: { paddingVertical: SPACING.sm + 2, gap: 6 },
   topInfo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

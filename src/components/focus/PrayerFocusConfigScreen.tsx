@@ -5,21 +5,28 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppContainer, AppButton, ScreenHeader } from '@/components/common';
 import { FocusPrayerScheduleCard } from './FocusPrayerScheduleCard';
+import { FocusAutoSilenceCard } from './FocusAutoSilenceCard';
 import { FocusSettingsCard } from './FocusSettingsCard';
-import { FocusDuration } from '@/types';
+import { FocusDuration, FiqhName } from '@/types';
 import { FormattedPrayerTimes } from '@/utils/prayerTimes';
 import { useTranslation } from '@/context/LocalizationContext';
+import { useAppSelector } from '@/store/hooks';
+import { getDefaultDelaysForFiqh } from '@/constants/fiqh';
 import {
   PrayerFocusOffsets,
   PrayerFocusDurations,
+  AutoSilenceConfig,
   DEFAULT_FOCUS_OFFSETS,
   DEFAULT_FOCUS_DURATIONS,
+  DEFAULT_AUTO_SILENCE_CONFIG,
   loadFocusOffsets,
   saveFocusOffsets,
   loadFocusDurations,
   saveFocusDurations,
   loadFocusPreferences,
   saveFocusPreferences,
+  loadAutoSilenceConfig,
+  saveAutoSilenceConfig,
 } from '@/utils/prayerFocusOffsets';
 
 export interface PrayerFocusConfigScreenProps {
@@ -37,23 +44,27 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const activeFiqh = useAppSelector((state) => (state.prayer.fiqh || state.prayer.juristic || 'Hanafi') as FiqhName);
 
   const [offsets, setOffsets] = useState<PrayerFocusOffsets>(DEFAULT_FOCUS_OFFSETS);
   const [durations, setDurations] = useState<PrayerFocusDurations>(DEFAULT_FOCUS_DURATIONS);
+  const [silenceConfig, setSilenceConfig] = useState<AutoSilenceConfig>(DEFAULT_AUTO_SILENCE_CONFIG);
   const [autoStart, setAutoStart] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([
-      loadFocusOffsets(),
+      loadFocusOffsets(activeFiqh),
       loadFocusDurations(),
       loadFocusPreferences(),
-    ]).then(([loadedOffsets, loadedDurations, loadedPrefs]) => {
+      loadAutoSilenceConfig(),
+    ]).then(([loadedOffsets, loadedDurations, loadedPrefs, loadedSilence]) => {
       setOffsets(loadedOffsets);
       setDurations(loadedDurations);
       setAutoStart(loadedPrefs.autoStartOnAzan);
+      setSilenceConfig(loadedSilence);
     });
-  }, []);
+  }, [activeFiqh]);
 
   const handleUpdateDelay = (prayer: keyof PrayerFocusOffsets, mins: number) => {
     setOffsets((prev) => ({ ...prev, [prayer]: mins }));
@@ -63,12 +74,26 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
     setDurations((prev) => ({ ...prev, [prayer]: mins }));
   };
 
+  const handleResetToFiqhDefaults = () => {
+    const defaults = getDefaultDelaysForFiqh(activeFiqh);
+    setOffsets(defaults);
+  };
+
+  const handleToggleSilenceMaster = (enabled: boolean) => {
+    setSilenceConfig((prev) => ({ ...prev, enabled }));
+  };
+
+  const handleToggleSilencePrayer = (prayer: keyof Omit<AutoSilenceConfig, 'enabled'>) => {
+    setSilenceConfig((prev) => ({ ...prev, [prayer]: !prev[prayer] }));
+  };
+
   const handleSaveAndReturn = async () => {
     setIsSaving(true);
     const existingPrefs = await loadFocusPreferences();
     await Promise.all([
       saveFocusOffsets(offsets),
       saveFocusDurations(durations),
+      saveAutoSilenceConfig(silenceConfig),
       saveFocusPreferences({
         ...existingPrefs,
         autoStartOnAzan: autoStart,
@@ -103,8 +128,16 @@ export const PrayerFocusConfigScreen: React.FC<PrayerFocusConfigScreenProps> = (
             offsets={offsets}
             durations={durations}
             rawPrayerDates={rawPrayerDates}
+            fiqhName={activeFiqh}
             onUpdateDelay={handleUpdateDelay}
             onUpdateDuration={handleUpdateDuration}
+            onResetDefaults={handleResetToFiqhDefaults}
+          />
+
+          <FocusAutoSilenceCard
+            config={silenceConfig}
+            onToggleMaster={handleToggleSilenceMaster}
+            onTogglePrayer={handleToggleSilencePrayer}
           />
 
           <FocusSettingsCard
