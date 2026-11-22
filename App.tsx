@@ -27,6 +27,7 @@ import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { useNotificationResponseRouter } from '@/hooks/useNotificationResponseRouter';
 import { useAzanAutoReciter } from '@/hooks/useAzanAutoReciter';
+import { useFocusAutoSilencer } from '@/hooks/useFocusAutoSilencer';
 import { useTheme } from '@/hooks/useTheme';
 import { useTransparentNavigationBar } from '@/hooks/useTransparentNavigationBar';
 import { useAppBackHandler, AppStep } from '@/hooks/useAppBackHandler';

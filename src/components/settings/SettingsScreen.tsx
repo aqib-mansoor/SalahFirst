@@ -23,6 +23,8 @@ import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
 import { GeneralSettingsGroup } from './GeneralSettingsGroup';
 import { PresetCity } from '@/data';
 import { CalculationMethodName, JuristicMethod, FiqhName, TimeFormat, PrayerMinuteAdjustments } from '@/types';
+import { getDefaultDelaysForFiqh } from '@/constants/fiqh';
+import { saveFocusOffsets } from '@/utils/prayerFocusOffsets';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setCalculationMethod, setJuristicMethod, setFiqh, setPrayerAdjustments } from '@/store/slices/prayerSlice';
 import { setTimeFormat, setHapticFeedback } from '@/store/slices/preferencesSlice';
@@ -128,6 +130,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   const handleSelectFiqh = (selectedFiqh: FiqhName, applyRecommendedCalc: boolean) => {
     dispatch(setFiqh({ fiqh: selectedFiqh, applyRecommendedCalc }));
+    saveFocusOffsets(getDefaultDelaysForFiqh(selectedFiqh));
     notifyTrackerPreferencesChanged();
   };
 
