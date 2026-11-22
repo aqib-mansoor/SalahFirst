@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, ThreeDFlameIcon } from '@/components/common';
 import { DayOverview } from '@/utils/trackerStatistics';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -95,7 +95,7 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
               </AppText>
 
               {isFull ? (
-                <AppText style={styles.flameEmoji}>🔥</AppText>
+                <ThreeDFlameIcon size={14} />
               ) : (
                 <AppText
                   variant="caption"

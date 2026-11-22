@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, ThreeDMedalIcon, ThreeDCrownIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksMilestonesProps {
@@ -45,7 +45,7 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
               },
             ]}
           >
-            <AppText style={styles.milestoneEmoji}>🏅</AppText>
+            <ThreeDMedalIcon size={22} />
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.title}>
@@ -91,7 +91,7 @@ export const StreaksMilestones: React.FC<StreaksMilestonesProps> = ({ currentStr
               },
             ]}
           >
-            <AppText style={styles.milestoneEmoji}>👑</AppText>
+            <ThreeDCrownIcon size={22} />
           </View>
           <View style={styles.textCol}>
             <AppText variant="titleSmall" color={theme.colors.textPrimary} style={styles.title}>

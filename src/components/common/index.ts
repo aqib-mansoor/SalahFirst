@@ -14,4 +14,5 @@ export * from './AppBottomSheet';
 export * from './AppUpdateBottomSheet';
 export * from './ReleaseHighlightRow';
 export * from './BatteryOptimizationBottomSheet';
+export * from './App3DIcons';
 

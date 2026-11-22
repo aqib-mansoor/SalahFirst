@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, ThreeDTrophyIcon, ThreeDMosqueIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 
 export interface StreaksMetricsRowProps {
@@ -45,7 +45,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
               },
             ]}
           >
-            <AppText style={styles.emojiText}>🏆</AppText>
+            <ThreeDTrophyIcon size={20} />
           </View>
         </View>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>
@@ -82,7 +82,7 @@ export const StreaksMetricsRow: React.FC<StreaksMetricsRowProps> = ({
               },
             ]}
           >
-            <AppText style={styles.emojiText}>🕌</AppText>
+            <ThreeDMosqueIcon size={20} />
           </View>
         </View>
         <AppText variant="titleLarge" color={theme.colors.text} style={styles.valueText}>

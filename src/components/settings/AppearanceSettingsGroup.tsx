@@ -59,12 +59,12 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
         {/* Row 1: Theme Mode Info + 3-way Segmented Control */}
         <View style={styles.themeRow}>
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-                <Circle cx="12" cy="12" r="5" stroke={theme.colors.accent} strokeWidth="2" />
+                <Circle cx="12" cy="12" r="5" stroke={theme.colors.primary} strokeWidth="2" />
                 <Path
                   d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-                  stroke={theme.colors.accent}
+                  stroke={theme.colors.primary}
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -111,7 +111,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
         {/* Row 2: Time Format (12h vs 24h) */}
         <View style={styles.themeRow}>
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                 <Circle cx="12" cy="12" r="9" stroke={theme.colors.primary} strokeWidth="2" />
                 <Path d="M12 7v5l3 3" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -158,7 +158,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
         {/* Row 3: App Language Selector */}
         <Pressable onPress={onOpenLanguageSheet} style={styles.row}>
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                 <Circle cx="12" cy="12" r="10" stroke={theme.colors.primary} strokeWidth="2" />
                 <Path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -185,7 +185,7 @@ export const AppearanceSettingsGroup: React.FC<AppearanceSettingsGroupProps> = (
             <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
             <View style={styles.row}>
               <View style={styles.leftRow}>
-                <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
                   <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M6 8v8M18 8v8M3 10v4M21 10v4M9 5h6a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 4,
   },
   leftRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm + 4, flex: 1, paddingRight: SPACING.sm },
-  iconBox: { width: 36, height: 36, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
+  iconBox: { width: 36, height: 36, borderRadius: RADIUS.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   textCol: { flex: 1, gap: 2 },
   rowTitle: { fontWeight: '700' },
   segmentTrack: { flexDirection: 'row', borderRadius: RADIUS.md, borderWidth: 1, padding: 3, gap: 2 },

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, IslamicMihrabCanvas } from '@/components/common';
+import { AppText, IslamicMihrabCanvas, ThreeDFlameIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { DayOverview } from '@/utils/trackerStatistics';
 
@@ -71,7 +71,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays, we
               },
             ]}
           >
-            <AppText style={styles.flameEmoji}>🔥</AppText>
+            <ThreeDFlameIcon size={26} />
           </View>
         </View>
       </View>
@@ -105,7 +105,7 @@ export const StreaksHeroCard: React.FC<StreaksHeroCardProps> = ({ streakDays, we
                   ]}
                 >
                   {isFull ? (
-                    <AppText style={styles.miniFlameEmoji}>🔥</AppText>
+                    <ThreeDFlameIcon size={14} />
                   ) : isPartial ? (
                     <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.miniCountText}>
                       {day.completed}

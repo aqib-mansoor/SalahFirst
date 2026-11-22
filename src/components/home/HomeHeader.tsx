@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from '@/components/common';
+import { AppText, ThreeDFlameIcon } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { useHijriDate } from '@/hooks/useHijriDate';
 
@@ -112,7 +112,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
           ]}
         >
           <View style={[styles.streakIconOrb, { backgroundColor: theme.colors.surface }]}>
-            <AppText style={styles.streakEmoji}>🔥</AppText>
+            <ThreeDFlameIcon size={15} />
           </View>
           <AppText
             variant="caption"

@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, IslamicMihrabCanvas } from '@/components/common';
+import { AppText, IslamicMihrabCanvas, ThreeDTasbihIcon } from '@/components/common';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 import { TasbihResetModal } from './TasbihResetModal';
@@ -50,8 +50,9 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
           </AppText>
           {totalCycles > 0 && (
             <View style={[styles.cyclesBadge, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
+              <ThreeDTasbihIcon size={14} />
               <AppText variant="caption" color={theme.colors.textPrimary} style={styles.cyclesText}>
-                📿 {totalCycles} {totalCycles === 1 ? t('cycleSingular') : t('cyclesPlural')}
+                {totalCycles} {totalCycles === 1 ? t('cycleSingular') : t('cyclesPlural')}
               </AppText>
             </View>
           )}
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   titleWithBadge: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   title: { fontWeight: '800', letterSpacing: -0.2 },
-  cyclesBadge: { paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1 },
+  cyclesBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1 },
   cyclesText: { fontWeight: '700', fontSize: 10.5 },
   resetButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   resetText: { fontWeight: '600' },

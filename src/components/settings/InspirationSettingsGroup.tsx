@@ -42,7 +42,7 @@ export const InspirationSettingsGroup: React.FC<InspirationSettingsGroupProps> =
             <View
               style={[
                 styles.iconBox,
-                { backgroundColor: theme.colors.secondaryTint },
+                { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border },
               ]}
             >
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

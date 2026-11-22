@@ -28,14 +28,37 @@ export const FiqhSettingRow: React.FC<FiqhSettingRowProps> = ({ fiqh, onPress })
       style={({ pressed }) => [styles.row, pressed && { opacity: 0.75 }]}
     >
       <View style={styles.leftRow}>
-        <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+        <View
+          style={[
+            styles.iconBox,
+            {
+              backgroundColor: theme.colors.secondaryTint,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          {/* Authentic Islamic Jurisprudence Book Vector */}
           <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="5" stroke={theme.colors.accent} strokeWidth="2" />
             <Path
-              d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-              stroke={theme.colors.accent}
+              d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+              stroke={theme.colors.primary}
               strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Path
+              d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+              stroke={theme.colors.primary}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Path
+              d="M8 7h8M8 11h5"
+              stroke={theme.colors.primary}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </Svg>
         </View>
@@ -83,9 +106,10 @@ const styles = StyleSheet.create({
     marginRight: SPACING.sm,
   },
   iconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: RADIUS.sm,
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,

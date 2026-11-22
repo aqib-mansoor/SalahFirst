@@ -43,7 +43,7 @@ export const ReengagementSettingsGroup: React.FC<ReengagementSettingsGroupProps>
             <View
               style={[
                 styles.iconBox,
-                { backgroundColor: theme.colors.mintTint },
+                { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border },
               ]}
             >
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -118,9 +118,10 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   iconBox: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

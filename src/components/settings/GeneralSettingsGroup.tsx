@@ -46,11 +46,11 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
               style={styles.row}
             >
               <View style={styles.leftRow}>
-                <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+                <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
                   <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
-                      stroke={theme.colors.accent}
+                      stroke={theme.colors.primary}
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -81,7 +81,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
           style={styles.row}
         >
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                 <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
@@ -108,7 +108,7 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
           style={styles.row}
         >
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.mintTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
                 <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -136,9 +136,9 @@ export const GeneralSettingsGroup: React.FC<GeneralSettingsGroupProps> = ({
           style={styles.infoRow}
         >
           <View style={styles.leftRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.border }]}>
               <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-                <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke={theme.colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </View>
             <View style={styles.textCol}>
@@ -196,6 +196,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
