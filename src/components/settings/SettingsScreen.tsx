@@ -9,35 +9,28 @@ import { usePrayerAlerts } from '@/hooks/usePrayerAlerts';
 import { useAzanAudio } from '@/hooks/useAzanAudio';
 import { useHijriDate } from '@/hooks/useHijriDate';
 import { AppContainer } from '@/components/common';
-import { LocationBottomSheet } from '@/components/prayerTimes/LocationBottomSheet';
-import { LanguageBottomSheet } from './LanguageBottomSheet';
-import { CalculationMethodBottomSheet } from './CalculationMethodBottomSheet';
-import { PrayerAdjustmentsBottomSheet } from './PrayerAdjustmentsBottomSheet';
-import { FiqhBottomSheet } from './FiqhBottomSheet';
-import { BackupRestoreModal } from './BackupRestoreModal';
 import { SettingsHeader } from './SettingsHeader';
 import { PrayerSettingsGroup } from './PrayerSettingsGroup';
-import { AppearanceSettingsGroup } from './AppearanceSettingsGroup';
-import { InspirationSettingsGroup } from './InspirationSettingsGroup';
-import { ReengagementSettingsGroup } from './ReengagementSettingsGroup';
-import { GeneralSettingsGroup } from './GeneralSettingsGroup';
+import { AzanAlertsSettingsGroup } from './AzanAlertsSettingsGroup';
+import { FocusSettingsGroup } from './FocusSettingsGroup';
+import { SystemSettingsGroup } from './SystemSettingsGroup';
+import { SettingsModalsHub } from './SettingsModalsHub';
 import { PresetCity } from '@/data';
 import { CalculationMethodName, JuristicMethod, FiqhName, TimeFormat, PrayerMinuteAdjustments } from '@/types';
 import { getDefaultDelaysForFiqh } from '@/constants/fiqh';
-import { saveFocusOffsets } from '@/utils/prayerFocusOffsets';
+import {
+  saveFocusOffsets,
+  loadAutoSilenceConfig,
+  saveAutoSilenceConfig,
+  DEFAULT_AUTO_SILENCE_CONFIG,
+  AutoSilenceConfig,
+} from '@/utils/prayerFocusOffsets';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCalculationMethod, setJuristicMethod, setFiqh, setPrayerAdjustments } from '@/store/slices/prayerSlice';
+import { setCalculationMethod, setFiqh, setPrayerAdjustments } from '@/store/slices/prayerSlice';
 import { setTimeFormat, setHapticFeedback } from '@/store/slices/preferencesSlice';
 import { triggerHaptic } from '@/utils/haptics';
-import {
-  getInspirationConfig,
-  saveInspirationConfig,
-  scheduleDailyInspirationNotification,
-} from '@/utils/inspirationScheduler';
-import {
-  getReengagementConfig,
-  saveReengagementConfig,
-} from '@/utils/reengagementScheduler';
+import { getInspirationConfig, saveInspirationConfig, scheduleDailyInspirationNotification } from '@/utils/inspirationScheduler';
+import { getReengagementConfig, saveReengagementConfig } from '@/utils/reengagementScheduler';
 
 export interface SettingsScreenProps {
   onBack: () => void;
@@ -72,12 +65,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onOpenChangelog,
 }) => {
   const { theme, themeMode, setThemeMode } = useThemeState();
-  const { location, updateLocation, requestGpsLocation } = useDeviceLocation();
+  const { location, updateLocation } = useDeviceLocation();
   const { prayerData, calcMethod, juristic, fiqh: reduxFiqh } = usePrayerTracker(location);
-  const { alerts } = usePrayerAlerts();
+  const { alerts, setReminder, toggleExactAlarms } = usePrayerAlerts();
   const { currentReciter } = useAzanAudio();
   const { adjustment: hijriAdjustment, updateAdjustment: handleUpdateHijriAdjustment } = useHijriDate(location?.country);
   const { language, t } = useTranslation();
+
   const [sheetVisible, setSheetVisible] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
   const [calcMethodSheetVisible, setCalcMethodSheetVisible] = useState(false);
@@ -86,6 +80,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [inspirationEnabled, setInspirationEnabled] = useState(true);
   const [reengagementEnabled, setReengagementEnabled] = useState(true);
+  const [silenceConfig, setSilenceConfig] = useState<AutoSilenceConfig>(DEFAULT_AUTO_SILENCE_CONFIG);
+
   const dispatch = useAppDispatch();
   const timeFormat = useAppSelector((state) => state.preferences.timeFormat);
   const hapticFeedback = useAppSelector((state) => state.preferences.hapticFeedback);
@@ -94,7 +90,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   useEffect(() => {
     getInspirationConfig().then((cfg) => setInspirationEnabled(cfg.enabled));
     getReengagementConfig().then((cfg) => setReengagementEnabled(cfg.enabled));
+    loadAutoSilenceConfig().then((cfg) => setSilenceConfig(cfg));
   }, []);
+
+  const handleToggleAutoSilenceMaster = async (enabled: boolean) => {
+    const updated = { ...silenceConfig, enabled };
+    setSilenceConfig(updated);
+    await saveAutoSilenceConfig(updated);
+  };
+
+  const handleToggleAutoSilencePrayer = async (prayer: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha') => {
+    const updated = { ...silenceConfig, [prayer]: !silenceConfig[prayer] };
+    setSilenceConfig(updated);
+    await saveAutoSilenceConfig(updated);
+  };
 
   const handleToggleReengagement = async (val: boolean) => {
     setReengagementEnabled(val);
@@ -118,29 +127,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     }
   };
 
-  const handleSelectCity = (city: PresetCity) => {
-    updateLocation({
-      city: city.name,
-      country: city.country,
-      latitude: city.latitude,
-      longitude: city.longitude,
-      isGps: false,
-    });
-  };
-
   const handleSelectFiqh = (selectedFiqh: FiqhName, applyRecommendedCalc: boolean) => {
     dispatch(setFiqh({ fiqh: selectedFiqh, applyRecommendedCalc }));
     saveFocusOffsets(getDefaultDelaysForFiqh(selectedFiqh));
-    notifyTrackerPreferencesChanged();
-  };
-
-  const handleSelectCalcMethod = (method: CalculationMethodName) => {
-    dispatch(setCalculationMethod(method));
-    notifyTrackerPreferencesChanged();
-  };
-
-  const handleUpdatePrayerAdjustments = (updated: PrayerMinuteAdjustments) => {
-    dispatch(setPrayerAdjustments(updated));
     notifyTrackerPreferencesChanged();
   };
 
@@ -150,41 +139,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       ? t('activePrayerOffsetsCount', { count: activeAdjustmentsCount })
       : t('prayerTimeAdjustmentsSub');
 
-  const languageLabel =
-    language === 'ur'
-      ? 'اردو (Urdu)'
-      : language === 'ar'
-      ? 'العربية (Arabic)'
-      : 'English';
-
-  const reciterName =
-    currentReciter === 'madinah'
-      ? t('reciterMadinah')
-      : currentReciter === 'alAqsa'
-      ? t('reciterAlAqsa')
-      : t('reciterMakkah');
-  const reminderLabel =
-    alerts.reminderOffset === 'off'
-      ? t('off')
-      : alerts.reminderOffset === '10m'
-      ? t('tenMinBefore')
-      : alerts.reminderOffset === '30m'
-      ? t('thirtyMinBefore')
-      : t('fifteenMinBefore');
-  const azanSummaryText = `${reciterName} • ${reminderLabel}`;
+  const languageLabel = language === 'ur' ? 'اردو (Urdu)' : language === 'ar' ? 'العربية (Arabic)' : 'English';
+  const reciterName = currentReciter === 'madinah' ? t('reciterMadinah') : currentReciter === 'alAqsa' ? t('reciterAlAqsa') : t('reciterMakkah');
 
   return (
-    <AppContainer
-      edges={['top', 'left', 'right', 'bottom']}
-      style={{ backgroundColor: theme.colors.background }}
-    >
+    <AppContainer edges={['top', 'left', 'right', 'bottom']} style={{ backgroundColor: theme.colors.background }}>
       <View style={styles.container}>
         <SettingsHeader onBack={onBack} />
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+          {/* Pillar 1: Prayer Times & Calculation */}
           <PrayerSettingsGroup
             cityName={location?.city || t('selectCity')}
             country={location?.country || ''}
@@ -192,18 +156,41 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             fiqh={reduxFiqh || (juristic as FiqhName)}
             calculationMethodName={t(CALC_LABEL_KEYS[calcMethod] || 'calcMethodKarachi')}
             hijriAdjustment={hijriAdjustment}
-            azanSummaryText={azanSummaryText}
             adjustmentsSummaryText={adjustmentsSummaryText}
             onUpdateHijriAdjustment={handleUpdateHijriAdjustment}
             onOpenLocation={() => setSheetVisible(true)}
-            onOpenAzanPrefs={onOpenAzanPrefs}
-            onOpenFocusConfig={onOpenFocusConfig}
             onOpenPrayerAdjustments={() => setAdjustmentsSheetVisible(true)}
             onOpenFiqh={() => setFiqhSheetVisible(true)}
             onCycleCalculationMethod={() => setCalcMethodSheetVisible(true)}
           />
 
-          <AppearanceSettingsGroup
+          {/* Pillar 2: Azan & Audio Alerts */}
+          <AzanAlertsSettingsGroup
+            reciterName={reciterName}
+            reminderOffset={alerts.reminderOffset}
+            onSelectReminderOffset={(offset) => setReminder(offset)}
+            exactAlarmsEnabled={alerts.exactAlarmsEnabled !== false}
+            onToggleExactAlarms={toggleExactAlarms}
+            onOpenAzanPrefs={onOpenAzanPrefs}
+          />
+
+          {/* Pillar 3: Focus & Auto-Silence */}
+          <FocusSettingsGroup
+            autoSilenceEnabled={silenceConfig.enabled}
+            onToggleAutoSilence={handleToggleAutoSilenceMaster}
+            activePrayers={{
+              fajr: silenceConfig.fajr,
+              dhuhr: silenceConfig.dhuhr,
+              asr: silenceConfig.asr,
+              maghrib: silenceConfig.maghrib,
+              isha: silenceConfig.isha,
+            }}
+            onTogglePrayer={handleToggleAutoSilencePrayer}
+            onOpenFocusConfig={onOpenFocusConfig}
+          />
+
+          {/* Pillar 4: App & Preferences */}
+          <SystemSettingsGroup
             themeMode={themeMode}
             onSelectThemeMode={setThemeMode}
             timeFormat={timeFormat}
@@ -218,65 +205,45 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               dispatch(setHapticFeedback(enabled));
               if (enabled) triggerHaptic('light');
             }}
-          />
-
-          <InspirationSettingsGroup
-            enabled={inspirationEnabled}
-            onToggleEnabled={handleToggleInspiration}
-          />
-
-          <ReengagementSettingsGroup
-            enabled={reengagementEnabled}
-            onToggleEnabled={handleToggleReengagement}
-          />
-
-          <GeneralSettingsGroup
+            inspirationEnabled={inspirationEnabled}
+            onToggleInspiration={handleToggleInspiration}
+            reengagementEnabled={reengagementEnabled}
+            onToggleReengagement={handleToggleReengagement}
+            onOpenBackupRestore={() => setBackupModalVisible(true)}
             onOpenPrivacyPolicy={onOpenPrivacyPolicy}
             onOpenTerms={onOpenTerms}
             onOpenChangelog={onOpenChangelog}
-            onOpenBackupRestore={() => setBackupModalVisible(true)}
           />
         </ScrollView>
 
-        <LocationBottomSheet
-          visible={sheetVisible}
+        <SettingsModalsHub
+          sheetVisible={sheetVisible}
           currentCityName={location?.city || t('selectCity')}
-          isGps={location?.isGps}
-          onClose={() => setSheetVisible(false)}
-          onSelectCity={handleSelectCity}
-          onUseGps={requestGpsLocation}
-        />
-
-        <CalculationMethodBottomSheet
-          visible={calcMethodSheetVisible}
-          selectedMethod={calcMethod}
-          onSelectMethod={handleSelectCalcMethod}
-          onClose={() => setCalcMethodSheetVisible(false)}
-        />
-
-        <FiqhBottomSheet
-          visible={fiqhSheetVisible}
+          onSelectCity={(city: PresetCity) => updateLocation({ city: city.name, country: city.country, latitude: city.latitude, longitude: city.longitude, isGps: false })}
+          onCloseLocation={() => setSheetVisible(false)}
+          calcMethodSheetVisible={calcMethodSheetVisible}
+          calcMethod={calcMethod}
+          onSelectCalcMethod={(method) => {
+            dispatch(setCalculationMethod(method));
+            notifyTrackerPreferencesChanged();
+          }}
+          onCloseCalcMethod={() => setCalcMethodSheetVisible(false)}
+          fiqhSheetVisible={fiqhSheetVisible}
           selectedFiqh={reduxFiqh || (juristic as FiqhName) || 'Hanafi'}
           onSelectFiqh={handleSelectFiqh}
-          onClose={() => setFiqhSheetVisible(false)}
-        />
-
-        <LanguageBottomSheet
-          visible={languageSheetVisible}
-          onClose={() => setLanguageSheetVisible(false)}
-        />
-
-        <BackupRestoreModal
-          visible={backupModalVisible}
-          onClose={() => setBackupModalVisible(false)}
-        />
-
-        <PrayerAdjustmentsBottomSheet
-          visible={adjustmentsSheetVisible}
-          adjustments={prayerAdjustments}
-          currentTimes={prayerData}
-          onUpdateAdjustments={handleUpdatePrayerAdjustments}
-          onClose={() => setAdjustmentsSheetVisible(false)}
+          onCloseFiqh={() => setFiqhSheetVisible(false)}
+          languageSheetVisible={languageSheetVisible}
+          onCloseLanguage={() => setLanguageSheetVisible(false)}
+          backupModalVisible={backupModalVisible}
+          onCloseBackup={() => setBackupModalVisible(false)}
+          adjustmentsSheetVisible={adjustmentsSheetVisible}
+          prayerAdjustments={prayerAdjustments}
+          prayerData={prayerData}
+          onUpdatePrayerAdjustments={(updated) => {
+            dispatch(setPrayerAdjustments(updated));
+            notifyTrackerPreferencesChanged();
+          }}
+          onCloseAdjustments={() => setAdjustmentsSheetVisible(false)}
         />
       </View>
     </AppContainer>
@@ -284,9 +251,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   scroll: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.xs,
