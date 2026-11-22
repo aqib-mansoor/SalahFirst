@@ -3,7 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, PrayerTimeIcon } from '@/components/common';
-import { FocusDuration } from '@/types';
+import { FocusDuration, FiqhName } from '@/types';
 import { PrayerFocusOffsets, PrayerFocusDurations } from '@/utils/prayerFocusOffsets';
 import { useTranslation } from '@/context/LocalizationContext';
 
@@ -11,8 +11,10 @@ export interface FocusPrayerScheduleCardProps {
   offsets: PrayerFocusOffsets;
   durations: PrayerFocusDurations;
   rawPrayerDates?: Record<string, Date>;
+  fiqhName?: FiqhName;
   onUpdateDelay: (prayer: keyof PrayerFocusOffsets, mins: number) => void;
   onUpdateDuration: (prayer: keyof PrayerFocusDurations, mins: FocusDuration) => void;
+  onResetDefaults?: () => void;
 }
 
 const PRAYERS: { key: keyof PrayerFocusOffsets; name: string }[] = [
@@ -29,21 +31,36 @@ export const FocusPrayerScheduleCard: React.FC<FocusPrayerScheduleCardProps> = (
   offsets,
   durations,
   rawPrayerDates,
+  fiqhName,
   onUpdateDelay,
   onUpdateDuration,
+  onResetDefaults,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-      <View style={styles.titleColumn}>
-        <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
-          {t('prayerFocusScheduleTitle')}
-        </AppText>
-        <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
-          {t('prayerFocusScheduleSub')}
-        </AppText>
+      <View style={styles.headerRow}>
+        <View style={styles.titleColumn}>
+          <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
+            {t('prayerFocusScheduleTitle')}
+          </AppText>
+          <AppText variant="caption" color={theme.colors.textMuted} style={styles.subtitle}>
+            {t('prayerFocusScheduleSub')}
+          </AppText>
+        </View>
+        {onResetDefaults && (
+          <Pressable
+            onPress={onResetDefaults}
+            hitSlop={6}
+            style={({ pressed }) => [styles.resetBtn, pressed && { opacity: 0.6 }]}
+          >
+            <AppText variant="caption" color={theme.colors.primary} style={styles.resetText}>
+              {t('resetToFiqhDefaults', { fiqh: fiqhName || 'Fiqh' })}
+            </AppText>
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.prayersList}>

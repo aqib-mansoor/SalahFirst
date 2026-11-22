@@ -462,6 +462,10 @@
   "focusLabel": "التركيز",
   "autoStartFocusTitle": "بدء التركيز تلقائياً وقت الصلاة",
   "autoStartFocusSub": "تفعيل وضع التركيز تلقائياً بعد انتهاء مهلة الإقامة",
+  "autoSilenceTitle": "كتم الصوت تلقائياً أثناء الصلاة",
+  "autoSilenceSub": "كتم الرنين أثناء وقت الجماعة واستعادته بعد انتهاء الصلاة",
+  "autoSilenceBadge": "وضع الاهتزاز • كتم الرنين مع استمرار التنبيهات",
+  "resetToFiqhDefaults": "استعادة افتراضيات {{fiqh}}",
 
   "whatsNewTap": "ما الجديد في هذا التحديث • اضغط للعرض",
   "backupAndRestoreTitle": "النسخ الاحتياطي والاستعادة",

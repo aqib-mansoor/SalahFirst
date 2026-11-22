@@ -461,6 +461,10 @@
   "focusLabel": "فوکس",
   "autoStartFocusTitle": "وقتِ نماز پر خودکار فوکس",
   "autoStartFocusSub": "جماعت کے وقفے کے بعد خودکار طور پر نماز فوکس آن ہو جائے گا",
+  "autoSilenceTitle": "نماز کے دوران خودکار سائلنٹ",
+  "autoSilenceSub": "جماعت کے دوران فون سائلنٹ اور بعد میں بحال کرے گا",
+  "autoSilenceBadge": "وائبریشن موڈ • رنگ ٹون خاموش، الارم فعال رہیں گے",
+  "resetToFiqhDefaults": "{{fiqh}} کے مطابق ری سیٹ کریں",
 
   "whatsNewTap": "اس اپ ڈیٹ میں نیا کیا ہے • دیکھنے کے لیے ٹیپ کریں",
   "backupAndRestoreTitle": "ڈیٹا بیک اپ اور بحالی",

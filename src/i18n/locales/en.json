@@ -461,6 +461,10 @@
   "focusLabel": "Focus",
   "autoStartFocusTitle": "Auto-start Focus at Prayer Time",
   "autoStartFocusSub": "Automatically turns on prayer focus after congregation delay",
+  "autoSilenceTitle": "Auto-Silence at Prayer",
+  "autoSilenceSub": "Silences phone during congregation & restores sound after",
+  "autoSilenceBadge": "Vibrate mode • Ringtone muted, alarms active",
+  "resetToFiqhDefaults": "Reset to {{fiqh}} Defaults",
 
   "whatsNewTap": "What's New in this update • Tap to view",
   "backupAndRestoreTitle": "Backup & Restore Data",
