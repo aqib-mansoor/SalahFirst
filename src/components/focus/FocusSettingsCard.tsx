@@ -26,7 +26,12 @@ export const FocusSettingsCard: React.FC<FocusSettingsCardProps> = ({
     >
       <View style={styles.row}>
         <View style={styles.textColumn}>
-          <AppText variant="titleSmall" color={theme.colors.text} style={styles.rowTitle}>
+          <AppText
+            variant="titleSmall"
+            color={theme.colors.text}
+            style={styles.rowTitle}
+            numberOfLines={1}
+          >
             {t('autoStartFocusTitle')}
           </AppText>
           <AppText variant="caption" color={theme.colors.textMuted} style={styles.rowSubtitle}>
@@ -56,16 +61,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: SPACING.sm,
     paddingVertical: 2,
   },
   textColumn: {
     flex: 1,
-    gap: 2,
-    paddingRight: SPACING.md,
+    gap: 3,
   },
   rowTitle: {
     fontWeight: '700',
-    fontSize: 13.5,
+    fontSize: 13,
   },
   rowSubtitle: {
     fontSize: 11.5,

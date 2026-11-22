@@ -26,12 +26,12 @@ export const NextTomorrowPrayerCard: React.FC<NextTomorrowPrayerCardProps> = ({
         styles.card,
         {
           backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.accent,
+          borderColor: theme.colors.primary,
         },
       ]}
     >
       <View style={styles.leftSection}>
-        <View style={[styles.iconBox, { backgroundColor: theme.colors.accentTint }]}>
+        <View style={[styles.iconBox, { backgroundColor: theme.colors.secondaryTint }]}>
           <PrayerTimeIcon prayer={prayerName} size={20} />
         </View>
 
@@ -51,8 +51,8 @@ export const NextTomorrowPrayerCard: React.FC<NextTomorrowPrayerCardProps> = ({
       </View>
 
       {remainingTimeText && (
-        <View style={[styles.countdownBadge, { backgroundColor: theme.colors.accent }]}>
-          <AppText variant="caption" color={theme.colors.textOnAccent} style={styles.countdownText}>
+        <View style={[styles.countdownBadge, { backgroundColor: theme.colors.primary }]}>
+          <AppText variant="caption" color={theme.colors.textOnPrimary} style={styles.countdownText}>
             NEXT • {remainingTimeText}
           </AppText>
         </View>

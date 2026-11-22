@@ -54,7 +54,12 @@ export const FocusAutoSilenceCard: React.FC<FocusAutoSilenceCardProps> = ({
                 strokeLinejoin="round"
               />
             </Svg>
-            <AppText variant="titleSmall" color={theme.colors.text} style={styles.title}>
+            <AppText
+              variant="titleSmall"
+              color={theme.colors.text}
+              style={styles.title}
+              numberOfLines={1}
+            >
               {t('autoSilenceTitle')}
             </AppText>
           </View>
@@ -125,23 +130,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: SPACING.sm,
   },
   textColumn: {
     flex: 1,
-    gap: 2,
-    paddingRight: SPACING.md,
+    gap: 3,
   },
   titleWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs + 2,
+    gap: 6,
+    flexShrink: 1,
   },
   title: {
     fontWeight: '700',
-    fontSize: 13.5,
+    fontSize: 13,
+    flexShrink: 1,
   },
   subtitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     lineHeight: 15,
   },
   detailsSection: {
@@ -150,18 +157,21 @@ const styles = StyleSheet.create({
   },
   prayerChipsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.xs + 2,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
   },
   chip: {
-    paddingHorizontal: SPACING.sm + 2,
-    paddingVertical: SPACING.xs,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
     borderRadius: RADIUS.full,
     borderWidth: 1,
   },
   chipText: {
     fontWeight: '600',
-    fontSize: 11.5,
+    fontSize: 11,
   },
   badge: {
     paddingHorizontal: SPACING.sm,
