@@ -4,6 +4,7 @@ export * from './HadithTranslationSelector';
 export * from './HadithRubElHizbWatermark';
 export * from './HadithCardFooterActions';
 export * from './HadithCard';
+export * from './HadithCardBody';
 export * from './HadithPagination';
 export * from './HadithBookmarkRow';
 export * from './HadithBookmarksCard';

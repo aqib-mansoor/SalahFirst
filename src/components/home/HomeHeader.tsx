@@ -3,9 +3,11 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, ThreeDFlameIcon } from '@/components/common';
+import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { useHijriDate } from '@/hooks/useHijriDate';
+import { triggerHaptic } from '@/utils/haptics';
+import { HomeHeaderActionDock } from './HomeHeaderActionDock';
 
 export interface HomeHeaderProps {
   cityName: string;
@@ -28,45 +30,51 @@ export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
   const { t } = useTranslation();
   const { hijriDateFormatted } = useHijriDate(countryName);
 
+  const handleCityPress = () => {
+    triggerHaptic('light');
+    onSelectCity?.();
+  };
+
   return (
     <View style={styles.container}>
-      {/* Left: Greeting & Tappable Location/Date Pill */}
+      {/* Left: Professional Islamic Greeting & Location Telemetry */}
       <View style={styles.leftSection}>
-        {/* Greeting Title */}
+        {/* Sleek Islamic Greeting */}
         <AppText
           variant="titleLarge"
           color={theme.colors.textPrimary}
-          style={styles.greeting}
+          style={styles.greetingTitle}
           numberOfLines={1}
         >
           {t('assalamuAlaikum')}
         </AppText>
 
-        {/* Sleek Tappable Hijri Date & City Pill */}
+        {/* Sleek Tappable Location & Hijri Date Capsule */}
         <Pressable
-          onPress={onSelectCity}
+          onPress={handleCityPress}
           disabled={!onSelectCity}
           accessibilityRole={onSelectCity ? 'button' : undefined}
-          accessibilityLabel={`Date: ${hijriDateFormatted}, Location: ${cityName}`}
+          accessibilityLabel={`Location: ${cityName}, Date: ${hijriDateFormatted}`}
           hitSlop={8}
           style={({ pressed }) => [
             styles.locationPill,
             {
-              backgroundColor: pressed ? theme.colors.surfaceSubtle : theme.colors.surface,
+              backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surface,
               borderColor: theme.colors.border,
             },
+            pressed && { transform: [{ scale: 0.98 }] },
           ]}
         >
           {/* Emerald Location Pin */}
-          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+          <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
             <Path
               d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
               stroke={theme.colors.primary}
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.primary} strokeWidth="2" />
+            <Circle cx="12" cy="9" r="2.5" stroke={theme.colors.primary} strokeWidth="2.2" />
           </Svg>
 
           <AppText
@@ -75,16 +83,16 @@ export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
             style={styles.locationText}
             numberOfLines={1}
           >
-            {hijriDateFormatted} • {cityName}
+            {cityName} • {hijriDateFormatted}
           </AppText>
 
           {/* Micro Chevron Indicator */}
           {onSelectCity && (
-            <Svg width={10} height={10} viewBox="0 0 24 24" fill="none">
+            <Svg width={9} height={9} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M9 18L15 12L9 6"
                 stroke={theme.colors.textSecondary}
-                strokeWidth="2"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -93,63 +101,12 @@ export const HomeHeader: React.FC<HomeHeaderProps> = React.memo(({
         </Pressable>
       </View>
 
-      {/* Right: Elevated Streak & Settings Action Buttons */}
-      <View style={styles.rightSection}>
-        {/* Streak Pill in Radiant Champagne Gold */}
-        <Pressable
-          onPress={onOpenStreaks}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={`Current streak: ${streakCount} days`}
-          accessibilityHint="Navigates to progress and streak statistics"
-          style={({ pressed }) => [
-            styles.streakBadge,
-            {
-              backgroundColor: theme.colors.accentTint,
-              borderColor: theme.colors.accent,
-            },
-            pressed && { transform: [{ scale: 0.96 }], opacity: 0.88 },
-          ]}
-        >
-          <View style={[styles.streakIconOrb, { backgroundColor: theme.colors.surface }]}>
-            <ThreeDFlameIcon size={15} />
-          </View>
-          <AppText
-            variant="caption"
-            color={theme.colors.textPrimary}
-            style={styles.streakText}
-          >
-            {streakCount}
-          </AppText>
-        </Pressable>
-
-        {/* Polished Settings Circular Button */}
-        <Pressable
-          onPress={onOpenSettings}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Open settings"
-          accessibilityHint="Navigates to settings and preferences"
-          style={({ pressed }) => [
-            styles.iconButton,
-            {
-              backgroundColor: pressed ? theme.colors.surfaceSubtle : theme.colors.surface,
-              borderColor: theme.colors.border,
-            },
-          ]}
-        >
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Circle cx="12" cy="12" r="3" stroke={theme.colors.textPrimary} strokeWidth="2" />
-            <Path
-              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              stroke={theme.colors.textPrimary}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </Pressable>
-      </View>
+      {/* Right: Decomposed Elevated Action Dock */}
+      <HomeHeaderActionDock
+        streakCount={streakCount}
+        onOpenStreaks={onOpenStreaks}
+        onOpenSettings={onOpenSettings}
+      />
     </View>
   );
 });
@@ -160,7 +117,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.xs,
     minHeight: 56,
   },
   leftSection: {
@@ -168,9 +126,10 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingRight: SPACING.sm,
   },
-  greeting: {
+  greetingTitle: {
     fontWeight: '800',
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
+    fontSize: 22,
     lineHeight: 28,
   },
   locationPill: {
@@ -178,63 +137,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     alignSelf: 'flex-start',
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: 4,
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 3,
     borderRadius: RADIUS.full,
     borderWidth: 1,
-    marginTop: 2,
-    minHeight: 26,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   locationText: {
     fontSize: 11,
     fontWeight: '600',
   },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  streakBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingLeft: 5,
-    paddingRight: SPACING.sm + 4,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-    borderWidth: 1.2,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  streakIconOrb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  streakEmoji: {
-    fontSize: 13.5,
-    lineHeight: 17,
-  },
-  streakText: {
-    fontWeight: '800',
-    fontSize: 13,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
 });
+

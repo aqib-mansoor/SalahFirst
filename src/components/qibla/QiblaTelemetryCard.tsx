@@ -33,10 +33,10 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
         ]}
       >
         <View style={styles.metricItem}>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
+          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.metricLabel}>
             {t('liveHeading')}
           </AppText>
-          <AppText variant="titleMedium" color={theme.colors.text} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.metricValue}>
             {heading}°
           </AppText>
         </View>
@@ -44,10 +44,10 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
         <View style={[styles.metricDivider, { backgroundColor: theme.colors.border }]} />
 
         <View style={styles.metricItem}>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.metricLabel}>
             {t('qiblaAngle')}
           </AppText>
-          <AppText variant="titleMedium" color={theme.colors.primary} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.primary} style={styles.metricValueHighlight}>
             {qiblaBearing}° {cardinal}
           </AppText>
         </View>
@@ -55,10 +55,10 @@ export const QiblaTelemetryCard: React.FC<QiblaTelemetryCardProps> = ({
         <View style={[styles.metricDivider, { backgroundColor: theme.colors.border }]} />
 
         <View style={styles.metricItem}>
-          <AppText variant="caption" color={theme.colors.textMuted} style={styles.metricLabel}>
+          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.metricLabel}>
             {t('distance')}
           </AppText>
-          <AppText variant="titleMedium" color={theme.colors.text} style={styles.metricValue}>
+          <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.metricValue}>
             {distanceKm.toLocaleString()} km
           </AppText>
         </View>
@@ -80,11 +80,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     alignItems: 'center',
     justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
+    elevation: 3,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
   },
   metricItem: {
     flex: 1,
@@ -94,15 +94,21 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 32,
+    opacity: 0.8,
   },
   metricLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10.5,
+    fontWeight: '700',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
   metricValue: {
     fontWeight: '800',
     fontSize: 15,
   },
+  metricValueHighlight: {
+    fontWeight: '800',
+    fontSize: 15,
+  },
 });
+

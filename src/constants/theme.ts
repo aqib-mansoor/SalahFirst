@@ -152,6 +152,7 @@ export interface ThemeColors {
   buttonGold: string; buttonGoldPressed: string; buttonGoldText: string;
   bannerGreen: string; bannerGreenText: string; mintTint: string; mintTintPressed: string;
   privacyBg: string; privacyText: string; error: string; notificationRed: string;
+  bevelHighlight: string; bevelShadow: string;
 }
 
 export interface Theme {
@@ -184,6 +185,8 @@ export const lightTheme: Theme = {
     privacyText: salahFirstColors.light.primary,
     error: '#DC2626',
     notificationRed: '#DC2626',
+    bevelHighlight: '#FFFFFF',
+    bevelShadow: 'rgba(10, 36, 25, 0.06)',
   },
 };
 
@@ -212,6 +215,8 @@ export const darkTheme: Theme = {
     privacyText: salahFirstColors.dark.secondary,
     error: '#F87171',
     notificationRed: '#F87171',
+    bevelHighlight: 'rgba(255, 255, 255, 0.12)',
+    bevelShadow: 'rgba(0, 0, 0, 0.50)',
   },
 };
 
@@ -229,6 +234,34 @@ export const ELEVATION = {
     shadowOpacity: 0.04,
     shadowRadius: 12,
     elevation: 3,
+  },
+  raised3D: {
+    shadowColor: '#0A2419',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  floating3D: {
+    shadowColor: '#0A2419',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  emeraldGlow: {
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  goldGlow: {
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.20,
+    shadowRadius: 12,
+    elevation: 4,
   },
 } as const;
 

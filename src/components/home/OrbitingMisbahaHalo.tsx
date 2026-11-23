@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { StyleSheet, View, Pressable, Animated, Vibration } from 'react-native';
-import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { Theme } from '@/constants/theme';
 import { AppText } from '@/components/common';
 
@@ -76,16 +76,16 @@ export const OrbitingMisbahaHalo: React.FC<OrbitingMisbahaHaloProps> = ({
       >
         <Svg width={112} height={112} viewBox="0 0 112 112">
           <Defs>
-            <RadialGradient id="activeGoldBead" cx="35%" cy="35%" r="65%">
+            <LinearGradient id="activeGoldBead" x1="20%" y1="10%" x2="80%" y2="90%">
               <Stop offset="0%" stopColor="#FFF9E6" />
               <Stop offset="50%" stopColor={theme.colors.accent} />
               <Stop offset="100%" stopColor="#9C7820" />
-            </RadialGradient>
-            <RadialGradient id="jadeOrbitBead" cx="35%" cy="35%" r="65%">
+            </LinearGradient>
+            <LinearGradient id="jadeOrbitBead" x1="20%" y1="10%" x2="80%" y2="90%">
               <Stop offset="0%" stopColor="#A7F3D0" />
               <Stop offset="50%" stopColor={theme.colors.secondary} />
               <Stop offset="100%" stopColor="#044328" />
-            </RadialGradient>
+            </LinearGradient>
           </Defs>
 
           {/* Dotted Orbital Guide Path */}
@@ -156,14 +156,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    borderWidth: 2.2,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.32,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 6,
   },
   countText: {
     color: '#FFFFFF',

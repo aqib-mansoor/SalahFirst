@@ -68,6 +68,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onNavigateTab?.('hadith');
   }, [onNavigateTab]);
 
+  const handleOpenTracker = useCallback(() => {
+    onNavigateTab?.('prayers');
+  }, [onNavigateTab]);
+
   return (
     <AppContainer
       edges={['top', 'left', 'right']}
@@ -102,6 +106,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             progressRatio={periodProgressRatio}
             periodCategory={prayerData.currentPeriod?.category}
             periodId={prayerData.currentPeriod?.id}
+            completedCount={completedCount}
+            streakCount={streakCount}
+            sunriseTimeFormatted={prayerData.sunrise}
+            onOpenTracker={handleOpenTracker}
             onStartPrayerFocus={onStartPrayerFocus}
             onOpenFocusSettings={onOpenFocusSettings}
           />
@@ -111,6 +119,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             prayers={prayersList}
             completedCount={completedCount}
             onTogglePrayer={togglePrayer}
+            onViewHistory={onOpenStreaks}
           />
 
           {/* Interactive Post-Salah Tasbih Widget */}

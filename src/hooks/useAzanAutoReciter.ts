@@ -13,7 +13,7 @@ import { getRawPrayerTimes } from '@/utils/prayerTimes';
 import { getLocalDateComponents } from '@/utils/timezone';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
-import { stopNativeAzan } from '@/native/AzanServiceModule';
+import { stopNativeAzan, isNativeAzanPlaying } from '@/native/AzanServiceModule';
 
 const PRAYERS: ('fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha')[] = [
   'fajr',
@@ -107,19 +107,39 @@ export const useAzanAutoReciter = ({
           return;
         }
 
-        if (mode === 'TONE' && alerts?.exactAlarmsEnabled !== false && Platform.OS !== 'android') {
-          playPrayerTonePreview();
+        if (mode === 'TONE' && alerts?.exactAlarmsEnabled !== false) {
+          if (Platform.OS !== 'android') {
+            playPrayerTonePreview();
+          }
           return;
         }
 
-        if (mode === 'AZAN' && alerts?.exactAlarmsEnabled !== false && Platform.OS !== 'android') {
-          triggerRecitation(data.prayerName as string);
+        if (mode === 'AZAN' && alerts?.exactAlarmsEnabled !== false) {
+          if (Platform.OS === 'android') {
+            setRecitingPrayer(data.prayerName as string);
+            setIsReciting(true);
+          } else {
+            triggerRecitation(data.prayerName as string);
+          }
         }
       }
     });
 
     return () => sub.remove();
   }, [alerts, location?.timezone, triggerRecitation]);
+
+  // Sync in-app recitation state with native Azan on Android
+  useEffect(() => {
+    if (!isReciting || Platform.OS !== 'android') return;
+    const interval = setInterval(async () => {
+      const playing = await isNativeAzanPlaying();
+      if (!playing) {
+        setIsReciting(false);
+        setRecitingPrayer(null);
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isReciting]);
 
   // 2. Active in-app minute matcher for exact prayer boundary arrival
   useEffect(() => {
@@ -160,7 +180,6 @@ export const useAzanAutoReciter = ({
             }
           } else if (mode === 'AZAN') {
             const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
-            // On Android, native AzanService handles the audio via AlarmManager; only show in-app banner
             if (Platform.OS === 'android') {
               setRecitingPrayer(capitalized);
               setIsReciting(true);

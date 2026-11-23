@@ -11,6 +11,7 @@ export * from './CurvedHeaderContainer';
 export * from './ScreenTransitionView';
 export * from './PrayerTimeIcon';
 export * from './AppBottomSheet';
+export * from './AppBottomSheetHeader';
 export * from './AppUpdateBottomSheet';
 export * from './ReleaseHighlightRow';
 export * from './BatteryOptimizationBottomSheet';

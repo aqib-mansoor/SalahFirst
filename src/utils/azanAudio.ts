@@ -19,19 +19,9 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
 
 export const PRAYER_TONE_ASSET = require('../../assets/audio/prayer_tone.wav');
 
-// Android res/raw names (same files used by native AzanService). A bare name makes
-// expo-audio load the raw resource directly, independent of the Metro dev server.
-const ANDROID_RAW_NAMES: Record<AzanReciterKey, string> = {
-  makkah: 'azan_makkah',
-  madinah: 'azan_madinah',
-  alAqsa: 'azan_alaqsa',
-};
+const getAzanSource = (key: AzanReciterKey) => AZAN_LOCAL_ASSETS[key] || AZAN_LOCAL_ASSETS.makkah;
 
-const getAzanSource = (key: AzanReciterKey) =>
-  Platform.OS === 'android' ? { uri: ANDROID_RAW_NAMES[key] } : AZAN_LOCAL_ASSETS[key];
-
-const getPrayerToneSource = () =>
-  Platform.OS === 'android' ? { uri: 'prayer_tone' } : PRAYER_TONE_ASSET;
+const getPrayerToneSource = () => PRAYER_TONE_ASSET;
 
 let currentPlayer: AudioPlayer | null = null;
 let currentSubscription: { remove: () => void } | null = null;

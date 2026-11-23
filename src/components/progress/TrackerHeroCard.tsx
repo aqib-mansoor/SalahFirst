@@ -30,11 +30,11 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
         styles.card,
         {
           backgroundColor: theme.colors.primaryHero,
-          borderColor: 'rgba(255, 255, 255, 0.12)',
+          borderColor: 'rgba(247, 207, 87, 0.45)',
         },
       ]}
     >
-      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.14} />
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.30} />
 
       {/* Left Content Column */}
       <View style={styles.textColumn}>
@@ -93,8 +93,8 @@ export const TrackerHeroCard: React.FC<TrackerHeroCardProps> = ({ completedCount
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.md + 2,
+    paddingVertical: SPACING.md + 2,
+    paddingHorizontal: SPACING.md + 4,
     borderRadius: RADIUS.xl,
     borderWidth: 1.2,
     flexDirection: 'row',
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     overflow: 'hidden',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 6,
   },
   textColumn: {
     flex: 1,

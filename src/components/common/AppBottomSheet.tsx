@@ -11,9 +11,8 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText } from './AppText';
+import { AppBottomSheetHeader } from './AppBottomSheetHeader';
 import { SPACING, RADIUS } from '@/constants/theme';
 
 export interface AppBottomSheetProps {
@@ -130,91 +129,15 @@ export const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
           <View style={[styles.handleBar, { backgroundColor: theme.colors.border }]} />
 
           {title && (
-            <View style={styles.header}>
-              {icon && (
-                <View
-                  style={[
-                    styles.iconBox,
-                    {
-                      backgroundColor: theme.isDark
-                        ? 'rgba(16, 185, 129, 0.14)'
-                        : theme.colors.mintTint,
-                      borderColor: theme.isDark
-                        ? theme.colors.primaryDark
-                        : theme.colors.border,
-                    },
-                  ]}
-                >
-                  {icon}
-                </View>
-              )}
-
-              <View style={styles.headerText}>
-                <AppText
-                  variant="titleMedium"
-                  color={theme.colors.textPrimary}
-                  style={styles.title}
-                  numberOfLines={1}
-                >
-                  {title}
-                </AppText>
-
-                {(badgeText || subtitleText) && (
-                  <View style={styles.subRow}>
-                    {badgeText && (
-                      <View
-                        style={[
-                          styles.badgePill,
-                          {
-                            backgroundColor: theme.isDark
-                              ? theme.colors.surfaceSubtle
-                              : theme.colors.mintTint,
-                            borderColor: theme.isDark
-                              ? theme.colors.border
-                              : theme.colors.primary,
-                          },
-                        ]}
-                      >
-                        <AppText
-                          variant="caption"
-                          color={theme.colors.primary}
-                          style={styles.badgeText}
-                        >
-                          {badgeText}
-                        </AppText>
-                      </View>
-                    )}
-                    {subtitleText && (
-                      <AppText
-                        variant="caption"
-                        color={theme.colors.textSecondary}
-                        numberOfLines={1}
-                        style={styles.subtitleText}
-                      >
-                        {badgeText ? `• ${subtitleText}` : subtitleText}
-                      </AppText>
-                    )}
-                  </View>
-                )}
-              </View>
-
-              {showCloseButton && !disableDismiss && onClose && (
-                <Pressable
-                  onPress={handleClose}
-                  hitSlop={12}
-                  style={[styles.closeBtn, { backgroundColor: theme.colors.surfaceSubtle }]}
-                >
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M18 6L6 18M6 6l12 12"
-                      stroke={theme.colors.textSecondary}
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                    />
-                  </Svg>
-                </Pressable>
-              )}
-            </View>
+            <AppBottomSheetHeader
+              title={title}
+              badgeText={badgeText}
+              subtitleText={subtitleText}
+              icon={icon}
+              showCloseButton={showCloseButton}
+              disableDismiss={disableDismiss}
+              onClose={handleClose}
+            />
           )}
 
           {children}
@@ -233,50 +156,24 @@ const styles = StyleSheet.create({
   sheetContainer: {
     borderTopLeftRadius: RADIUS.xxl,
     borderTopRightRadius: RADIUS.xxl,
-    borderTopWidth: 1,
-    paddingTop: SPACING.sm,
+    borderTopWidth: 1.2,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    paddingTop: SPACING.sm + 2,
     paddingHorizontal: SPACING.xl,
     width: '100%',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
     elevation: 20,
   },
   handleBar: {
-    width: 36,
+    width: 40,
     height: 4,
     borderRadius: RADIUS.full,
     alignSelf: 'center',
     marginBottom: SPACING.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    marginBottom: SPACING.md,
-    width: '100%',
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  headerText: { flex: 1, gap: 3 },
-  title: { fontWeight: '800', fontSize: 17, letterSpacing: -0.2 },
-  subRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs + 2 },
-  badgePill: {
-    paddingHorizontal: SPACING.xs + 3,
-    paddingVertical: 1,
-    borderRadius: RADIUS.xs + 2,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  badgeText: { fontWeight: '700', fontSize: 10, letterSpacing: 0.2 },
-  subtitleText: { flexShrink: 1 },
-  closeBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    opacity: 0.7,
   },
 });

@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { VERIFIED_HADITHS, HadithItem, getDayOfYearHadithIndex } from '@/data/hadiths';
+import { HomeDailyHadithFooter } from './HomeDailyHadithFooter';
 
 export interface HomeDailyHadithProps {
   onReadFull?: () => void;
@@ -47,8 +48,16 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
         </Pressable>
       </View>
 
-      {/* Clean Sacred Hadith Card */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+      {/* Sacred Manuscript Card */}
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
         {/* Background Subtle Arabesque Watermark & Corner Ornaments */}
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
           <Svg width="100%" height="100%" viewBox="0 0 340 220" preserveAspectRatio="none">
@@ -144,41 +153,12 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
             )}
           </View>
 
-          {/* Footer: Source Reference & Quick Actions */}
-          <View style={[styles.footerRow, { borderTopColor: theme.colors.border }]}>
-            <View style={styles.sourceWrapper}>
-              <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                <Path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke={theme.colors.accent} strokeWidth="2" strokeLinecap="round" />
-                <Path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke={theme.colors.accent} strokeWidth="2" />
-              </Svg>
-              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.sourceText} numberOfLines={1}>
-                {sourceText}
-              </AppText>
-            </View>
-
-            <View style={styles.actionsRow}>
-              {onOpenWallpaper && (
-                <Pressable
-                  onPress={() => onOpenWallpaper(dailyHadith)}
-                  hitSlop={6}
-                  style={[styles.actionBtn, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}
-                >
-                  <AppText variant="caption" color={theme.colors.primary} style={styles.actionBtnText}>
-                    {t('wallpaper')}
-                  </AppText>
-                </Pressable>
-              )}
-              <Pressable
-                onPress={handleQuickShare}
-                hitSlop={6}
-                style={[styles.actionBtn, { backgroundColor: theme.colors.secondaryTint, borderColor: theme.colors.primary }]}
-              >
-                <AppText variant="caption" color={theme.colors.primary} style={styles.actionBtnText}>
-                  {t('share')}
-                </AppText>
-              </Pressable>
-            </View>
-          </View>
+          {/* Decomposed Footer: Source Reference & Quick Action Chips */}
+          <HomeDailyHadithFooter
+            sourceText={sourceText}
+            onOpenWallpaper={onOpenWallpaper ? () => onOpenWallpaper(dailyHadith) : undefined}
+            onShare={handleQuickShare}
+          />
         </View>
       </View>
     </View>
@@ -192,14 +172,14 @@ const styles = StyleSheet.create({
   readFull: { fontWeight: '700' },
   card: {
     borderRadius: RADIUS.xl,
-    borderWidth: 1.2,
+    borderWidth: 1,
     overflow: 'hidden',
     position: 'relative',
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   cardContent: {
     padding: SPACING.md + 2,
@@ -240,29 +220,4 @@ const styles = StyleSheet.create({
   },
   urduText: { fontSize: 14, lineHeight: 23, fontWeight: '600' },
   englishText: { fontSize: 13.5, lineHeight: 20, fontWeight: '500' },
-  footerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: SPACING.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    gap: 8,
-  },
-  sourceWrapper: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  sourceText: { fontSize: 11, fontWeight: '700', flex: 1 },
-  actionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-  },
-  actionBtnText: {
-    fontSize: 10.5,
-    fontWeight: '800',
-  },
 });

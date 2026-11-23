@@ -5,7 +5,6 @@ import Svg, {
   Ellipse,
   Defs,
   LinearGradient,
-  RadialGradient,
   Stop,
 } from 'react-native-svg';
 import { PRAYER_ICON_PALETTE } from '@/constants/theme';
@@ -27,60 +26,76 @@ export const PrayerTimeIcon: React.FC<PrayerTimeIconProps> = ({
   const opacity = muted ? 0.5 : 1;
 
   if (key.includes('fajr') || key.includes('subuh')) {
-    // Fajr: Realistic 3D glossy sparkles cluster with morning glow
+    // Fajr: Authentic 3D Dawn Horizon (Al-Fajr As-Sadiq) with rising golden solar crest
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="fajrGlow" cx="50%" cy="50%" r="50%">
-            <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.starGlow} stopOpacity="0.45" />
-            <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.starGlow} stopOpacity="0" />
-          </RadialGradient>
-          <RadialGradient id="fajrMainStar" cx="45%" cy="42%" r="58%">
-            <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.starLight} />
-            <Stop offset="45%" stopColor={tintColor || PRAYER_ICON_PALETTE.starMid} />
-            <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.starEdge} />
-          </RadialGradient>
-          <RadialGradient id="fajrBlueStar" cx="45%" cy="45%" r="55%">
-            <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.starLight} />
-            <Stop offset="55%" stopColor={tintColor || PRAYER_ICON_PALETTE.starBlueLight} />
-            <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.starBlue} />
-          </RadialGradient>
+          <LinearGradient id="fajrSkyAura" x1="50%" y1="0%" x2="50%" y2="100%">
+            <Stop offset="0%" stopColor={tintColor || '#F7CF57'} stopOpacity="0.45" />
+            <Stop offset="65%" stopColor={tintColor || '#10B981'} stopOpacity="0.15" />
+            <Stop offset="100%" stopColor="#042F1F" stopOpacity="0" />
+          </LinearGradient>
+          <LinearGradient id="fajrDawnSun" x1="20%" y1="10%" x2="80%" y2="90%">
+            <Stop offset="0%" stopColor="#FFFBEB" />
+            <Stop offset="30%" stopColor={tintColor || '#FDE68A'} />
+            <Stop offset="70%" stopColor={tintColor || '#F59E0B'} />
+            <Stop offset="100%" stopColor="#D97706" />
+          </LinearGradient>
+          <LinearGradient id="fajrHorizonLine" x1="0%" y1="50%" x2="100%" y2="50%">
+            <Stop offset="0%" stopColor={tintColor || '#F7CF57'} stopOpacity="0.2" />
+            <Stop offset="50%" stopColor={tintColor || '#F7CF57'} stopOpacity="0.95" />
+            <Stop offset="100%" stopColor={tintColor || '#F7CF57'} stopOpacity="0.2" />
+          </LinearGradient>
         </Defs>
-        <Circle cx="9" cy="8.5" r="7" fill="url(#fajrGlow)" />
+
+        {/* Ambient Dawn Glow */}
+        <Circle cx="12" cy="14" r="9" fill="url(#fajrSkyAura)" />
+
+        {/* Dawn Beams */}
+        <Path d="M12 3v3M6.5 6.5l2.2 2.2M17.5 6.5l-2.2 2.2M3 14h3M18 14h3" stroke={tintColor || '#FDE68A'} strokeWidth="1.6" strokeLinecap="round" opacity={0.85} />
+
+        {/* Rising Solar Crest (Semi-Circle above Horizon) */}
         <Path
-          d="M9 1.8C9.45 5.9 11.1 7.55 15.2 8C11.1 8.45 9.45 10.1 9 14.2C8.55 10.1 6.9 8.45 2.8 8C6.9 7.55 8.55 5.9 9 1.8Z"
-          fill="url(#fajrMainStar)"
+          d="M 6.8,14.5 A 5.5,5.5 0 0,1 17.2,14.5 Z"
+          fill="url(#fajrDawnSun)"
         />
-        <Circle cx="8.8" cy="7.8" r="1.5" fill={tintColor || PRAYER_ICON_PALETTE.starLight} opacity={0.9} />
+
+        {/* Specular Inner Dawn Rim */}
         <Path
-          d="M17.8 7.5C18.1 10.1 19.1 11.1 21.7 11.4C19.1 11.7 18.1 12.7 17.8 15.3C17.5 12.7 16.5 11.7 13.9 11.4C16.5 11.1 17.5 10.1 17.8 7.5Z"
-          fill="url(#fajrMainStar)"
+          d="M 8.2,14.5 A 4,4 0 0,1 15.8,14.5"
+          stroke="#FFFFFF"
+          strokeWidth="0.8"
+          strokeOpacity={0.65}
+          fill="none"
         />
-        <Circle cx="17.7" cy="11.3" r="0.9" fill={tintColor || PRAYER_ICON_PALETTE.starLight} opacity={0.85} />
+
+        {/* Sleek Golden Horizon Filament */}
         <Path
-          d="M12.2 15.4C12.45 17.3 13.2 18.05 15.1 18.3C13.2 18.55 12.45 19.3 12.2 21.2C11.95 19.3 11.2 18.55 9.3 18.3C11.2 18.05 11.95 17.3 12.2 15.4Z"
-          fill="url(#fajrBlueStar)"
+          d="M 2 15.2 Q 12 14.8 22 15.2"
+          stroke="url(#fajrHorizonLine)"
+          strokeWidth="1.8"
+          strokeLinecap="round"
         />
       </Svg>
     );
   }
 
   if (key.includes('dhuhr') || key.includes('dzuhur') || key.includes('jumu')) {
-    // Dhuhr: Realistic 3D volumetric golden sun with corona & tapered rays
+    // Dhuhr: Volumetric golden sun with corona & tapered rays
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="dhuhrCorona" cx="50%" cy="50%" r="50%">
+          <LinearGradient id="dhuhrCorona" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunMid} stopOpacity="0.55" />
             <Stop offset="70%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunRay} stopOpacity="0.2" />
             <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunDeep} stopOpacity="0" />
-          </RadialGradient>
-          <RadialGradient id="dhuhrSphere" cx="36%" cy="32%" r="65%">
+          </LinearGradient>
+          <LinearGradient id="dhuhrSphere" x1="20%" y1="10%" x2="80%" y2="90%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunSpecular} />
             <Stop offset="28%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunCore} />
             <Stop offset="72%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunMid} />
             <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunDeep} />
-          </RadialGradient>
+          </LinearGradient>
         </Defs>
         <Circle cx="12" cy="12" r="10.8" fill="url(#dhuhrCorona)" />
         <Path
@@ -103,31 +118,26 @@ export const PrayerTimeIcon: React.FC<PrayerTimeIconProps> = ({
   }
 
   if (key.includes('asr') || key.includes('ashar')) {
-    // Asr: Realistic 3D afternoon golden sun behind soft clouds
+    // Asr: Afternoon golden sun behind soft clouds
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="asrSunGlow" cx="50%" cy="50%" r="50%">
+          <LinearGradient id="asrSunGlow" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunCore} stopOpacity="0.5" />
             <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunDeep} stopOpacity="0" />
-          </RadialGradient>
-          <RadialGradient id="asrSunBody" cx="35%" cy="30%" r="65%">
+          </LinearGradient>
+          <LinearGradient id="asrSunBody" x1="20%" y1="10%" x2="80%" y2="90%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunSpecular} />
             <Stop offset="35%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunCore} />
             <Stop offset="80%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunMid} />
             <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunDeep} />
-          </RadialGradient>
+          </LinearGradient>
           <LinearGradient id="asrCloudBody" x1="50%" y1="0%" x2="50%" y2="100%">
             <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.cloudTop} />
             <Stop offset="58%" stopColor={PRAYER_ICON_PALETTE.cloudMid} />
             <Stop offset="88%" stopColor={PRAYER_ICON_PALETTE.cloudBase} />
             <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.cloudShadow} />
           </LinearGradient>
-          <RadialGradient id="asrCloudPuff" cx="42%" cy="35%" r="58%">
-            <Stop offset="0%" stopColor={PRAYER_ICON_PALETTE.cloudTop} stopOpacity="0.95" />
-            <Stop offset="70%" stopColor={PRAYER_ICON_PALETTE.cloudMid} stopOpacity="0.35" />
-            <Stop offset="100%" stopColor={PRAYER_ICON_PALETTE.cloudBase} stopOpacity="0" />
-          </RadialGradient>
         </Defs>
         <Circle cx="8.2" cy="8.4" r="6.8" fill="url(#asrSunGlow)" />
         <Circle cx="8.2" cy="8.4" r="4.9" fill="url(#asrSunBody)" />
@@ -135,22 +145,21 @@ export const PrayerTimeIcon: React.FC<PrayerTimeIconProps> = ({
           d="M17.8 19.6H7.9C5.5 19.6 3.6 17.8 3.6 15.5C3.6 13.4 5.1 11.7 7.1 11.5C8 9.3 10.1 7.9 12.6 7.9C15.8 7.9 18.4 10.3 18.6 13.4C20.4 13.7 21.8 15.1 21.8 16.9C21.8 18.5 20.1 19.6 17.8 19.6Z"
           fill="url(#asrCloudBody)"
         />
-        <Circle cx="12.6" cy="12.4" r="4.1" fill="url(#asrCloudPuff)" />
-        <Circle cx="8.1" cy="15.1" r="3.2" fill="url(#asrCloudPuff)" />
-        <Circle cx="17.2" cy="15.8" r="2.8" fill="url(#asrCloudPuff)" />
+        <Circle cx="12.6" cy="12.4" r="4.1" fill={PRAYER_ICON_PALETTE.cloudTop} opacity={0.6} />
+        <Circle cx="8.1" cy="15.1" r="3.2" fill={PRAYER_ICON_PALETTE.cloudTop} opacity={0.5} />
       </Svg>
     );
   }
 
   if (key.includes('maghrib')) {
-    // Maghrib: Realistic 3D sunset with glowing sun & faceted mountain peaks
+    // Maghrib: Sunset with glowing sun & faceted mountain peaks
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
         <Defs>
-          <RadialGradient id="maghribSkyGlow" cx="50%" cy="50%" r="50%">
+          <LinearGradient id="maghribSkyGlow" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunsetGlow} stopOpacity="0.45" />
             <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunsetGlow} stopOpacity="0" />
-          </RadialGradient>
+          </LinearGradient>
           <LinearGradient id="maghribSun" x1="35%" y1="15%" x2="65%" y2="95%">
             <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunsetSunTop} />
             <Stop offset="55%" stopColor={tintColor || PRAYER_ICON_PALETTE.sunsetSunMid} />
@@ -180,24 +189,30 @@ export const PrayerTimeIcon: React.FC<PrayerTimeIconProps> = ({
     );
   }
 
-  // Isha / Tahajjud (default): Realistic 3D sculpted crescent moon with craters & spherical shading
+  // Isha / Tahajjud (default): Centered 3D celestial crescent moon
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ opacity }}>
       <Defs>
-        <RadialGradient id="ishaMoonBody" cx="30%" cy="25%" r="75%">
-          <Stop offset="0%" stopColor={tintColor || PRAYER_ICON_PALETTE.moonSpecular} />
-          <Stop offset="38%" stopColor={tintColor || PRAYER_ICON_PALETTE.moonLight} />
-          <Stop offset="74%" stopColor={tintColor || PRAYER_ICON_PALETTE.moonMid} />
-          <Stop offset="100%" stopColor={tintColor || PRAYER_ICON_PALETTE.moonShadow} />
-        </RadialGradient>
+        <LinearGradient id="ishaMoonBody" x1="15%" y1="10%" x2="85%" y2="90%">
+          <Stop offset="0%" stopColor={tintColor || '#FFFBEB'} />
+          <Stop offset="35%" stopColor={tintColor || '#F7CF57'} />
+          <Stop offset="75%" stopColor={tintColor || '#D4A429'} />
+          <Stop offset="100%" stopColor={tintColor || '#8C6107'} />
+        </LinearGradient>
       </Defs>
+      {/* Centered Celestial Crescent */}
       <Path
-        d="M20.1 14.8A8.4 8.4 0 0 1 9.2 3.9a8.5 8.5 0 1 0 10.9 10.9Z"
+        d="M 14.5,2.5 C 9.25,2.5 5,6.75 5,12 C 5,17.25 9.25,21.5 14.5,21.5 C 17.3,21.5 19.8,20.3 21.5,18.4 C 16,18 11.7,13.5 11.7,8 C 11.7,5.8 12.5,3.8 13.9,2.2 C 14.1,2.4 14.3,2.5 14.5,2.5 Z"
         fill="url(#ishaMoonBody)"
       />
-      <Circle cx="9.2" cy="14.2" r="1.4" fill={tintColor || PRAYER_ICON_PALETTE.moonCrater} opacity={0.28} />
-      <Circle cx="12.8" cy="17.2" r="1.0" fill={tintColor || PRAYER_ICON_PALETTE.moonCrater} opacity={0.24} />
-      <Circle cx="7.3" cy="10.4" r="0.85" fill={tintColor || PRAYER_ICON_PALETTE.moonCrater} opacity={0.22} />
+      {/* Specular Edge Gleam */}
+      <Path
+        d="M 14.5,2.5 C 9.25,2.5 5,6.75 5,12 C 5,17.25 9.25,21.5 14.5,21.5"
+        stroke="#FFFFFF"
+        strokeWidth="0.8"
+        strokeOpacity={0.65}
+        fill="none"
+      />
     </Svg>
   );
 };

@@ -46,32 +46,35 @@ object AzanAudioPlayer {
             }
 
             val afd = context.resources.openRawResourceFd(resId)
-            val player = MediaPlayer().apply {
-                setAudioAttributes(
+            val player = MediaPlayer()
+            try {
+                player.setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )
-                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                afd.close()
-
-                setOnCompletionListener {
-                    Log.i(TAG, "Playback completed naturally for $rawResName")
-                    stop()
-                    onComplete?.invoke()
-                }
-
-                setOnErrorListener { _, what, extra ->
-                    Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
-                    stop()
-                    false
-                }
-
-                prepare()
-                start()
+                player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                player.prepare()
+            } finally {
+                try {
+                    afd.close()
+                } catch (_: Exception) {}
             }
 
+            player.setOnCompletionListener {
+                Log.i(TAG, "Playback completed naturally for $rawResName")
+                stop()
+                onComplete?.invoke()
+            }
+
+            player.setOnErrorListener { _, what, extra ->
+                Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
+                stop()
+                false
+            }
+
+            player.start()
             mediaPlayer = player
             isPlaying = true
             Log.i(TAG, "Azan playback started on USAGE_ALARM stream for $rawResName")

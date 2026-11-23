@@ -9,8 +9,11 @@ export interface ThemeContextValue {
   theme: Theme;
   themeMode: ThemeMode;
   isDark: boolean;
+  isThemeHydrated: boolean;
   setThemeMode: (mode: ThemeMode) => Promise<void>;
 }
+
+let cachedThemeMode: ThemeMode | null = null;
 
 const initialScheme = Appearance.getColorScheme();
 const initialIsDark = initialScheme === 'dark';
@@ -19,6 +22,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   theme: initialIsDark ? darkTheme : lightTheme,
   themeMode: 'system',
   isDark: initialIsDark,
+  isThemeHydrated: false,
   setThemeMode: async () => {},
 });
 
@@ -27,7 +31,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName>(
     initialScheme || hookScheme || 'light'
   );
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(cachedThemeMode || 'system');
+  const [isThemeHydrated, setIsThemeHydrated] = useState<boolean>(cachedThemeMode !== null);
 
   // Synchronous Appearance listener for instantaneous system dark/light switching
   useEffect(() => {
@@ -44,21 +49,42 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [hookScheme]);
 
-  // Hydrate stored theme preference with legacy fallback
+  // Hydrate stored theme preference with legacy fallback before rendering children
   useEffect(() => {
-    const hydrateTheme = async () => {
-      let stored = await storage.get<ThemeMode | null>(APP_CONFIG.storageKeys.theme, null);
-      if (!stored) {
-        stored = await storage.get<ThemeMode | null>('salahfirst_theme_mode', null);
+    let isCancelled = false;
+    const timeout = setTimeout(() => {
+      if (!isCancelled) {
+        setIsThemeHydrated(true);
       }
-      if (stored) {
-        setThemeModeState(stored);
+    }, 1000);
+
+    const hydrateTheme = async () => {
+      try {
+        let stored = await storage.get<ThemeMode | null>(APP_CONFIG.storageKeys.theme, null);
+        if (!stored) {
+          stored = await storage.get<ThemeMode | null>('salahfirst_theme_mode', null);
+        }
+        if (stored && !isCancelled) {
+          cachedThemeMode = stored;
+          setThemeModeState(stored);
+        }
+      } finally {
+        if (!isCancelled) {
+          clearTimeout(timeout);
+          setIsThemeHydrated(true);
+        }
       }
     };
+
     hydrateTheme();
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeout);
+    };
   }, []);
 
   const setThemeMode = useCallback(async (mode: ThemeMode) => {
+    cachedThemeMode = mode;
     setThemeModeState(mode);
     await storage.set(APP_CONFIG.storageKeys.theme, mode);
   }, []);
@@ -69,8 +95,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const theme: Theme = isDark ? darkTheme : lightTheme;
 
+  // Prevent flash of wrong theme before stored preference is hydrated
+  if (!isThemeHydrated) {
+    return null;
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, themeMode, isDark, setThemeMode }}>
+    <ThemeContext.Provider value={{ theme, themeMode, isDark, isThemeHydrated, setThemeMode }}>
       {children}
     </ThemeContext.Provider>
   );

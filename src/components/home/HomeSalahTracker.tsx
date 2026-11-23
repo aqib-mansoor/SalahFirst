@@ -13,12 +13,14 @@ export interface HomeSalahTrackerProps {
   prayers: PrayerStatus[];
   completedCount: number;
   onTogglePrayer: (name: string) => void;
+  onViewHistory?: () => void;
 }
 
 export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
   prayers,
   completedCount,
   onTogglePrayer,
+  onViewHistory,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -63,17 +65,31 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
 
   return (
     <View style={styles.container}>
-      {/* Section Header */}
+      {/* Section Header with View History Action */}
       <View style={styles.headerRow}>
         <AppText variant="titleMedium" color={theme.colors.textPrimary} style={styles.title}>
           {t('todaysSalah')}
         </AppText>
-        <AppText variant="bodySmall" color={theme.colors.primary} style={styles.countText}>
-          {t('prayersCompletedCount', { count: completedCount, total: 5 })}
-        </AppText>
+
+        {onViewHistory && (
+          <Pressable
+            onPress={onViewHistory}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="View full prayer history"
+            style={({ pressed }) => [
+              styles.historyButton,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <AppText variant="bodySmall" color={theme.colors.primary} style={styles.historyText}>
+              View History ›
+            </AppText>
+          </Pressable>
+        )}
       </View>
 
-      {/* Progress Bar Track */}
+      {/* Runway Progress Filament */}
       <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}>
         <View
           style={[
@@ -90,7 +106,10 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
           style={[styles.noticeBanner, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.accent }]}
         >
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-            <Path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill={theme.colors.accent} />
+            <Path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"
+              fill={theme.colors.accent}
+            />
           </Svg>
           <AppText variant="caption" color={theme.colors.textPrimary} style={styles.noticeText}>
             {noticeMessage}
@@ -98,8 +117,8 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
         </Pressable>
       )}
 
-      {/* 5 Prayer Cards Grid */}
-      <View style={styles.cardsRow} accessibilityRole="toolbar" accessibilityLabel="Daily Prayers Tracker">
+      {/* 5 Prayers Borderless Horizon Runway */}
+      <View style={styles.runwayRow} accessibilityRole="toolbar" accessibilityLabel="Daily Prayers Tracker">
         {prayers.map((item) => {
           const isFridayDhuhr = new Date().getDay() === 5 && item.name === 'Dhuhr';
           return (
@@ -131,7 +150,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
 
 const styles = StyleSheet.create({
   container: {
-    gap: SPACING.sm,
+    gap: SPACING.xs + 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -142,8 +161,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.2,
   },
-  countText: {
+  historyButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  historyText: {
     fontWeight: '700',
+    fontSize: 12.5,
   },
   progressTrack: {
     height: 4,
@@ -155,11 +179,11 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: RADIUS.full,
   },
-  cardsRow: {
+  runwayRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: SPACING.xs + 2,
-    marginTop: SPACING.xs,
+    marginTop: 2,
   },
   noticeBanner: {
     flexDirection: 'row',

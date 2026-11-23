@@ -181,15 +181,12 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 2. Respect Silent and DND modes (except Fajr Wake-Up Override outside Total Silence)
-            val fajrOverride = prefs.getBoolean(AzanModule.KEY_FAJR_OVERRIDE, true)
-            val isFajrPrayer = prayer.equals("Fajr", ignoreCase = true)
+            // 2. Total Silence DND: only suppress if device is in total silence
             val isTotalSilence = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 nm.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
-            val allowFajrWakeUp = isFajrPrayer && fajrOverride && !isTotalSilence
 
-            if (!soundState.canPlayAudibleSound && !allowFajrWakeUp) {
-                Log.i(TAG, "Silent notice posted (${soundState.suppressionReason})")
+            if (isTotalSilence) {
+                Log.i(TAG, "Silent notice posted: device in Total Silence DND")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(SILENT_CHANNEL_ID) == null) {
                     val ch = NotificationChannel(
                         SILENT_CHANNEL_ID,
@@ -277,7 +274,6 @@ class AzanReceiver : BroadcastReceiver() {
             if (isAzan) {
                 builder.addAction(android.R.drawable.ic_media_pause, texts.silenceAction, stopIntent)
             }
-            builder.addAction(0, texts.prayedAction, markPrayedIntent)
 
             nm.notify(NOTIFICATION_ID, builder.build())
             Log.i(TAG, "Audible prayer alert posted for $prayer with $rawName recitation.")

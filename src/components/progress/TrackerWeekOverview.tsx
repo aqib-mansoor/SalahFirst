@@ -77,7 +77,7 @@ export const TrackerWeekOverview: React.FC<TrackerWeekOverviewProps> = ({
                   ? {
                       backgroundColor: theme.colors.secondaryTint,
                       borderColor: theme.colors.primary,
-                      borderWidth: 1.2,
+                      borderWidth: 1,
                     }
                   : {
                       backgroundColor: theme.colors.surfaceElevated,
@@ -125,8 +125,13 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.xl,
-    borderWidth: 1.2,
+    borderWidth: 1,
     gap: SPACING.sm + 2,
+    shadowColor: '#0A2419',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -153,7 +158,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: RADIUS.lg,
     gap: 3,
-    minHeight: 46,
+    minHeight: 48,
+    borderWidth: 1,
   },
   dayLetter: {
     fontWeight: '800',

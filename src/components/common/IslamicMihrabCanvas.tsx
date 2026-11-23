@@ -22,19 +22,27 @@ export const IslamicMihrabCanvas: React.FC<IslamicMihrabCanvasProps> = ({
     <View style={[StyleSheet.absoluteFill, styles.container, style]} pointerEvents="none">
       <Svg width="100%" height="100%" viewBox="0 0 360 220" preserveAspectRatio="xMidYMid slice">
         <Defs>
+          <LinearGradient id="volumetricDome" x1="0%" y1="0%" x2="0%" y2="100%">
+            <Stop offset="0%" stopColor="#34D399" stopOpacity={0.32} />
+            <Stop offset="45%" stopColor="#0E7449" stopOpacity={0.15} />
+            <Stop offset="100%" stopColor="#021E12" stopOpacity={0.65} />
+          </LinearGradient>
           <LinearGradient id="goldArchGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor={goldColor} stopOpacity={opacity * 1.5} />
-            <Stop offset="40%" stopColor={goldColor} stopOpacity={opacity * 0.9} />
+            <Stop offset="0%" stopColor={goldColor} stopOpacity={0.55} />
+            <Stop offset="50%" stopColor={goldColor} stopOpacity={0.25} />
             <Stop offset="100%" stopColor={goldColor} stopOpacity={0.02} />
           </LinearGradient>
-          <LinearGradient id="emeraldDepth" x1="0%" y1="0%" x2="100%" y2="100%">
-            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.06} />
-            <Stop offset="100%" stopColor="#000000" stopOpacity={0.18} />
+          <LinearGradient id="topBevelCatch" x1="0%" y1="0%" x2="100%" y2="0%">
+            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.18} />
+            <Stop offset="50%" stopColor="#FFFFFF" stopOpacity={0.45} />
+            <Stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.18} />
           </LinearGradient>
         </Defs>
 
-        {/* Subtle Ambient Depth Layer */}
-        <Rect x="0" y="0" width="360" height="220" fill="url(#emeraldDepth)" />
+        {/* Volumetric Radial Dome Fill */}
+        <Rect x="0" y="0" width="360" height="220" fill="url(#volumetricDome)" />
+        {/* Top Bevel Horizon Line */}
+        <Rect x="0" y="0" width="360" height="2" fill="url(#topBevelCatch)" />
 
         {/* Central Architectural Mihrab Pointed Arch */}
         <G stroke={goldColor} strokeWidth="1" fill="none" opacity={opacity}>

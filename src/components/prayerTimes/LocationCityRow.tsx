@@ -34,8 +34,8 @@ export const LocationCityRow: React.FC<LocationCityRowProps> = ({
             ? theme.colors.surfaceElevated
             : theme.colors.surface,
           borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-          borderWidth: isSelected ? 1.5 : 1,
         },
+        pressed && { transform: [{ scale: 0.985 }] },
       ]}
     >
       <View style={styles.cityInfo}>
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm + 4,
     borderRadius: RADIUS.xl,
+    borderWidth: 1,
     gap: SPACING.sm,
   },
   cityInfo: {

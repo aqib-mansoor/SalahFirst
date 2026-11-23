@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, View, Alert, Linking, AppState, AppStateStatus, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { SPACING, PALETTE } from '@/constants/theme';
 import { AppContainer, AppText } from '@/components/common';
 import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
@@ -173,11 +173,11 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
     <AppContainer edges={[]} style={styles.screenBg}>
       <Svg style={StyleSheet.absoluteFill}>
         <Defs>
-          <RadialGradient id="sanctuaryGlow" cx="50%" cy="40%" r="65%">
+          <LinearGradient id="sanctuaryGlow" x1="50%" y1="0%" x2="50%" y2="100%">
             <Stop offset="0%" stopColor="#145A41" stopOpacity="0.8" />
             <Stop offset="65%" stopColor="#0B3E2D" stopOpacity="0.95" />
             <Stop offset="100%" stopColor="#041E14" stopOpacity="1" />
-          </RadialGradient>
+          </LinearGradient>
         </Defs>
         <Rect width="100%" height="100%" fill="url(#sanctuaryGlow)" />
       </Svg>

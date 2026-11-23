@@ -1,15 +1,28 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SPACING, RADIUS } from '@/constants/theme';
+import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, IslamicMihrabCanvas, PrayerTimeIcon } from '@/components/common';
+import { IslamicMihrabCanvas } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import type { PrayerPeriodCategory } from '@/types';
 import { HeroFocusButton } from './HeroFocusButton';
-import { HeroCompletionBanner } from './HeroCompletionBanner';
-import { HeroGeometricWatermark } from './HeroGeometricWatermark';
+import { HeroCountdownTelemetry } from './HeroCountdownTelemetry';
+import { HeroTodayTrackerGlance } from './HeroTodayTrackerGlance';
 
 const OBLIGATORY_PRAYERS = new Set(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+
+const PRAYER_ARABIC_NAMES: Record<string, string> = {
+  fajr: 'الفَجْر',
+  sunrise: 'الشُّرُوق',
+  shurooq: 'الشُّرُوق',
+  dhuhr: 'الظُّهْر',
+  jumuah: 'الجُمُعَة',
+  asr: 'العَصْر',
+  maghrib: 'المَغْرِب',
+  isha: 'العِشَاء',
+  qiyam: 'القِيَام',
+  tahajjud: 'التَّهَجُّد',
+};
 
 export interface HomeHeroCardProps {
   currentPrayerName: string;
@@ -20,28 +33,36 @@ export interface HomeHeroCardProps {
   currentObligatoryName?: string;
   isCurrentCompleted?: boolean;
   allCompleted?: boolean;
+  completedCount?: number;
+  streakCount?: number;
   progressRatio?: number;
   offsetBadge?: string | null;
   onStartPrayerFocus?: () => void;
   onOpenFocusSettings?: () => void;
   periodCategory?: PrayerPeriodCategory;
   periodId?: string;
+  sunriseTimeFormatted?: string;
+  onOpenTracker?: () => void;
 }
 
+/**
+ * HomeHeroCard
+ * Twin-Card Islamic Dashboard:
+ * - Card 1 (Left): Next prayer telemetry card with architectural Mihrab canvas lines.
+ * - Card 2 (Right): Today's Salah progress ring with architectural Mihrab canvas lines.
+ * - Bottom: Full-width mature focus capsule button with 18px corners.
+ */
 export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
-  currentPrayerName,
-  currentTimeFormatted,
   nextPrayerName,
   nextPrayerTimeFormatted,
   countdownText,
   currentObligatoryName,
-  isCurrentCompleted = false,
-  allCompleted = false,
-  progressRatio = 0,
+  completedCount = 0,
+  streakCount = 0,
   onStartPrayerFocus,
   onOpenFocusSettings,
-  periodCategory = 'obligatory',
-  periodId,
+  sunriseTimeFormatted,
+  onOpenTracker,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -54,27 +75,10 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     return (t(name as any) as string) || (t(name.toLowerCase() as any) as string) || name;
   };
 
-  const localizedCurrentPrayer = resolvePrayerLabel(currentPrayerName);
   const localizedNextPrayer = resolvePrayerLabel(nextPrayerName);
+  const normalizedKey = (nextPrayerName || '').toLowerCase().trim();
+  const arabicPrayer = PRAYER_ARABIC_NAMES[normalizedKey] || '';
 
-  const defaultObligatory = {
-    text: isCurrentCompleted ? `${t('completed')} ✓` : t('pending'),
-    color: isCurrentCompleted ? theme.colors.accent : 'rgba(255, 255, 255, 0.85)',
-    dot: theme.colors.accent,
-  };
-
-  const statusConfig = {
-    prohibited: { text: t('prohibited'), color: '#FF8A80', dot: '#FF8A80' },
-    nafl: {
-      text: periodId === 'tahajjud_last_third' ? t('lastThirdPill') : t('nafl'),
-      color: theme.colors.accent,
-      dot: theme.colors.accent,
-    },
-    informational: { text: t('detectingLocation'), color: 'rgba(255, 255, 255, 0.85)', dot: theme.colors.secondary },
-    obligatory: defaultObligatory,
-  }[periodCategory] || defaultObligatory;
-
-  // Strict 5-prayer focus: never name Nafl/Tahajjud on the focus button
   const targetObligatory =
     currentObligatoryName && OBLIGATORY_PRAYERS.has(currentObligatoryName)
       ? currentObligatoryName
@@ -86,150 +90,71 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
     ? resolvePrayerLabel(targetObligatory)
     : undefined;
 
-  const showStatusPill =
-    periodCategory !== 'nafl' &&
-    periodId !== 'tahajjud_last_third';
-
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.primaryHero }]}>
-      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.14} />
-      <HeroGeometricWatermark color={theme.colors.accent} opacity={0.10} />
-
-      {/* Top Row: Current Prayer Pill & Optional Status Pill */}
-      <View style={styles.topRow}>
-        <View
-          style={[
-            styles.currentTag,
-            { borderColor: 'rgba(247, 207, 87, 0.35)', backgroundColor: 'rgba(0, 0, 0, 0.20)' },
-          ]}
-        >
-          <View style={[styles.goldDot, { backgroundColor: statusConfig.dot }]} />
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.currentText} numberOfLines={1}>
-            {t('currentPrayer').toUpperCase()}: {localizedCurrentPrayer} ({currentTimeFormatted})
-          </AppText>
+    <View style={styles.container}>
+      {/* Twin Cards Row: 2 Separate Cards with Architectural Mihrab Lines Canvas */}
+      <View style={styles.twinCardsRow}>
+        {/* Card 1: Next Prayer Telemetry */}
+        <View style={[styles.prayerCard, { backgroundColor: theme.colors.primaryHero }]}>
+          <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.28} style={styles.canvas} />
+          <HeroCountdownTelemetry
+            theme={theme}
+            localizedNextPrayer={localizedNextPrayer}
+            arabicPrayer={arabicPrayer}
+            countdownText={countdownText}
+            nextPrayerTimeFormatted={nextPrayerTimeFormatted}
+          />
         </View>
 
-        {showStatusPill && (
-          <View
-            style={[
-              styles.statusPill,
-              { backgroundColor: 'rgba(0, 0, 0, 0.20)', borderColor: 'rgba(247, 207, 87, 0.25)' },
-            ]}
-          >
-            <AppText variant="caption" color={statusConfig.color} style={styles.statusText}>
-              {statusConfig.text}
-            </AppText>
-          </View>
-        )}
+        {/* Card 2: Today's Salah Progress & Clean Text Tracker */}
+        <HeroTodayTrackerGlance
+          completedCount={completedCount}
+          streakCount={streakCount}
+          sunriseTimeFormatted={sunriseTimeFormatted}
+          onPress={onOpenTracker}
+        />
       </View>
 
-      {/* Center Row: Next Prayer Countdown & Azan Time */}
-      <View style={styles.centerRow}>
-        <View style={styles.leftCountdown}>
-          <View style={styles.nextPrayerHeaderRow}>
-            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.nextPrayerLabel} numberOfLines={1}>
-              {t('nextPrayer')} • <AppText color={theme.colors.textOnPrimary} style={styles.nextPrayerBold}>{localizedNextPrayer}</AppText>
-            </AppText>
-            <PrayerTimeIcon prayer={nextPrayerName} size={15} />
-          </View>
-          <View style={styles.countdownRow}>
-            <AppText color={theme.colors.textOnPrimary} style={styles.countdownNumber}>
-              {countdownText}
-            </AppText>
-            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.leftSimpleText}>
-              {t('timeRemainingLeft')}
-            </AppText>
-          </View>
-        </View>
-
-        <View style={styles.rightAzan}>
-          <AppText variant="caption" color={theme.colors.accentLight} style={styles.azanLabel}>
-            {t('azanTime')}
-          </AppText>
-          <AppText color={theme.colors.textOnPrimary} style={styles.azanTime}>
-            {nextPrayerTimeFormatted}
-          </AppText>
-        </View>
-      </View>
-
-      {/* Bottom Row: Dynamic Celebration Banner or Dedicated Focus Button */}
-      {allCompleted ? (
-        <HeroCompletionBanner
-          message={(t('allPrayersCompleted') as string) || 'All 5 prayers completed! Alhamdulillah'}
-        />
-      ) : isCurrentCompleted && currentObligatoryName ? (
-        <HeroCompletionBanner
-          message={t('prayerCompletedAlhamdulillah', { prayer: localizedFocusPrayer || currentObligatoryName })}
-        />
-      ) : (
-        <HeroFocusButton
-          prayerName={localizedFocusPrayer}
-          durationMinutes={15}
-          onPress={onStartPrayerFocus}
-          onOpenSettings={onOpenFocusSettings}
-        />
-      )}
+      {/* Standalone Full-Width Focus Capsule */}
+      <HeroFocusButton
+        prayerName={localizedFocusPrayer}
+        durationMinutes={15}
+        onPress={onStartPrayerFocus}
+        onOpenSettings={onOpenFocusSettings}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    minHeight: 220,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md + 4,
-    overflow: 'hidden',
-    position: 'relative',
-    justifyContent: 'space-between',
-    borderWidth: 1.2,
-    borderColor: 'rgba(247, 207, 87, 0.35)',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.22,
-    shadowRadius: 14,
-    elevation: 4,
+  container: {
+    width: '100%',
     gap: SPACING.sm,
   },
-  topRow: {
+  twinCardsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    zIndex: 1,
+    alignItems: 'stretch',
+    gap: SPACING.sm,
+    width: '100%',
   },
-  currentTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs + 2,
-    paddingHorizontal: SPACING.sm + 4,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
+  prayerCard: {
+    flex: 1.1,
+    borderRadius: 18,
+    paddingVertical: SPACING.md - 2,
+    paddingHorizontal: SPACING.sm + 2,
+    justifyContent: 'space-between',
     borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    minHeight: 126,
+    overflow: 'hidden',
+    position: 'relative',
   },
-  goldDot: { width: 6, height: 6, borderRadius: 3 },
-  currentText: { fontWeight: '700', fontSize: 11, letterSpacing: 0.3 },
-  statusPill: { paddingHorizontal: SPACING.sm + 4, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 0.8 },
-  statusText: { fontWeight: '700', fontSize: 11 },
-  centerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginTop: 2,
-    zIndex: 1,
+  canvas: {
+    borderRadius: 18,
   },
-  leftCountdown: { gap: 2 },
-  nextPrayerHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  nextPrayerLabel: { fontSize: 12.5, lineHeight: 17 },
-  nextPrayerBold: { fontWeight: '700', fontSize: 13 },
-  countdownRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-  countdownNumber: {
-    fontSize: 34,
-    fontWeight: '700',
-    lineHeight: 42,
-    letterSpacing: 0.8,
-    fontVariant: ['tabular-nums'],
-  },
-  leftSimpleText: { fontSize: 13, fontWeight: '600', opacity: 0.85 },
-  rightAzan: { alignItems: 'flex-end', gap: 1 },
-  azanLabel: { fontSize: 11, fontWeight: '600' },
-  azanTime: { fontSize: 22, fontWeight: '800' },
 });

@@ -34,8 +34,18 @@ export const PrayerConfirmModal: React.FC<PrayerConfirmModalProps> = ({
       <Pressable style={styles.overlay} onPress={onCancel}>
         <Pressable style={[styles.dialog, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
           {/* Top Prayer Celestial Icon */}
-          <View style={[styles.iconWrapper, { backgroundColor: theme.colors.secondaryTint }]}>
-            <PrayerTimeIcon prayer={prayerName} size={28} />
+          <View
+            style={[
+              styles.iconWrapper,
+              {
+                backgroundColor: theme.colors.surfaceSubtle,
+                borderColor: theme.colors.border,
+                borderTopColor: theme.colors.bevelHighlight,
+                borderBottomColor: theme.colors.bevelShadow,
+              },
+            ]}
+          >
+            <PrayerTimeIcon prayer={prayerName} size={32} />
           </View>
 
           {/* Title & Question */}
@@ -111,12 +121,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconWrapper: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.md,
+    shadowColor: '#0A2419',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
     fontWeight: '800',

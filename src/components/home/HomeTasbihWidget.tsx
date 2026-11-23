@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, IslamicMihrabCanvas, ThreeDTasbihIcon } from '@/components/common';
+import { AppText, ThreeDTasbihIcon } from '@/components/common';
 import { DHIKR_PHASES, DhikrPhase } from '@/data/tasbihData';
 import { OrbitingMisbahaHalo } from './OrbitingMisbahaHalo';
 import { TasbihResetModal } from './TasbihResetModal';
+import { TasbihDhikrContent } from './TasbihDhikrContent';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { incrementTasbih, resetAllTasbih, selectTasbihPhase } from '@/store/slices/tasbihSlice';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -40,6 +41,13 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
     setShowResetModal(false);
   };
 
+  const handleSelectPhase = useCallback(
+    (index: number) => {
+      dispatch(selectTasbihPhase(index));
+    },
+    [dispatch]
+  );
+
   return (
     <View style={styles.container}>
       {/* Section Header */}
@@ -58,10 +66,28 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
           )}
         </View>
 
-        <Pressable onPress={handleResetPress} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('reset')} style={styles.resetButton}>
+        <Pressable
+          onPress={handleResetPress}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('reset')}
+          style={styles.resetButton}
+        >
           <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-            <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M3 3v5h5" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path
+              d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+              stroke={theme.colors.textSecondary}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <Path
+              d="M3 3v5h5"
+              stroke={theme.colors.textSecondary}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </Svg>
           <AppText variant="caption" color={theme.colors.textSecondary} style={styles.resetText}>
             {t('reset')}
@@ -69,71 +95,28 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
         </Pressable>
       </View>
 
-      {/* Royal Emerald Jewel Card with Gold Mihrab Canvas */}
+      {/* Crisp Surface Strip (Zero Container Fatigue) */}
       <View
         style={[
           styles.card,
           {
-            backgroundColor: theme.colors.primaryHero,
-            borderColor: 'rgba(243, 196, 64, 0.40)',
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+            shadowColor: '#000000',
           },
         ]}
       >
-        <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} />
-
         <View style={styles.cardInner}>
-          {/* Left: Dhikr Info, Progress & Minimal Step Dots */}
-          <View style={styles.leftCol}>
-            {/* Step Indicator + Dots Row */}
-            <View style={styles.stepHeaderRow}>
-              <AppText variant="caption" color={theme.colors.accentLight} style={styles.stepLabel}>
-                {t('dhikrStepOf', { current: phaseIndex + 1, total: DHIKR_PHASES.length })}
-              </AppText>
-              <View style={styles.dotsRow}>
-                {DHIKR_PHASES.map((phase, idx) => {
-                  const isActive = idx === phaseIndex;
-                  const isDone = idx < phaseIndex;
-                  return (
-                    <Pressable
-                      key={phase.transliteration}
-                      onPress={() => dispatch(selectTasbihPhase(idx))}
-                      hitSlop={6}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Switch to ${phase.transliteration}`}
-                      style={[
-                        styles.stepDot,
-                        isActive
-                          ? { width: 16, backgroundColor: theme.colors.accent }
-                          : isDone
-                          ? { width: 6, backgroundColor: 'rgba(243, 196, 64, 0.65)' }
-                          : { width: 6, backgroundColor: 'rgba(255, 255, 255, 0.22)' },
-                      ]}
-                    />
-                  );
-                })}
-              </View>
-            </View>
+          <TasbihDhikrContent
+            currentPhase={currentPhase}
+            phaseIndex={phaseIndex}
+            count={count}
+            progressPercent={progressPercent}
+            theme={theme}
+            onSelectPhase={handleSelectPhase}
+          />
 
-            <AppText variant="titleMedium" color="#FFFFFF" style={styles.arabicDhikr}>
-              {currentPhase.arabic}
-            </AppText>
-
-            <AppText variant="bodySmall" color={theme.colors.accentLight} style={styles.translitText}>
-              {currentPhase.transliteration} • <AppText color="rgba(255, 255, 255, 0.85)" style={styles.meaningText}>{t(currentPhase.translationKey as any) || currentPhase.translation}</AppText>
-            </AppText>
-
-            {/* Mini Progress Track */}
-            <View style={styles.progressRow}>
-              <View style={[styles.progressTrack, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
-                <View style={[styles.progressFill, { backgroundColor: theme.colors.accent, width: `${progressPercent}%` }]} />
-              </View>
-              <AppText variant="caption" color={theme.colors.accentLight} style={styles.progressFraction}>
-                {count}/{currentPhase.target}
-              </AppText>
-            </View>
-          </View>
-
-          {/* Right: Orbiting Misbaha Bead Step & Tactile Tap Button */}
+          {/* Right: Orbiting Misbaha Bead Step & Tactile Tap Jewel */}
           <OrbitingMisbahaHalo
             count={count}
             target={currentPhase.target}
@@ -143,7 +126,7 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
         </View>
       </View>
 
-      {/* Attractive Islamic Tasbih Reset Confirmation Modal */}
+      {/* Islamic Tasbih Reset Confirmation Modal */}
       <TasbihResetModal
         visible={showResetModal}
         count={count}
@@ -157,49 +140,59 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
 });
 
 const styles = StyleSheet.create({
-  container: { gap: SPACING.xs + 2 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  titleWithBadge: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  title: { fontWeight: '800', letterSpacing: -0.2 },
-  cyclesBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full, borderWidth: 1 },
-  cyclesText: { fontWeight: '700', fontSize: 10.5 },
-  resetButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  resetText: { fontWeight: '600' },
-  card: {
-    borderRadius: RADIUS.xl, borderWidth: 1.2, overflow: 'hidden', position: 'relative',
-    shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.22, shadowRadius: 14, elevation: 4,
+  container: {
+    gap: SPACING.xs + 2,
   },
-  cardInner: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: SPACING.md + 2, paddingLeft: SPACING.lg, gap: SPACING.md, zIndex: 2,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  leftCol: { flex: 1, gap: 4 },
-  stepHeaderRow: {
+  titleWithBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 1,
+    gap: SPACING.sm,
   },
-  stepLabel: {
-    fontSize: 9.5,
+  title: {
     fontWeight: '800',
-    letterSpacing: 0.7,
-    opacity: 0.9,
+    letterSpacing: -0.2,
   },
-  dotsRow: {
+  cyclesBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  cyclesText: {
+    fontWeight: '700',
+    fontSize: 10.5,
+  },
+  resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  stepDot: {
-    height: 5,
-    borderRadius: 2.5,
+  resetText: {
+    fontWeight: '600',
   },
-  arabicDhikr: { fontSize: 20, fontWeight: '700', lineHeight: 28 },
-  translitText: { fontSize: 12.5, fontWeight: '700' },
-  meaningText: { fontWeight: '400' },
-  progressRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginTop: 4 },
-  progressTrack: { flex: 1, height: 5, borderRadius: RADIUS.full, overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: RADIUS.full },
-  progressFraction: { fontSize: 11, fontWeight: '800' },
+  card: {
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.md + 2,
+    paddingLeft: SPACING.lg,
+    gap: SPACING.md,
+  },
 });

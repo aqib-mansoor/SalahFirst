@@ -5,8 +5,8 @@ import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { triggerHaptic } from '@/utils/haptics';
 import { IslamicNavIcon } from './IslamicNavIcons';
-
 
 import { HomeTab } from '@/types';
 export type { HomeTab };
@@ -34,16 +34,20 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   const handleTabPress = (tabId: HomeTab) => {
     if (tabId === activeTab) return;
+    triggerHaptic('light');
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onTabChange(tabId);
   };
+
+  const dockBorderColor = theme.isDark ? 'rgba(255, 255, 255, 0.12)' : theme.colors.border;
+  const haloShadowColor = theme.isDark ? '#000000' : theme.colors.primary;
 
   return (
     <View
       style={[
         styles.floatingWrapper,
         {
-          paddingBottom: Math.max(insets.bottom + 10, 24),
+          paddingBottom: Math.max(insets.bottom + 10, 22),
         },
       ]}
       pointerEvents="box-none"
@@ -54,7 +58,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           styles.islandDock,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
+            borderColor: dockBorderColor,
+            shadowColor: haloShadowColor,
           },
         ]}
         accessibilityRole="tablist"
@@ -78,7 +83,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     borderColor: theme.colors.primary,
                     shadowColor: theme.colors.primary,
                   },
-                  pressed && { opacity: 0.85 },
+                  pressed && { transform: [{ scale: 0.96 }], opacity: 0.88 },
                 ]}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: true }}
@@ -88,7 +93,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 <IslamicNavIcon
                   tabId={tab.id}
                   isActive={true}
-                  size={19}
+                  size={18}
                   customColor={activeColor}
                 />
                 <AppText
@@ -109,7 +114,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
               onPress={() => handleTabPress(tab.id)}
               style={({ pressed }) => [
                 styles.inactiveTab,
-                pressed && { opacity: 0.55 },
+                pressed && { opacity: 0.5, transform: [{ scale: 0.92 }] },
               ]}
               accessibilityRole="tab"
               accessibilityState={{ selected: false }}
@@ -144,14 +149,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 6,
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
     elevation: 8,
     width: '100%',
     maxWidth: 420,
@@ -160,27 +164,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: RADIUS.md + 2,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
     elevation: 2,
   },
   activeLabel: {
     fontWeight: '800',
-    fontSize: 12.5,
-    letterSpacing: 0.2,
+    fontSize: 12,
+    letterSpacing: 0.1,
   },
   inactiveTab: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 9,
     paddingHorizontal: 11,
-    borderRadius: RADIUS.md,
-    minHeight: 44,
+    borderRadius: RADIUS.full,
+    minHeight: 42,
   },
 });

@@ -33,11 +33,19 @@ export const LocationGpsPinnedCard: React.FC<LocationGpsPinnedCardProps> = ({
             ? theme.colors.surfaceElevated
             : theme.colors.surface,
           borderColor: isGps ? theme.colors.primary : theme.colors.border,
-          borderWidth: isGps ? 1.5 : 1,
         },
+        pressed && { transform: [{ scale: 0.985 }] },
       ]}
     >
-      <View style={[styles.gpsIconBox, { backgroundColor: theme.colors.mintTint }]}>
+      <View
+        style={[
+          styles.gpsIconBox,
+          {
+            backgroundColor: theme.colors.mintTint,
+            borderColor: isGps ? theme.colors.primary : theme.colors.border,
+          },
+        ]}
+      >
         <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
           <Path
             d="M12 2v3M12 19v3M2 12h3M19 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
@@ -81,12 +89,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm + 2,
     borderRadius: RADIUS.xl,
+    borderWidth: 1,
     gap: SPACING.sm,
   },
   gpsIconBox: {
     width: 36,
     height: 36,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

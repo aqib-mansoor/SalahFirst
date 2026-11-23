@@ -50,6 +50,8 @@ export const AppButton: React.FC<AppButtonProps> = ({
     const isSecondary = variant === 'secondary';
     const isOutline = variant === 'outline';
 
+    const isFilled = isPrimary || isGold;
+
     return {
       backgroundColor: isPrimary
         ? pressed
@@ -62,9 +64,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
         : isSecondary
         ? theme.colors.surfaceElevated
         : 'transparent',
-      borderColor: isOutline ? theme.colors.border : 'transparent',
-      borderWidth: isOutline ? 1 : 0,
+      borderColor: isOutline ? theme.colors.border : isFilled ? theme.colors.bevelShadow : 'transparent',
+      borderTopColor: isFilled ? (isPrimary ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.35)') : isOutline ? theme.colors.border : 'transparent',
+      borderBottomColor: isFilled ? 'rgba(0, 0, 0, 0.25)' : isOutline ? theme.colors.border : 'transparent',
+      borderWidth: isFilled || isOutline ? 1 : 0,
       opacity: disabled ? 0.6 : 1,
+      elevation: isFilled ? 3 : 0,
+      shadowColor: '#0A2419',
+      shadowOffset: { width: 0, height: isFilled ? 2 : 0 },
+      shadowOpacity: isFilled ? 0.08 : 0,
+      shadowRadius: isFilled ? 6 : 0,
     };
   };
 

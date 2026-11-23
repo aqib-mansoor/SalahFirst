@@ -6,7 +6,6 @@ import Svg, {
   Rect,
   Defs,
   LinearGradient,
-  RadialGradient,
   Stop,
   G,
 } from 'react-native-svg';
@@ -22,10 +21,10 @@ export interface ThreeDIconProps {
 export const ThreeDFlameIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
   <Svg width={size} height={size} viewBox="0 0 32 32" fill="none">
     <Defs>
-      <RadialGradient id="flameBackGlow" cx="50%" cy="65%" r="50%">
+      <LinearGradient id="flameBackGlow" x1="0%" y1="0%" x2="100%" y2="100%">
         <Stop offset="0%" stopColor="#FF4500" stopOpacity="0.4" />
         <Stop offset="100%" stopColor="#FF4500" stopOpacity="0" />
-      </RadialGradient>
+      </LinearGradient>
       <LinearGradient id="flameOuter" x1="50%" y1="0%" x2="50%" y2="100%">
         <Stop offset="0%" stopColor="#FF3B30" />
         <Stop offset="45%" stopColor="#FF6B00" />
@@ -36,11 +35,11 @@ export const ThreeDFlameIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
         <Stop offset="55%" stopColor="#FFCC00" />
         <Stop offset="100%" stopColor="#FFE066" />
       </LinearGradient>
-      <RadialGradient id="flameCore" cx="48%" cy="50%" r="52%">
+      <LinearGradient id="flameCore" x1="30%" y1="0%" x2="70%" y2="100%">
         <Stop offset="0%" stopColor="#FFFFFF" />
         <Stop offset="45%" stopColor="#FFF9E6" />
         <Stop offset="100%" stopColor="#FFD60A" />
-      </RadialGradient>
+      </LinearGradient>
     </Defs>
     <Circle cx="16" cy="20" r="11" fill="url(#flameBackGlow)" />
     {/* Outer Flame Tongue */}
@@ -182,12 +181,12 @@ export const ThreeDMedalIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
         <Stop offset="0%" stopColor="#0284C7" />
         <Stop offset="100%" stopColor="#0369A1" />
       </LinearGradient>
-      <RadialGradient id="medalGoldBody" cx="38%" cy="35%" r="65%">
+      <LinearGradient id="medalGoldBody" x1="20%" y1="10%" x2="80%" y2="90%">
         <Stop offset="0%" stopColor="#FFF9E6" />
         <Stop offset="35%" stopColor="#FACC15" />
         <Stop offset="75%" stopColor="#D97706" />
         <Stop offset="100%" stopColor="#92400E" />
-      </RadialGradient>
+      </LinearGradient>
     </Defs>
     {/* Ribbon Wings */}
     <Path d="M11 2L7 15L13 14L16 8L11 2Z" fill="url(#medalRibbonLeft)" />
@@ -217,16 +216,16 @@ export const ThreeDCrownIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
         <Stop offset="70%" stopColor="#D97706" />
         <Stop offset="100%" stopColor="#78350F" />
       </LinearGradient>
-      <RadialGradient id="gemRuby" cx="40%" cy="40%" r="60%">
+      <LinearGradient id="gemRuby" x1="20%" y1="10%" x2="80%" y2="90%">
         <Stop offset="0%" stopColor="#FDA4AF" />
         <Stop offset="60%" stopColor="#E11D48" />
         <Stop offset="100%" stopColor="#881337" />
-      </RadialGradient>
-      <RadialGradient id="gemEmerald" cx="40%" cy="40%" r="60%">
+      </LinearGradient>
+      <LinearGradient id="gemEmerald" x1="20%" y1="10%" x2="80%" y2="90%">
         <Stop offset="0%" stopColor="#6EE7B7" />
         <Stop offset="60%" stopColor="#10B981" />
         <Stop offset="100%" stopColor="#064E3B" />
-      </RadialGradient>
+      </LinearGradient>
     </Defs>
     {/* Crown Base Band */}
     <Rect x="4" y="23" width="24" height="4" rx="1.5" fill="url(#crownGold)" />
@@ -254,12 +253,12 @@ export const ThreeDCrownIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
 export const ThreeDTasbihIcon: React.FC<ThreeDIconProps> = ({ size = 20 }) => (
   <Svg width={size} height={size} viewBox="0 0 32 32" fill="none">
     <Defs>
-      <RadialGradient id="beadGrad" cx="35%" cy="35%" r="65%">
+      <LinearGradient id="beadGrad" x1="20%" y1="10%" x2="80%" y2="90%">
         <Stop offset="0%" stopColor="#A7F3D0" />
         <Stop offset="45%" stopColor="#10B981" />
         <Stop offset="85%" stopColor="#047857" />
         <Stop offset="100%" stopColor="#064E3B" />
-      </RadialGradient>
+      </LinearGradient>
       <LinearGradient id="tasselGold" x1="0%" y1="0%" x2="100%" y2="100%">
         <Stop offset="0%" stopColor="#FDE68A" />
         <Stop offset="60%" stopColor="#D97706" />
