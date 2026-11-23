@@ -48,6 +48,7 @@ object AzanAudioPlayer {
             val afd = context.resources.openRawResourceFd(resId)
             val player = MediaPlayer()
             try {
+                player.setWakeMode(context.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
                 player.setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)

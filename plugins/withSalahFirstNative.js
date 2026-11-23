@@ -233,6 +233,20 @@ function withSalahFirstNativeFiles(config) {
         '<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/azan_makkah,@raw/azan_madinah,@raw/azan_alaqsa,@raw/prayer_tone,@raw/assets_audio_azan_makkah,@raw/assets_audio_azan_madinah,@raw/assets_audio_azan_alaqsa,@raw/assets_audio_prayer_tone" />\n';
       fs.writeFileSync(keepXmlPath, keepXmlContent, 'utf8');
 
+      const proguardPath = path.join(
+        mod.modRequest.platformProjectRoot,
+        'app',
+        'proguard-rules.pro'
+      );
+      if (fs.existsSync(proguardPath)) {
+        let proguardContent = fs.readFileSync(proguardPath, 'utf8');
+        const keepRule = '-keep class com.salahfirst.app.** { *; }';
+        if (!proguardContent.includes(keepRule)) {
+          proguardContent += '\n# Preserve all SalahFirst native Android engine classes for release AAB/APK\n-keep class com.salahfirst.app.** { *; }\n-keepclassmembers class com.salahfirst.app.** { *; }\n';
+          fs.writeFileSync(proguardPath, proguardContent, 'utf8');
+        }
+      }
+
       return mod;
     },
   ]);

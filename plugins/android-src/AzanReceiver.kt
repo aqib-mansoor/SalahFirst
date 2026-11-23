@@ -268,6 +268,7 @@ class AzanReceiver : BroadcastReceiver() {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(openIntent)
+                .setFullScreenIntent(openIntent, true)
                 .setAutoCancel(isTone)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
