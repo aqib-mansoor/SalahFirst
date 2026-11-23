@@ -109,6 +109,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             completedCount={completedCount}
             streakCount={streakCount}
             sunriseTimeFormatted={prayerData.sunrise}
+            prayers={prayersList}
             onOpenTracker={handleOpenTracker}
             onStartPrayerFocus={onStartPrayerFocus}
             onOpenFocusSettings={onOpenFocusSettings}

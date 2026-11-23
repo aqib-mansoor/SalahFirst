@@ -1,27 +1,39 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { SPACING } from '@/constants/theme';
+import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
+import { PrayerStatus } from '@/hooks/usePrayerTracker';
+
+const OBLIGATORY_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+const PRAYER_INITIALS: Record<string, string> = {
+  Fajr: 'F',
+  Dhuhr: 'D',
+  Asr: 'A',
+  Maghrib: 'M',
+  Isha: 'I',
+};
 
 export interface HeroTodayTrackerGlanceProps {
   completedCount?: number;
   streakCount?: number;
   sunriseTimeFormatted?: string;
+  prayers?: PrayerStatus[];
   onPress?: () => void;
 }
 
 /**
  * HeroTodayTrackerGlance
- * Standalone Card 2: Today's Salah progress ring, clean text telemetry,
- * and the sacred architectural Mihrab lines canvas background.
+ * Standalone Card 2: Today's Salah progress ring, 5-Prayer Micro Pips (F D A M I),
+ * and clean text telemetry on an architectural Mihrab canvas.
  */
 export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
   completedCount = 0,
   streakCount = 0,
   sunriseTimeFormatted,
+  prayers,
   onPress,
 }) => {
   const theme = useTheme();
@@ -34,6 +46,14 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
   const clampedCount = Math.max(0, Math.min(5, completedCount));
   const progressRatio = clampedCount / 5;
   const strokeDashoffset = circumference * (1 - progressRatio);
+
+  const prayerMap = useMemo(() => {
+    const map: Record<string, PrayerStatus> = {};
+    prayers?.forEach((p) => {
+      map[p.name] = p;
+    });
+    return map;
+  }, [prayers]);
 
   return (
     <Pressable
@@ -64,11 +84,11 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
       {/* Centerpiece: Clean Circular Progress Ring & Score */}
       <View style={styles.centerSection}>
         <View style={styles.ringContainer}>
-          <Svg width={40} height={40} viewBox="0 0 40 40">
+          <Svg width={38} height={38} viewBox="0 0 38 38">
             {/* Background Ring Track */}
             <Circle
-              cx={20}
-              cy={20}
+              cx={19}
+              cy={19}
               r={radius}
               stroke="rgba(255, 255, 255, 0.15)"
               strokeWidth={strokeWidth}
@@ -76,8 +96,8 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
             />
             {/* Active Progress Ring */}
             <Circle
-              cx={20}
-              cy={20}
+              cx={19}
+              cy={19}
               r={radius}
               stroke={theme.colors.accent}
               strokeWidth={strokeWidth}
@@ -85,7 +105,7 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="none"
-              transform="rotate(-90 20 20)"
+              transform="rotate(-90 19 19)"
             />
           </Svg>
           {/* Centered Number in Ring */}
@@ -104,6 +124,44 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
             {clampedCount === 5 ? 'All Complete!' : `${5 - clampedCount} remaining`}
           </AppText>
         </View>
+      </View>
+
+      {/* 5-Prayer Micro Indicator Pips (F • D • A • M • I) */}
+      <View style={styles.pipsRow}>
+        {OBLIGATORY_KEYS.map((key) => {
+          const status = prayerMap[key];
+          const isDone = status?.completed ?? false;
+          const isCurrent = status?.isCurrent ?? false;
+
+          return (
+            <View
+              key={key}
+              style={[
+                styles.pipBox,
+                isDone
+                  ? { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent }
+                  : isCurrent
+                  ? { backgroundColor: 'rgba(247, 207, 87, 0.20)', borderColor: theme.colors.accent }
+                  : { backgroundColor: 'rgba(255, 255, 255, 0.08)', borderColor: 'rgba(255, 255, 255, 0.12)' },
+              ]}
+            >
+              <AppText
+                style={[
+                  styles.pipLetter,
+                  {
+                    color: isDone
+                      ? '#062518'
+                      : isCurrent
+                      ? theme.colors.accentLight
+                      : 'rgba(255, 255, 255, 0.45)',
+                  },
+                ]}
+              >
+                {PRAYER_INITIALS[key]}
+              </AppText>
+            </View>
+          );
+        })}
       </View>
 
       {/* Bottom Telemetry: Pure Clean Text (Zero Emojis) */}
@@ -156,8 +214,8 @@ const styles = StyleSheet.create({
   card: {
     flex: 0.9,
     borderRadius: 18,
-    paddingVertical: SPACING.md - 2,
-    paddingHorizontal: SPACING.sm + 3,
+    paddingVertical: SPACING.md - 3,
+    paddingHorizontal: SPACING.sm + 2,
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.12)',
@@ -166,7 +224,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
-    minHeight: 126,
+    minHeight: 128,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -190,12 +248,11 @@ const styles = StyleSheet.create({
   centerSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 2,
+    gap: 7,
   },
   ringContainer: {
-    width: 40,
-    height: 40,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -209,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ringScoreText: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
@@ -218,35 +275,54 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   doneLabel: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '800',
     letterSpacing: 0.2,
   },
   subtext: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '600',
+  },
+  pipsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+    paddingVertical: 1,
+  },
+  pipBox: {
+    flex: 1,
+    height: 19,
+    borderRadius: RADIUS.xs + 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.8,
+  },
+  pipLetter: {
+    fontSize: 10,
+    fontWeight: '800',
   },
   bottomRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4.5,
   },
   telemetryItem: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 3,
+    gap: 2.5,
   },
   telemetryLabel: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '600',
   },
   telemetryValue: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
   bulletSeparator: {
     color: 'rgba(255, 255, 255, 0.35)',
-    fontSize: 10,
+    fontSize: 9,
   },
 });
