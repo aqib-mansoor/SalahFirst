@@ -23,8 +23,8 @@ const RECITERS_MAP: Record<AzanReciterKey, { labelKey: string; subKey: string }>
   madinah: { labelKey: 'reciterMadinah', subKey: 'reciterMadinahSub' },
   alAqsa: { labelKey: 'reciterAlAqsa', subKey: 'reciterAlAqsaSub' },
   alafasy: { labelKey: 'reciterAlafasy', subKey: 'reciterAlafasySub' },
-  egypt: { labelKey: 'reciterEgypt', subKey: 'reciterEgyptSub' },
-  zahrani: { labelKey: 'reciterZahrani', subKey: 'reciterZahraniSub' },
+  fajr: { labelKey: 'reciterFajr', subKey: 'reciterFajrSub' },
+  qatami: { labelKey: 'reciterQatami', subKey: 'reciterQatamiSub' },
 };
 
 export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({

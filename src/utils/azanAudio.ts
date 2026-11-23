@@ -7,8 +7,8 @@ export const AZAN_PRESET_URLS = {
   madinah: 'azan_madinah',
   alAqsa: 'azan_alaqsa',
   alafasy: 'azan_alafasy',
-  egypt: 'azan_egypt',
-  zahrani: 'azan_zahrani',
+  fajr: 'azan_fajr',
+  qatami: 'azan_qatami',
 } as const;
 
 export type AzanReciterKey = keyof typeof AZAN_PRESET_URLS;
@@ -19,8 +19,8 @@ export const AZAN_LOCAL_ASSETS: Record<AzanReciterKey, any> = {
   madinah: require('../../assets/audio/azan_madinah.mp3'),
   alAqsa: require('../../assets/audio/azan_alaqsa.mp3'),
   alafasy: require('../../assets/audio/azan_alafasy.mp3'),
-  egypt: require('../../assets/audio/azan_egypt.mp3'),
-  zahrani: require('../../assets/audio/azan_zahrani.mp3'),
+  fajr: require('../../assets/audio/azan_fajr.mp3'),
+  qatami: require('../../assets/audio/azan_qatami.mp3'),
 };
 
 export const PRAYER_TONE_ASSET = require('../../assets/audio/prayer_tone.wav');

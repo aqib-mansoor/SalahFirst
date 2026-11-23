@@ -223,8 +223,8 @@ class AzanReceiver : BroadcastReceiver() {
                 "madinah" -> "azan_madinah"
                 "alAqsa"  -> "azan_alaqsa"
                 "alafasy" -> "azan_alafasy"
-                "egypt"   -> "azan_egypt"
-                "zahrani" -> "azan_zahrani"
+                "fajr"    -> "azan_fajr"
+                "qatami"  -> "azan_qatami"
                 else      -> "azan_makkah"
             }
 

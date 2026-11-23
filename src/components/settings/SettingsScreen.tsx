@@ -145,8 +145,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     madinah: t('reciterMadinah'),
     alAqsa: t('reciterAlAqsa'),
     alafasy: t('reciterAlafasy'),
-    egypt: t('reciterEgypt'),
-    zahrani: t('reciterZahrani'),
+    fajr: t('reciterFajr'),
+    qatami: t('reciterQatami'),
   };
   const reciterName = reciterLabelMap[currentReciter] || t('reciterMakkah');
 

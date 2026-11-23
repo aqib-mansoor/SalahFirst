@@ -5,8 +5,8 @@ export const PRAYER_CHANNEL_MAKKAH = 'salahfirst-prayer-makkah-v2';
 export const PRAYER_CHANNEL_MADINAH = 'salahfirst-prayer-madinah-v2';
 export const PRAYER_CHANNEL_ALAQSA = 'salahfirst-prayer-alaqsa-v2';
 export const PRAYER_CHANNEL_ALAFASY = 'salahfirst-prayer-alafasy-v2';
-export const PRAYER_CHANNEL_EGYPT = 'salahfirst-prayer-egypt-v2';
-export const PRAYER_CHANNEL_ZAHRANI = 'salahfirst-prayer-zahrani-v2';
+export const PRAYER_CHANNEL_FAJR = 'salahfirst-prayer-fajr-v2';
+export const PRAYER_CHANNEL_QATAMI = 'salahfirst-prayer-qatami-v2';
 export const PRAYER_CHANNEL_TONE = 'salahfirst-prayer-tone-v3';
 export const PRAYER_CHANNEL_VIBRATE = 'salahfirst-prayer-vibrate-v3';
 export const PRAYER_CHANNEL_ID = PRAYER_CHANNEL_MAKKAH;
@@ -36,8 +36,8 @@ export const getPrayerChannelForModeAndReciter = (
     madinah: { channelId: PRAYER_CHANNEL_MADINAH, soundName: 'azan_madinah.mp3' },
     alAqsa: { channelId: PRAYER_CHANNEL_ALAQSA, soundName: 'azan_alaqsa.mp3' },
     alafasy: { channelId: PRAYER_CHANNEL_ALAFASY, soundName: 'azan_alafasy.mp3' },
-    egypt: { channelId: PRAYER_CHANNEL_EGYPT, soundName: 'azan_egypt.mp3' },
-    zahrani: { channelId: PRAYER_CHANNEL_ZAHRANI, soundName: 'azan_zahrani.mp3' },
+    fajr: { channelId: PRAYER_CHANNEL_FAJR, soundName: 'azan_fajr.mp3' },
+    qatami: { channelId: PRAYER_CHANNEL_QATAMI, soundName: 'azan_qatami.mp3' },
   };
   return channelMap[reciterKey] || channelMap.makkah;
 };
@@ -78,8 +78,8 @@ export const setupNotificationChannels = async (): Promise<void> => {
     { id: PRAYER_CHANNEL_MADINAH, name: 'Prayer Azan (Madinah)', sound: 'azan_madinah.mp3' },
     { id: PRAYER_CHANNEL_ALAQSA, name: 'Prayer Azan (Al-Aqsa)', sound: 'azan_alaqsa.mp3' },
     { id: PRAYER_CHANNEL_ALAFASY, name: 'Prayer Azan (Alafasy)', sound: 'azan_alafasy.mp3' },
-    { id: PRAYER_CHANNEL_EGYPT, name: 'Prayer Azan (Egypt)', sound: 'azan_egypt.mp3' },
-    { id: PRAYER_CHANNEL_ZAHRANI, name: 'Prayer Azan (Al-Zahrani)', sound: 'azan_zahrani.mp3' },
+    { id: PRAYER_CHANNEL_FAJR, name: 'Prayer Azan (Fajr Dawn)', sound: 'azan_fajr.mp3' },
+    { id: PRAYER_CHANNEL_QATAMI, name: 'Prayer Azan (Al-Qatami)', sound: 'azan_qatami.mp3' },
   ];
 
   for (const ch of reciterChannels) {

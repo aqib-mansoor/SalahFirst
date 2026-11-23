@@ -29,8 +29,8 @@ const RECITERS: ReciterItem[] = [
   { id: 'madinah', labelKey: 'reciterMadinah', subtitleKey: 'reciterMadinahSub' },
   { id: 'alAqsa', labelKey: 'reciterAlAqsa', subtitleKey: 'reciterAlAqsaSub' },
   { id: 'alafasy', labelKey: 'reciterAlafasy', subtitleKey: 'reciterAlafasySub' },
-  { id: 'egypt', labelKey: 'reciterEgypt', subtitleKey: 'reciterEgyptSub' },
-  { id: 'zahrani', labelKey: 'reciterZahrani', subtitleKey: 'reciterZahraniSub' },
+  { id: 'fajr', labelKey: 'reciterFajr', subtitleKey: 'reciterFajrSub' },
+  { id: 'qatami', labelKey: 'reciterQatami', subtitleKey: 'reciterQatamiSub' },
 ];
 
 export const AzanReciterBottomSheet: React.FC<AzanReciterBottomSheetProps> = ({

@@ -25,8 +25,8 @@ const AUDIO_FILES = [
   'azan_madinah.mp3',
   'azan_alaqsa.mp3',
   'azan_alafasy.mp3',
-  'azan_egypt.mp3',
-  'azan_zahrani.mp3',
+  'azan_fajr.mp3',
+  'azan_qatami.mp3',
   'prayer_tone.wav',
 ];
 
@@ -233,7 +233,7 @@ function withSalahFirstNativeFiles(config) {
 
       const keepXmlPath = path.join(rawDir, 'keep.xml');
       const keepXmlContent =
-        '<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/azan_makkah,@raw/azan_madinah,@raw/azan_alaqsa,@raw/azan_alafasy,@raw/azan_egypt,@raw/azan_zahrani,@raw/prayer_tone,@raw/assets_audio_azan_makkah,@raw/assets_audio_azan_madinah,@raw/assets_audio_azan_alaqsa,@raw/assets_audio_azan_alafasy,@raw/assets_audio_azan_egypt,@raw/assets_audio_azan_zahrani,@raw/assets_audio_prayer_tone" />\n';
+        '<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/azan_makkah,@raw/azan_madinah,@raw/azan_alaqsa,@raw/azan_alafasy,@raw/azan_fajr,@raw/azan_qatami,@raw/prayer_tone,@raw/assets_audio_azan_makkah,@raw/assets_audio_azan_madinah,@raw/assets_audio_azan_alaqsa,@raw/assets_audio_azan_alafasy,@raw/assets_audio_azan_fajr,@raw/assets_audio_azan_qatami,@raw/assets_audio_prayer_tone" />\n';
       fs.writeFileSync(keepXmlPath, keepXmlContent, 'utf8');
 
       const proguardPath = path.join(
