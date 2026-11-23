@@ -5,8 +5,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.os.VibrationEffect
@@ -181,12 +185,15 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 2. Total Silence DND: only suppress if device is in total silence
+            // 2. Silent & DND Check: If device is in Silent mode or DND, stay silent
+            val fajrOverride = prefs.getBoolean(AzanModule.KEY_FAJR_OVERRIDE, true)
+            val isFajrPrayer = prayer.equals("Fajr", ignoreCase = true)
             val isTotalSilence = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 nm.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
+            val allowFajrWakeUp = isFajrPrayer && fajrOverride && !isTotalSilence
 
-            if (isTotalSilence) {
-                Log.i(TAG, "Silent notice posted: device in Total Silence DND")
+            if (!soundState.canPlayAudibleSound && !allowFajrWakeUp) {
+                Log.i(TAG, "Device in Silent or DND mode (${soundState.suppressionReason}). Posting silent notice.")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(SILENT_CHANNEL_ID) == null) {
                     val ch = NotificationChannel(
                         SILENT_CHANNEL_ID,
@@ -221,7 +228,7 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio track via native AzanAudioPlayer
+            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio recitation via system channel & AzanAudioPlayer
             val rawName = when (reciter) {
                 "tone"    -> "prayer_tone"
                 "madinah" -> "azan_madinah"
@@ -229,17 +236,25 @@ class AzanReceiver : BroadcastReceiver() {
                 else      -> "azan_makkah"
             }
 
-            // Initiate full uninterrupted recitation on USAGE_ALARM stream
-            AzanAudioPlayer.play(context, rawName)
+            val channelId = "salahfirst-azan-alarm-${rawName}-v6"
+            val soundUri = Uri.parse(
+                "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/$rawName"
+            )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(AUDIBLE_CHANNEL_ID) == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(channelId) == null) {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                    .build()
+
                 val channel = NotificationChannel(
-                    AUDIBLE_CHANNEL_ID,
+                    channelId,
                     "Prayer Azan Alarm",
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
                     description = "Exact prayer time alarm with full Azan recitation"
-                    setSound(null, null) // Audio is exclusively handled by AzanAudioPlayer
+                    setSound(soundUri, audioAttributes)
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 500, 250, 500)
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -259,7 +274,7 @@ class AzanReceiver : BroadcastReceiver() {
                 .setSummaryText(texts.subText)
                 .bigText(texts.bigBody)
 
-            val builder = NotificationCompat.Builder(context, AUDIBLE_CHANNEL_ID)
+            val builder = NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(texts.title)
                 .setContentText(texts.shortBody)
@@ -271,13 +286,15 @@ class AzanReceiver : BroadcastReceiver() {
                 .setFullScreenIntent(openIntent, true)
                 .setAutoCancel(isTone)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setSound(soundUri, AudioManager.STREAM_ALARM)
 
             if (isAzan) {
                 builder.addAction(android.R.drawable.ic_media_pause, texts.silenceAction, stopIntent)
             }
 
+            AzanAudioPlayer.play(context, rawName)
             nm.notify(NOTIFICATION_ID, builder.build())
-            Log.i(TAG, "Audible prayer alert posted for $prayer with $rawName recitation.")
+            Log.i(TAG, "Audible prayer alert posted on $channelId for $prayer with $rawName recitation.")
         }
     }
 }

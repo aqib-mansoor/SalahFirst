@@ -13,7 +13,7 @@ import { getRawPrayerTimes } from '@/utils/prayerTimes';
 import { getLocalDateComponents } from '@/utils/timezone';
 import { storage } from '@/utils/storage';
 import { APP_CONFIG } from '@/constants/config';
-import { stopNativeAzan, isNativeAzanPlaying } from '@/native/AzanServiceModule';
+import { stopNativeAzan, isNativeAzanPlaying, getDeviceSoundMode } from '@/native/AzanServiceModule';
 
 const PRAYERS: ('fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha')[] = [
   'fajr',
@@ -60,6 +60,22 @@ export const useAzanAutoReciter = ({
 
   const triggerRecitation = useCallback(
     async (prayerName: string) => {
+      // If native Azan is already reciting, sync UI state without spawning duplicate audio
+      if (Platform.OS === 'android') {
+        const nativePlaying = await isNativeAzanPlaying();
+        if (nativePlaying) {
+          setRecitingPrayer(prayerName);
+          setIsReciting(true);
+          return;
+        }
+      }
+
+      // Respect Silent and DND mode: if phone is in Silent or DND, stay silent
+      const soundState = await getDeviceSoundMode();
+      if (!soundState.canPlayAudibleSound) {
+        return;
+      }
+
       setRecitingPrayer(prayerName);
       setIsReciting(true);
 
@@ -68,7 +84,6 @@ export const useAzanAutoReciter = ({
         activeReciter
       );
 
-      // Prayer-time Azan recites reliably using high-priority audio player
       const success = await playAzanAudio(
         (playing, finished) => {
           setIsReciting(playing && !finished);
@@ -77,7 +92,7 @@ export const useAzanAutoReciter = ({
           }
         },
         latestReciter,
-        false
+        true
       );
 
       if (!success) {
@@ -108,19 +123,12 @@ export const useAzanAutoReciter = ({
         }
 
         if (mode === 'TONE' && alerts?.exactAlarmsEnabled !== false) {
-          if (Platform.OS !== 'android') {
-            playPrayerTonePreview();
-          }
+          playPrayerTonePreview();
           return;
         }
 
         if (mode === 'AZAN' && alerts?.exactAlarmsEnabled !== false) {
-          if (Platform.OS === 'android') {
-            setRecitingPrayer(data.prayerName as string);
-            setIsReciting(true);
-          } else {
-            triggerRecitation(data.prayerName as string);
-          }
+          triggerRecitation(data.prayerName as string);
         }
       }
     });
@@ -175,17 +183,10 @@ export const useAzanAutoReciter = ({
           if (mode === 'VIBRATE') {
             Vibration.vibrate([0, 600, 300, 600, 300, 600]);
           } else if (mode === 'TONE') {
-            if (Platform.OS !== 'android') {
-              playPrayerTonePreview();
-            }
+            playPrayerTonePreview();
           } else if (mode === 'AZAN') {
             const capitalized = prayer.charAt(0).toUpperCase() + prayer.slice(1);
-            if (Platform.OS === 'android') {
-              setRecitingPrayer(capitalized);
-              setIsReciting(true);
-            } else {
-              triggerRecitation(capitalized);
-            }
+            triggerRecitation(capitalized);
           }
           break;
         }
