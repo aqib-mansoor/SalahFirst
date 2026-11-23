@@ -80,10 +80,12 @@ class AzanReceiver : BroadcastReceiver() {
         private const val AUDIBLE_CHANNEL_ID = "salahfirst-azan-alarm-v4"
         private val VIBRATE_PATTERN = longArrayOf(0, 600, 300, 600, 300, 600)
 
-        val isPlaying: Boolean
-            get() = AzanAudioPlayer.isPlaying
+        @Volatile
+        var isPlaying: Boolean = false
+            private set
 
         fun cancelAzanNotification(context: Context) {
+            isPlaying = false
             AzanAudioPlayer.stop()
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             nm?.cancel(NOTIFICATION_ID)
@@ -94,26 +96,47 @@ class AzanReceiver : BroadcastReceiver() {
                 val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     nm?.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
-                ) {
-                    return
-                }
-                val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-                    vm?.defaultVibrator
+                ) return
+                @Suppress("DEPRECATION")
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
                 } else {
-                    @Suppress("DEPRECATION")
                     context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
                 }
                 if (vibrator?.hasVibrator() == true) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         vibrator.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, -1))
                     } else {
-                        @Suppress("DEPRECATION")
                         vibrator.vibrate(VIBRATE_PATTERN, -1)
                     }
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Hardware vibration warning: ${e.message}")
+            } catch (_: Exception) {}
+        }
+
+        private fun ensureChannel(
+            nm: NotificationManager,
+            id: String,
+            name: String,
+            soundUri: Uri?,
+            vibrate: Boolean
+        ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(id) == null) {
+                val channel = NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    enableVibration(vibrate)
+                    if (vibrate) vibrationPattern = VIBRATE_PATTERN
+                    if (soundUri != null) {
+                        val attrs = AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                            .build()
+                        setSound(soundUri, attrs)
+                    } else {
+                        setSound(null, null)
+                    }
+                }
+                nm.createNotificationChannel(channel)
             }
         }
 
@@ -145,34 +168,16 @@ class AzanReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            // 1. VIBRATE Mode: Always vibrate (unless Total Silence DND) + visual banner
+            // 1. VIBRATE Mode: Hardware vibration + visual banner
             if (isVibrate) {
                 triggerHardwareVibration(context)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(VIBRATE_CHANNEL_ID) == null) {
-                    val ch = NotificationChannel(
-                        VIBRATE_CHANNEL_ID,
-                        "Prayer Alert (Vibrate Only)",
-                        NotificationManager.IMPORTANCE_HIGH
-                    ).apply {
-                        description = "Prayer time vibration alert without audio"
-                        setSound(null, null)
-                        enableVibration(true)
-                        vibrationPattern = VIBRATE_PATTERN
-                        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                    }
-                    nm.createNotificationChannel(ch)
-                }
-                val vibrateBigStyle = NotificationCompat.BigTextStyle()
-                    .setBigContentTitle(texts.title)
-                    .setSummaryText(texts.subText)
-                    .bigText(texts.bigBody)
-
-                val vibrateNotif = NotificationCompat.Builder(context, VIBRATE_CHANNEL_ID)
+                ensureChannel(nm, VIBRATE_CHANNEL_ID, "Prayer Alert (Vibrate Only)", null, true)
+                val notif = NotificationCompat.Builder(context, VIBRATE_CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon)
                     .setContentTitle(texts.title)
                     .setContentText(texts.shortBody)
                     .setSubText(texts.subText)
-                    .setStyle(vibrateBigStyle)
+                    .setStyle(NotificationCompat.BigTextStyle().setBigContentTitle(texts.title).bigText(texts.bigBody))
                     .setPriority(NotificationCompat.PRIORITY_MAX)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setContentIntent(openIntent)
@@ -181,7 +186,7 @@ class AzanReceiver : BroadcastReceiver() {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .addAction(0, texts.prayedAction, markPrayedIntent)
                     .build()
-                nm.notify(NOTIFICATION_ID, vibrateNotif)
+                nm.notify(NOTIFICATION_ID, notif)
                 return
             }
 
@@ -194,29 +199,13 @@ class AzanReceiver : BroadcastReceiver() {
 
             if (!soundState.canPlayAudibleSound && !allowFajrWakeUp) {
                 Log.i(TAG, "Device in Silent or DND mode (${soundState.suppressionReason}). Posting silent notice.")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(SILENT_CHANNEL_ID) == null) {
-                    val ch = NotificationChannel(
-                        SILENT_CHANNEL_ID,
-                        "Prayer Call (Silent Mode)",
-                        NotificationManager.IMPORTANCE_HIGH
-                    ).apply {
-                        description = "Visual prayer alert when phone is on Silent or DND"
-                        setSound(null, null)
-                        enableVibration(true)
-                    }
-                    nm.createNotificationChannel(ch)
-                }
-                val silentBigStyle = NotificationCompat.BigTextStyle()
-                    .setBigContentTitle(texts.title)
-                    .setSummaryText(texts.subText)
-                    .bigText(texts.bigBody)
-
+                ensureChannel(nm, SILENT_CHANNEL_ID, "Prayer Call (Silent Mode)", null, true)
                 val silentNotif = NotificationCompat.Builder(context, SILENT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon)
                     .setContentTitle(texts.title)
                     .setContentText(texts.shortBody)
                     .setSubText(texts.subText)
-                    .setStyle(silentBigStyle)
+                    .setStyle(NotificationCompat.BigTextStyle().setBigContentTitle(texts.title).bigText(texts.bigBody))
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setContentIntent(openIntent)
@@ -228,7 +217,7 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio recitation via system channel & AzanAudioPlayer
+            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio recitation via system channel
             val rawName = when (reciter) {
                 "tone"    -> "prayer_tone"
                 "madinah" -> "azan_madinah"
@@ -240,27 +229,7 @@ class AzanReceiver : BroadcastReceiver() {
             val soundUri = Uri.parse(
                 "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/$rawName"
             )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(channelId) == null) {
-                val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                    .build()
-
-                val channel = NotificationChannel(
-                    channelId,
-                    "Prayer Azan Alarm",
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    description = "Exact prayer time alarm with full Azan recitation"
-                    setSound(soundUri, audioAttributes)
-                    enableVibration(true)
-                    vibrationPattern = longArrayOf(0, 500, 250, 500)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                }
-                nm.createNotificationChannel(channel)
-            }
+            ensureChannel(nm, channelId, "Prayer Azan Alarm", soundUri, true)
 
             val stopIntent = PendingIntent.getBroadcast(
                 context,
@@ -292,7 +261,7 @@ class AzanReceiver : BroadcastReceiver() {
                 builder.addAction(android.R.drawable.ic_media_pause, texts.silenceAction, stopIntent)
             }
 
-            AzanAudioPlayer.play(context, rawName)
+            isPlaying = true
             nm.notify(NOTIFICATION_ID, builder.build())
             Log.i(TAG, "Audible prayer alert posted on $channelId for $prayer with $rawName recitation.")
         }
