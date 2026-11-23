@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { AppText, IslamicMihrabCanvas } from '@/components/common';
@@ -51,9 +51,6 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
 
       {/* Top Header: Unboxed Clean Section Label */}
       <View style={styles.headerRow}>
-        <Svg width={11} height={11} viewBox="0 0 24 24" fill={theme.colors.accent}>
-          <Path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-        </Svg>
         <AppText
           variant="caption"
           color={theme.colors.accentLight}
