@@ -145,10 +145,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     madinah: t('reciterMadinah'),
     alAqsa: t('reciterAlAqsa'),
     alafasy: t('reciterAlafasy'),
-    fajr: t('reciterFajr'),
     qatami: t('reciterQatami'),
   };
-  const reciterName = reciterLabelMap[currentReciter] || t('reciterMakkah');
+  const safeReciter = currentReciter === 'fajr' ? 'makkah' : currentReciter;
+  const reciterName = reciterLabelMap[safeReciter] || t('reciterMakkah');
 
   return (
     <AppContainer edges={['top', 'left', 'right', 'bottom']} style={{ backgroundColor: theme.colors.background }}>

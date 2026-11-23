@@ -38,7 +38,8 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const activeReciter = RECITERS_MAP[currentReciter] || RECITERS_MAP.makkah;
+  const safeReciter = currentReciter === 'fajr' ? 'makkah' : currentReciter;
+  const activeReciter = RECITERS_MAP[safeReciter] || RECITERS_MAP.makkah;
   const activeLabel = t(activeReciter.labelKey as any);
   const activeSubtitle = t(activeReciter.subKey as any);
 
@@ -155,6 +156,20 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
           </Svg>
         </View>
       </Pressable>
+
+      <View style={styles.fajrNoticeRow}>
+        <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"
+            stroke={theme.colors.primary}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </Svg>
+        <AppText variant="caption" color={theme.colors.textMuted} style={styles.fajrNoticeText}>
+          {t('fajrDawnAzanNote')}
+        </AppText>
+      </View>
     </View>
   );
 };
@@ -243,5 +258,15 @@ const styles = StyleSheet.create({
   changeBadgeText: {
     fontSize: 11,
     fontWeight: '600',
+  },
+  fajrNoticeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingTop: SPACING.xs,
+    paddingHorizontal: 2,
+  },
+  fajrNoticeText: {
+    fontSize: 11,
   },
 });

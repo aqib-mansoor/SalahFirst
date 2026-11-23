@@ -202,15 +202,17 @@ export const scheduleAllPrayerAlerts = async (
           const isJumuah = prayerDate.getDay() === 5 && prayer.key === 'dhuhr';
           const alarmTitleKey = `notifPrayerTitle${prayer.name}`;
           const alarmBodyKey = `notifPrayerBody${prayer.name}`;
+          // Fajr prayer always recites Fajr Dawn Azan; other prayers recite user's chosen voice
+          const effectiveReciter = isFajr && mode === 'AZAN' ? 'fajr' : (reciterKey === 'fajr' ? 'makkah' : reciterKey);
           const { channelId: prayerChannel, soundName } = getPrayerChannelForModeAndReciter(
             mode,
-            reciterKey
+            effectiveReciter
           );
 
           // Schedule AZAN, TONE, and VIBRATE through native AlarmManager.setAlarmClock on Android;
           // fall back to expo-notifications on iOS or if native scheduling is unavailable
           const nativeModeOrReciter =
-            mode === 'TONE' ? 'tone' : mode === 'VIBRATE' ? 'vibrate' : reciterKey;
+            mode === 'TONE' ? 'tone' : mode === 'VIBRATE' ? 'vibrate' : effectiveReciter;
           const nativeScheduled = await scheduleNativeAzan(
             prayer.name,
             prayer.key,

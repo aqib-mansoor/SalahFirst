@@ -26,8 +26,11 @@ export const useAzanAudio = () => {
 
   useEffect(() => {
     storage.get<AzanReciterKey>(APP_CONFIG.storageKeys.azanReciter, 'makkah').then((saved) => {
-      if (saved && saved in AZAN_LOCAL_ASSETS) {
+      if (saved && saved in AZAN_LOCAL_ASSETS && saved !== 'fajr') {
         setCurrentReciter(saved);
+      } else if (saved === 'fajr') {
+        setCurrentReciter('makkah');
+        storage.set(APP_CONFIG.storageKeys.azanReciter, 'makkah');
       }
     });
 

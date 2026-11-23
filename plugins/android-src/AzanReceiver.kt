@@ -217,8 +217,9 @@ class AzanReceiver : BroadcastReceiver() {
                 return
             }
 
-            // 3. AUDIBLE Mode (AZAN & TONE): Play full audio recitation via system channel
-            val rawName = when (reciter) {
+            // 3. AUDIBLE Mode (AZAN & TONE): Fajr always recites Fajr Dawn Azan; others recite chosen voice
+            val effectiveReciter = if (isFajrPrayer && isAzan) "fajr" else if (reciter == "fajr") "makkah" else reciter
+            val rawName = when (effectiveReciter) {
                 "tone"    -> "prayer_tone"
                 "madinah" -> "azan_madinah"
                 "alAqsa"  -> "azan_alaqsa"

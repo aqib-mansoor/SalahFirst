@@ -29,7 +29,6 @@ const RECITERS: ReciterItem[] = [
   { id: 'madinah', labelKey: 'reciterMadinah', subtitleKey: 'reciterMadinahSub' },
   { id: 'alAqsa', labelKey: 'reciterAlAqsa', subtitleKey: 'reciterAlAqsaSub' },
   { id: 'alafasy', labelKey: 'reciterAlafasy', subtitleKey: 'reciterAlafasySub' },
-  { id: 'fajr', labelKey: 'reciterFajr', subtitleKey: 'reciterFajrSub' },
   { id: 'qatami', labelKey: 'reciterQatami', subtitleKey: 'reciterQatamiSub' },
 ];
 
@@ -75,7 +74,7 @@ export const AzanReciterBottomSheet: React.FC<AzanReciterBottomSheetProps> = ({
       onClose={onClose}
       title={t('chooseAzanVoice')}
       subtitleText={t('chooseAzanVoiceSubtitle')}
-      badgeText={t('sixVoicesBadge')}
+      badgeText={t('fiveVoicesBadge')}
       icon={headerIcon}
     >
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollList}>
