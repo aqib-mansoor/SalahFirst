@@ -19,6 +19,7 @@ export * from './PrePrayerReminderCard';
 export * from './PrayerAlertCard';
 export * from './NotificationPreferencesCard';
 export * from './AzanAudioPreviewCard';
+export * from './AzanReciterBottomSheet';
 export * from './AzanPrefsHeader';
 export * from './MasterAlarmCard';
 export * from './BatteryOptimizationCard';

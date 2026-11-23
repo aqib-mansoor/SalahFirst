@@ -16,6 +16,7 @@ import { PrePrayerReminderCard } from './PrePrayerReminderCard';
 import { PrayerAlertCard } from './PrayerAlertCard';
 import { NotificationPreferencesCard } from './NotificationPreferencesCard';
 import { AzanAudioPreviewCard } from './AzanAudioPreviewCard';
+import { AzanReciterBottomSheet } from './AzanReciterBottomSheet';
 import { BatteryOptimizationCard } from './BatteryOptimizationCard';
 import { MasterAlarmCard } from './MasterAlarmCard';
 import { AzanPrefsHeader } from './AzanPrefsHeader';
@@ -60,6 +61,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
   } = useAzanAudio();
   const [hasPermission, setHasPermission] = useState(true);
   const [hasExactAlarmPermission, setHasExactAlarmPermission] = useState(true);
+  const [isReciterSheetOpen, setIsReciterSheetOpen] = useState(false);
 
   const verifyPermissions = async () => {
     const [{ granted }, exactAllowed] = await Promise.all([
@@ -171,7 +173,7 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           isPlaying={isPlaying}
           currentReciter={currentReciter}
           error={audioError}
-          onSelectReciter={selectReciter}
+          onOpenReciterSheet={() => setIsReciterSheetOpen(true)}
           onToggle={toggleAudio}
         />
 
@@ -221,6 +223,16 @@ export const AzanPrefsScreen: React.FC<AzanPrefsScreenProps> = ({ onBack }) => {
           })}
         </View>
       </ScrollView>
+
+      <AzanReciterBottomSheet
+        visible={isReciterSheetOpen}
+        onClose={() => setIsReciterSheetOpen(false)}
+        currentReciter={currentReciter}
+        isPlaying={isPlaying}
+        isLoading={isLoading}
+        onSelectReciter={selectReciter}
+        onTogglePlay={toggleAudio}
+      />
     </AppContainer>
   );
 };

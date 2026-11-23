@@ -59,6 +59,9 @@
             "./assets/audio/azan_makkah.mp3",
             "./assets/audio/azan_madinah.mp3",
             "./assets/audio/azan_alaqsa.mp3",
+            "./assets/audio/azan_alafasy.mp3",
+            "./assets/audio/azan_egypt.mp3",
+            "./assets/audio/azan_zahrani.mp3",
             "./assets/audio/prayer_tone.wav"
           ]
         }

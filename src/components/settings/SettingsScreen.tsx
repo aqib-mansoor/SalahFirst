@@ -140,7 +140,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       : t('prayerTimeAdjustmentsSub');
 
   const languageLabel = language === 'ur' ? 'اردو (Urdu)' : language === 'ar' ? 'العربية (Arabic)' : 'English';
-  const reciterName = currentReciter === 'madinah' ? t('reciterMadinah') : currentReciter === 'alAqsa' ? t('reciterAlAqsa') : t('reciterMakkah');
+  const reciterLabelMap: Record<string, string> = {
+    makkah: t('reciterMakkah'),
+    madinah: t('reciterMadinah'),
+    alAqsa: t('reciterAlAqsa'),
+    alafasy: t('reciterAlafasy'),
+    egypt: t('reciterEgypt'),
+    zahrani: t('reciterZahrani'),
+  };
+  const reciterName = reciterLabelMap[currentReciter] || t('reciterMakkah');
 
   return (
     <AppContainer edges={['top', 'left', 'right', 'bottom']} style={{ backgroundColor: theme.colors.background }}>

@@ -7,35 +7,40 @@ import { AppText } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { AzanReciterKey } from '@/utils/azanAudio';
 import { AzanPreviewError } from '@/hooks/useAzanAudio';
+import { triggerHaptic } from '@/utils/haptics';
 
 export interface AzanAudioPreviewCardProps {
   isLoading: boolean;
   isPlaying: boolean;
   currentReciter: AzanReciterKey;
   error?: AzanPreviewError | null;
-  onSelectReciter: (key: AzanReciterKey) => void;
+  onOpenReciterSheet: () => void;
   onToggle: () => void;
 }
 
-const RECITERS: { id: AzanReciterKey; labelKey: string }[] = [
-  { id: 'makkah', labelKey: 'reciterMakkah' },
-  { id: 'madinah', labelKey: 'reciterMadinah' },
-  { id: 'alAqsa', labelKey: 'reciterAlAqsa' },
-];
+const RECITERS_MAP: Record<AzanReciterKey, { labelKey: string; subKey: string }> = {
+  makkah: { labelKey: 'reciterMakkah', subKey: 'reciterMakkahSub' },
+  madinah: { labelKey: 'reciterMadinah', subKey: 'reciterMadinahSub' },
+  alAqsa: { labelKey: 'reciterAlAqsa', subKey: 'reciterAlAqsaSub' },
+  alafasy: { labelKey: 'reciterAlafasy', subKey: 'reciterAlafasySub' },
+  egypt: { labelKey: 'reciterEgypt', subKey: 'reciterEgyptSub' },
+  zahrani: { labelKey: 'reciterZahrani', subKey: 'reciterZahraniSub' },
+};
 
 export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
   isLoading,
   isPlaying,
   currentReciter,
   error,
-  onSelectReciter,
+  onOpenReciterSheet,
   onToggle,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const activeReciterObj = RECITERS.find((r) => r.id === currentReciter) || RECITERS[0];
-  const activeLabel = t(activeReciterObj.labelKey as any);
+  const activeReciter = RECITERS_MAP[currentReciter] || RECITERS_MAP.makkah;
+  const activeLabel = t(activeReciter.labelKey as any);
+  const activeSubtitle = t(activeReciter.subKey as any);
 
   let statusText = t('tapToPreviewAzan');
   if (isLoading) {
@@ -53,10 +58,10 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
       ]}
     >
-      <View style={styles.headerRow}>
+      <View style={styles.topRow}>
         <View style={styles.titleColumn}>
           <AppText variant="titleSmall" color={theme.colors.text} style={styles.titleText}>
-            {t('makkahAzanPreview')}
+            {t('azanVoiceSelection')}
           </AppText>
           <View style={styles.statusRow}>
             {isLoading && (
@@ -98,39 +103,58 @@ export const AzanAudioPreviewCard: React.FC<AzanAudioPreviewCardProps> = ({
         </Pressable>
       </View>
 
-      <View style={styles.recitersRow}>
-        {RECITERS.map((reciter) => {
-          const isSelected = currentReciter === reciter.id;
-          return (
-            <Pressable
-              key={reciter.id}
-              onPress={() => onSelectReciter(reciter.id)}
-              hitSlop={4}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-              style={({ pressed }) => [
-                styles.reciterChip,
-                {
-                  backgroundColor: isSelected
-                    ? theme.colors.secondaryTint
-                    : pressed
-                    ? theme.colors.surfaceElevated
-                    : theme.colors.surfaceSubtle,
-                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                },
-              ]}
-            >
-              <AppText
-                variant="caption"
-                color={isSelected ? theme.colors.primary : theme.colors.text}
-                style={[styles.reciterText, { fontWeight: isSelected ? '700' : '500' }]}
-              >
-                {t(reciter.labelKey as any)}
-              </AppText>
-            </Pressable>
-          );
-        })}
-      </View>
+      <Pressable
+        onPress={() => {
+          triggerHaptic();
+          onOpenReciterSheet();
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={t('changeAzanVoice')}
+        style={({ pressed }) => [
+          styles.selectorRow,
+          {
+            backgroundColor: pressed ? theme.colors.surfaceElevated : theme.colors.surfaceSubtle,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
+        <View style={styles.voiceInfo}>
+          <View style={[styles.voiceIconWrap, { backgroundColor: theme.colors.secondaryTint }]}>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"
+                stroke={theme.colors.primary}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </View>
+          <View style={styles.voiceTextWrap}>
+            <AppText variant="bodyMedium" color={theme.colors.text} style={styles.voiceName}>
+              {activeLabel}
+            </AppText>
+            <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1}>
+              {activeSubtitle}
+            </AppText>
+          </View>
+        </View>
+
+        <View style={[styles.changeBadge, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+          <AppText variant="caption" color={theme.colors.primary} style={styles.changeBadgeText}>
+            {t('changeAzanVoice')}
+          </AppText>
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M9 18l6-6-6-6"
+              stroke={theme.colors.primary}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        </View>
+      </Pressable>
     </View>
   );
 };
@@ -142,7 +166,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: SPACING.sm + 2,
   },
-  headerRow: {
+  topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -177,19 +201,47 @@ const styles = StyleSheet.create({
   playIconOffset: {
     marginLeft: 2,
   },
-  recitersRow: {
+  selectorRow: {
     flexDirection: 'row',
-    gap: SPACING.xs + 2,
-  },
-  reciterChip: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.xs + 3,
+    justifyContent: 'space-between',
+    padding: SPACING.sm + 2,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
+    gap: SPACING.sm,
   },
-  reciterText: {
+  voiceInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: SPACING.sm,
+  },
+  voiceIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceTextWrap: {
+    flex: 1,
+    gap: 1,
+  },
+  voiceName: {
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  changeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    gap: 4,
+  },
+  changeBadgeText: {
     fontSize: 11,
+    fontWeight: '600',
   },
 });

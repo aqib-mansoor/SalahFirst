@@ -222,6 +222,9 @@ class AzanReceiver : BroadcastReceiver() {
                 "tone"    -> "prayer_tone"
                 "madinah" -> "azan_madinah"
                 "alAqsa"  -> "azan_alaqsa"
+                "alafasy" -> "azan_alafasy"
+                "egypt"   -> "azan_egypt"
+                "zahrani" -> "azan_zahrani"
                 else      -> "azan_makkah"
             }
 
