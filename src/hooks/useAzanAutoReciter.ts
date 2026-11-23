@@ -60,16 +60,6 @@ export const useAzanAutoReciter = ({
 
   const triggerRecitation = useCallback(
     async (prayerName: string) => {
-      // If native Azan is already reciting, sync UI state without spawning duplicate audio
-      if (Platform.OS === 'android') {
-        const nativePlaying = await isNativeAzanPlaying();
-        if (nativePlaying) {
-          setRecitingPrayer(prayerName);
-          setIsReciting(true);
-          return;
-        }
-      }
-
       // Respect Silent and DND mode: if phone is in Silent or DND, stay silent
       const soundState = await getDeviceSoundMode();
       if (!soundState.canPlayAudibleSound) {
@@ -78,6 +68,12 @@ export const useAzanAutoReciter = ({
 
       setRecitingPrayer(prayerName);
       setIsReciting(true);
+
+      // On Android, Native AlarmManager + AzanAudioPlayer is the sole audio engine.
+      // JS only tracks in-app UI state to prevent duplicate audio playback.
+      if (Platform.OS === 'android') {
+        return;
+      }
 
       const latestReciter = await storage.get<AzanReciterKey>(
         APP_CONFIG.storageKeys.azanReciter,
