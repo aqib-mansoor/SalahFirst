@@ -130,13 +130,11 @@ export const FocusSettingsGroup: React.FC<FocusSettingsGroupProps> = ({
 
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        {/* Row 3: Silence Note Badge */}
+        {/* Row 3: Silence Note Description */}
         <View style={styles.noteRow}>
-          <View style={[styles.statusBadge, { backgroundColor: theme.colors.secondaryTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.badgeText}>
-              ✓ {t('autoSilenceBadge')}
-            </AppText>
-          </View>
+          <AppText variant="caption" color={theme.colors.textSecondary} style={styles.noteText}>
+            {t('autoSilenceBadge')}
+          </AppText>
         </View>
 
         {onOpenFocusConfig && (
@@ -242,17 +240,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   noteRow: {
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
   },
-  statusBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs + 1,
-    borderRadius: RADIUS.full,
-    alignSelf: 'flex-start',
-  },
-  badgeText: {
-    fontWeight: '600',
+  noteText: {
+    lineHeight: 18,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

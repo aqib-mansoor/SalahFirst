@@ -100,10 +100,13 @@ export const PrayerSettingsGroup: React.FC<PrayerSettingsGroupProps> = ({
               </AppText>
             </View>
           </View>
-          <View style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryTint }]}>
-            <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
+          <View style={styles.rightAction}>
+            <AppText variant="caption" color={theme.colors.textSecondary} style={styles.actionText}>
               {t('switchAction')}
             </AppText>
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path d="M9 18l6-6-6-6" stroke={theme.colors.textSecondary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
           </View>
         </Pressable>
 
@@ -213,13 +216,14 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontWeight: '700',
   },
-  pillBadge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
+  rightAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
-  pillText: {
-    fontWeight: '700',
+  actionText: {
+    fontWeight: '600',
+    fontSize: 12,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

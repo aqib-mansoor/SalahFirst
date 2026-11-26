@@ -72,12 +72,10 @@ export const FiqhSettingRow: React.FC<FiqhSettingRowProps> = ({ fiqh, onPress })
         </View>
       </View>
       <View style={styles.rightGroup}>
-        <View style={[styles.pillBadge, { backgroundColor: theme.colors.secondaryTint }]}>
-          <AppText variant="caption" color={theme.colors.primary} style={styles.pillText}>
-            {displayTitle}
-          </AppText>
-        </View>
-        <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={styles.chevron}>
+        <AppText variant="caption" color={theme.colors.textSecondary} style={styles.actionText}>
+          {displayTitle}
+        </AppText>
+        <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" style={styles.chevron}>
           <Path
             d="M9 18l6-6-6-6"
             stroke={theme.colors.textSecondary}
@@ -124,16 +122,11 @@ const styles = StyleSheet.create({
   rightGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
-  pillBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-    marginRight: SPACING.xs,
-  },
-  pillText: {
-    fontWeight: '700',
-    fontSize: 11,
+  actionText: {
+    fontWeight: '600',
+    fontSize: 12,
   },
   chevron: {
     marginLeft: 2,
