@@ -101,7 +101,7 @@ export const triggerStreakNotification = async (): Promise<void> => {
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: (i18n.t('notifStreakTitle') as string) || 'SalahFirst • Daily Completion',
+        title: (i18n.t('notifStreakTitle') as string) || 'As Salah • Daily Completion',
         body: (i18n.t('notifStreakBody') as string) || 'Alhamdulillah. You completed all 5 prayers today.',
         sound: 'default',
         data: { type: 'streak-encouragement' },

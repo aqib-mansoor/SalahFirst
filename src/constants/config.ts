@@ -3,9 +3,9 @@
  * Centralized settings for easy rebranding and global app modifications.
  */
 export const APP_CONFIG = {
-  name: 'SalahFirst',
-  nameFirst: 'Salah',
-  nameSecond: 'First',
+  name: 'As Salah',
+  nameFirst: 'As ',
+  nameSecond: 'Salah',
   bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
   tagline: 'Make time for what matters.',
   continueButton: 'Continue to Setup',

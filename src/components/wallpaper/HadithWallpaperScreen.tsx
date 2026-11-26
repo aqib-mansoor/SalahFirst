@@ -165,7 +165,7 @@ export const HadithWallpaperScreen: React.FC<HadithWallpaperScreenProps> = ({
       } else {
         await Share.share({
           title: 'Share Authentic Hadith',
-          message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via SalahFirst`,
+          message: `${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.source} (${hadith.reference})\n\nShared via As Salah`,
         });
       }
     } catch {
