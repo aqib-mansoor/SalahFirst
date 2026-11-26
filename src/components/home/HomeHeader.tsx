@@ -117,9 +117,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xs,
-    paddingBottom: 2,
-    minHeight: 50,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.sm,
+    minHeight: 56,
   },
   leftSection: {
     flex: 1,
