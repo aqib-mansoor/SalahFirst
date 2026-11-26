@@ -73,11 +73,11 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
         </View>
 
         <View style={styles.cardContent}>
-          {/* Top Row: Category Badge & Language Toggle */}
+          {/* Top Row: Category Meta & Language Toggle */}
           <View style={styles.topRow}>
-            <View style={[styles.badgePill, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
-              <AppText variant="caption" color={theme.colors.textPrimary} style={styles.badgeText}>
-                {dailyHadith.badge}
+            <View style={styles.categoryWrapper}>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.categoryText}>
+                {dailyHadith.badge.toUpperCase()}
               </AppText>
             </View>
 
@@ -186,10 +186,10 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  badgePill: {
-    paddingHorizontal: SPACING.sm + 2, paddingVertical: 3, borderRadius: RADIUS.full, borderWidth: 1,
+  categoryWrapper: {
+    paddingVertical: 2,
   },
-  badgeText: { fontWeight: '800', letterSpacing: 0.6, fontSize: 10 },
+  categoryText: { fontWeight: '700', letterSpacing: 0.8, fontSize: 10.5 },
   langToggleBox: {
     flexDirection: 'row', borderRadius: RADIUS.full, borderWidth: 1, padding: 2, gap: 2,
   },

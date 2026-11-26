@@ -57,9 +57,8 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
             {t('postSalahTasbih')}
           </AppText>
           {totalCycles > 0 && (
-            <View style={[styles.cyclesBadge, { backgroundColor: theme.colors.accentTint, borderColor: theme.colors.accent }]}>
-              <ThreeDTasbihIcon size={14} />
-              <AppText variant="caption" color={theme.colors.textPrimary} style={styles.cyclesText}>
+            <View style={[styles.cyclesBadge, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.border }]}>
+              <AppText variant="caption" color={theme.colors.textSecondary} style={styles.cyclesText}>
                 {totalCycles} {totalCycles === 1 ? t('cycleSingular') : t('cyclesPlural')}
               </AppText>
             </View>
