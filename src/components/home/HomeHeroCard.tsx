@@ -99,7 +99,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
       <View style={styles.twinCardsRow}>
         {/* Card 1: Next Prayer Telemetry */}
         <View style={[styles.prayerCard, { backgroundColor: theme.colors.primaryHero }]}>
-          <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.28} style={styles.canvas} />
+          <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} style={styles.canvas} />
           <HeroCountdownTelemetry
             theme={theme}
             localizedNextPrayer={localizedNextPrayer}

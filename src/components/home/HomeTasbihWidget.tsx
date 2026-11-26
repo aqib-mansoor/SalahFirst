@@ -141,7 +141,7 @@ export const HomeTasbihWidget: React.FC = React.memo(() => {
 
 const styles = StyleSheet.create({
   container: {
-    gap: SPACING.xs + 2,
+    gap: SPACING.sm,
   },
   headerRow: {
     flexDirection: 'row',

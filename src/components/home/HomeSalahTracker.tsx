@@ -27,8 +27,6 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
   const [confirmPrayer, setConfirmPrayer] = useState<string | null>(null);
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
-  const progressPercent = Math.min(100, Math.max(0, (completedCount / 5) * 100));
-
   useEffect(() => {
     if (!noticeMessage) return;
     const timer = setTimeout(() => setNoticeMessage(null), 3500);
@@ -89,16 +87,6 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
         )}
       </View>
 
-      {/* Runway Progress Filament */}
-      <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}>
-        <View
-          style={[
-            styles.progressFill,
-            { backgroundColor: theme.colors.primary, width: `${progressPercent}%` },
-          ]}
-        />
-      </View>
-
       {/* Strict Future Prayer Notice Toast */}
       {noticeMessage && (
         <Pressable
@@ -150,7 +138,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
 
 const styles = StyleSheet.create({
   container: {
-    gap: SPACING.xs + 2,
+    gap: SPACING.sm,
   },
   headerRow: {
     flexDirection: 'row',
@@ -168,16 +156,6 @@ const styles = StyleSheet.create({
   historyText: {
     fontWeight: '700',
     fontSize: 12.5,
-  },
-  progressTrack: {
-    height: 4,
-    borderRadius: RADIUS.full,
-    overflow: 'hidden',
-    marginVertical: 2,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: RADIUS.full,
   },
   runwayRow: {
     flexDirection: 'row',

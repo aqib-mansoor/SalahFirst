@@ -67,7 +67,7 @@ export const HeroTodayTrackerGlance: React.FC<HeroTodayTrackerGlanceProps> = ({
       ]}
     >
       {/* Sacred Architectural Mihrab Lines Canvas */}
-      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.28} style={styles.canvas} />
+      <IslamicMihrabCanvas goldColor={theme.colors.accent} opacity={0.15} style={styles.canvas} />
 
       {/* Top Header: Unboxed Clean Section Label */}
       <View style={styles.headerRow}>
