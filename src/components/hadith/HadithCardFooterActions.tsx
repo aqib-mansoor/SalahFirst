@@ -43,12 +43,12 @@ export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = (
         </Svg>
       </Pressable>
 
-      {/* 2. Sacred Gold Bookmark Action */}
+      {/* 2. Sacred Gold Favorite Action */}
       <Pressable
         onPress={onSavePress}
         hitSlop={6}
         accessibilityRole="button"
-        accessibilityLabel={isSaved ? "Saved in bookmarks" : "Save to bookmarks"}
+        accessibilityLabel={isSaved ? "Favorited" : "Add to favorites"}
         style={({ pressed }) => [
           styles.circleBtn,
           {
@@ -60,7 +60,7 @@ export const HadithCardFooterActions: React.FC<HadithCardFooterActionsProps> = (
       >
         <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
           <Path
-            d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z"
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
             fill={isSaved ? theme.colors.accent : 'none'}
             stroke={isSaved ? theme.colors.accent : theme.colors.primary}
             strokeWidth="2"
