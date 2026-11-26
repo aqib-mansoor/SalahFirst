@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SPACING } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
@@ -33,6 +34,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenWallpaper,
 }) => {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { location } = useDeviceLocation();
 
@@ -91,7 +93,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Scrollable Dashboard Body */}
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: Math.max(insets.bottom, 16) + 88 },
+          ]}
         >
           {/* Hero Banner with Canvas & Countdown */}
           <HomeHeroCard
@@ -150,8 +155,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xs,
-    paddingBottom: 112,
-    gap: SPACING.lg,
+    paddingTop: 2,
+    gap: 12,
   },
 });
