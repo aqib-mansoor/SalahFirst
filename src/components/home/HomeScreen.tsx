@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
-    gap: 18,
+    paddingTop: SPACING.xs,
+    gap: 12,
   },
 });

@@ -138,7 +138,7 @@ export const HomeSalahTracker: React.FC<HomeSalahTrackerProps> = React.memo(({
 
 const styles = StyleSheet.create({
   container: {
-    gap: SPACING.sm,
+    gap: 6,
   },
   headerRow: {
     flexDirection: 'row',

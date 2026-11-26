@@ -166,7 +166,7 @@ export const HomeDailyHadith: React.FC<HomeDailyHadithProps> = React.memo(({ onR
 });
 
 const styles = StyleSheet.create({
-  container: { gap: SPACING.sm },
+  container: { gap: 6 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontWeight: '800', letterSpacing: -0.2 },
   readFull: { fontWeight: '700' },
