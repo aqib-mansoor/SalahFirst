@@ -1,12 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, ScrollView } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { SPACING, RADIUS } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { AppText, AppBottomSheet } from '@/components/common';
+import { AppBottomSheet, AppButton } from '@/components/common';
 import { useTranslation } from '@/context/LocalizationContext';
 import { AzanReciterKey } from '@/utils/azanAudio';
 import { triggerHaptic } from '@/utils/haptics';
+import { AzanReciterRowItem, ReciterItem } from './AzanReciterRowItem';
 
 export interface AzanReciterBottomSheetProps {
   visible: boolean;
@@ -16,12 +17,6 @@ export interface AzanReciterBottomSheetProps {
   isLoading: boolean;
   onSelectReciter: (key: AzanReciterKey) => void;
   onTogglePlay: (key?: AzanReciterKey) => void;
-}
-
-interface ReciterItem {
-  id: AzanReciterKey;
-  labelKey: string;
-  subtitleKey: string;
 }
 
 const RECITERS: ReciterItem[] = [
@@ -74,7 +69,6 @@ export const AzanReciterBottomSheet: React.FC<AzanReciterBottomSheetProps> = ({
       onClose={onClose}
       title={t('chooseAzanVoice')}
       subtitleText={t('chooseAzanVoiceSubtitle')}
-      badgeText={t('fiveVoicesBadge')}
       icon={headerIcon}
     >
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollList}>
@@ -82,109 +76,32 @@ export const AzanReciterBottomSheet: React.FC<AzanReciterBottomSheetProps> = ({
           style={[
             styles.listContainer,
             {
-              backgroundColor: theme.isDark ? theme.colors.surfaceSubtle : theme.colors.background,
-              borderColor: theme.colors.border,
+              backgroundColor: theme.isDark ? '#081F17' : theme.colors.surface,
+              borderColor: theme.isDark ? 'rgba(255, 255, 255, 0.12)' : theme.colors.border,
             },
           ]}
         >
-          {RECITERS.map((item, index) => {
-            const isSelected = currentReciter === item.id;
-            const isThisPlaying = isPlaying && isSelected;
-            const isLast = index === RECITERS.length - 1;
+          {RECITERS.map((item, index) => (
+            <AzanReciterRowItem
+              key={item.id}
+              item={item}
+              isSelected={currentReciter === item.id}
+              isThisPlaying={isPlaying && currentReciter === item.id}
+              isLoading={isLoading}
+              isLast={index === RECITERS.length - 1}
+              onSelect={handleSelect}
+              onTogglePlay={onTogglePlay}
+            />
+          ))}
+        </View>
 
-            return (
-              <Pressable
-                key={item.id}
-                onPress={() => handleSelect(item.id)}
-                accessibilityRole="button"
-                accessibilityLabel={t(item.labelKey as any)}
-                style={({ pressed }) => [
-                  styles.rowItem,
-                  {
-                    backgroundColor: isSelected
-                      ? theme.colors.secondaryTint
-                      : pressed
-                      ? theme.colors.surfaceElevated
-                      : 'transparent',
-                    borderBottomColor: theme.colors.border,
-                    borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
-                  },
-                ]}
-              >
-                <View style={styles.leftSection}>
-                  <View
-                    style={[
-                      styles.radioCircle,
-                      {
-                        borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                        backgroundColor: isSelected ? theme.colors.primary : 'transparent',
-                      },
-                    ]}
-                  >
-                    {isSelected && (
-                      <View
-                        style={[
-                          styles.innerDot,
-                          { backgroundColor: theme.colors.textOnPrimary },
-                        ]}
-                      />
-                    )}
-                  </View>
-
-                  <View style={styles.textColumn}>
-                    <AppText
-                      variant="bodyMedium"
-                      color={isSelected ? theme.colors.primary : theme.colors.text}
-                      style={[styles.titleText, isSelected && styles.selectedTitle]}
-                    >
-                      {t(item.labelKey as any)}
-                    </AppText>
-                    <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1}>
-                      {t(item.subtitleKey as any)}
-                    </AppText>
-                  </View>
-                </View>
-
-                <Pressable
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    if (!isSelected) {
-                      handleSelect(item.id);
-                    }
-                    onTogglePlay(item.id);
-                  }}
-                  disabled={isLoading}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                  accessibilityLabel={isThisPlaying ? 'Stop preview' : 'Play preview'}
-                  style={({ pressed }) => [
-                    styles.playButton,
-                    {
-                      backgroundColor: isThisPlaying
-                        ? theme.colors.error
-                        : isSelected
-                        ? theme.colors.primary
-                        : theme.colors.surfaceSubtle,
-                      opacity: isLoading ? 0.6 : pressed ? 0.8 : 1,
-                    },
-                  ]}
-                >
-                  {isThisPlaying ? (
-                    <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                      <Path d="M6 6h12v12H6z" fill={theme.colors.textOnPrimary} />
-                    </Svg>
-                  ) : (
-                    <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" style={styles.playIconOffset}>
-                      <Path
-                        d="M8 5v14l11-7z"
-                        fill={isSelected ? theme.colors.textOnPrimary : theme.colors.text}
-                      />
-                    </Svg>
-                  )}
-                </Pressable>
-              </Pressable>
-            );
-          })}
+        <View style={styles.footerSpacing}>
+          <AppButton
+            label={t('close')}
+            onPress={onClose}
+            variant="primary"
+            size="md"
+          />
         </View>
       </ScrollView>
     </AppBottomSheet>
@@ -193,59 +110,14 @@ export const AzanReciterBottomSheet: React.FC<AzanReciterBottomSheetProps> = ({
 
 const styles = StyleSheet.create({
   scrollList: {
-    paddingBottom: SPACING.md,
+    paddingBottom: SPACING.lg,
   },
   listContainer: {
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     overflow: 'hidden',
   },
-  rowItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.md,
-    gap: SPACING.sm,
-  },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: SPACING.sm + 2,
-  },
-  radioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: RADIUS.full,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  innerDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  textColumn: {
-    flex: 1,
-    gap: 2,
-  },
-  titleText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  selectedTitle: {
-    fontWeight: '700',
-  },
-  playButton: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  playIconOffset: {
-    marginLeft: 2,
+  footerSpacing: {
+    marginTop: SPACING.lg,
   },
 });
