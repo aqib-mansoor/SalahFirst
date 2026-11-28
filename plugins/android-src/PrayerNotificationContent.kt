@@ -32,7 +32,7 @@ object PrayerNotificationContent {
 
     private fun getEnglish(prayer: String, isJumuah: Boolean, isAzanPlaying: Boolean): PrayerNotificationTexts {
         val title = if (isJumuah) "Jumu'ah • Friday Prayer Call" else "$prayer • Hayya 'alas-Salah"
-        val subText = "As'Salah • Prayer Call"
+        val subText = "Prayer Call"
         val silenceAction = if (isAzanPlaying) "Silence Azan" else "Dismiss"
         val prayedAction = "I Have Prayed"
 
@@ -71,7 +71,7 @@ object PrayerNotificationContent {
 
     private fun getUrdu(prayer: String, isJumuah: Boolean, isAzanPlaying: Boolean): PrayerNotificationTexts {
         val title = if (isJumuah) "جمعۃ المبارک • نماز کی پکار" else "$prayer • حی علی الصلاۃ"
-        val subText = "صلاۃ فرسٹ • وقتِ نماز"
+        val subText = "وقتِ نماز"
         val silenceAction = if (isAzanPlaying) "اذان بند کریں" else "خاموش کریں"
         val prayedAction = "نماز پڑھ لی"
 
@@ -118,7 +118,7 @@ object PrayerNotificationContent {
             else -> prayer
         }
         val title = if (isJumuah) "جمعة مباركة • نداء صلاة الجمعة" else "$arabicPrayer • حي على الصلاة"
-        val subText = "أول الصلاة • نداء الصلاة"
+        val subText = "نداء الصلاة"
         val silenceAction = if (isAzanPlaying) "إيقاف الأذان" else "إغلاق"
         val prayedAction = "أديت الصلاة"
 

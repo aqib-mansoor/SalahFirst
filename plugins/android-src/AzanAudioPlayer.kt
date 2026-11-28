@@ -2,13 +2,16 @@ package com.salahfirst.app
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 
 /**
  * Dedicated Native Audio Player for Azan & Prayer Chime.
- * Plays raw bundled audio assets on USAGE_ALARM stream with a temporary WakeLock,
+ * Plays raw bundled audio assets on USAGE_ALARM stream with a temporary WakeLock and AudioFocus,
  * guaranteeing full uninterrupted playback across all Android devices (Samsung, Xiaomi, Pixel, etc.).
  */
 object AzanAudioPlayer {
@@ -19,6 +22,8 @@ object AzanAudioPlayer {
     @Volatile
     private var mediaPlayer: MediaPlayer? = null
     private var wakeLock: PowerManager.WakeLock? = null
+    private var audioManager: AudioManager? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
 
     @Volatile
     var isPlaying: Boolean = false
@@ -32,29 +37,40 @@ object AzanAudioPlayer {
     ): Boolean {
         stop()
 
-        val resId = context.resources.getIdentifier(rawResName, "raw", context.packageName)
+        val appCtx = context.applicationContext
+        val resId = appCtx.resources.getIdentifier(rawResName, "raw", appCtx.packageName)
         if (resId == 0) {
             Log.e(TAG, "Audio asset not found in res/raw: $rawResName")
             return false
         }
 
         return try {
-            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            val pm = appCtx.getSystemService(Context.POWER_SERVICE) as? PowerManager
             wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)?.apply {
                 setReferenceCounted(false)
                 acquire(MAX_PLAYBACK_MS)
             }
 
-            val afd = context.resources.openRawResourceFd(resId)
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+
+            val am = appCtx.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            audioManager = am
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && am != null) {
+                val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                    .setAudioAttributes(attrs)
+                    .build()
+                audioFocusRequest = req
+                am.requestAudioFocus(req)
+            }
+
+            val afd = appCtx.resources.openRawResourceFd(resId)
             val player = MediaPlayer()
             try {
-                player.setWakeMode(context.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-                player.setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
+                player.setWakeMode(appCtx, PowerManager.PARTIAL_WAKE_LOCK)
+                player.setAudioAttributes(attrs)
                 player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 player.prepare()
             } finally {
@@ -103,6 +119,14 @@ object AzanAudioPlayer {
         } finally {
             mediaPlayer = null
         }
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
+            }
+        } catch (_: Exception) {}
+        audioFocusRequest = null
+        audioManager = null
 
         try {
             if (wakeLock?.isHeld == true) {
