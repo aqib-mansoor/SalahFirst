@@ -29,6 +29,7 @@ export const APP_CONFIG = {
     timeFormat: '@salahfirst_time_format',
     updateDismissedAt: '@salahfirst_update_dismissed_at',
     batteryPromptShown: '@salahfirst_battery_prompt_shown',
+    hasRequestedInitialPermissions: '@salahfirst_has_requested_initial_permissions',
     sunnahHistory: '@salahfirst_sunnah_history',
     hadithBookmarks: '@salahfirst_hadith_bookmarks',
     prayerAdjustments: '@salahfirst_prayer_adjustments',

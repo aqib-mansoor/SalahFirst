@@ -12,6 +12,9 @@ import { SetupLocationCard } from './SetupLocationCard';
 import { SetupCityModal } from './SetupCityModal';
 import { PresetCity } from '@/data';
 import { useTranslation } from '@/context/LocalizationContext';
+import { requestNotificationPermission } from '@/utils/notifications';
+import { storage } from '@/utils/storage';
+import { APP_CONFIG } from '@/constants/config';
 
 export interface SetupScreenProps {
   onComplete?: () => void;
@@ -33,9 +36,21 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   const hasLocation = Boolean(location && location.latitude && location.longitude);
 
   useEffect(() => {
-    if (!location && !permissionDenied) {
-      requestGpsLocation();
-    }
+    const triggerInitialPermissions = async () => {
+      const alreadyRequested = await storage.get<boolean>(
+        APP_CONFIG.storageKeys.hasRequestedInitialPermissions,
+        false
+      );
+      if (!alreadyRequested) {
+        await storage.set(APP_CONFIG.storageKeys.hasRequestedInitialPermissions, true);
+        if (!location && !permissionDenied) {
+          await requestGpsLocation();
+        }
+        await requestNotificationPermission().catch(() => {});
+      }
+    };
+
+    triggerInitialPermissions();
   }, []);
 
   const handleSelectCity = (city: PresetCity) => {
