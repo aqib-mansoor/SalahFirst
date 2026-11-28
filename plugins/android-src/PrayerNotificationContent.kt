@@ -32,7 +32,7 @@ object PrayerNotificationContent {
 
     private fun getEnglish(prayer: String, isJumuah: Boolean, isAzanPlaying: Boolean): PrayerNotificationTexts {
         val title = if (isJumuah) "Jumu'ah • Friday Prayer Call" else "$prayer • Hayya 'alas-Salah"
-        val subText = "Salah First • Prayer Call"
+        val subText = "As'Salah • Prayer Call"
         val silenceAction = if (isAzanPlaying) "Silence Azan" else "Dismiss"
         val prayedAction = "I Have Prayed"
 
