@@ -96,6 +96,7 @@ This document establishes the mandatory architectural, stylistic, and code quali
 - **No Unrequested Additions:** Do not introduce unrequested features, animations, screens, or speculative logic.
 - **File-Locking Protocol:** When implementing a new screen or modifying a file, strictly limit changes to the requested scope. Do not needlessly touch or refactor completed screens.
 - **Seek Clarification:** If an important requirement or design decision is ambiguous, ask the user before assuming.
+- **App Version & Update Sheet Protocol:** NEVER bump or update `app-version.json` (the remote file driving `AppUpdateBottomSheet`) on your own. Only update `app-version.json` when the USER explicitly states that the new version has been uploaded and published to Google Play Store. Keep `app-version.json` strictly locked to the currently live Play Store version.
 
 ---
 
