@@ -16,7 +16,7 @@
       "versionCode": 19,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "backgroundColor": "#075E3A",
+        "backgroundColor": "#E2EFEA",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -81,7 +81,7 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#075E3A"
+          "backgroundColor": "#F8FAF9"
         }
       ],
       "./plugins/withSalahFirstNative"

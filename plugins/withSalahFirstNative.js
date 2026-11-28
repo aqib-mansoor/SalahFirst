@@ -250,6 +250,37 @@ function withSalahFirstNativeFiles(config) {
         }
       }
 
+      // Ensure local.properties exists on Windows when ANDROID_HOME is not set globally
+      const localPropsPath = path.join(mod.modRequest.platformProjectRoot, 'local.properties');
+      if (!fs.existsSync(localPropsPath) && process.env.LOCALAPPDATA) {
+        const defaultWinSdk = path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk');
+        if (fs.existsSync(defaultWinSdk)) {
+          const escapedSdk = defaultWinSdk.replace(/\\/g, '\\\\').replace(/:/g, '\\:');
+          fs.writeFileSync(localPropsPath, `sdk.dir=${escapedSdk}\n`, 'utf8');
+        }
+      }
+
+      // Sanitize rootProject.name in settings.gradle so apostrophes in "As'Salah" don't break Gradle
+      const settingsGradlePath = path.join(mod.modRequest.platformProjectRoot, 'settings.gradle');
+      if (fs.existsSync(settingsGradlePath)) {
+        let settingsGradle = fs.readFileSync(settingsGradlePath, 'utf8');
+        settingsGradle = settingsGradle.replace(/rootProject\.name\s*=\s*.*/g, "rootProject.name = 'AsSalah'");
+        fs.writeFileSync(settingsGradlePath, settingsGradle, 'utf8');
+      }
+
+      // Configure CMAKE_OBJECT_PATH_MAX=220 on Windows to enable CMake object path hashing and avoid 260-char MAX_PATH ninja mkdir errors
+      const appBuildGradlePath = path.join(mod.modRequest.platformProjectRoot, 'app', 'build.gradle');
+      if (fs.existsSync(appBuildGradlePath)) {
+        let appBuildGradle = fs.readFileSync(appBuildGradlePath, 'utf8');
+        if (!appBuildGradle.includes('CMAKE_OBJECT_PATH_MAX=220')) {
+          appBuildGradle = appBuildGradle.replace(
+            /defaultConfig\s*\{/,
+            'defaultConfig {\n        externalNativeBuild {\n            cmake {\n                arguments "-DCMAKE_OBJECT_PATH_MAX=220"\n            }\n        }'
+          );
+          fs.writeFileSync(appBuildGradlePath, appBuildGradle, 'utf8');
+        }
+      }
+
       return mod;
     },
   ]);
