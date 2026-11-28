@@ -51,6 +51,12 @@ export const CityModalSearchBox: React.FC<CityModalSearchBoxProps> = ({
         </View>
       )}
 
+      <View style={[styles.tipBox, { backgroundColor: theme.colors.mintTint, borderColor: theme.colors.primary }]}>
+        <AppText variant="caption" color={theme.colors.primary} style={styles.tipText}>
+          {t('cityNotFoundTip')}
+        </AppText>
+      </View>
+
       {trimmed.length > 1 && !hasExactMatch && (
         <Pressable
           onPress={onCustomGeocode}
@@ -99,6 +105,18 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tipBox: {
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.sm,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    opacity: 0.9,
+  },
+  tipText: {
+    fontSize: 11,
+    lineHeight: 16,
   },
 });
 

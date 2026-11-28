@@ -220,6 +220,7 @@
   "permissionNeeded": "اجازت درکار ہے",
   "locationNotSet": "مقام مقرر نہیں",
   "searchCityOrCountry": "شہر یا ملک کا نام تلاش کریں...",
+  "cityNotFoundTip": "اگر آپ کا شہر یا علاقہ فہرست میں نہیں ہے، تو موبائل لوکیشن (GPS) آن کریں، آپ کو اپنے علاقے کے مطابق درست اوقات مل جائیں گے۔",
   "selectCityManually": "شہر دستی منتخب کریں",
   "refreshGpsLocation": "GPS لوکیشن ریفریش کریں",
   "detectingPreciseGps": "درست GPS معلوم ہو رہا ہے...",

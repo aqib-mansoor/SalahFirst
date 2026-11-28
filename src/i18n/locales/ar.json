@@ -220,6 +220,7 @@
   "permissionNeeded": "يلزم إذن الموقع",
   "locationNotSet": "الموقع غير محدد",
   "searchCityOrCountry": "ابحث عن اسم المدينة أو الدولة...",
+  "cityNotFoundTip": "إذا لم تجد مدينتك أو منطقتك، قم بتفعيل الموقع (GPS) وسيتم تحديد مواقيت الصلاة تلقائياً بدقة حسب منطقتك.",
   "selectCityManually": "اختر المدينة يدوياً",
   "refreshGpsLocation": "تحديث موقع GPS",
   "detectingPreciseGps": "جاري تحديد موقع GPS الدقيق...",

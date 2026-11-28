@@ -220,6 +220,7 @@
   "permissionNeeded": "Permission Needed",
   "locationNotSet": "Location Not Set",
   "searchCityOrCountry": "Search city name or country...",
+  "cityNotFoundTip": "Can't find your city or region? Turn on Location (GPS) and the app will automatically detect your exact prayer times.",
   "selectCityManually": "Select city manually",
   "refreshGpsLocation": "Refresh GPS Location",
   "detectingPreciseGps": "Detecting Precise GPS...",
