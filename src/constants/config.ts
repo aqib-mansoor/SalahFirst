@@ -3,7 +3,7 @@
  * Centralized settings for easy rebranding and global app modifications.
  */
 export const APP_CONFIG = {
-  name: 'As Salah',
+  name: "As'Salah",
   nameFirst: 'As ',
   nameSecond: 'Salah',
   bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',

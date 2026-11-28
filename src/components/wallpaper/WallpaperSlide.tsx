@@ -124,7 +124,7 @@ const WallpaperSlideComponent: React.FC<WallpaperSlideProps> = ({
             color={theme.sourceColor}
             style={styles.brandSignature}
           >
-            AS SALAH
+            AS'SALAH
           </AppText>
         </View>
       </View>

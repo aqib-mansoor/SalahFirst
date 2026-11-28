@@ -131,7 +131,7 @@ export const AppUpdateBottomSheet: React.FC<AppUpdateBottomSheetProps> = ({
           ))
         ) : (
           <AppText variant="bodySmall" color={theme.colors.textSecondary}>
-            {updateInfo.releaseNotes || 'As Salah is updated with fresh performance boosts.'}
+            {updateInfo.releaseNotes || "As'Salah is updated with fresh performance boosts."}
           </AppText>
         )}
       </View>

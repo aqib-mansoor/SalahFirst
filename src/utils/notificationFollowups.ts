@@ -158,7 +158,7 @@ export const scheduleDailyReflectionAlert = async (
     await Notifications.scheduleNotificationAsync({
       identifier: `salahfirst-reflection-${dateKey}`,
       content: {
-        title: (i18n.t('notifDailyReflectionTitle') as string) || 'As Salah • Evening Reflection',
+        title: (i18n.t('notifDailyReflectionTitle') as string) || "As'Salah • Evening Reflection",
         body:
           (i18n.t('notifDailyReflectionBody') as string) ||
           'Take a quiet moment to review your prayers today.',
