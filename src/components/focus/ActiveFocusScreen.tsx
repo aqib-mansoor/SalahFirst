@@ -8,7 +8,6 @@ import { IslamicWatermark } from '@/components/welcome/IslamicWatermark';
 import { ActiveFocusHeader } from './ActiveFocusHeader';
 import { ActiveFocusTimer } from './ActiveFocusTimer';
 import { FocusCompletionModal } from './FocusCompletionModal';
-import { FocusExitEarlyModal } from './FocusExitEarlyModal';
 import { ActiveFocusActions } from './ActiveFocusActions';
 import { FocusDuration } from '@/types';
 import { useTranslation } from '@/context/LocalizationContext';
@@ -56,7 +55,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   const [isCompleted, setIsCompleted] = useState(
     () => calculateRemainingSeconds(sessionRef.current) <= 0
   );
-  const [showExitModal, setShowExitModal] = useState(false);
   const [breachCount, setBreachCount] = useState<number>(sessionRef.current.breachCount || 0);
 
   const lastRotationEpochRef = useRef<number>(Date.now());
@@ -119,7 +117,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
   useEffect(() => {
     const backSub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (!isCompleted) {
-        setShowExitModal(true);
+        handleCleanExit(undefined, false);
       }
       return true;
     });
@@ -209,7 +207,7 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
           </View>
         </View>
 
-        <ActiveFocusActions onEmergencyCall={handleEmergencyCall} onExitEarly={() => setShowExitModal(true)} />
+        <ActiveFocusActions onEmergencyCall={handleEmergencyCall} onExitEarly={() => handleCleanExit(undefined, false)} />
       </View>
 
       <FocusCompletionModal
@@ -218,14 +216,6 @@ export const ActiveFocusScreen: React.FC<ActiveFocusScreenProps> = ({
         breachCount={breachCount}
         onConfirmPrayed={() => handleCleanExit(() => onCompletePrayer(sessionRef.current), true)}
         onNotYet={() => handleCleanExit(undefined, true)}
-      />
-
-      <FocusExitEarlyModal
-        visible={showExitModal}
-        prayerName={effectivePrayer}
-        remainingSeconds={remainingSeconds}
-        onStayFocused={() => setShowExitModal(false)}
-        onConfirmExit={() => { setShowExitModal(false); handleCleanExit(undefined, false); }}
       />
     </AppContainer>
   );

@@ -59,6 +59,7 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   nextPrayerTimeFormatted,
   countdownText,
   currentObligatoryName,
+  isCurrentCompleted = false,
   completedCount = 0,
   streakCount = 0,
   onStartPrayerFocus,
@@ -82,12 +83,13 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
   const normalizedKey = (nextPrayerName || '').toLowerCase().trim();
   const arabicPrayer = PRAYER_ARABIC_NAMES[normalizedKey] || '';
 
-  const targetObligatory =
-    currentObligatoryName && OBLIGATORY_PRAYERS.has(currentObligatoryName)
-      ? currentObligatoryName
-      : nextPrayerName && OBLIGATORY_PRAYERS.has(nextPrayerName)
-      ? nextPrayerName
-      : undefined;
+  const isCurrentActive = Boolean(
+    currentObligatoryName &&
+    OBLIGATORY_PRAYERS.has(currentObligatoryName) &&
+    !isCurrentCompleted
+  );
+
+  const targetObligatory = isCurrentActive ? currentObligatoryName : undefined;
 
   const localizedFocusPrayer = targetObligatory
     ? resolvePrayerLabel(targetObligatory)
@@ -119,13 +121,15 @@ export const HomeHeroCard: React.FC<HomeHeroCardProps> = ({
         />
       </View>
 
-      {/* Standalone Full-Width Focus Capsule */}
-      <HeroFocusButton
-        prayerName={localizedFocusPrayer}
-        durationMinutes={15}
-        onPress={onStartPrayerFocus}
-        onOpenSettings={onOpenFocusSettings}
-      />
+      {/* Standalone Full-Width Focus Capsule: Only visible when an obligatory prayer is active & pending */}
+      {isCurrentActive && localizedFocusPrayer && (
+        <HeroFocusButton
+          prayerName={localizedFocusPrayer}
+          durationMinutes={15}
+          onPress={onStartPrayerFocus}
+          onOpenSettings={onOpenFocusSettings}
+        />
+      )}
     </View>
   );
 };

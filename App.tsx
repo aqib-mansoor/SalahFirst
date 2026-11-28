@@ -141,8 +141,7 @@ function AppContent() {
     const currentObligatory = prayerData.currentPeriod?.obligatorySalahName as ObligatorySalah | undefined;
     const currentItem = currentObligatory ? prayersList.find((p) => p.name === currentObligatory) : undefined;
     const pendingCurrent = currentItem && !currentItem.completed ? currentObligatory : undefined;
-    const nextObligatory = prayerData.nextPrayerName as ObligatorySalah | undefined;
-    const resolvedKey = pendingCurrent || nextObligatory || 'Fajr';
+    const resolvedKey = pendingCurrent || (prayerData.nextPrayerName as ObligatorySalah | undefined) || 'Fajr';
     return {
       prayerName: resolvedKey,
       prayerKey: resolvedKey,
@@ -152,6 +151,13 @@ function AppContent() {
   };
 
   const handleStartFocusImmediately = async () => {
+    // Only allow starting focus if there is a currently active, uncompleted prayer
+    const currentObligatory = prayerData.currentPeriod?.obligatorySalahName as ObligatorySalah | undefined;
+    const currentItem = currentObligatory ? prayersList.find((p) => p.name === currentObligatory) : undefined;
+    if (!currentObligatory || !currentItem || currentItem.completed) {
+      return;
+    }
+
     const info = getSuggestedPrayerInfo();
     const durations = await loadFocusDurations();
     const key = info.prayerKey.toLowerCase() as keyof PrayerFocusDurations;
